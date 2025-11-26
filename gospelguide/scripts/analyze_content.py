@@ -8,9 +8,13 @@ import json
 from pathlib import Path
 
 def analyze_content():
-    """Analyze the sample content structure"""
+    """Analyze the real scraped content structure"""
     
-    content_file = Path("content/sample_content.json")
+    content_file = Path("content/real_lds_scriptures.json")
+    
+    if not content_file.exists():
+        print("No real content found. Run scrape_lds_content.py first.")
+        return
     
     with open(content_file, 'r', encoding='utf-8') as f:
         content = json.load(f)

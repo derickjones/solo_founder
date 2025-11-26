@@ -183,16 +183,23 @@ def main():
     # Initialize builder
     builder = EmbeddingsBuilder()
     
-    # Load content
-    content_file = Path("content/sample_content.json")
+    # Load real scraped content
+    content_file = Path("content/real_lds_scriptures.json")
     if not content_file.exists():
-        print("No sample content found. Run create_sample_content.py first.")
+        print("No real scraped content found. Run scrape_lds_content.py first.")
         return
         
     with open(content_file, 'r', encoding='utf-8') as f:
         content = json.load(f)
     
-    print(f"Loaded {len(content)} content items")
+    print(f"Loaded {len(content)} real LDS scripture items")
+    
+    # Show content breakdown
+    from collections import Counter
+    books = Counter(item.get('book', 'Unknown') for item in content)
+    print("\nContent breakdown:")
+    for book, count in books.items():
+        print(f"  {book}: {count} verses")
     
     # Create embeddings
     embedded_content = builder.create_embeddings(content)
@@ -204,11 +211,12 @@ def main():
     output_dir = Path("vector_index")
     builder.save_index_and_metadata(index, metadata, output_dir)
     
-    # Test search
+    # Test search with real LDS content
     test_search(index, metadata, builder, "faith")
-    test_search(index, metadata, builder, "prophet")
+    test_search(index, metadata, builder, "prophet Lehi")
+    test_search(index, metadata, builder, "Jerusalem destroyed")
     
-    print("\n=== Embeddings and FAISS index created successfully! ===")
+    print("\n=== Real LDS embeddings and FAISS index created successfully! ===")
     print("Next step: Build the Google Cloud Run API to serve this index")
 
 if __name__ == "__main__":
