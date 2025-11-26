@@ -65,8 +65,9 @@ Each mode has a distinct personality and knowledge scope:
 
 ```
 Content Storage (Google Cloud Storage):
-├── real_lds_scriptures.json     # All scraped verses with metadata (in progress)
-├── scriptures.faiss             # FAISS vector index
+├── real_book_of_mormon.json     # ✅ COMPLETE: 6,604 verses (Nov 26)
+├── [standard_works].json        # 🔄 NEXT: OT, NT, D&C, PoGP  
+├── scriptures.faiss             # FAISS vector index (after embedding)
 ├── metadata_mapping.json        # ID → citation lookup
 └── /users/{clerk_id}.json       # Individual user data (optional)
 
@@ -76,10 +77,10 @@ User Management:
 └── Stripe webhooks             # Payment status updates
 
 Current Content Status:
-├── ✅ Book of Mormon scraping active (background process: PID 38135)
-├── ✅ Real verse-level content with proper citations  
-├── ✅ Clean project structure (removed database/sample files)
-└── 📍 Currently scraping: Mosiah (approx. 50% complete)
+├── ✅ Book of Mormon: 6,604 verses COMPLETE with proper citations
+├── ✅ Modern LDS.org scraping method (p.verse + span.verse-number)
+├── ✅ Project cleanup: removed test files, cache, duplicates
+└── 🎯 Ready for comprehensive Standard Works scraping
 ```
 
 **Key Benefits:**
@@ -92,8 +93,10 @@ Current Content Status:
 
 ### Phase 1: Content & Vector Search (Days 1-3) ✅
 - [x] System prompts for all specialized modes
-- [x] LDS content scraping (Book of Mormon in progress via background process)
-- [x] Project cleanup - removed unused database/sample files  
+- [x] Book of Mormon scraping: **6,604 verses COMPLETE** 
+- [x] Modern LDS.org scraping method (fixed URL patterns + extraction)
+- [x] Project cleanup: removed test files, cache, duplicate content
+- [ ] Comprehensive Standard Works scraping (OT, NT, D&C, PoGP)
 - [ ] OpenAI embeddings pipeline + FAISS index creation
 - [ ] Google Cloud Storage setup for content files
 
@@ -138,17 +141,18 @@ Current Content Status:
 ### ✅ Completed
 - **Architecture**: Database-free, all-OpenAI approach finalized
 - **System Prompts**: 8 specialized modes (scholar, youth, CFM, etc.) 
-- **Content Scraping**: Active background process scraping real LDS.org content
-- **Project Cleanup**: Removed unused database/sample files
-- **Real Content**: Verse-level granularity with proper citations
+- **Book of Mormon**: **6,604 verses scraped and saved** ✨
+- **Modern Scraping**: Fixed LDS.org extraction (p.verse + span.verse-number)
+- **Project Cleanup**: Removed 4 test scripts, cache files, duplicates
+- **Clean Structure**: Only essential files remain (7 core files)
 
-### 🔄 In Progress  
-- **Book of Mormon Scraping**: Currently in Alma (~70% complete)
-- **Content Quality**: Clean verse text with proper footnote removal
-- **Background Process**: PID 38135 running continuously
+### 🎯 Ready to Execute  
+- **Comprehensive Scraping**: All Standard Works (OT: ~23k, NT: ~8k, D&C: ~3.5k, PoGP: ~500 verses)
+- **Vector Pipeline**: OpenAI embeddings + FAISS index creation
+- **Estimated Total**: ~41,600 verses across all Standard Works
 
 ### ⏳ Next Steps
-- Complete Book of Mormon scraping (ETA: ~2 hours)
+- Run comprehensive Standard Works scraping (~2-3 hours)  
 - Create OpenAI embeddings + FAISS index
 - Build Google Cloud Run RAG API
 - Develop Next.js frontend with Clerk auth
@@ -175,38 +179,43 @@ cp .env.local.example .env.local
 cd scripts 
 pip install -r requirements.txt
 
-# Start background scraping (if not already running)
-nohup python scrape_lds_content.py > scraping.log 2>&1 &
+# Book of Mormon already complete (6,604 verses)
+# Run comprehensive Standard Works scraping
+python scrape_all_standard_works.py
 
-# Check scraping progress
-tail -f scraping.log
-
-# Build vector index (after scraping completes)
+# Build vector index (after all scraping completes)  
 python create_embeddings.py
 
 # Start development
 cd .. && npm run dev
 ```
 
-## 📁 Current Project Structure
+## 📁 Current Project Structure (Clean & Minimal)
 
 ```
 gospelguide/
-├── README.md                    # This file
-├── scripts/
-│   ├── scrape_lds_content.py   # Active scraper (running in background)
-│   ├── create_embeddings.py    # OpenAI + FAISS pipeline  
-│   ├── analyze_content.py      # Content analysis tool
-│   ├── requirements.txt        # Python dependencies
-│   ├── scraping.log           # Current scraping progress
-│   └── content/
-│       ├── real_book_of_mormon.json      # Scraped BOM verses
-│       ├── real_doctrine_covenants.json  # D&C content (placeholder)
-│       └── real_lds_scriptures.json      # Combined content file
-└── src/
+├── README.md                             # This file  
+├── .gitignore                           # Git ignore rules
+├── scripts/                             # Content & embeddings pipeline
+│   ├── scrape_all_standard_works.py    # 🎯 Comprehensive scraper (updated)
+│   ├── scrape_lds_content.py          # Book of Mormon scraper (complete)
+│   ├── create_embeddings.py           # OpenAI + FAISS pipeline  
+│   ├── analyze_content.py             # Content analysis tool
+│   ├── requirements.txt               # Python dependencies
+│   └── content/                       # Scraped content storage
+│       └── real_book_of_mormon.json   # ✅ 6,604 verses (4MB)
+└── src/                               # Frontend code
     └── lib/
-        └── prompts.ts          # 8 specialized AI system prompts
+        └── prompts.ts                  # 8 specialized AI system prompts
 ```
+
+**Cleaned Up** (removed):
+- 4 test scripts (quick_test, test_modern, test_samples, test_updated)  
+- Python cache files (__pycache__/)
+- Duplicate content (real_lds_scriptures.json, empty real_doctrine_covenants.json)
+- Log files (scraping.log - can regenerate)
+
+**Total**: 9 essential files only
 
 ## 📝 Environment Variables
 
