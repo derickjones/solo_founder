@@ -66,7 +66,13 @@ Each mode has a distinct personality and knowledge scope:
 ```
 Content Storage (Google Cloud Storage):
 ├── real_book_of_mormon.json     # ✅ COMPLETE: 6,604 verses (Nov 26)
-├── [standard_works].json        # 🔄 NEXT: OT, NT, D&C, PoGP  
+├── old_testament.json           # 🔄 READY: Individual scraper created
+├── new_testament.json           # 🔄 READY: Individual scraper created  
+├── doctrine_covenants.json      # 🔄 READY: Individual scraper created
+├── pearl_of_great_price.json    # ✅ TESTED: Working scraper (73 verses sample)
+├── general_conference.json      # ✅ WORKING: 2015-2025 scraper ready
+├── study_helps.json             # ✅ WORKING: Bible Dictionary + Study Helps
+├── come_follow_me.json          # ✅ EXISTING: CFM content ready
 ├── scriptures.faiss             # FAISS vector index (after embedding)
 ├── metadata_mapping.json        # ID → citation lookup
 └── /users/{clerk_id}.json       # Individual user data (optional)
@@ -78,9 +84,10 @@ User Management:
 
 Current Content Status:
 ├── ✅ Book of Mormon: 6,604 verses COMPLETE with proper citations
-├── ✅ Modern LDS.org scraping method (p.verse + span.verse-number)
-├── ✅ Project cleanup: removed test files, cache, duplicates
-└── 🎯 Ready for comprehensive Standard Works scraping
+├── ✅ Modular Scraping: 8 individual scrapers + master orchestrator
+├── ✅ General Conference: 2015-2025 scraper (1,878+ paragraphs tested)
+├── ✅ Study Helps: Working Bible Dictionary + Topical Guide scraper
+└── 🎯 Ready for comprehensive content generation
 ```
 
 **Key Benefits:**
@@ -95,8 +102,12 @@ Current Content Status:
 - [x] System prompts for all specialized modes
 - [x] Book of Mormon scraping: **6,604 verses COMPLETE** 
 - [x] Modern LDS.org scraping method (fixed URL patterns + extraction)
+- [x] **Modular Architecture**: Individual scrapers for each Standard Work
+- [x] **General Conference**: 2015-2025 scraper (1,878+ paragraphs tested)
+- [x] **Study Helps**: Bible Dictionary + Topical Guide scraper working
+- [x] **Master Orchestrator**: Run individual scrapers or all together
 - [x] Project cleanup: removed test files, cache, duplicate content
-- [ ] Comprehensive Standard Works scraping (OT, NT, D&C, PoGP)
+- [ ] Complete dataset generation (all Standard Works + Conference + Study Helps)
 - [ ] OpenAI embeddings pipeline + FAISS index creation
 - [ ] Google Cloud Storage setup for content files
 
@@ -142,18 +153,21 @@ Current Content Status:
 - **Architecture**: Database-free, all-OpenAI approach finalized
 - **System Prompts**: 8 specialized modes (scholar, youth, CFM, etc.) 
 - **Book of Mormon**: **6,604 verses scraped and saved** ✨
+- **Modular Scraping**: 8 individual scrapers + master orchestrator created
+- **General Conference**: Working 2015-2025 scraper (1,878+ paragraphs tested)
+- **Study Helps**: Bible Dictionary + Topical Guide scraper functional
 - **Modern Scraping**: Fixed LDS.org extraction (p.verse + span.verse-number)
-- **Project Cleanup**: Removed 4 test scripts, cache files, duplicates
-- **Clean Structure**: Only essential files remain (7 core files)
+- **Project Cleanup**: Removed old monolithic scraper, test files, cache files
+- **Clean Structure**: Modular architecture with individual + master scrapers
 
 ### 🎯 Ready to Execute  
-- **Comprehensive Scraping**: All Standard Works (OT: ~23k, NT: ~8k, D&C: ~3.5k, PoGP: ~500 verses)
+- **Complete Dataset**: Run all scrapers to generate full content library
+- **Estimated Content**: ~50k+ verses + 10k+ conference paragraphs + study helps
 - **Vector Pipeline**: OpenAI embeddings + FAISS index creation
-- **Estimated Total**: ~41,600 verses across all Standard Works
 
 ### ⏳ Next Steps
-- Run comprehensive Standard Works scraping (~2-3 hours)  
-- Create OpenAI embeddings + FAISS index
+- Run complete dataset generation with master orchestrator
+- Create OpenAI embeddings + FAISS index for full content library  
 - Build Google Cloud Run RAG API
 - Develop Next.js frontend with Clerk auth
 
@@ -175,13 +189,23 @@ cd solo_founder/gospelguide
 cp .env.local.example .env.local
 # Add your API keys (OpenAI, Clerk, Stripe, Google Cloud)
 
-# Content preparation (active)
+# Content preparation
 cd scripts 
 pip install -r requirements.txt
 
-# Book of Mormon already complete (6,604 verses)
-# Run comprehensive Standard Works scraping
-python scrape_all_standard_works.py
+# Individual scrapers (run separately)
+python scrape_book_of_mormon.py        # ✅ Complete (6,604 verses)
+python scrape_old_testament.py         # Individual OT books
+python scrape_new_testament.py         # Individual NT books  
+python scrape_doctrine_covenants.py    # D&C sections + Official Declarations
+python scrape_pearl_great_price.py     # PoGP books
+python scrape_general_conference.py    # 2015-2025 talks
+python scrape_study_helps.py          # Bible Dictionary + Study Helps
+
+# Master orchestrator (run all at once)
+python master_scraper.py              # Runs all scrapers + creates master dataset
+python master_scraper.py --only general-conference  # Run specific scraper
+python master_scraper.py --test       # Test mode with limits
 
 # Build vector index (after all scraping completes)  
 python create_embeddings.py
@@ -190,32 +214,45 @@ python create_embeddings.py
 cd .. && npm run dev
 ```
 
-## 📁 Current Project Structure (Clean & Minimal)
+## 📁 Current Project Structure (Clean & Modular)
 
 ```
 gospelguide/
 ├── README.md                             # This file  
 ├── .gitignore                           # Git ignore rules
-├── scripts/                             # Content & embeddings pipeline
-│   ├── scrape_all_standard_works.py    # 🎯 Comprehensive scraper (updated)
-│   ├── scrape_lds_content.py          # Book of Mormon scraper (complete)
-│   ├── create_embeddings.py           # OpenAI + FAISS pipeline  
-│   ├── analyze_content.py             # Content analysis tool
+├── scripts/                             # Modular content pipeline
+│   ├── master_scraper.py               # 🎯 Master orchestrator (run all/specific)
+│   ├── scrape_book_of_mormon.py        # ✅ Book of Mormon scraper  
+│   ├── scrape_old_testament.py         # Old Testament books
+│   ├── scrape_new_testament.py         # New Testament books
+│   ├── scrape_doctrine_covenants.py    # D&C + Official Declarations
+│   ├── scrape_pearl_great_price.py     # ✅ Pearl of Great Price scraper
+│   ├── scrape_general_conference.py    # ✅ General Conference 2015-2025
+│   ├── scrape_study_helps.py          # ✅ Study Helps scraper
 │   ├── requirements.txt               # Python dependencies
 │   └── content/                       # Scraped content storage
-│       └── real_book_of_mormon.json   # ✅ 6,604 verses (4MB)
+│       ├── real_book_of_mormon.json   # ✅ 6,604 verses (4MB)
+│       ├── old_testament.json          # Generated by scraper
+│       ├── new_testament.json          # Generated by scraper  
+│       ├── doctrine_covenants.json     # Generated by scraper
+│       ├── pearl_of_great_price.json   # ✅ Test data (73 verses)
+│       ├── general_conference.json     # Generated by scraper
+│       ├── study_helps.json           # Generated by scraper
+│       ├── come_follow_me.json        # ✅ Existing CFM content
+│       └── complete_lds_content.json  # Master dataset (all combined)
 └── src/                               # Frontend code
     └── lib/
         └── prompts.ts                  # 8 specialized AI system prompts
 ```
 
-**Cleaned Up** (removed):
-- 4 test scripts (quick_test, test_modern, test_samples, test_updated)  
-- Python cache files (__pycache__/)
-- Duplicate content (real_lds_scriptures.json, empty real_doctrine_covenants.json)
-- Log files (scraping.log - can regenerate)
+**Architecture Benefits:**
+- ✅ **Modular**: Run individual scrapers or master orchestrator
+- ✅ **Flexible**: Generate specific content types as needed
+- ✅ **Testable**: Each scraper has test modes with limits
+- ✅ **Maintainable**: Clear separation of concerns
+- ✅ **Scalable**: Easy to add new content sources
 
-**Total**: 9 essential files only
+**Total**: 12 essential files (8 scrapers + master + support files)
 
 ## 📝 Environment Variables
 
