@@ -186,7 +186,7 @@ class ScriptureSearchEngine:
             result = {
                 'rank': i + 1,
                 'score': float(score),
-                'content': f"[Content for index {idx}] - {meta.get('citation', 'Unknown citation')}",
+                'content': meta.get('content', f"[Content for index {idx}] - {meta.get('citation', 'Unknown citation')}"),
                 'metadata': meta
             }
             results.append(result)

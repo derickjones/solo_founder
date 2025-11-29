@@ -90,7 +90,8 @@ class ScriptureEmbeddingBuilder:
                     'url': item.get('url', ''),
                     'word_count': item.get('word_count', 0),
                     'mode_tags': item.get('mode_tags', []),
-                    'filename': filename
+                    'filename': filename,
+                    'content': text  # Store the actual content for search results
                 }
                 
                 # Add source-specific metadata
