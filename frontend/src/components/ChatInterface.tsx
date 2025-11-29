@@ -24,6 +24,24 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Format text for better readability
+  const formatText = (text: string) => {
+    return text
+      // Split on sentence endings followed by capitals (new topics)
+      .replace(/(\. )([A-Z][a-z])/g, '$1\n\n$2')
+      // Split on numbered points
+      .replace(/(\d+\. )/g, '\n\n$1')
+      // Split on quotes that start new thoughts  
+      .replace(/(") ([A-Z])/g, '$1\n\n$2')
+      // Split on scripture citations in parentheses followed by new thoughts
+      .replace(/(\([^)]+\)\. )([A-Z])/g, '$1\n\n$2')
+      // Split on long sentences for readability
+      .replace(/([.!?]) ([A-Z][^.!?]{50,})/g, '$1\n\n$2')
+      // Clean up extra spaces and normalize
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  };
+
   const modes = [
     'AI Q&A',
     'Scripture Study',
@@ -157,7 +175,19 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
                       : 'bg-gray-700 text-white max-w-full'
                   }`}
                 >
-                  {message.content}
+                  {message.type === 'assistant' ? (
+                    <div className="space-y-4 leading-relaxed text-gray-100">
+                      {formatText(message.content).split('\n').map((line, index) => (
+                        line.trim() ? (
+                          <p key={index} className="text-base leading-7">
+                            {line}
+                          </p>
+                        ) : null
+                      ))}
+                    </div>
+                  ) : (
+                    message.content
+                  )}
                 </div>
                 
                 {/* Display search results */}
