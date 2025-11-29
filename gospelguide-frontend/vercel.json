@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "env": {
+    "NEXT_PUBLIC_API_URL": "https://gospel-guide-api-273320302933.us-central1.run.app"
+  },
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ]
+}
