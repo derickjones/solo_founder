@@ -6,16 +6,22 @@
 
 Build the most trusted AI scripture study tool in the Church. Launch with 500 lifetime licenses at $99 each to generate $49.5k in first 48 hours.
 
-## ✅ **CURRENT STATUS: PRODUCTION-READY SEARCH ENGINE COMPLETE**
+## ✅ **CURRENT STATUS: FULL-STACK APPLICATION 95% COMPLETE**
 
-**November 29, 2025** - Core infrastructure is **100% operational** and ready for frontend development.
+**November 29, 2025** - Complete end-to-end application deployed and functional.
 
 ### 🎉 **What's Working Now**
 - **✅ Complete Dataset**: 45MB of LDS content (58,088 text segments)
 - **✅ Vector Search**: OpenAI embeddings + FAISS index operational  
-- **✅ Source Filtering**: Mode-based content filtering (8 specialized modes)
-- **✅ Search Engine**: Python API with TypeScript prompt integration
-- **✅ Quality Validation**: All filtering and search functionality tested
+- **✅ Production API**: FastAPI deployed on Google Cloud Run
+- **✅ Frontend**: Next.js app with dark theme and chat interface
+- **✅ Cloud Deployment**: Both API and frontend deployed and connected
+- **⚠️ Content Fix Needed**: Search returns placeholders instead of full text (quick fix pending)
+
+### 🚀 **Live Deployments**
+- **API Endpoint**: https://gospel-guide-api-273320302933.us-central1.run.app
+- **Frontend**: Deployed on Vercel (auto-deploy from GitHub)
+- **GitHub Repository**: https://github.com/derickjones/solo_founder
 
 ### 📊 **Content Library (COMPLETE)**
 | **Source** | **Size** | **Segments** | **Status** |
@@ -29,25 +35,78 @@ Build the most trusted AI scripture study tool in the Church. Launch with 500 li
 | Come Follow Me | 2.5MB | 384 | ✅ Complete (2025) |
 | **TOTAL** | **45MB** | **58,088** | **✅ READY** |
 
-### 🔍 **Search Infrastructure (OPERATIONAL)**
+### 🔍 **Full-Stack Infrastructure (DEPLOYED)**
 | **Component** | **Status** | **Details** |
 |---------------|------------|-------------|
+| **Backend** |
 | FAISS Index | ✅ Built | 340MB, 58,088 vectors, cosine similarity |
 | Metadata | ✅ Complete | 17MB, rich citations and source info |
-| OpenAI Embeddings | ✅ Generated | text-embedding-3-small model |
-| Search API | ✅ Working | Python scripture_search.py with filtering |
-| Mode Integration | ✅ Complete | TypeScript prompts.ts with source filters |
+| OpenAI Embeddings | ⚠️ Fix Needed | Content placeholders need rebuild |
+| FastAPI Service | ✅ Deployed | Production API on Google Cloud Run |
+| Cloud Storage | ✅ Active | Content and indexes on Google Cloud Storage |
+| **Frontend** |
+| Next.js App | ✅ Complete | Dark theme, chat interface, source filtering |
+| API Integration | ✅ Connected | Real-time search with production API |
+| Vercel Deployment | ✅ Live | Auto-deploy from GitHub main branch |
+| **Infrastructure** |
+| Docker Container | ✅ Built | Multi-stage build with health checks |
+| CI/CD Pipeline | ✅ Active | GitHub → Vercel (frontend) + Cloud Run (API) |
+| Environment Config | ✅ Secure | API keys in .env, production ready |
 
-## 🏗️ Tech Stack (VALIDATED)
+## 🏗️ Tech Stack (DEPLOYED)
 
 - **✅ Content Pipeline**: Python scrapers + BeautifulSoup (COMPLETE)
-- **✅ Vector Search**: OpenAI embeddings + FAISS local index (OPERATIONAL)  
-- **✅ Search API**: Python with TypeScript integration (WORKING)
-- **🔲 Frontend**: Next.js 15 + TypeScript + Tailwind CSS + shadcn/ui
-- **🔲 Authentication**: Clerk (social login, user management + metadata storage)
-- **🔲 Payments**: Stripe (subscriptions + one-time lifetime)
-- **🔲 Backend**: Google Cloud Run (containerized RAG API)
-- **🔲 Hosting**: Vercel (frontend) + Google Cloud Storage (content files)
+- **✅ Vector Search**: OpenAI embeddings + FAISS local index (DEPLOYED)  
+- **✅ Backend API**: FastAPI on Google Cloud Run (LIVE)
+- **✅ Frontend**: Next.js 15 + TypeScript + Tailwind CSS (DEPLOYED)
+- **⚠️ Authentication**: Clerk (social login, user management) - PENDING
+- **⚠️ Payments**: Stripe (subscriptions + one-time lifetime) - PENDING  
+- **✅ Cloud Infrastructure**: Google Cloud Run + Storage (ACTIVE)
+- **✅ Hosting**: Vercel (frontend) + Google Cloud (API) (LIVE)
+
+## ⚡ **Current Issue & Quick Fix**
+
+### 🚨 **Issue**: Search returns content placeholders instead of actual scripture text
+- **Root Cause**: FAISS index was built without storing content in metadata
+- **Impact**: Frontend shows `"[Content for index 1234]"` instead of scripture verses
+- **Status**: Code fix already committed, just need index rebuild
+
+### 🔧 **Fix Required** (Est. 15 minutes):
+```bash
+# Rebuild embeddings with content included
+cd gospelguide/search
+source ../.env
+python3 build_embeddings.py --batch-size 100
+
+# Redeploy API with updated index
+./deploy.sh
+```
+
+### 🎯 **After Fix**: 
+- ✅ Full scripture text in search results
+- ✅ Complete functional Gospel Study app
+- ✅ Ready for authentication & payment integration
+
+## 📦 **Project Structure**
+
+```
+gospelguide/                 # Backend & Data Pipeline
+├── scripts/                 # ✅ Web scrapers for all LDS content
+│   ├── content/            # ✅ 45MB JSON files (58k segments)
+│   └── master_scraper.py   # ✅ Orchestrates all scrapers
+├── search/                 # ✅ AI search engine
+│   ├── api.py             # ✅ FastAPI service (deployed)
+│   ├── build_embeddings.py # ⚠️ Needs rebuild with content
+│   └── scripture_search.py # ✅ Core search logic
+└── src/lib/prompts.ts     # ✅ 8 specialized modes
+
+gospelguide-frontend/        # Frontend Application  
+├── src/
+│   ├── app/               # ✅ Next.js 15 app router
+│   ├── components/        # ✅ Chat interface + sidebar
+│   └── services/api.ts    # ✅ Connected to production API
+└── vercel.json           # ✅ Deployment config
+```
 
 ## 💰 Pricing Strategy
 
