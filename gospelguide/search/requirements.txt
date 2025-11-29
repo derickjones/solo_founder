@@ -3,3 +3,14 @@ openai>=1.0.0
 faiss-cpu>=1.7.0  # Use faiss-gpu if you have CUDA
 numpy>=1.21.0
 tqdm>=4.64.0
+
+# FastAPI server dependencies  
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.4.0
+
+# Google Cloud dependencies
+google-cloud-storage>=2.10.0
+
+# Additional utilities for API
+requests>=2.31.0
