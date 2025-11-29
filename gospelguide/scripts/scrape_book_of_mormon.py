@@ -154,7 +154,7 @@ def main():
     """Main scraping function"""
     parser = argparse.ArgumentParser(description='Scrape Book of Mormon content')
     parser.add_argument('--limit', type=int, help='Limit number of verses to scrape')
-    parser.add_argument('--output', default='real_book_of_mormon.json', help='Output filename')
+    parser.add_argument('--output', default='book_of_mormon.json', help='Output filename')
     parser.add_argument('--test', action='store_true', help='Test mode - scrape only first 2 chapters of each book')
     
     args = parser.parse_args()

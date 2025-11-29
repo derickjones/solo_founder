@@ -116,20 +116,261 @@ ${SAFETY_GUIDELINES}
 Remember: Your role is to help people draw closer to Christ through study of restored gospel truths. Be a tool for the Spirit to teach through.`;
 }
 
-export function buildContextPrompt(query: string, documents: any[]): string {
+// Search strategy builder for different modes and contexts
+export function getSearchStrategy(query: string, mode: string = 'default', userPreferences?: {
+  favorRecent?: boolean;
+  includeClassics?: boolean;
+  specificAuthorities?: string[];
+  topicFocus?: string;
+}) {
+  const strategy = {
+    query: enhanceQueryForMode(query, mode),
+    sourceFilter: getModeSourceFilter(mode),
+    topK: 10,
+    minScore: 0.0,
+    searchVariations: [] as { query: string; filter: SourceFilter | null; weight: number }[]
+  };
+  
+  // Adjust search parameters based on mode
+  switch (mode) {
+    case 'book-of-mormon-only':
+      strategy.topK = 8; // Focused search
+      strategy.minScore = 0.1; // Higher threshold
+      break;
+      
+    case 'general-conference-only':
+      strategy.topK = 12; // More results for diverse speakers
+      strategy.minScore = 0.05; // Lower threshold for broader coverage
+      
+      // Add search variations for recent vs classic talks
+      if (userPreferences?.favorRecent) {
+        strategy.searchVariations.push({
+          query: query,
+          filter: { source_type: 'conference', min_year: 2020 },
+          weight: 0.7
+        });
+        strategy.searchVariations.push({
+          query: query,
+          filter: { source_type: 'conference', max_year: 2019 },
+          weight: 0.3
+        });
+      }
+      break;
+      
+    case 'come-follow-me':
+      strategy.topK = 6; // Focused on current week
+      strategy.minScore = 0.1;
+      break;
+      
+    case 'scholar':
+      strategy.topK = 15; // More comprehensive results
+      strategy.minScore = 0.05; // Include broader connections
+      
+      // Add cross-reference searches
+      strategy.searchVariations.push(
+        {
+          query: `${query} doctrine principles`,
+          filter: { source_type: 'scripture' },
+          weight: 0.4
+        },
+        {
+          query: `${query} modern application`,
+          filter: { source_type: 'conference', min_year: 2000 },
+          weight: 0.4
+        },
+        {
+          query: query,
+          filter: null, // All sources
+          weight: 0.2
+        }
+      );
+      break;
+      
+    case 'youth':
+      strategy.topK = 8;
+      strategy.minScore = 0.1;
+      
+      // Favor newer, relatable content
+      if (strategy.sourceFilter) {
+        strategy.sourceFilter.min_year = 2015;
+      } else {
+        strategy.sourceFilter = { min_year: 2015 };
+      }
+      break;
+  }
+  
+  // Apply user preferences
+  if (userPreferences?.specificAuthorities && userPreferences.specificAuthorities.length > 0) {
+    const authorityFilter: SourceFilter = {
+      source_type: 'conference'
+    };
+    
+    if (userPreferences.specificAuthorities.length === 1) {
+      authorityFilter.speaker = userPreferences.specificAuthorities[0];
+    }
+    
+    strategy.searchVariations.push({
+      query: query,
+      filter: authorityFilter,
+      weight: 0.6
+    });
+  }
+  
+  return strategy;
+}
+
+// Popular search filters for quick access
+export const POPULAR_FILTERS = {
+  // Scripture-focused
+  BOOK_OF_MORMON_ONLY: { source_type: 'scripture' as const, standard_work: 'Book of Mormon' as const },
+  NEW_TESTAMENT_ONLY: { source_type: 'scripture' as const, standard_work: 'New Testament' as const },
+  DOCTRINE_COVENANTS_ONLY: { source_type: 'scripture' as const, standard_work: 'Doctrine and Covenants' as const },
+  
+  // Conference-focused  
+  RECENT_CONFERENCE: { source_type: 'conference' as const, min_year: 2020 },
+  PROPHET_TALKS: { source_type: 'conference' as const, speaker: 'Russell M. Nelson' },
+  APOSTLE_TEACHINGS: { source_type: 'conference' as const, min_year: 2015 }, // Last decade
+  
+  // Curriculum-focused
+  CURRENT_CFM: { source_type: 'come_follow_me' as const, year: 2025 },
+  
+  // Topic-specific quick filters
+  MISSIONARY_WORK: { min_year: 2010 }, // Modern missionary guidance
+  TEMPLE_WORSHIP: { min_year: 2000 }, // Recent temple emphasis
+  FAMILY_LIFE: { min_year: 2015 }, // Contemporary family challenges
+} as const;
+
+// Helper to combine filters
+export function combineFilters(base: SourceFilter | null, additional: SourceFilter | null): SourceFilter | null {
+  if (!base && !additional) return null;
+  if (!base) return additional;
+  if (!additional) return base;
+  
+  return { ...base, ...additional };
+}
+
+// Source filtering functions that map to your Python search engine
+export interface SourceFilter {
+  source_type?: 'scripture' | 'conference' | 'come_follow_me';
+  standard_work?: 'Book of Mormon' | 'Old Testament' | 'New Testament' | 'Doctrine and Covenants' | 'Pearl of Great Price' | 'General Conference' | 'Come Follow Me';
+  book?: string;
+  speaker?: string;
+  year?: number;
+  session?: 'April' | 'October';
+  min_year?: number;
+  max_year?: number;
+}
+
+export function getModeSourceFilter(mode: string): SourceFilter | null {
+  switch (mode) {
+    case 'book-of-mormon-only':
+      return {
+        source_type: 'scripture',
+        standard_work: 'Book of Mormon'
+      };
+      
+    case 'general-conference-only':
+      return {
+        source_type: 'conference',
+        min_year: 1971  // As mentioned in your prompt
+      };
+      
+    case 'come-follow-me':
+      return {
+        source_type: 'come_follow_me',
+        year: 2025  // Current year from your prompt
+      };
+      
+    case 'church-approved-only':
+      // No additional filtering - relies on the existing content being church-approved
+      return null;
+      
+    case 'scholar':
+      // Scholar mode uses all sources
+      return null;
+      
+    case 'youth':
+      // Youth might benefit from more recent conference talks
+      return {
+        min_year: 2015  // Last 10 years for relevance
+      };
+      
+    case 'personal-journal':
+      // This would need user-specific content - not applicable to current system
+      return null;
+      
+    default: // 'default' mode
+      return null; // Use all sources
+  }
+}
+
+export function buildCustomSourceFilter(options: {
+  onlyBookOfMormon?: boolean;
+  onlyGeneralConference?: boolean;
+  onlyComeFolowMe?: boolean;
+  specificBooks?: string[];
+  speakers?: string[];
+  yearRange?: { min?: number; max?: number };
+  recentOnly?: boolean; // Last 5 years
+}): SourceFilter | null {
+  const filter: SourceFilter = {};
+  
+  if (options.onlyBookOfMormon) {
+    filter.source_type = 'scripture';
+    filter.standard_work = 'Book of Mormon';
+  } else if (options.onlyGeneralConference) {
+    filter.source_type = 'conference';
+  } else if (options.onlyComeFolowMe) {
+    filter.source_type = 'come_follow_me';
+  }
+  
+  if (options.specificBooks && options.specificBooks.length > 0) {
+    // For single book searches
+    if (options.specificBooks.length === 1) {
+      filter.book = options.specificBooks[0];
+    }
+    // Multiple books would need to be handled in the search logic
+  }
+  
+  if (options.speakers && options.speakers.length > 0) {
+    // For single speaker searches  
+    if (options.speakers.length === 1) {
+      filter.speaker = options.speakers[0];
+    }
+    // Multiple speakers would need to be handled in the search logic
+  }
+  
+  if (options.yearRange) {
+    if (options.yearRange.min) filter.min_year = options.yearRange.min;
+    if (options.yearRange.max) filter.max_year = options.yearRange.max;
+  }
+  
+  if (options.recentOnly) {
+    filter.min_year = new Date().getFullYear() - 5;
+  }
+  
+  return Object.keys(filter).length > 0 ? filter : null;
+}
+
+// Enhanced context building with proper citation formatting
+export function buildContextPrompt(query: string, documents: any[], mode: string = 'default'): string {
   const contextSections = documents.map((doc, index) => {
     let citation = '';
     
-    if (doc.source_type === 'scripture') {
-      citation = `(${doc.scripture_ref})`;
-    } else if (doc.source_type === 'conference') {
-      const date = new Date(doc.conference_date).toLocaleDateString('en-US', { 
-        month: 'short', 
-        year: 'numeric' 
-      });
-      citation = `(${date}, ${doc.speaker}, "${doc.title}")`;
-    } else if (doc.source_type === 'manual') {
-      citation = `(${doc.book}, ${doc.chapter})`;
+    // Format citations based on your metadata structure
+    if (doc.metadata?.source_type === 'scripture') {
+      citation = doc.metadata.citation || `(${doc.metadata.book} ${doc.metadata.chapter}:${doc.metadata.verse})`;
+    } else if (doc.metadata?.source_type === 'conference') {
+      const session = doc.metadata.session;
+      const year = doc.metadata.year;
+      const speaker = doc.metadata.speaker;
+      const title = doc.metadata.title;
+      citation = `(${session} ${year}, ${speaker}, "${title}")`;
+    } else if (doc.metadata?.source_type === 'come_follow_me') {
+      citation = `(Come Follow Me ${doc.metadata.year}: "${doc.metadata.lesson_title}")`;
+    } else {
+      // Fallback to the citation field if available
+      citation = doc.metadata?.citation || `(Source ${index + 1})`;
     }
     
     return `Source ${index + 1} ${citation}:
@@ -138,10 +379,60 @@ ${doc.content.trim()}
 ---`;
   }).join('\n\n');
   
+  // Add mode-specific instructions to the context
+  const modeInstructions = getModeSpecificContextInstructions(mode);
+  
   return `Based on the following sources, please answer this question: "${query}"
+
+${modeInstructions}
 
 SOURCES:
 ${contextSections}
 
 Remember to cite your sources exactly as shown and include full scripture text when quoting verses. Stay strictly within the provided sources.`;
+}
+
+function getModeSpecificContextInstructions(mode: string): string {
+  switch (mode) {
+    case 'book-of-mormon-only':
+      return "NOTE: You are responding as a missionary who only knows the Book of Mormon. Ignore any non-Book of Mormon sources above.";
+      
+    case 'general-conference-only':
+      return "NOTE: Only reference the General Conference sources above. Ignore any scripture-only sources unless they were quoted in the conference talks.";
+      
+    case 'come-follow-me':
+      return "NOTE: Focus on the Come Follow Me sources and relate everything to this week's study. Include discussion questions for families.";
+      
+    case 'youth':
+      return "NOTE: Explain everything in simple terms that a 14-year-old would understand. Be enthusiastic and relatable.";
+      
+    case 'scholar':
+      return "NOTE: Provide academic depth while maintaining testimony. Include cross-references and contextual insights.";
+      
+    default:
+      return "NOTE: Draw from all provided sources to give a comprehensive, balanced answer.";
+  }
+}
+
+// Query enhancement based on mode
+export function enhanceQueryForMode(query: string, mode: string): string {
+  switch (mode) {
+    case 'book-of-mormon-only':
+      return `${query} (search only Book of Mormon)`;
+      
+    case 'general-conference-only':
+      return `${query} (search only General Conference talks)`;
+      
+    case 'come-follow-me':
+      return `${query} (search Come Follow Me 2025 Doctrine and Covenants)`;
+      
+    case 'youth':
+      return `${query} (explain for teenagers)`;
+      
+    case 'scholar':
+      return `${query} (provide scholarly analysis)`;
+      
+    default:
+      return query;
+  }
 }

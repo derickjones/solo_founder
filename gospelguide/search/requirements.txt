@@ -1,0 +1,5 @@
+# Search and embedding requirements
+openai>=1.0.0
+faiss-cpu>=1.7.0  # Use faiss-gpu if you have CUDA
+numpy>=1.21.0
+tqdm>=4.64.0

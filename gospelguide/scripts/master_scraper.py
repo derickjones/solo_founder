@@ -52,7 +52,7 @@ class MasterScraper:
                     "book-of-mormon": {
                         "script": "scrape_book_of_mormon.py",
                         "args": ["--limit", "500"] if self.test_mode else [],
-                        "output": "real_book_of_mormon.json"
+                        "output": "book_of_mormon.json"
                     },
                     "old-testament": {
                         "script": "scrape_old_testament.py", 
@@ -139,7 +139,7 @@ class MasterScraper:
                     script_path = sub_config["script"]
                     args = sub_config.get("args", [])
                     
-                    cmd = ["python", script_path] + args
+                    cmd = ["python3", script_path] + args
                     logger.info(f"    🚀 {' '.join(cmd)}")
                     
                     # Run the scraper
@@ -166,7 +166,7 @@ class MasterScraper:
             script_path = config["script"]
             args = config.get("args", [])
             
-            cmd = ["python", script_path] + args
+            cmd = ["python3", script_path] + args
             logger.info(f"  🚀 Running: {' '.join(cmd)}")
             
             # Run the scraper
@@ -210,7 +210,7 @@ class MasterScraper:
         
         # Also check for existing files that weren't just created
         existing_files = [
-            "real_book_of_mormon.json",
+            "book_of_mormon.json",
             "old_testament.json", 
             "new_testament.json",
             "doctrine_covenants.json", 

@@ -88,12 +88,16 @@ class GeneralConferenceScraper:
                     'sunday-morning-session', 'sunday-afternoon-session', 'priesthood-session'
                 ]):
                     # Only include URLs that look like individual talks
-                    # Individual talks end with a number+name pattern like "19oaks" or "12stevenson"
+                    # Individual talks end with either:
+                    # - Number+name pattern like "19oaks" or "12stevenson" (2019+)
+                    # - Descriptive title pattern like "the-heart-of-a-prophet" (2015-2018)
                     parts = href.split('/')
                     if len(parts) > 5 and parts[-1]:  # Has a talk identifier
                         talk_id = parts[-1].split('?')[0]  # Remove query parameters
-                        # Check if it looks like a talk ID (starts with number followed by letters)
-                        if re.match(r'^\d+[a-z]', talk_id):
+                        # Check if it looks like a talk ID:
+                        # - Starts with number followed by letters (2019+): "19oaks"
+                        # - Contains hyphens and letters (2015-2018): "the-heart-of-a-prophet"
+                        if re.match(r'^\d+[a-z]', talk_id) or re.match(r'^[a-z].*-.*[a-z]$', talk_id):
                             full_url = urljoin(self.base_url, href)
                             if full_url not in talk_links:
                                 talk_links.append(full_url)
