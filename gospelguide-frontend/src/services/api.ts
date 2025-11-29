@@ -54,11 +54,12 @@ export const searchScriptures = async (request: SearchRequest & { selectedSource
   
   const body = {
     query: request.query,
-    max_results: request.max_results || 5,
+    mode: apiMode,
+    top_k: request.max_results || 5,
     ...(sourceFilter.length > 0 && { source_filter: sourceFilter })
   };
 
-  const response = await fetch(`${API_BASE_URL}/search/${apiMode}`, {
+  const response = await fetch(`${API_BASE_URL}/search`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -67,10 +68,27 @@ export const searchScriptures = async (request: SearchRequest & { selectedSource
   });
 
   if (!response.ok) {
-    throw new Error(`Search failed: ${response.statusText}`);
+    const errorText = await response.text();
+    throw new Error(`Search failed: ${response.statusText} - ${errorText}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  
+  // Transform the API response to match our expected format
+  return {
+    query: data.query,
+    results: data.results.map((result: any) => ({
+      content: result.content,
+      source: result.metadata?.standard_work || 'Unknown',
+      book: result.metadata?.title,
+      chapter: result.metadata?.chapter,
+      verse: result.metadata?.verse,
+      score: result.score
+    })),
+    total_found: data.total_found,
+    search_time: data.search_time_ms / 1000, // Convert ms to seconds
+    mode: data.mode
+  };
 };
 
 export const getAvailableSources = async (): Promise<{ standard_works: string[], speakers: string[] }> => {
@@ -90,5 +108,9 @@ export const getHealth = async (): Promise<{ status: string, segments_loaded: nu
     throw new Error(`Health check failed: ${response.statusText}`);
   }
 
-  return response.json();
+  const data = await response.json();
+  return {
+    status: data.status,
+    segments_loaded: data.total_segments
+  };
 };
