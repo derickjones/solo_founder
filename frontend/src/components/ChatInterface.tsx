@@ -299,7 +299,7 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
                 {message.type === 'assistant' && message.results && message.results.length > 0 && (
                   <div className="space-y-3 ml-4">
                     <div className="text-sm text-neutral-400 font-medium mb-3 border-b border-neutral-700 pb-2">
-                      📚 References ({message.results.length})
+                      References ({message.results.length})
                     </div>
                     {message.results.map((result, index) => (
                       <div key={index} className="bg-neutral-800 p-4 rounded-lg border border-neutral-600 hover:border-neutral-500 transition-colors">

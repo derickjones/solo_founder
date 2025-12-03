@@ -77,7 +77,7 @@ export default function Sidebar({
           >
             <div className="flex items-center space-x-3">
               <div className="w-6 h-6 bg-neutral-600 rounded flex items-center justify-center">
-                <span className="text-white text-xs">🎤</span>
+                <span className="text-white text-xs">GC</span>
               </div>
               <span className="text-white text-sm">General Conference</span>
               <span className="bg-neutral-600 text-white text-xs px-2 py-1 rounded">1</span>
@@ -165,7 +165,7 @@ export default function Sidebar({
           >
             <div className="flex items-center space-x-3">
               <div className="w-6 h-6 bg-neutral-600 rounded flex items-center justify-center">
-                <span className="text-white text-xs">📖</span>
+                <span className="text-white text-xs">SW</span>
               </div>
               <span className="text-white text-sm">Standard Works</span>
             </div>
