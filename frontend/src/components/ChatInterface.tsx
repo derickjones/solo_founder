@@ -15,6 +15,8 @@ interface Message {
   isStreaming?: boolean;
 }
 
+import Link from 'next/link';
+
 interface ChatInterfaceProps {
   selectedSources: string[];
   sourceCount: number;
@@ -384,8 +386,12 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
         <div className="max-w-4xl mx-auto flex items-center justify-between text-sm text-neutral-400">
           <div>© 2025 Gospel Study Assistant • AI-powered gospel study</div>
           <div className="flex space-x-6">
-            <span>Terms of Use</span>
-            <span>About</span>
+            <Link href="/terms" className="hover:text-white transition-colors">
+              Terms of Use
+            </Link>
+            <Link href="/about" className="hover:text-white transition-colors">
+              About
+            </Link>
           </div>
         </div>
       </div>
