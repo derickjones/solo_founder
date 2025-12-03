@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { ChevronDownIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline';
 import { searchScriptures, SearchResult, askQuestionStream, StreamChunk } from '@/services/api';
-import ReactMarkdown from 'react-markdown';
 
 interface Message {
   id: number;
@@ -24,6 +23,24 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
   const [modeDropdownOpen, setModeDropdownOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Format text for better readability
+  const formatText = (text: string) => {
+    return text
+      // Split on sentence endings followed by capitals (new topics)
+      .replace(/(\. )([A-Z][a-z])/g, '$1\n\n$2')
+      // Split on numbered points
+      .replace(/(\d+\. )/g, '\n\n$1')
+      // Split on quotes that start new thoughts  
+      .replace(/(") ([A-Z])/g, '$1\n\n$2')
+      // Split on scripture citations in parentheses followed by new thoughts
+      .replace(/(\([^)]+\)\. )([A-Z])/g, '$1\n\n$2')
+      // Split on long sentences for readability
+      .replace(/([.!?]) ([A-Z][^.!?]{50,})/g, '$1\n\n$2')
+      // Clean up extra spaces and normalize
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  };
 
   const modes = [
     'AI Q&A',
@@ -127,20 +144,20 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-gray-900">
+    <div className="flex-1 flex flex-col bg-neutral-900">
       {/* Header with logo */}
       <div className="flex items-center justify-center pt-16 pb-8">
         <div className="flex flex-col items-center space-y-6">
-          <div className="w-24 h-24 bg-blue-800 rounded-full flex items-center justify-center">
-            <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center">
-              <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-              </svg>
-            </div>
+          <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-neutral-600">
+            <img 
+              src="/christ.jpeg" 
+              alt="Gospel Study Assistant Logo" 
+              className="w-full h-full object-cover"
+            />
           </div>
           <div className="text-center">
             <h1 className="text-4xl font-bold text-white mb-2">Gospel Study Assistant</h1>
-            <p className="text-xl text-gray-400">Ask any question and get intelligent answers with scripture citations</p>
+            <p className="text-xl text-neutral-400">Ask any question and get intelligent answers with scripture citations</p>
           </div>
         </div>
       </div>
@@ -154,29 +171,19 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
                 <div
                   className={`p-4 rounded-lg ${
                     message.type === 'user'
-                      ? 'bg-blue-600 text-white ml-auto max-w-lg'
-                      : 'bg-gray-700 text-white max-w-full'
+                      ? 'bg-neutral-600 text-white ml-auto max-w-lg'
+                      : 'bg-neutral-700 text-white max-w-full'
                   }`}
                 >
                   {message.type === 'assistant' ? (
-                    <div className="prose prose-invert max-w-none prose-gray">
-                      <ReactMarkdown 
-                        components={{
-                          p: ({children}) => <p className="text-gray-100 leading-7 mb-4">{children}</p>,
-                          strong: ({children}) => <strong className="text-white font-semibold">{children}</strong>,
-                          em: ({children}) => <em className="text-gray-200 italic">{children}</em>,
-                          h1: ({children}) => <h1 className="text-xl font-bold text-white mb-3">{children}</h1>,
-                          h2: ({children}) => <h2 className="text-lg font-semibold text-white mb-2">{children}</h2>,
-                          h3: ({children}) => <h3 className="text-base font-semibold text-white mb-2">{children}</h3>,
-                          ul: ({children}) => <ul className="list-disc ml-6 text-gray-100 space-y-1">{children}</ul>,
-                          ol: ({children}) => <ol className="list-decimal ml-6 text-gray-100 space-y-1">{children}</ol>,
-                          li: ({children}) => <li className="text-gray-100">{children}</li>,
-                          blockquote: ({children}) => <blockquote className="border-l-4 border-blue-400 pl-4 italic text-gray-200">{children}</blockquote>,
-                          code: ({children}) => <code className="bg-gray-800 px-2 py-1 rounded text-gray-200">{children}</code>
-                        }}
-                      >
-                        {message.content}
-                      </ReactMarkdown>
+                    <div className="space-y-4 leading-relaxed text-neutral-100">
+                      {formatText(message.content).split('\n').map((line, index) => (
+                        line.trim() ? (
+                          <p key={index} className="text-base leading-7">
+                            {line}
+                          </p>
+                        ) : null
+                      ))}
                     </div>
                   ) : (
                     message.content
@@ -187,18 +194,18 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
                 {message.type === 'assistant' && message.results && message.results.length > 0 && (
                   <div className="space-y-3 ml-4">
                     {message.results.map((result, index) => (
-                      <div key={index} className="bg-gray-800 p-4 rounded-lg border border-gray-600">
+                      <div key={index} className="bg-neutral-800 p-4 rounded-lg border border-neutral-600">
                         <div className="flex justify-between items-start mb-2">
-                          <div className="text-sm text-blue-400 font-medium">
+                          <div className="text-sm text-neutral-300 font-medium">
                             {result.source}
                             {result.book && ` - ${result.book}`}
                             {result.chapter && result.verse && ` ${result.chapter}:${result.verse}`}
                           </div>
-                          <div className="text-xs text-gray-400">
+                          <div className="text-xs text-neutral-400">
                             Score: {(result.score * 100).toFixed(1)}%
                           </div>
                         </div>
-                        <div className="text-gray-200 leading-relaxed">
+                        <div className="text-neutral-200 leading-relaxed">
                           {result.content}
                         </div>
                       </div>
@@ -211,8 +218,8 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
             {/* Loading indicator */}
             {isLoading && (
               <div className="flex items-center justify-center p-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                <span className="ml-3 text-gray-400">Searching scriptures...</span>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-500"></div>
+                <span className="ml-3 text-neutral-400">Searching scriptures...</span>
               </div>
             )}
           </div>
@@ -225,13 +232,13 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
       <div className="px-8 pb-8">
         <div className="max-w-4xl mx-auto">
           <form onSubmit={handleSubmit} className="relative">
-            <div className="flex items-center bg-gray-800 border-2 border-blue-500 rounded-2xl p-4">
+            <div className="flex items-center bg-neutral-800 border-2 border-neutral-700 rounded-2xl p-4">
               <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Ask any gospel question..."
-                className="flex-1 bg-transparent text-white placeholder-gray-400 outline-none text-lg"
+                className="flex-1 bg-transparent text-white placeholder-neutral-400 outline-none text-lg"
               />
               
               {/* Mode selector */}
@@ -239,14 +246,14 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
                 <button
                   type="button"
                   onClick={() => setModeDropdownOpen(!modeDropdownOpen)}
-                  className="flex items-center space-x-2 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition-colors"
+                  className="flex items-center space-x-2 bg-neutral-700 hover:bg-neutral-600 px-4 py-2 rounded-lg transition-colors"
                 >
                   <span className="text-white text-sm">{mode}</span>
-                  <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+                  <ChevronDownIcon className="w-4 h-4 text-neutral-400" />
                 </button>
                 
                 {modeDropdownOpen && (
-                  <div className="absolute bottom-full right-0 mb-2 bg-gray-700 rounded-lg shadow-lg border border-gray-600 py-2 min-w-40">
+                  <div className="absolute bottom-full right-0 mb-2 bg-neutral-700 rounded-lg shadow-lg border border-neutral-600 py-2 min-w-40">
                     {modes.map((modeOption) => (
                       <button
                         key={modeOption}
@@ -255,7 +262,7 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
                           setMode(modeOption);
                           setModeDropdownOpen(false);
                         }}
-                        className="block w-full px-4 py-2 text-left text-white hover:bg-gray-600 transition-colors text-sm"
+                        className="block w-full px-4 py-2 text-left text-white hover:bg-neutral-600 transition-colors text-sm"
                       >
                         {modeOption}
                       </button>
@@ -267,7 +274,7 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
               <button
                 type="submit"
                 disabled={!query.trim() || isLoading}
-                className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed p-3 rounded-full transition-colors"
+                className="bg-neutral-600 hover:bg-neutral-500 disabled:bg-neutral-700 disabled:cursor-not-allowed p-3 rounded-full transition-colors"
               >
                 {isLoading ? (
                   <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
