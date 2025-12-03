@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { flushSync } from 'react-dom';
 import { ChevronDownIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline';
 import { searchScriptures, SearchResult, askQuestionStream, StreamChunk } from '@/services/api';
 import ReactMarkdown from 'react-markdown';
@@ -11,6 +12,7 @@ interface Message {
   content: string;
   results?: SearchResult[];
   searchTime?: number;
+  isStreaming?: boolean;
 }
 
 interface ChatInterfaceProps {
@@ -72,7 +74,8 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
       type: 'assistant',
       content: '',
       results: [],
-      searchTime: 0
+      searchTime: 0,
+      isStreaming: true
     };
     setMessages(prev => [...prev, initialAssistantMessage]);
 
@@ -100,11 +103,15 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
           case 'content':
             if (chunk.content) {
               fullAnswer += chunk.content;
-              setMessages(prev => prev.map(msg => 
-                msg.id === assistantMessageId 
-                  ? { ...msg, content: fullAnswer }
-                  : msg
-              ));
+              
+              // Force immediate DOM update
+              flushSync(() => {
+                setMessages(prev => prev.map(msg => 
+                  msg.id === assistantMessageId 
+                    ? { ...msg, content: fullAnswer }
+                    : msg
+                ));
+              });
             }
             break;
             
@@ -120,13 +127,19 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
             break;
             
           case 'done':
+            // Mark streaming as complete for final markdown rendering
+            setMessages(prev => prev.map(msg => 
+              msg.id === assistantMessageId 
+                ? { ...msg, isStreaming: false }
+                : msg
+            ));
             setIsLoading(false);
             break;
             
           case 'error':
             setMessages(prev => prev.map(msg => 
               msg.id === assistantMessageId 
-                ? { ...msg, content: `Sorry, I encountered an error: ${chunk.error}` }
+                ? { ...msg, content: `Sorry, I encountered an error: ${chunk.error}`, isStreaming: false }
                 : msg
             ));
             setIsLoading(false);
@@ -137,7 +150,7 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
     } catch (error) {
       setMessages(prev => prev.map(msg => 
         msg.id === assistantMessageId 
-          ? { ...msg, content: `Sorry, I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}` }
+          ? { ...msg, content: `Sorry, I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}`, isStreaming: false }
           : msg
       ));
       setIsLoading(false);
@@ -246,8 +259,11 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
                               p: ({ children }) => <p className="text-base leading-7 mb-4 text-neutral-100">{children}</p>
                             }}
                           >
-                            {formatText(message.content)}
+                            {message.content}
                           </ReactMarkdown>
+                          {message.isStreaming && (
+                            <span className="inline-block w-2 h-4 bg-neutral-400 animate-pulse ml-1">|</span>
+                          )}
                         </div>
                       ) : null
                     ) : (

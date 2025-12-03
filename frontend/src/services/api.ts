@@ -152,6 +152,7 @@ export const askQuestionStream = async (
 
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
+  let buffer = '';
 
   try {
     while (true) {
@@ -159,29 +160,39 @@ export const askQuestionStream = async (
       
       if (done) break;
       
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split('\n');
+      // Add new chunk to buffer
+      buffer += decoder.decode(value, { stream: true });
       
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          try {
-            const data = JSON.parse(line.slice(6));
-            
-            // Transform sources to match our expected format
-            if (data.type === 'sources' && data.sources) {
-              data.sources = data.sources.map((source: any) => ({
-                content: source.content,
-                source: source.metadata?.standard_work || 'Unknown',
-                book: source.metadata?.title,
-                chapter: source.metadata?.chapter,
-                verse: source.metadata?.verse,
-                score: source.score
-              }));
+      // Split buffer on double newlines (SSE message boundaries)
+      const messages = buffer.split('\n\n');
+      
+      // Keep the last partial message in buffer
+      buffer = messages.pop() || '';
+      
+      // Process complete messages
+      for (const message of messages) {
+        const lines = message.split('\n');
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              
+              // Transform sources to match our expected format
+              if (data.type === 'sources' && data.sources) {
+                data.sources = data.sources.map((source: any) => ({
+                  content: source.content,
+                  source: source.metadata?.standard_work || 'Unknown',
+                  book: source.metadata?.title,
+                  chapter: source.metadata?.chapter,
+                  verse: source.metadata?.verse,
+                  score: source.score
+                }));
+              }
+              
+              onChunk(data);
+            } catch (e) {
+              console.error('Failed to parse SSE data:', e);
             }
-            
-            onChunk(data);
-          } catch (e) {
-            console.error('Failed to parse SSE data:', e);
           }
         }
       }
