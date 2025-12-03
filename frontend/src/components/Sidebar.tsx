@@ -83,6 +83,22 @@ export default function Sidebar({
     }
   };
 
+  const handleSelectGeneralConference = () => {
+    const conferenceSources = getConferenceSources();
+    setSelectedSources(conferenceSources);
+  };
+
+  const handleSelectStandardWorks = () => {
+    const scriptureSources = getScriptureSources();
+    setSelectedSources(scriptureSources);
+  };
+
+  const handleSelectBoth = () => {
+    const conferenceSources = getConferenceSources();
+    const scriptureSources = getScriptureSources();
+    setSelectedSources([...conferenceSources, ...scriptureSources]);
+  };
+
   const handleToggleSelectAll = () => {
     const allSources = [
       // General Conference
@@ -162,6 +178,29 @@ export default function Sidebar({
               {isAllSelected() ? 'Deselect All' : 'Select All'}
             </button>
           </div>
+
+          {/* Quick filter buttons */}
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={handleSelectGeneralConference}
+              className="text-xs px-3 py-1 rounded bg-purple-600 hover:bg-purple-500 text-white transition-colors"
+            >
+              General Conference
+            </button>
+            <button
+              onClick={handleSelectStandardWorks}
+              className="text-xs px-3 py-1 rounded bg-green-600 hover:bg-green-500 text-white transition-colors"
+            >
+              Standard Works
+            </button>
+            <button
+              onClick={handleSelectBoth}
+              className="text-xs px-3 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
+            >
+              Both
+            </button>
+          </div>
+
           <div className="text-2xl font-bold text-white">{sourceCount}</div>
           
           {/* Range slider */}
@@ -169,17 +208,17 @@ export default function Sidebar({
             <input
               type="range"
               min="1"
-              max="10"
+              max="20"
               value={sourceCount}
               onChange={(e) => setSourceCount(parseInt(e.target.value))}
               className="w-full h-2 bg-neutral-700 rounded-lg appearance-none cursor-pointer slider"
               style={{
-                background: `linear-gradient(to right, #525252 0%, #525252 ${(sourceCount - 1) * 11.11}%, #374151 ${(sourceCount - 1) * 11.11}%, #374151 100%)`
+                background: `linear-gradient(to right, #525252 0%, #525252 ${(sourceCount - 1) * 5.26}%, #374151 ${(sourceCount - 1) * 5.26}%, #374151 100%)`
               }}
             />
             <div className="flex justify-between text-xs text-neutral-500 mt-1">
               <span>1</span>
-              <span>10</span>
+              <span>20</span>
             </div>
           </div>
         </div>

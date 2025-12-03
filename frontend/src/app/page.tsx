@@ -22,7 +22,7 @@ export default function Home() {
   ];
   
   const [selectedSources, setSelectedSources] = useState<string[]>(allSources);
-  const [sourceCount, setSourceCount] = useState(5);
+  const [sourceCount, setSourceCount] = useState(10);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
