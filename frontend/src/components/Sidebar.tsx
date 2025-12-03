@@ -1,13 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, ChevronUpIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 interface SidebarProps {
   selectedSources: string[];
   setSelectedSources: (sources: string[]) => void;
   sourceCount: number;
   setSourceCount: (count: number) => void;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
 }
 
 export default function Sidebar({
@@ -15,6 +17,8 @@ export default function Sidebar({
   setSelectedSources,
   sourceCount,
   setSourceCount,
+  isOpen,
+  setIsOpen,
 }: SidebarProps) {
   const [generalConferenceOpen, setGeneralConferenceOpen] = useState(false); // Collapsed by default
   const [standardWorksOpen, setStandardWorksOpen] = useState(false); // Collapsed by default
@@ -48,19 +52,32 @@ export default function Sidebar({
   };
 
   return (
-    <div className="w-80 bg-neutral-800 border-r border-neutral-700 flex flex-col">
+    <div className={`
+      w-72 lg:w-80 bg-neutral-800 border-r border-neutral-700 flex flex-col
+      fixed lg:relative top-0 left-0 h-full z-30 transition-transform duration-300 ease-in-out
+      ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+    `}>
       {/* Header */}
       <div className="p-6 border-b border-neutral-700">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-neutral-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">G</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-neutral-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">G</span>
+            </div>
+            <h1 className="text-xl font-semibold text-white">Gospel Study</h1>
           </div>
-          <h1 className="text-xl font-semibold text-white">Gospel Study</h1>
+          {/* Mobile close button */}
+          <button
+            onClick={() => setIsOpen(false)}
+            className="lg:hidden text-neutral-400 hover:text-white p-1"
+          >
+            <XMarkIcon className="w-6 h-6" />
+          </button>
         </div>
       </div>
 
       {/* Sources to search section */}
-      <div className="p-6 space-y-4">
+      <div className="p-4 lg:p-6 space-y-4 overflow-y-auto flex-1">
         <div className="space-y-3">
           <label className="text-sm text-neutral-400">Sources to search:</label>
           <div className="text-2xl font-bold text-white">{sourceCount}</div>

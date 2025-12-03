@@ -23,18 +23,31 @@ export default function Home() {
   
   const [selectedSources, setSelectedSources] = useState<string[]>(allSources);
   const [sourceCount, setSourceCount] = useState(5);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-gray-900 text-white">
+    <div className="flex h-screen bg-gray-900 text-white relative">
+      {/* Mobile backdrop */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      
       <Sidebar 
         selectedSources={selectedSources}
         setSelectedSources={setSelectedSources}
         sourceCount={sourceCount}
         setSourceCount={setSourceCount}
+        isOpen={sidebarOpen}
+        setIsOpen={setSidebarOpen}
       />
       <ChatInterface 
         selectedSources={selectedSources}
         sourceCount={sourceCount}
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
       />
     </div>
   );
