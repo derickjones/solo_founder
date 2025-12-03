@@ -160,7 +160,7 @@ export const searchScriptures = async (request: SearchRequest & { selectedSource
     results: data.results.map((result: any) => ({
       content: result.content,
       source: result.metadata?.standard_work || 'Unknown',
-      book: result.metadata?.title,
+      book: result.metadata?.book || result.metadata?.title, // Use book for scriptures, title for conference talks
       chapter: result.metadata?.chapter,
       verse: result.metadata?.verse,
       score: result.score,
@@ -253,7 +253,7 @@ export const askQuestionStream = async (
                 data.sources = data.sources.map((source: any) => ({
                   content: source.content,
                   source: source.metadata?.standard_work || 'Unknown',
-                  book: source.metadata?.title,
+                  book: source.metadata?.book || source.metadata?.title, // Use book for scriptures, title for conference talks
                   chapter: source.metadata?.chapter,
                   verse: source.metadata?.verse,
                   score: source.score,
