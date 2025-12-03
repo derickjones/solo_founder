@@ -70,7 +70,7 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
     const initialAssistantMessage: Message = {
       id: assistantMessageId,
       type: 'assistant',
-      content: '🔍 Searching scriptures...',
+      content: '',
       results: [],
       searchTime: 0
     };
@@ -228,29 +228,33 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
           <div className="max-w-4xl mx-auto space-y-6">
             {messages.map((message) => (
               <div key={message.id} className="space-y-4">
-                <div
-                  className={`p-4 rounded-lg ${
-                    message.type === 'user'
-                      ? 'bg-neutral-600 text-white ml-auto max-w-lg'
-                      : 'bg-neutral-700 text-white max-w-full'
-                  }`}
-                >
-                  {message.type === 'assistant' ? (
-                    <div className="space-y-4 leading-relaxed text-neutral-100 prose prose-invert max-w-none [&>*]:text-neutral-100">
-                      <ReactMarkdown 
-                        components={{
-                          strong: ({ children }) => <strong className="font-bold text-white">{children}</strong>,
-                          em: ({ children }) => <em className="italic">{children}</em>,
-                          p: ({ children }) => <p className="text-base leading-7 mb-4 text-neutral-100">{children}</p>
-                        }}
-                      >
-                        {formatText(message.content)}
-                      </ReactMarkdown>
-                    </div>
-                  ) : (
-                    message.content
-                  )}
-                </div>
+                {(message.type === 'user' || (message.type === 'assistant' && message.content)) && (
+                  <div
+                    className={`p-4 rounded-lg ${
+                      message.type === 'user'
+                        ? 'bg-neutral-600 text-white ml-auto max-w-lg'
+                        : 'bg-neutral-700 text-white max-w-full'
+                    }`}
+                  >
+                    {message.type === 'assistant' ? (
+                      message.content ? (
+                        <div className="space-y-4 leading-relaxed text-neutral-100 prose prose-invert max-w-none [&>*]:text-neutral-100">
+                          <ReactMarkdown 
+                            components={{
+                              strong: ({ children }) => <strong className="font-bold text-white">{children}</strong>,
+                              em: ({ children }) => <em className="italic">{children}</em>,
+                              p: ({ children }) => <p className="text-base leading-7 mb-4 text-neutral-100">{children}</p>
+                            }}
+                          >
+                            {formatText(message.content)}
+                          </ReactMarkdown>
+                        </div>
+                      ) : null
+                    ) : (
+                      message.content
+                    )}
+                  </div>
+                )}
                 
                 {/* Display search results */}
                 {message.type === 'assistant' && message.results && message.results.length > 0 && (
