@@ -31,24 +31,56 @@ export default function Sidebar({
     }
   };
 
-  const handleUnselectAllConference = () => {
-    const conferenceSourcesToRemove = [
-      'general-conference',
-      'gc-year-2025', 'gc-year-2024', 'gc-year-2023', 'gc-year-2022', 'gc-year-2021',
-      'gc-year-2020', 'gc-year-2019', 'gc-year-2018', 'gc-year-2017', 'gc-year-2016', 'gc-year-2015',
-      'gc-speaker-russell-m-nelson', 'gc-speaker-dallin-h-oaks', 'gc-speaker-henry-b-eyring',
-      'gc-speaker-jeffrey-r-holland', 'gc-speaker-dieter-f-uchtdorf', 'gc-speaker-david-a-bednar',
-      'gc-speaker-quentin-l-cook', 'gc-speaker-d-todd-christofferson', 'gc-speaker-neil-l-andersen',
-      'gc-speaker-ronald-a-rasband', 'gc-speaker-gary-e-stevenson', 'gc-speaker-dale-g-renlund'
-    ];
-    setSelectedSources(selectedSources.filter(source => !conferenceSourcesToRemove.includes(source)));
+  const getConferenceSources = () => [
+    'general-conference',
+    'gc-year-2025', 'gc-year-2024', 'gc-year-2023', 'gc-year-2022', 'gc-year-2021',
+    'gc-year-2020', 'gc-year-2019', 'gc-year-2018', 'gc-year-2017', 'gc-year-2016', 'gc-year-2015',
+    'gc-speaker-russell-m-nelson', 'gc-speaker-dallin-h-oaks', 'gc-speaker-henry-b-eyring',
+    'gc-speaker-jeffrey-r-holland', 'gc-speaker-dieter-f-uchtdorf', 'gc-speaker-david-a-bednar',
+    'gc-speaker-quentin-l-cook', 'gc-speaker-d-todd-christofferson', 'gc-speaker-neil-l-andersen',
+    'gc-speaker-ronald-a-rasband', 'gc-speaker-gary-e-stevenson', 'gc-speaker-dale-g-renlund'
+  ];
+
+  const isAllConferenceSelected = () => {
+    const conferenceSources = getConferenceSources();
+    const selectedConferenceSources = selectedSources.filter(source => conferenceSources.includes(source));
+    return selectedConferenceSources.length >= conferenceSources.length * 0.8;
   };
 
-  const handleUnselectAllScriptures = () => {
-    const scriptureSourcesToRemove = [
-      'book-of-mormon', 'doctrine-and-covenants', 'pearl-of-great-price', 'old-testament', 'new-testament'
-    ];
-    setSelectedSources(selectedSources.filter(source => !scriptureSourcesToRemove.includes(source)));
+  const handleToggleAllConference = () => {
+    const conferenceSources = getConferenceSources();
+    
+    if (isAllConferenceSelected()) {
+      // Deselect all conference sources
+      setSelectedSources(selectedSources.filter(source => !conferenceSources.includes(source)));
+    } else {
+      // Select all conference sources
+      const otherSources = selectedSources.filter(source => !conferenceSources.includes(source));
+      setSelectedSources([...otherSources, ...conferenceSources]);
+    }
+  };
+
+  const getScriptureSources = () => [
+    'book-of-mormon', 'doctrine-and-covenants', 'pearl-of-great-price', 'old-testament', 'new-testament'
+  ];
+
+  const isAllScripturesSelected = () => {
+    const scriptureSources = getScriptureSources();
+    const selectedScriptureSources = selectedSources.filter(source => scriptureSources.includes(source));
+    return selectedScriptureSources.length >= scriptureSources.length * 0.8;
+  };
+
+  const handleToggleAllScriptures = () => {
+    const scriptureSources = getScriptureSources();
+    
+    if (isAllScripturesSelected()) {
+      // Deselect all scripture sources
+      setSelectedSources(selectedSources.filter(source => !scriptureSources.includes(source)));
+    } else {
+      // Select all scripture sources
+      const otherSources = selectedSources.filter(source => !scriptureSources.includes(source));
+      setSelectedSources([...otherSources, ...scriptureSources]);
+    }
   };
 
   const handleToggleSelectAll = () => {
@@ -178,14 +210,6 @@ export default function Sidebar({
 
           {generalConferenceOpen && (
             <div className="ml-6 space-y-3">
-              {/* Unselect All Button */}
-              <button
-                onClick={handleUnselectAllConference}
-                className="text-xs text-red-400 hover:text-red-300 transition-colors underline"
-              >
-                Unselect All Conference
-              </button>
-
               {/* All General Conference */}
               <label className="flex items-center space-x-2 text-sm text-neutral-300">
                 <input
@@ -273,14 +297,6 @@ export default function Sidebar({
 
           {standardWorksOpen && (
             <div className="ml-6 space-y-2">
-              {/* Unselect All Button */}
-              <button
-                onClick={handleUnselectAllScriptures}
-                className="text-xs text-red-400 hover:text-red-300 transition-colors underline mb-2"
-              >
-                Unselect All Scriptures
-              </button>
-
               {[
                 'Book of Mormon',
                 'Doctrine & Covenants',
