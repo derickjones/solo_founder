@@ -60,17 +60,38 @@ const MODE_MAPPING: Record<string, string> = {
 };
 
 // Map selected sources to API source filters
-const getSourceFilter = (selectedSources: string[]): string[] => {
-  const sourceMap: Record<string, string> = {
-    'general-conference': 'General Conference',
-    'book-of-mormon': 'Book of Mormon',
-    'doctrine-and-covenants': 'Doctrine and Covenants',
-    'pearl-of-great-price': 'Pearl of Great Price',
-    'old-testament': 'Old Testament',
-    'new-testament': 'New Testament'
-  };
+const getSourceFilter = (selectedSources: string[]): any => {
+  const filters: any[] = [];
   
-  return selectedSources.map(source => sourceMap[source]).filter(Boolean);
+  for (const source of selectedSources) {
+    if (source.startsWith('gc-year-')) {
+      // Year-based General Conference filter: gc-year-2024
+      const year = parseInt(source.replace('gc-year-', ''));
+      filters.push({ source_type: 'conference', year });
+    } else if (source.startsWith('gc-speaker-')) {
+      // Speaker-based filter: gc-speaker-russell-m-nelson
+      const speakerKey = source.replace('gc-speaker-', '');
+      const speakerName = speakerKey.replace(/-/g, ' ')
+        .replace(/\b\w/g, l => l.toUpperCase()); // Convert to Title Case
+      filters.push({ source_type: 'conference', speaker: speakerName });
+    } else {
+      // Legacy source mappings
+      const sourceMap: Record<string, any> = {
+        'general-conference': { source_type: 'conference' },
+        'book-of-mormon': { source_type: 'scripture', standard_work: 'Book of Mormon' },
+        'doctrine-and-covenants': { source_type: 'scripture', standard_work: 'Doctrine and Covenants' },
+        'pearl-of-great-price': { source_type: 'scripture', standard_work: 'Pearl of Great Price' },
+        'old-testament': { source_type: 'scripture', standard_work: 'Old Testament' },
+        'new-testament': { source_type: 'scripture', standard_work: 'New Testament' }
+      };
+      
+      if (sourceMap[source]) {
+        filters.push(sourceMap[source]);
+      }
+    }
+  }
+  
+  return filters.length > 0 ? filters : undefined;
 };
 
 export const searchScriptures = async (request: SearchRequest & { selectedSources?: string[] }): Promise<SearchResponse> => {

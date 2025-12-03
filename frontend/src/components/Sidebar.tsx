@@ -90,7 +90,8 @@ export default function Sidebar({
           </button>
 
           {generalConferenceOpen && (
-            <div className="ml-6 space-y-1">
+            <div className="ml-6 space-y-3">
+              {/* All General Conference */}
               <label className="flex items-center space-x-2 text-sm text-neutral-300">
                 <input
                   type="checkbox"
@@ -98,8 +99,60 @@ export default function Sidebar({
                   onChange={() => handleSourceToggle('general-conference')}
                   className="rounded"
                 />
-                <span>2015-2025 Sessions</span>
+                <span>All Sessions (2015-2025)</span>
               </label>
+
+              {/* By Year */}
+              <div className="space-y-1">
+                <div className="text-xs text-neutral-400 font-medium">By Year:</div>
+                <div className="grid grid-cols-2 gap-1">
+                  {[2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015].map(year => (
+                    <label key={year} className="flex items-center space-x-1 text-xs text-neutral-300">
+                      <input
+                        type="checkbox"
+                        checked={selectedSources.includes(`gc-year-${year}`)}
+                        onChange={() => handleSourceToggle(`gc-year-${year}`)}
+                        className="rounded text-xs"
+                      />
+                      <span>{year}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* By Speaker */}
+              <div className="space-y-1">
+                <div className="text-xs text-neutral-400 font-medium">By Speaker:</div>
+                <div className="space-y-1">
+                  {[
+                    'Russell M. Nelson',
+                    'Dallin H. Oaks',
+                    'Henry B. Eyring',
+                    'Jeffrey R. Holland',
+                    'Dieter F. Uchtdorf',
+                    'David A. Bednar',
+                    'Quentin L. Cook',
+                    'D. Todd Christofferson',
+                    'Neil L. Andersen',
+                    'Ronald A. Rasband',
+                    'Gary E. Stevenson',
+                    'Dale G. Renlund'
+                  ].map(speaker => {
+                    const speakerKey = `gc-speaker-${speaker.toLowerCase().replace(/\s+/g, '-').replace('.', '')}`;
+                    return (
+                      <label key={speaker} className="flex items-center space-x-1 text-xs text-neutral-300">
+                        <input
+                          type="checkbox"
+                          checked={selectedSources.includes(speakerKey)}
+                          onChange={() => handleSourceToggle(speakerKey)}
+                          className="rounded text-xs"
+                        />
+                        <span>{speaker}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           )}
         </div>
