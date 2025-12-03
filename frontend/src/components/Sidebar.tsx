@@ -27,6 +27,26 @@ export default function Sidebar({
     }
   };
 
+  const handleUnselectAllConference = () => {
+    const conferenceSourcesToRemove = [
+      'general-conference',
+      'gc-year-2025', 'gc-year-2024', 'gc-year-2023', 'gc-year-2022', 'gc-year-2021',
+      'gc-year-2020', 'gc-year-2019', 'gc-year-2018', 'gc-year-2017', 'gc-year-2016', 'gc-year-2015',
+      'gc-speaker-russell-m-nelson', 'gc-speaker-dallin-h-oaks', 'gc-speaker-henry-b-eyring',
+      'gc-speaker-jeffrey-r-holland', 'gc-speaker-dieter-f-uchtdorf', 'gc-speaker-david-a-bednar',
+      'gc-speaker-quentin-l-cook', 'gc-speaker-d-todd-christofferson', 'gc-speaker-neil-l-andersen',
+      'gc-speaker-ronald-a-rasband', 'gc-speaker-gary-e-stevenson', 'gc-speaker-dale-g-renlund'
+    ];
+    setSelectedSources(selectedSources.filter(source => !conferenceSourcesToRemove.includes(source)));
+  };
+
+  const handleUnselectAllScriptures = () => {
+    const scriptureSourcesToRemove = [
+      'book-of-mormon', 'doctrine-and-covenants', 'pearl-of-great-price', 'old-testament', 'new-testament'
+    ];
+    setSelectedSources(selectedSources.filter(source => !scriptureSourcesToRemove.includes(source)));
+  };
+
   return (
     <div className="w-80 bg-neutral-800 border-r border-neutral-700 flex flex-col">
       {/* Header */}
@@ -91,6 +111,14 @@ export default function Sidebar({
 
           {generalConferenceOpen && (
             <div className="ml-6 space-y-3">
+              {/* Unselect All Button */}
+              <button
+                onClick={handleUnselectAllConference}
+                className="text-xs text-red-400 hover:text-red-300 transition-colors underline"
+              >
+                Unselect All Conference
+              </button>
+
               {/* All General Conference */}
               <label className="flex items-center space-x-2 text-sm text-neutral-300">
                 <input
@@ -178,6 +206,14 @@ export default function Sidebar({
 
           {standardWorksOpen && (
             <div className="ml-6 space-y-2">
+              {/* Unselect All Button */}
+              <button
+                onClick={handleUnselectAllScriptures}
+                className="text-xs text-red-400 hover:text-red-300 transition-colors underline mb-2"
+              >
+                Unselect All Scriptures
+              </button>
+
               {[
                 'Book of Mormon',
                 'Doctrine & Covenants',
