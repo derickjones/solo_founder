@@ -27,6 +27,29 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Format citations from individual metadata fields
+  const formatCitation = (result: SearchResult) => {
+    if (result.speaker && result.title) {
+      // Conference talk format: Speaker, "Title", Session Year, ¶#
+      let citation = `${result.speaker}, "${result.title}"`;
+      if (result.session && result.year) {
+        citation += `, ${result.session} ${result.year}`;
+      }
+      if (result.paragraph) {
+        citation += `, ¶${result.paragraph}`;
+      }
+      return citation;
+    } else if (result.book && result.chapter) {
+      // Scripture format: Standard Work Book Chapter:Verse
+      return `${result.source} ${result.book} ${result.chapter}${result.verse ? `:${result.verse}` : ''}`;
+    } else if (result.source) {
+      // Fallback to source name
+      return result.source;
+    }
+    // Last resort - use cleaned original citation
+    return result.citation?.replace(/^\((.+)\)$/, '$1') || 'Unknown Source';
+  };
+
   // Format text for better readability
   const formatText = (text: string) => {
     return text
@@ -284,9 +307,7 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
                           <div className="flex-1">
                             {/* Citation */}
                             <div className="text-sm text-neutral-200 font-medium mb-2">
-                              {result.citation || (
-                                `${result.speaker || result.source}${result.title ? `, "${result.title}"` : ''}${result.year ? `, ${result.session || ''} ${result.year}` : ''}`
-                              )}
+                              {formatCitation(result)}
                             </div>
                             
                             {/* URL Link */}

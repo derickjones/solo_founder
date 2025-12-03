@@ -20,6 +20,7 @@ export interface SearchResult {
   session?: string;
   title?: string;
   rank?: number;
+  paragraph?: number;
 }
 
 export interface SearchResponse {
@@ -114,6 +115,7 @@ export const searchScriptures = async (request: SearchRequest & { selectedSource
       year: result.metadata?.year,
       session: result.metadata?.session,
       title: result.metadata?.title,
+      paragraph: result.metadata?.paragraph,
       rank: result.rank
     })),
     total_found: data.total_found,
@@ -206,6 +208,7 @@ export const askQuestionStream = async (
                   year: source.metadata?.year,
                   session: source.metadata?.session,
                   title: source.metadata?.title,
+                  paragraph: source.metadata?.paragraph,
                   rank: source.rank
                 }));
               }
