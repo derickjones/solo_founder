@@ -275,20 +275,54 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
                 {/* Display search results */}
                 {message.type === 'assistant' && message.results && message.results.length > 0 && (
                   <div className="space-y-3 ml-4">
+                    <div className="text-sm text-neutral-400 font-medium mb-3 border-b border-neutral-700 pb-2">
+                      📚 References ({message.results.length})
+                    </div>
                     {message.results.map((result, index) => (
-                      <div key={index} className="bg-neutral-800 p-4 rounded-lg border border-neutral-600">
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="text-sm text-neutral-300 font-medium">
-                            {result.source}
-                            {result.book && ` - ${result.book}`}
-                            {result.chapter && result.verse && ` ${result.chapter}:${result.verse}`}
+                      <div key={index} className="bg-neutral-800 p-4 rounded-lg border border-neutral-600 hover:border-neutral-500 transition-colors">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            {/* Citation */}
+                            <div className="text-sm text-neutral-200 font-medium mb-2">
+                              {result.citation || (
+                                `${result.speaker || result.source}${result.title ? `, "${result.title}"` : ''}${result.year ? `, ${result.session || ''} ${result.year}` : ''}`
+                              )}
+                            </div>
+                            
+                            {/* URL Link */}
+                            {result.url && (
+                              <a 
+                                href={result.url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                              >
+                                🔗 Read Full Text
+                                <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                              </a>
+                            )}
                           </div>
-                          <div className="text-xs text-neutral-400">
-                            Score: {(result.score * 100).toFixed(1)}%
+                          
+                          {/* Relevancy Indicator */}
+                          <div className="flex flex-col items-end">
+                            <div className="text-xs text-neutral-400 mb-1">Relevance</div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-16 h-2 bg-neutral-700 rounded-full overflow-hidden">
+                                <div 
+                                  className={`h-full rounded-full transition-all ${
+                                    result.score >= 0.8 ? 'bg-green-500' :
+                                    result.score >= 0.6 ? 'bg-yellow-500' : 'bg-red-500'
+                                  }`}
+                                  style={{ width: `${Math.max(result.score * 100, 5)}%` }}
+                                />
+                              </div>
+                              <span className="text-xs text-neutral-400 font-mono">
+                                {(result.score * 100).toFixed(0)}%
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                        <div className="text-neutral-200 leading-relaxed">
-                          {result.content}
                         </div>
                       </div>
                     ))}

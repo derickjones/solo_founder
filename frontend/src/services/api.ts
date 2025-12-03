@@ -13,6 +13,13 @@ export interface SearchResult {
   chapter?: number;
   verse?: number;
   score: number;
+  citation?: string;
+  url?: string;
+  speaker?: string;
+  year?: number;
+  session?: string;
+  title?: string;
+  rank?: number;
 }
 
 export interface SearchResponse {
@@ -100,7 +107,14 @@ export const searchScriptures = async (request: SearchRequest & { selectedSource
       book: result.metadata?.title,
       chapter: result.metadata?.chapter,
       verse: result.metadata?.verse,
-      score: result.score
+      score: result.score,
+      citation: result.metadata?.citation,
+      url: result.metadata?.url,
+      speaker: result.metadata?.speaker,
+      year: result.metadata?.year,
+      session: result.metadata?.session,
+      title: result.metadata?.title,
+      rank: result.rank
     })),
     total_found: data.total_found,
     search_time: data.search_time_ms / 1000, // Convert ms to seconds
@@ -185,7 +199,14 @@ export const askQuestionStream = async (
                   book: source.metadata?.title,
                   chapter: source.metadata?.chapter,
                   verse: source.metadata?.verse,
-                  score: source.score
+                  score: source.score,
+                  citation: source.metadata?.citation,
+                  url: source.metadata?.url,
+                  speaker: source.metadata?.speaker,
+                  year: source.metadata?.year,
+                  session: source.metadata?.session,
+                  title: source.metadata?.title,
+                  rank: source.rank
                 }));
               }
               
