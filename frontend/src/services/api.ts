@@ -61,48 +61,82 @@ const MODE_MAPPING: Record<string, string> = {
 
 // Map selected sources to API source filters
 const getSourceFilter = (selectedSources: string[]): any => {
-  const filters: any[] = [];
-  
-  for (const source of selectedSources) {
-    if (source.startsWith('gc-year-')) {
-      // Year-based General Conference filter: gc-year-2024
-      const year = parseInt(source.replace('gc-year-', ''));
-      filters.push({ source_type: 'conference', year });
-    } else if (source.startsWith('gc-speaker-')) {
-      // Speaker-based filter: gc-speaker-russell-m-nelson
-      const speakerKey = source.replace('gc-speaker-', '');
-      const speakerName = speakerKey.replace(/-/g, ' ')
-        .replace(/\b\w/g, l => l.toUpperCase()); // Convert to Title Case
-      filters.push({ source_type: 'conference', speaker: speakerName });
-    } else {
-      // Legacy source mappings
-      const sourceMap: Record<string, any> = {
-        'general-conference': { source_type: 'conference' },
-        'book-of-mormon': { source_type: 'scripture', standard_work: 'Book of Mormon' },
-        'doctrine-and-covenants': { source_type: 'scripture', standard_work: 'Doctrine and Covenants' },
-        'pearl-of-great-price': { source_type: 'scripture', standard_work: 'Pearl of Great Price' },
-        'old-testament': { source_type: 'scripture', standard_work: 'Old Testament' },
-        'new-testament': { source_type: 'scripture', standard_work: 'New Testament' }
-      };
-      
-      if (sourceMap[source]) {
-        filters.push(sourceMap[source]);
-      }
-    }
+  // If no sources selected, return undefined (search all)
+  if (selectedSources.length === 0) {
+    return undefined;
   }
   
-  return filters.length > 0 ? filters : undefined;
+  // If all sources are selected (common case), don't filter
+  const allSources = [
+    'general-conference',
+    'gc-year-2025', 'gc-year-2024', 'gc-year-2023', 'gc-year-2022', 'gc-year-2021',
+    'gc-year-2020', 'gc-year-2019', 'gc-year-2018', 'gc-year-2017', 'gc-year-2016', 'gc-year-2015',
+    'gc-speaker-russell-m-nelson', 'gc-speaker-dallin-h-oaks', 'gc-speaker-henry-b-eyring',
+    'gc-speaker-jeffrey-r-holland', 'gc-speaker-dieter-f-uchtdorf', 'gc-speaker-david-a-bednar',
+    'gc-speaker-quentin-l-cook', 'gc-speaker-d-todd-christofferson', 'gc-speaker-neil-l-andersen',
+    'gc-speaker-ronald-a-rasband', 'gc-speaker-gary-e-stevenson', 'gc-speaker-dale-g-renlund',
+    'book-of-mormon', 'doctrine-and-covenants', 'pearl-of-great-price', 'old-testament', 'new-testament'
+  ];
+  
+  if (selectedSources.length === allSources.length) {
+    return undefined; // Search all sources
+  }
+  
+  // For now, build a single filter from the most specific selection
+  // Priority: specific year/speaker filters > general conference > scripture works
+  
+  // Check for specific General Conference filters first
+  const yearFilters = selectedSources.filter(s => s.startsWith('gc-year-'));
+  if (yearFilters.length === 1) {
+    const year = parseInt(yearFilters[0].replace('gc-year-', ''));
+    return { source_type: 'conference', year };
+  }
+  
+  const speakerFilters = selectedSources.filter(s => s.startsWith('gc-speaker-'));
+  if (speakerFilters.length === 1) {
+    const speakerKey = speakerFilters[0].replace('gc-speaker-', '');
+    const speakerName = speakerKey.replace(/-/g, ' ')
+      .replace(/\b\w/g, l => l.toUpperCase()); // Convert to Title Case
+    return { source_type: 'conference', speaker: speakerName };
+  }
+  
+  // Check for general conference
+  if (selectedSources.includes('general-conference')) {
+    return { source_type: 'conference' };
+  }
+  
+  // Check for specific scripture works
+  const scriptureMap: Record<string, string> = {
+    'book-of-mormon': 'Book of Mormon',
+    'doctrine-and-covenants': 'Doctrine and Covenants',
+    'pearl-of-great-price': 'Pearl of Great Price',
+    'old-testament': 'Old Testament',
+    'new-testament': 'New Testament'
+  };
+  
+  const scriptureWorks = selectedSources.filter(s => scriptureMap[s]);
+  if (scriptureWorks.length === 1) {
+    return { source_type: 'scripture', standard_work: scriptureMap[scriptureWorks[0]] };
+  }
+  
+  // If multiple scripture works selected, filter by scripture type only
+  if (scriptureWorks.length > 1) {
+    return { source_type: 'scripture' };
+  }
+  
+  // Default: no filter (search all)
+  return undefined;
 };
 
 export const searchScriptures = async (request: SearchRequest & { selectedSources?: string[] }): Promise<SearchResponse> => {
   const apiMode = MODE_MAPPING[request.mode || 'AI Q&A'] || 'default';
-  const sourceFilter = request.selectedSources ? getSourceFilter(request.selectedSources) : [];
+  const sourceFilter = request.selectedSources ? getSourceFilter(request.selectedSources) : undefined;
   
   const body = {
     query: request.query,
     mode: apiMode,
     top_k: request.max_results || 5,
-    ...(sourceFilter.length > 0 && { source_filter: sourceFilter })
+    ...(sourceFilter && { source_filter: sourceFilter })
   };
 
   const response = await fetch(`${API_BASE_URL}/search`, {
@@ -162,13 +196,13 @@ export const askQuestionStream = async (
   onChunk: (chunk: StreamChunk) => void
 ): Promise<void> => {
   const apiMode = MODE_MAPPING[request.mode || 'AI Q&A'] || 'default';
-  const sourceFilter = request.selectedSources ? getSourceFilter(request.selectedSources) : [];
+  const sourceFilter = request.selectedSources ? getSourceFilter(request.selectedSources) : undefined;
   
   const body = {
     query: request.query,
     mode: apiMode,
     top_k: request.max_results || 10,
-    ...(sourceFilter.length > 0 && { source_filter: sourceFilter })
+    ...(sourceFilter && { source_filter: sourceFilter })
   };
 
   const response = await fetch(`${API_BASE_URL}/ask/stream`, {
