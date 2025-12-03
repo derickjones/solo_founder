@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ChevronDownIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline';
 import { searchScriptures, SearchResult, askQuestionStream, StreamChunk } from '@/services/api';
+import ReactMarkdown from 'react-markdown';
 
 interface Message {
   id: number;
@@ -23,24 +24,6 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
   const [modeDropdownOpen, setModeDropdownOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  // Format text for better readability
-  const formatText = (text: string) => {
-    return text
-      // Split on sentence endings followed by capitals (new topics)
-      .replace(/(\. )([A-Z][a-z])/g, '$1\n\n$2')
-      // Split on numbered points
-      .replace(/(\d+\. )/g, '\n\n$1')
-      // Split on quotes that start new thoughts  
-      .replace(/(") ([A-Z])/g, '$1\n\n$2')
-      // Split on scripture citations in parentheses followed by new thoughts
-      .replace(/(\([^)]+\)\. )([A-Z])/g, '$1\n\n$2')
-      // Split on long sentences for readability
-      .replace(/([.!?]) ([A-Z][^.!?]{50,})/g, '$1\n\n$2')
-      // Clean up extra spaces and normalize
-      .replace(/\n{3,}/g, '\n\n')
-      .trim();
-  };
 
   const modes = [
     'AI Q&A',
@@ -176,14 +159,24 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
                   }`}
                 >
                   {message.type === 'assistant' ? (
-                    <div className="space-y-4 leading-relaxed text-gray-100">
-                      {formatText(message.content).split('\n').map((line, index) => (
-                        line.trim() ? (
-                          <p key={index} className="text-base leading-7">
-                            {line}
-                          </p>
-                        ) : null
-                      ))}
+                    <div className="prose prose-invert max-w-none prose-gray">
+                      <ReactMarkdown 
+                        components={{
+                          p: ({children}) => <p className="text-gray-100 leading-7 mb-4">{children}</p>,
+                          strong: ({children}) => <strong className="text-white font-semibold">{children}</strong>,
+                          em: ({children}) => <em className="text-gray-200 italic">{children}</em>,
+                          h1: ({children}) => <h1 className="text-xl font-bold text-white mb-3">{children}</h1>,
+                          h2: ({children}) => <h2 className="text-lg font-semibold text-white mb-2">{children}</h2>,
+                          h3: ({children}) => <h3 className="text-base font-semibold text-white mb-2">{children}</h3>,
+                          ul: ({children}) => <ul className="list-disc ml-6 text-gray-100 space-y-1">{children}</ul>,
+                          ol: ({children}) => <ol className="list-decimal ml-6 text-gray-100 space-y-1">{children}</ol>,
+                          li: ({children}) => <li className="text-gray-100">{children}</li>,
+                          blockquote: ({children}) => <blockquote className="border-l-4 border-blue-400 pl-4 italic text-gray-200">{children}</blockquote>,
+                          code: ({children}) => <code className="bg-gray-800 px-2 py-1 rounded text-gray-200">{children}</code>
+                        }}
+                      >
+                        {message.content}
+                      </ReactMarkdown>
                     </div>
                   ) : (
                     message.content
