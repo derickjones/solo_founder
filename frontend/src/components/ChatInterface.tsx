@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ChevronDownIcon, PaperAirplaneIcon } from '@heroicons/react/24/outline';
 import { searchScriptures, SearchResult, askQuestionStream, StreamChunk } from '@/services/api';
+import ReactMarkdown from 'react-markdown';
 
 interface Message {
   id: number;
@@ -235,14 +236,16 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
                   }`}
                 >
                   {message.type === 'assistant' ? (
-                    <div className="space-y-4 leading-relaxed text-neutral-100">
-                      {formatText(message.content).split('\n').map((line, index) => (
-                        line.trim() ? (
-                          <p key={index} className="text-base leading-7">
-                            {line}
-                          </p>
-                        ) : null
-                      ))}
+                    <div className="space-y-4 leading-relaxed text-neutral-100 prose prose-invert max-w-none [&>*]:text-neutral-100">
+                      <ReactMarkdown 
+                        components={{
+                          strong: ({ children }) => <strong className="font-bold text-white">{children}</strong>,
+                          em: ({ children }) => <em className="italic">{children}</em>,
+                          p: ({ children }) => <p className="text-base leading-7 mb-4 text-neutral-100">{children}</p>
+                        }}
+                      >
+                        {formatText(message.content)}
+                      </ReactMarkdown>
                     </div>
                   ) : (
                     message.content
