@@ -145,10 +145,69 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
 
   return (
     <div className="flex-1 flex flex-col bg-neutral-900">
+      {/* Input area at top */}
+      <div className="px-8 pt-8 pb-4">
+        <div className="max-w-4xl mx-auto">
+          <form onSubmit={handleSubmit} className="relative">
+            <div className="flex items-center bg-neutral-800 border-2 border-neutral-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 rounded-2xl p-4 transition-all duration-200">
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Ask any gospel question..."
+                className="flex-1 bg-transparent text-white placeholder-neutral-400 outline-none text-lg"
+              />
+              
+              {/* Mode selector */}
+              <div className="relative mx-4">
+                <button
+                  type="button"
+                  onClick={() => setModeDropdownOpen(!modeDropdownOpen)}
+                  className="flex items-center space-x-2 bg-neutral-700 hover:bg-neutral-600 px-4 py-2 rounded-lg transition-colors"
+                >
+                  <span className="text-white text-sm">{mode}</span>
+                  <ChevronDownIcon className="w-4 h-4 text-neutral-400" />
+                </button>
+                
+                {modeDropdownOpen && (
+                  <div className="absolute top-full right-0 mt-2 bg-neutral-700 rounded-lg shadow-lg border border-neutral-600 py-2 min-w-40">
+                    {modes.map((modeOption) => (
+                      <button
+                        key={modeOption}
+                        type="button"
+                        onClick={() => {
+                          setMode(modeOption);
+                          setModeDropdownOpen(false);
+                        }}
+                        className="block w-full px-4 py-2 text-left text-white hover:bg-neutral-600 transition-colors text-sm"
+                      >
+                        {modeOption}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={!query.trim() || isLoading}
+                className="bg-neutral-600 hover:bg-neutral-500 disabled:bg-neutral-700 disabled:cursor-not-allowed p-3 rounded-full transition-colors"
+              >
+                {isLoading ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+                ) : (
+                  <PaperAirplaneIcon className="w-5 h-5 text-white" />
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
       {/* Header with logo */}
-      <div className="flex items-center justify-center pt-16 pb-8">
+      <div className="flex items-center justify-center pt-8 pb-8">
         <div className="flex flex-col items-center space-y-6">
-          <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-neutral-600">
+          <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-neutral-700">
             <img 
               src="/christ.jpeg" 
               alt="Gospel Study Assistant Logo" 
@@ -163,7 +222,7 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 px-8 pb-4 overflow-y-auto">
+      <div className="flex-1 px-8 pb-8 overflow-y-auto">
         {messages.length > 0 ? (
           <div className="max-w-4xl mx-auto space-y-6">
             {messages.map((message) => (
@@ -228,62 +287,14 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
         )}
       </div>
 
-      {/* Input area */}
-      <div className="px-8 pb-8">
-        <div className="max-w-4xl mx-auto">
-          <form onSubmit={handleSubmit} className="relative">
-            <div className="flex items-center bg-neutral-800 border-2 border-neutral-700 rounded-2xl p-4">
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Ask any gospel question..."
-                className="flex-1 bg-transparent text-white placeholder-neutral-400 outline-none text-lg"
-              />
-              
-              {/* Mode selector */}
-              <div className="relative mx-4">
-                <button
-                  type="button"
-                  onClick={() => setModeDropdownOpen(!modeDropdownOpen)}
-                  className="flex items-center space-x-2 bg-neutral-700 hover:bg-neutral-600 px-4 py-2 rounded-lg transition-colors"
-                >
-                  <span className="text-white text-sm">{mode}</span>
-                  <ChevronDownIcon className="w-4 h-4 text-neutral-400" />
-                </button>
-                
-                {modeDropdownOpen && (
-                  <div className="absolute bottom-full right-0 mb-2 bg-neutral-700 rounded-lg shadow-lg border border-neutral-600 py-2 min-w-40">
-                    {modes.map((modeOption) => (
-                      <button
-                        key={modeOption}
-                        type="button"
-                        onClick={() => {
-                          setMode(modeOption);
-                          setModeDropdownOpen(false);
-                        }}
-                        className="block w-full px-4 py-2 text-left text-white hover:bg-neutral-600 transition-colors text-sm"
-                      >
-                        {modeOption}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                disabled={!query.trim() || isLoading}
-                className="bg-neutral-600 hover:bg-neutral-500 disabled:bg-neutral-700 disabled:cursor-not-allowed p-3 rounded-full transition-colors"
-              >
-                {isLoading ? (
-                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
-                ) : (
-                  <PaperAirplaneIcon className="w-5 h-5 text-white" />
-                )}
-              </button>
-            </div>
-          </form>
+      {/* Footer */}
+      <div className="px-8 py-4 border-t border-neutral-700">
+        <div className="max-w-4xl mx-auto flex items-center justify-between text-sm text-neutral-400">
+          <div>© 2025 Gospel Study Assistant • AI-powered gospel study</div>
+          <div className="flex space-x-6">
+            <span>Terms of Use</span>
+            <span>About</span>
+          </div>
         </div>
       </div>
     </div>

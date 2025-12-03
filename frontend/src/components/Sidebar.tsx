@@ -28,11 +28,11 @@ export default function Sidebar({
   };
 
   return (
-    <div className="w-80 bg-gray-800 border-r border-gray-700 flex flex-col">
+    <div className="w-80 bg-neutral-800 border-r border-neutral-700 flex flex-col">
       {/* Header */}
-      <div className="p-6 border-b border-gray-700">
+      <div className="p-6 border-b border-neutral-700">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-neutral-600 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-sm">G</span>
           </div>
           <h1 className="text-xl font-semibold text-white">Gospel Study</h1>
@@ -42,7 +42,7 @@ export default function Sidebar({
       {/* Sources to search section */}
       <div className="p-6 space-y-4">
         <div className="space-y-3">
-          <label className="text-sm text-gray-400">Sources to search:</label>
+          <label className="text-sm text-neutral-400">Sources to search:</label>
           <div className="text-2xl font-bold text-white">{sourceCount}</div>
           
           {/* Range slider */}
@@ -53,19 +53,19 @@ export default function Sidebar({
               max="10"
               value={sourceCount}
               onChange={(e) => setSourceCount(parseInt(e.target.value))}
-              className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+              className="w-full h-2 bg-neutral-700 rounded-lg appearance-none cursor-pointer slider"
               style={{
-                background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${(sourceCount - 1) * 11.11}%, #374151 ${(sourceCount - 1) * 11.11}%, #374151 100%)`
+                background: `linear-gradient(to right, #525252 0%, #525252 ${(sourceCount - 1) * 11.11}%, #374151 ${(sourceCount - 1) * 11.11}%, #374151 100%)`
               }}
             />
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <div className="flex justify-between text-xs text-neutral-500 mt-1">
               <span>1</span>
               <span>10</span>
             </div>
           </div>
         </div>
 
-        <div className="text-sm text-gray-400 mt-4">
+        <div className="text-sm text-neutral-400 mt-4">
           Select your sources
         </div>
 
@@ -73,25 +73,25 @@ export default function Sidebar({
         <div className="space-y-2">
           <button
             onClick={() => setGeneralConferenceOpen(!generalConferenceOpen)}
-            className="w-full flex items-center justify-between p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
+            className="w-full flex items-center justify-between p-3 bg-neutral-700 rounded-lg hover:bg-neutral-600 transition-colors"
           >
             <div className="flex items-center space-x-3">
-              <div className="w-6 h-6 bg-green-600 rounded flex items-center justify-center">
+              <div className="w-6 h-6 bg-neutral-600 rounded flex items-center justify-center">
                 <span className="text-white text-xs">🎤</span>
               </div>
               <span className="text-white text-sm">General Conference</span>
-              <span className="bg-gray-600 text-white text-xs px-2 py-1 rounded">1</span>
+              <span className="bg-neutral-600 text-white text-xs px-2 py-1 rounded">1</span>
             </div>
             {generalConferenceOpen ? (
-              <ChevronUpIcon className="w-4 h-4 text-gray-400" />
+              <ChevronUpIcon className="w-4 h-4 text-neutral-400" />
             ) : (
-              <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+              <ChevronDownIcon className="w-4 h-4 text-neutral-400" />
             )}
           </button>
 
           {generalConferenceOpen && (
             <div className="ml-6 space-y-1">
-              <label className="flex items-center space-x-2 text-sm text-gray-300">
+              <label className="flex items-center space-x-2 text-sm text-neutral-300">
                 <input
                   type="checkbox"
                   checked={selectedSources.includes('general-conference')}
@@ -108,18 +108,18 @@ export default function Sidebar({
         <div className="space-y-2">
           <button
             onClick={() => setStandardWorksOpen(!standardWorksOpen)}
-            className="w-full flex items-center justify-between p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
+            className="w-full flex items-center justify-between p-3 bg-neutral-700 rounded-lg hover:bg-neutral-600 transition-colors"
           >
             <div className="flex items-center space-x-3">
-              <div className="w-6 h-6 bg-purple-600 rounded flex items-center justify-center">
+              <div className="w-6 h-6 bg-neutral-600 rounded flex items-center justify-center">
                 <span className="text-white text-xs">📖</span>
               </div>
               <span className="text-white text-sm">Standard Works</span>
             </div>
             {standardWorksOpen ? (
-              <ChevronUpIcon className="w-4 h-4 text-gray-400" />
+              <ChevronUpIcon className="w-4 h-4 text-neutral-400" />
             ) : (
-              <ChevronDownIcon className="w-4 h-4 text-gray-400" />
+              <ChevronDownIcon className="w-4 h-4 text-neutral-400" />
             )}
           </button>
 
@@ -132,7 +132,7 @@ export default function Sidebar({
                 'Old Testament',
                 'New Testament'
               ].map((work) => (
-                <label key={work} className="flex items-center space-x-2 text-sm text-gray-300">
+                <label key={work} className="flex items-center space-x-2 text-sm text-neutral-300">
                   <input
                     type="checkbox"
                     checked={selectedSources.includes(work.toLowerCase().replace(/\s+/g, '-').replace('&', 'and'))}
