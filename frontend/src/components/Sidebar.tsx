@@ -147,8 +147,12 @@ export default function Sidebar({
       <div className="p-6 border-b border-neutral-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-neutral-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">G</span>
+            <div className="w-8 h-8 rounded-lg overflow-hidden border border-neutral-600">
+              <img 
+                src="/christ.jpeg" 
+                alt="Gospel Study Logo" 
+                className="w-full h-full object-cover"
+              />
             </div>
             <h1 className="text-xl font-semibold text-white">Gospel Study</h1>
           </div>
@@ -234,9 +238,6 @@ export default function Sidebar({
             className="w-full flex items-center justify-between p-3 bg-neutral-700 rounded-lg hover:bg-neutral-600 transition-colors"
           >
             <div className="flex items-center space-x-3">
-              <div className="w-6 h-6 bg-neutral-600 rounded flex items-center justify-center">
-                <span className="text-white text-xs">GC</span>
-              </div>
               <span className="text-white text-sm">General Conference</span>
               <span className="bg-neutral-600 text-white text-xs px-2 py-1 rounded">1</span>
             </div>
@@ -322,9 +323,6 @@ export default function Sidebar({
             className="w-full flex items-center justify-between p-3 bg-neutral-700 rounded-lg hover:bg-neutral-600 transition-colors"
           >
             <div className="flex items-center space-x-3">
-              <div className="w-6 h-6 bg-neutral-600 rounded flex items-center justify-center">
-                <span className="text-white text-xs">SW</span>
-              </div>
               <span className="text-white text-sm">Standard Works</span>
             </div>
             {standardWorksOpen ? (
