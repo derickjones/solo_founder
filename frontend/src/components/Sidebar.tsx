@@ -16,8 +16,8 @@ export default function Sidebar({
   sourceCount,
   setSourceCount,
 }: SidebarProps) {
-  const [generalConferenceOpen, setGeneralConferenceOpen] = useState(false);
-  const [standardWorksOpen, setStandardWorksOpen] = useState(false);
+  const [generalConferenceOpen, setGeneralConferenceOpen] = useState(true); // Open by default
+  const [standardWorksOpen, setStandardWorksOpen] = useState(true); // Open by default
 
   const handleSourceToggle = (source: string) => {
     if (selectedSources.includes(source)) {
