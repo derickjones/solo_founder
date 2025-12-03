@@ -51,6 +51,44 @@ export default function Sidebar({
     setSelectedSources(selectedSources.filter(source => !scriptureSourcesToRemove.includes(source)));
   };
 
+  const handleToggleSelectAll = () => {
+    const allSources = [
+      // General Conference
+      'general-conference',
+      // By Year
+      'gc-year-2025', 'gc-year-2024', 'gc-year-2023', 'gc-year-2022', 'gc-year-2021',
+      'gc-year-2020', 'gc-year-2019', 'gc-year-2018', 'gc-year-2017', 'gc-year-2016', 'gc-year-2015',
+      // By Speaker
+      'gc-speaker-russell-m-nelson', 'gc-speaker-dallin-h-oaks', 'gc-speaker-henry-b-eyring',
+      'gc-speaker-jeffrey-r-holland', 'gc-speaker-dieter-f-uchtdorf', 'gc-speaker-david-a-bednar',
+      'gc-speaker-quentin-l-cook', 'gc-speaker-d-todd-christofferson', 'gc-speaker-neil-l-andersen',
+      'gc-speaker-ronald-a-rasband', 'gc-speaker-gary-e-stevenson', 'gc-speaker-dale-g-renlund',
+      // Standard Works
+      'book-of-mormon', 'doctrine-and-covenants', 'pearl-of-great-price', 'old-testament', 'new-testament'
+    ];
+
+    // If most sources are selected, deselect all. Otherwise, select all.
+    if (selectedSources.length >= allSources.length * 0.8) {
+      setSelectedSources([]);
+    } else {
+      setSelectedSources(allSources);
+    }
+  };
+
+  const isAllSelected = () => {
+    const allSources = [
+      'general-conference',
+      'gc-year-2025', 'gc-year-2024', 'gc-year-2023', 'gc-year-2022', 'gc-year-2021',
+      'gc-year-2020', 'gc-year-2019', 'gc-year-2018', 'gc-year-2017', 'gc-year-2016', 'gc-year-2015',
+      'gc-speaker-russell-m-nelson', 'gc-speaker-dallin-h-oaks', 'gc-speaker-henry-b-eyring',
+      'gc-speaker-jeffrey-r-holland', 'gc-speaker-dieter-f-uchtdorf', 'gc-speaker-david-a-bednar',
+      'gc-speaker-quentin-l-cook', 'gc-speaker-d-todd-christofferson', 'gc-speaker-neil-l-andersen',
+      'gc-speaker-ronald-a-rasband', 'gc-speaker-gary-e-stevenson', 'gc-speaker-dale-g-renlund',
+      'book-of-mormon', 'doctrine-and-covenants', 'pearl-of-great-price', 'old-testament', 'new-testament'
+    ];
+    return selectedSources.length >= allSources.length * 0.8;
+  };
+
   return (
     <div className={`
       w-72 lg:w-80 bg-neutral-800 border-r border-neutral-700 flex flex-col
@@ -79,7 +117,19 @@ export default function Sidebar({
       {/* Sources to search section */}
       <div className="p-4 lg:p-6 space-y-4 overflow-y-auto flex-1">
         <div className="space-y-3">
-          <label className="text-sm text-neutral-400">Sources to search:</label>
+          <div className="flex items-center justify-between">
+            <label className="text-sm text-neutral-400">Sources to search:</label>
+            <button
+              onClick={handleToggleSelectAll}
+              className={`text-xs px-3 py-1 rounded transition-colors ${
+                isAllSelected()
+                  ? 'bg-red-600 hover:bg-red-500 text-white'
+                  : 'bg-blue-600 hover:bg-blue-500 text-white'
+              }`}
+            >
+              {isAllSelected() ? 'Deselect All' : 'Select All'}
+            </button>
+          </div>
           <div className="text-2xl font-bold text-white">{sourceCount}</div>
           
           {/* Range slider */}
