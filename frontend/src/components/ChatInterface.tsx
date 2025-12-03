@@ -145,8 +145,25 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
 
   return (
     <div className="flex-1 flex flex-col bg-neutral-900">
-      {/* Input area at top */}
-      <div className="px-8 pt-8 pb-4">
+      {/* Header with logo */}
+      <div className="flex items-center justify-center pt-16 pb-8">
+        <div className="flex flex-col items-center space-y-6">
+          <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-neutral-700">
+            <img 
+              src="/christ.jpeg" 
+              alt="Gospel Study Assistant Logo" 
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-white mb-2">Gospel Study Assistant</h1>
+            <p className="text-xl text-neutral-400">Ask any question and get intelligent answers with scripture citations</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Input area below header */}
+      <div className="px-8 pb-4">
         <div className="max-w-4xl mx-auto">
           <form onSubmit={handleSubmit} className="relative">
             <div className="flex items-center bg-neutral-800 border-2 border-neutral-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 rounded-2xl p-4 transition-all duration-200">
@@ -201,23 +218,6 @@ export default function ChatInterface({ selectedSources, sourceCount }: ChatInte
               </button>
             </div>
           </form>
-        </div>
-      </div>
-
-      {/* Header with logo */}
-      <div className="flex items-center justify-center pt-8 pb-8">
-        <div className="flex flex-col items-center space-y-6">
-          <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-neutral-700">
-            <img 
-              src="/christ.jpeg" 
-              alt="Gospel Study Assistant Logo" 
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-white mb-2">Gospel Study Assistant</h1>
-            <p className="text-xl text-neutral-400">Ask any question and get intelligent answers with scripture citations</p>
-          </div>
         </div>
       </div>
 
