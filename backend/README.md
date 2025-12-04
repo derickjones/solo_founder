@@ -53,6 +53,77 @@ Build the most trusted AI scripture study tool in the Church. Launch with 500 li
 | CI/CD Pipeline | ✅ Active | GitHub → Vercel (frontend) + Cloud Run (API) |
 | Environment Config | ✅ Secure | API keys in .env, production ready |
 
+## 🔧 Environment Setup
+
+### Required Environment Variables
+
+The API service requires the following environment variables for full functionality:
+
+#### Google Cloud Run Configuration
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Navigate to Cloud Run → Your Service → "Variables & Secrets" tab
+3. Add the following environment variables:
+
+| **Variable** | **Required** | **Purpose** | **Example** |
+|--------------|--------------|-------------|-------------|
+| `OPENAI_API_KEY` | Optional* | AI lesson planner functionality | `sk-proj-...` |
+
+*Note: The service will start successfully without `OPENAI_API_KEY`, but the `/cfm/lesson-plan` endpoint will return a helpful error message with setup instructions.
+
+#### Checking Service Status
+Use the `/config` endpoint to verify your environment setup:
+
+```bash
+curl https://your-service-url.run.app/config
+```
+
+This returns:
+- Search engine status (always available)
+- OpenAI client status  
+- Available endpoints based on configuration
+- Setup instructions for missing components
+
+## 🚀 Deployment (Simple & Reliable)
+
+### Quick Deploy to Cloud Run
+
+```bash
+# Deploy directly with gcloud (recommended)
+cd backend
+gcloud run deploy gospel-guide-api \
+  --source . \
+  --region=us-central1 \
+  --allow-unauthenticated \
+  --memory=2Gi \
+  --cpu=1 \
+  --timeout=300 \
+  --max-instances=10 \
+  --project=gospel-study-474301
+
+# Set OpenAI API key (if not already set)
+gcloud run services update gospel-guide-api \
+  --region=us-central1 \
+  --project=gospel-study-474301 \
+  --set-env-vars OPENAI_API_KEY=your-api-key-here
+```
+
+### Verify Deployment
+
+```bash
+# Check service health
+curl https://gospel-guide-api-273320302933.us-central1.run.app/health
+
+# Check configuration
+curl https://gospel-guide-api-273320302933.us-central1.run.app/config
+
+# Test search
+curl -X POST "https://gospel-guide-api-273320302933.us-central1.run.app/ask/stream" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "What is faith?", "mode": "default", "top_k": 3}'
+```
+
+**Note**: The service uses graceful degradation - it will start successfully even without an OpenAI API key, but AI features will be disabled until the key is configured.
+
 ## 🏗️ Tech Stack (DEPLOYED)
 
 - **✅ Content Pipeline**: Python scrapers + BeautifulSoup (COMPLETE)

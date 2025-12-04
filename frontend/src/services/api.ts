@@ -48,6 +48,21 @@ export interface AskResponse {
   response_time: number;
 }
 
+// Come Follow Me interfaces
+export interface CFMLessonPlanRequest {
+  week: string;
+  audience: 'adults' | 'youth' | 'family' | 'children';
+}
+
+export interface CFMLessonPlanResponse {
+  week: string;
+  audience: string;
+  lesson_title: string;
+  lesson_plan: string;
+  sources_used: number;
+  generation_time_ms: number;
+}
+
 // Map frontend modes to API modes
 const MODE_MAPPING: Record<string, string> = {
   'AI Q&A': 'default',
@@ -318,4 +333,23 @@ export const getHealth = async (): Promise<{ status: string, segments_loaded: nu
     status: data.status,
     segments_loaded: data.total_segments
   };
+};
+
+export const generateCFMLessonPlan = async (request: CFMLessonPlanRequest): Promise<CFMLessonPlanResponse> => {
+  console.log('Generating CFM lesson plan:', request);
+  
+  const response = await fetch(`${API_BASE_URL}/cfm/lesson-plan`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || `Failed to generate lesson plan: ${response.statusText}`);
+  }
+
+  return response.json();
 };

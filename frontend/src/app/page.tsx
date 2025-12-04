@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Sidebar from '@/components/Sidebar';
 import ChatInterface from '@/components/ChatInterface';
+import { getCurrentCFMWeek, CFMWeek } from '@/utils/comeFollowMe';
 
 export default function Home() {
   // Pre-select all available sources
@@ -27,6 +28,10 @@ export default function Home() {
   
   // Shared mode state - controlled by sidebar, used by chat
   const [mode, setMode] = useState('Q&A'); // 'Q&A' or 'Come Follow Me'
+  
+  // CFM state
+  const [cfmAudience, setCfmAudience] = useState('Adult');
+  const [cfmWeek, setCfmWeek] = useState<CFMWeek>(getCurrentCFMWeek());
 
   return (
     <div className="flex h-screen bg-gray-900 text-white relative">
@@ -47,6 +52,10 @@ export default function Home() {
         setIsOpen={setSidebarOpen}
         mode={mode}
         setMode={setMode}
+        cfmAudience={cfmAudience}
+        setCfmAudience={setCfmAudience}
+        cfmWeek={cfmWeek}
+        setCfmWeek={setCfmWeek}
       />
       <ChatInterface 
         selectedSources={selectedSources}
@@ -55,6 +64,8 @@ export default function Home() {
         setSidebarOpen={setSidebarOpen}
         mode={mode}
         setMode={setMode}
+        cfmAudience={cfmAudience}
+        cfmWeek={cfmWeek.dates}
       />
     </div>
   );

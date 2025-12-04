@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ChevronDownIcon, ChevronUpIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { getCurrentCFMWeek, CFM_2025_SCHEDULE, CFM_AUDIENCES, formatCFMWeekDisplay } from '@/utils/comeFollowMe';
+import { getCurrentCFMWeek, CFM_2025_SCHEDULE, CFM_AUDIENCES, formatCFMWeekDisplay, CFMWeek } from '@/utils/comeFollowMe';
 
 interface SidebarProps {
   selectedSources: string[];
@@ -13,6 +13,10 @@ interface SidebarProps {
   setIsOpen: (open: boolean) => void;
   mode: string;
   setMode: (mode: string) => void;
+  cfmAudience: string;
+  setCfmAudience: (audience: string) => void;
+  cfmWeek: CFMWeek;
+  setCfmWeek: (week: CFMWeek) => void;
 }
 
 export default function Sidebar({
@@ -24,13 +28,13 @@ export default function Sidebar({
   setIsOpen,
   mode,
   setMode,
+  cfmAudience,
+  setCfmAudience,
+  cfmWeek,
+  setCfmWeek,
 }: SidebarProps) {
   const [generalConferenceOpen, setGeneralConferenceOpen] = useState(false); // Collapsed by default
   const [standardWorksOpen, setStandardWorksOpen] = useState(false); // Collapsed by default
-  
-  // Come Follow Me state
-  const [cfmAudience, setCfmAudience] = useState('Adult');
-  const [selectedCfmWeek, setSelectedCfmWeek] = useState(getCurrentCFMWeek());
 
   const handleSourceToggle = (source: string) => {
     if (selectedSources.includes(source)) {
@@ -246,10 +250,10 @@ export default function Sidebar({
               <label className="text-sm text-neutral-400">Select lesson:</label>
             </div>
             <select
-              value={selectedCfmWeek?.id || ''}
+              value={cfmWeek?.id || ''}
               onChange={(e) => {
                 const selectedWeek = CFM_2025_SCHEDULE.find(w => w.id === e.target.value);
-                setSelectedCfmWeek(selectedWeek || CFM_2025_SCHEDULE[0]);
+                setCfmWeek(selectedWeek || CFM_2025_SCHEDULE[0]);
               }}
               className="w-full p-3 bg-neutral-700 border border-neutral-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
@@ -260,10 +264,10 @@ export default function Sidebar({
               ))}
             </select>
             <div className="p-3 bg-neutral-700 rounded-lg">
-              <div className="text-white text-sm font-medium">{selectedCfmWeek?.lesson || 'Select a lesson'}</div>
-              <div className="text-neutral-300 text-xs">{selectedCfmWeek?.reference || 'Doctrine & Covenants'}</div>
-              {selectedCfmWeek?.dates && (
-                <div className="text-blue-400 text-xs mt-1">{selectedCfmWeek.dates}</div>
+              <div className="text-white text-sm font-medium">{cfmWeek?.lesson || 'Select a lesson'}</div>
+              <div className="text-neutral-300 text-xs">{cfmWeek?.reference || 'Doctrine & Covenants'}</div>
+              {cfmWeek?.dates && (
+                <div className="text-blue-400 text-xs mt-1">{cfmWeek.dates}</div>
               )}
             </div>
           </div>

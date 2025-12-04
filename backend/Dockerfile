@@ -20,8 +20,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy search engine code
 COPY search/ .
 
-# Create indexes directory (will be populated from Cloud Storage)
-RUN mkdir -p indexes
+# Copy CFM content data
+COPY scripts/content/ ./scripts/content/
+
+# Copy FAISS index files
+COPY search/indexes/ ./indexes/
 
 # Set environment variables
 ENV PYTHONPATH=/app

@@ -26,10 +26,14 @@ else
     
     # Basic checks
     if [ -z "$OPENAI_API_KEY" ]; then
-        echo "❌ Error: OPENAI_API_KEY environment variable is not set"
-        echo "Please set it with: export OPENAI_API_KEY='your-api-key-here'"
-        echo "Or create .env file with: echo 'OPENAI_API_KEY=your-key' > .env"
-        exit 1
+        echo "⚠️  Warning: OPENAI_API_KEY environment variable is not set"
+        echo "   The service will start successfully but lesson planning features will be unavailable."
+        echo "   To enable lesson planning, set the environment variable in Cloud Run after deployment:"
+        echo "   gcloud run services update $SERVICE_NAME --region=$REGION --set-env-vars OPENAI_API_KEY='your-api-key-here'"
+        echo ""
+        echo "🔄 Continuing deployment without OpenAI API key..."
+    else
+        echo "✅ OpenAI API key is configured"
     fi
 fi
 
@@ -103,7 +107,7 @@ gcloud run deploy $SERVICE_NAME \
     --max-instances 10 \
     --cpu-boost \
     --startup-probe="initialDelaySeconds=120,timeoutSeconds=20,periodSeconds=30,failureThreshold=5,httpGet.port=8080,httpGet.path=/health" \
-    --set-env-vars="BUCKET_NAME=$BUCKET_NAME,INDEX_DIR=indexes,OPENAI_API_KEY=$OPENAI_API_KEY" \
+    --set-env-vars="BUCKET_NAME=$BUCKET_NAME,INDEX_DIR=indexes$(if [ ! -z "$OPENAI_API_KEY" ]; then echo ",OPENAI_API_KEY=$OPENAI_API_KEY"; fi)" \
     --project $PROJECT_ID
 
 # Get service URL
@@ -123,8 +127,14 @@ fi
 echo ""
 echo "📋 Test your API:"
 echo "curl \"$SERVICE_URL/health\""
+echo "curl \"$SERVICE_URL/config\""
 echo "curl \"$SERVICE_URL/ask/stream\" -H \"Content-Type: application/json\" -d '{\"query\": \"What is faith?\"}'"
 echo ""
+if [ -z "$OPENAI_API_KEY" ]; then
+    echo "⚠️  To enable lesson planning features, set the OpenAI API key:"
+    echo "gcloud run services update $SERVICE_NAME --region=$REGION --set-env-vars OPENAI_API_KEY='your-api-key-here'"
+    echo ""
+fi
 echo "🔧 Troubleshooting:"
 echo "- View logs: gcloud logging read \"resource.type=cloud_run_revision AND resource.labels.service_name=$SERVICE_NAME\" --limit=20 --project=$PROJECT_ID"
 echo "- Service status: gcloud run services describe $SERVICE_NAME --region=$REGION --project=$PROJECT_ID"

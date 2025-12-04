@@ -1,0 +1,18 @@
+# Exclude development files
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.log
+.env
+*.tmp
+
+# Include index files even though they're in .gitignore
+!search/indexes/*.faiss
+!search/indexes/*.pkl
+!scripts/content/*.json
+
+# Exclude other large files we don't need in the container
+test_output/
+debug_output/

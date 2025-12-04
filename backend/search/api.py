@@ -131,13 +131,13 @@ async def startup_event():
         # Check for OpenAI API key
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
-            logger.error("❌ OPENAI_API_KEY environment variable required")
-            raise ValueError("OPENAI_API_KEY environment variable required")
-        
-        # Initialize OpenAI client
-        logger.info("🤖 Initializing OpenAI client...")
-        openai_client = openai.OpenAI(api_key=api_key)
-        logger.info("✅ OpenAI client initialized")
+            logger.warning("⚠️  OPENAI_API_KEY environment variable not set - lesson planner will be disabled")
+            openai_client = None
+        else:
+            # Initialize OpenAI client
+            logger.info("🤖 Initializing OpenAI client...")
+            openai_client = openai.OpenAI(api_key=api_key)
+            logger.info("✅ OpenAI client initialized")
         
         # Initialize search engine
         logger.info("🔍 Loading search engine indexes...")
@@ -177,6 +177,31 @@ async def readiness_check():
     if search_engine is None:
         raise HTTPException(status_code=503, detail="Search engine not ready")
     return {"status": "ready", "search_engine_loaded": True}
+
+@app.get("/config")
+async def get_config():
+    """
+    Returns the current configuration status of the API service
+    Shows which features are available based on environment setup
+    """
+    config_status = {
+        "search_engine": {
+            "available": search_engine is not None,
+            "segments_loaded": len(search_engine.metadata) if search_engine else 0
+        },
+        "openai_client": {
+            "available": openai_client is not None,
+            "features_enabled": ["lesson_planner"] if openai_client else [],
+            "setup_instructions": "Set OPENAI_API_KEY environment variable in Cloud Run service configuration" if not openai_client else "Configured"
+        },
+        "available_endpoints": {
+            "search": True,  # Always available with search engine
+            "stream_response": search_engine is not None,
+            "cfm_lesson_plan": search_engine is not None and openai_client is not None
+        }
+    }
+    
+    return config_status
 
 @app.get("/sources", response_model=SourcesResponse)
 async def get_sources():
@@ -567,11 +592,22 @@ class LessonPlanResponse(BaseModel):
 def load_cfm_content():
     """Load Come Follow Me content from JSON file"""
     try:
-        cfm_path = Path(__file__).parent.parent / "scripts" / "content" / "come_follow_me.json"
+        # In Docker container, this will be /app/scripts/content/come_follow_me.json
+        # Since we're in /app and scripts/content is copied to /app/scripts/content/
+        cfm_path = Path("/app/scripts/content/come_follow_me.json")
+        if not cfm_path.exists():
+            # Fallback for local development - go up from search/ to backend/ then to scripts/
+            current_file = Path(__file__)
+            cfm_path = current_file.parent.parent / "scripts" / "content" / "come_follow_me.json"
+        
+        logger.info(f"Loading CFM content from: {cfm_path}")
         with open(cfm_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+            content = json.load(f)
+            logger.info(f"Loaded {len(content)} CFM items")
+            return content
     except Exception as e:
         logger.error(f"Failed to load CFM content: {e}")
+        return []
         return []
 
 def get_cfm_week_content(week_identifier: str):
@@ -626,8 +662,14 @@ async def create_lesson_plan(request: LessonPlanRequest):
     3. Searches for additional relevant materials across all sources
     4. Uses audience-specific prompts to generate structured lesson plans
     """
-    if not search_engine or not openai_client:
-        raise HTTPException(status_code=503, detail="Search engine or AI client not initialized")
+    if not search_engine:
+        raise HTTPException(status_code=503, detail="Search engine not initialized. Please check server logs.")
+    
+    if not openai_client:
+        raise HTTPException(
+            status_code=503, 
+            detail="OpenAI API client not available. Please set the OPENAI_API_KEY environment variable in the Cloud Run service configuration."
+        )
     
     # Validate audience
     if request.audience not in CFM_LESSON_PROMPTS:

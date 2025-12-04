@@ -3,7 +3,7 @@
 import { useState, useRef, startTransition } from 'react';
 import { flushSync } from 'react-dom';
 import { ChevronDownIcon, PaperAirplaneIcon, Bars3Icon } from '@heroicons/react/24/outline';
-import { searchScriptures, SearchResult, askQuestionStream, StreamChunk } from '@/services/api';
+import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMLessonPlan, CFMLessonPlanRequest } from '@/services/api';
 import ReactMarkdown from 'react-markdown';
 
 interface Message {
@@ -24,19 +24,17 @@ interface ChatInterfaceProps {
   setSidebarOpen: (open: boolean) => void;
   mode: string;
   setMode: (mode: string) => void;
+  cfmAudience: string;
+  cfmWeek: string;
 }
 
-export default function ChatInterface({ selectedSources, sourceCount, sidebarOpen, setSidebarOpen, mode, setMode }: ChatInterfaceProps) {
+export default function ChatInterface({ selectedSources, sourceCount, sidebarOpen, setSidebarOpen, mode, setMode, cfmAudience, cfmWeek }: ChatInterfaceProps) {
   const [query, setQuery] = useState('');
   const [modeDropdownOpen, setModeDropdownOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
   const [streamingMessageId, setStreamingMessageId] = useState<number | null>(null);
-  
-  // Come Follow Me specific state
-  const [cfmAudience, setCfmAudience] = useState('Adult');
-  const [cfmWeek, setCfmWeek] = useState('');
 
   // Reset chat function
   const resetChat = () => {
@@ -50,7 +48,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
   // Dynamic placeholder text based on mode
   const getPlaceholderText = () => {
     if (mode === 'Come Follow Me') {
-      return `Ask about this week's ${cfmAudience.toLowerCase()} Come Follow Me lesson...`;
+      return 'Click the button to generate your lesson plan →';
     }
     return 'Ask any gospel question...';
   };
@@ -103,17 +101,42 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query.trim() || isLoading) return;
+    if (isLoading) return;
 
-    // Add user message
-    const userMessage: Message = { id: Date.now(), type: 'user', content: query };
-    setMessages(prev => [...prev, userMessage]);
+    // For CFM mode, we don't need a query - just generate the lesson plan
+    if (mode === 'Come Follow Me') {
+      if (!cfmWeek) {
+        // Show error message as assistant message
+        const errorMessage: Message = { 
+          id: Date.now(), 
+          type: 'assistant', 
+          content: 'Please select a Come Follow Me week in the sidebar before generating a lesson plan.'
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        return;
+      }
+      
+      // Add a system message showing what we're generating
+      const systemMessage: Message = { 
+        id: Date.now(), 
+        type: 'user', 
+        content: `Generate ${cfmAudience} lesson plan for ${cfmWeek}`
+      };
+      setMessages(prev => [...prev, systemMessage]);
+    } else {
+      // For Q&A mode, require a question
+      if (!query.trim()) return;
+      
+      // Add user message
+      const userMessage: Message = { id: Date.now(), type: 'user', content: query };
+      setMessages(prev => [...prev, userMessage]);
+    }
 
     setIsLoading(true);
     const searchQuery = query;
     setQuery('');
 
-    // Create assistant message that will be updated as we stream
+    // Create assistant message that will be updated
     const assistantMessageId = Date.now() + 1;
     const initialAssistantMessage: Message = {
       id: assistantMessageId,
@@ -130,83 +153,105 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
     setStreamingMessageId(assistantMessageId);
 
     try {
-      let fullAnswer = '';
-      let sources: SearchResult[] = [];
-      let searchTime = 0;
-
-      console.log('Starting askQuestionStream with:', { query: searchQuery, mode, selectedSources });
-      const startTime = Date.now();
-      
-      await askQuestionStream({
-        query: searchQuery,
-        mode,
-        max_results: sourceCount,
-        selectedSources
-      }, (chunk: StreamChunk) => {
-        const elapsed = Date.now() - startTime;
-        console.log('🔥 Chunk received in ChatInterface:', chunk.type, chunk.content ? `"${chunk.content.slice(0, 30)}..."` : '', 'elapsed:', elapsed + 'ms');
+      if (mode === 'Come Follow Me') {
+        // Handle CFM lesson plan generation
+        console.log('Generating CFM lesson plan with:', { week: cfmWeek, audience: cfmAudience.toLowerCase() });
         
-        switch (chunk.type) {
-          case 'search_complete':
-            console.log('✅ Search complete, found', chunk.total_sources, 'sources');
-            searchTime = (chunk.search_time_ms || 0) / 1000;
-            // Don't show "Found X sources" message - just continue to content
-            break;
-            
-          case 'content':
-            if (chunk.content) {
-              fullAnswer += chunk.content;
-              console.log('📝 Content chunk added, fullAnswer length:', fullAnswer.length);
+        const response = await generateCFMLessonPlan({
+          week: cfmWeek,
+          audience: cfmAudience.toLowerCase() === 'adult' ? 'adults' : cfmAudience.toLowerCase() as 'youth' | 'family' | 'children'
+        });
+        
+        // Update the message with the lesson plan
+        setMessages(prev => prev.map(msg => 
+          msg.id === assistantMessageId 
+            ? { ...msg, content: response.lesson_plan, isStreaming: false }
+            : msg
+        ));
+        
+        setStreamingMessageId(null);
+        setStreamingContent('');
+        setIsLoading(false);
+      } else {
+        // Handle regular Q&A streaming
+        let fullAnswer = '';
+        let sources: SearchResult[] = [];
+        let searchTime = 0;
+
+        console.log('Starting askQuestionStream with:', { query: searchQuery, mode, selectedSources });
+        const startTime = Date.now();
+        
+        await askQuestionStream({
+          query: searchQuery,
+          mode,
+          max_results: sourceCount,
+          selectedSources
+        }, (chunk: StreamChunk) => {
+          const elapsed = Date.now() - startTime;
+          console.log('🔥 Chunk received in ChatInterface:', chunk.type, chunk.content ? `"${chunk.content.slice(0, 30)}..."` : '', 'elapsed:', elapsed + 'ms');
+          
+          switch (chunk.type) {
+            case 'search_complete':
+              console.log('✅ Search complete, found', chunk.total_sources, 'sources');
+              searchTime = (chunk.search_time_ms || 0) / 1000;
+              // Don't show "Found X sources" message - just continue to content
+              break;
               
-              // Update streaming state immediately
-              console.log('🔄 Updating streaming content immediately:', fullAnswer.slice(-20));
+            case 'content':
+              if (chunk.content) {
+                fullAnswer += chunk.content;
+                console.log('📝 Content chunk added, fullAnswer length:', fullAnswer.length);
+                
+                // Update streaming state immediately
+                console.log('🔄 Updating streaming content immediately:', fullAnswer.slice(-20));
+                
+                setStreamingContent(fullAnswer);
+                
+                // Also update React state (for final rendering)
+                setMessages(prev => prev.map(msg => 
+                  msg.id === assistantMessageId 
+                    ? { ...msg, content: fullAnswer }
+                    : msg
+                ));
+              }
+              break;
               
-              setStreamingContent(fullAnswer);
+            case 'sources':
+              if (chunk.sources) {
+                sources = chunk.sources;
+                setMessages(prev => prev.map(msg => 
+                  msg.id === assistantMessageId 
+                    ? { ...msg, results: sources }
+                    : msg
+                ));
+              }
+              break;
               
-              // Also update React state (for final rendering)
+            case 'done':
+              console.log('✅ Streaming done, final answer length:', fullAnswer.length);
+              // Make sure final content is displayed and mark streaming as complete
               setMessages(prev => prev.map(msg => 
                 msg.id === assistantMessageId 
-                  ? { ...msg, content: fullAnswer }
+                  ? { ...msg, content: fullAnswer, isStreaming: false }
                   : msg
               ));
-            }
-            break;
-            
-          case 'sources':
-            if (chunk.sources) {
-              sources = chunk.sources;
+              // Clear streaming state
+              setStreamingMessageId(null);
+              setStreamingContent('');
+              setIsLoading(false);
+              break;
+              
+            case 'error':
               setMessages(prev => prev.map(msg => 
                 msg.id === assistantMessageId 
-                  ? { ...msg, results: sources }
+                  ? { ...msg, content: `Sorry, I encountered an error: ${chunk.error}`, isStreaming: false }
                   : msg
               ));
-            }
-            break;
-            
-          case 'done':
-            console.log('✅ Streaming done, final answer length:', fullAnswer.length);
-            // Make sure final content is displayed and mark streaming as complete
-            setMessages(prev => prev.map(msg => 
-              msg.id === assistantMessageId 
-                ? { ...msg, content: fullAnswer, isStreaming: false }
-                : msg
-            ));
-            // Clear streaming state
-            setStreamingMessageId(null);
-            setStreamingContent('');
-            setIsLoading(false);
-            break;
-            
-          case 'error':
-            setMessages(prev => prev.map(msg => 
-              msg.id === assistantMessageId 
-                ? { ...msg, content: `Sorry, I encountered an error: ${chunk.error}`, isStreaming: false }
-                : msg
-            ));
-            setIsLoading(false);
-            break;
-        }
-      });
+              setIsLoading(false);
+              break;
+          }
+        });
+      }
       
     } catch (error) {
       setMessages(prev => prev.map(msg => 
@@ -214,6 +259,8 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
           ? { ...msg, content: `Sorry, I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}`, isStreaming: false }
           : msg
       ));
+      setStreamingMessageId(null);
+      setStreamingContent('');
       setIsLoading(false);
     }
   };
@@ -258,28 +305,20 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
       <div className="px-4 lg:px-8 pb-4">
         <div className="max-w-4xl mx-auto">
           <form onSubmit={handleSubmit} className="relative">
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center bg-neutral-800 border-2 border-neutral-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 rounded-2xl p-3 lg:p-4 transition-all duration-200 gap-3 sm:gap-0">
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={getPlaceholderText()}
-                className="flex-1 bg-transparent text-white placeholder-neutral-400 outline-none text-base lg:text-lg min-w-0"
-              />
-              
-              {/* Mode selector */}
-              <div className="relative sm:mx-4 order-2 sm:order-1">
+            {/* Mode Selector - Always visible */}
+            <div className="flex justify-center mb-4">
+              <div className="relative">
                 <button
                   type="button"
                   onClick={() => setModeDropdownOpen(!modeDropdownOpen)}
-                  className="flex items-center justify-center space-x-2 bg-neutral-700 hover:bg-neutral-600 px-3 lg:px-4 py-2 rounded-lg transition-colors w-full sm:w-auto"
+                  className="flex items-center justify-center space-x-2 bg-neutral-700 hover:bg-neutral-600 px-4 lg:px-6 py-2 lg:py-3 rounded-lg transition-colors"
                 >
-                  <span className="text-white text-xs lg:text-sm">{mode}</span>
+                  <span className="text-white text-sm lg:text-base font-medium">{mode}</span>
                   <ChevronDownIcon className="w-4 h-4 text-neutral-400" />
                 </button>
                 
                 {modeDropdownOpen && (
-                  <div className="absolute top-full right-0 mt-2 bg-neutral-700 rounded-lg shadow-lg border border-neutral-600 py-2 min-w-40">
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-neutral-700 rounded-lg shadow-lg border border-neutral-600 py-2 min-w-40">
                     {modes.map((modeOption) => (
                       <button
                         key={modeOption}
@@ -296,18 +335,60 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                   </div>
                 )}
               </div>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center bg-neutral-800 border-2 border-neutral-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 rounded-2xl p-3 lg:p-4 transition-all duration-200 gap-3 sm:gap-0">
+              
+              {mode === 'Come Follow Me' ? (
+                // CFM Mode: Show lesson plan generation button
+                <>
+                  <div className="flex-1 flex items-center text-neutral-300 text-base lg:text-lg">
+                    {cfmWeek ? (
+                      <>Generate {cfmAudience} lesson plan for {cfmWeek}</>
+                    ) : (
+                      <>Select a week and audience in the sidebar to generate a lesson plan</>
+                    )}
+                  </div>
+                  
+                  <button
+                    type="submit"
+                    disabled={!cfmWeek || isLoading}
+                    className="bg-blue-600 hover:bg-blue-500 disabled:bg-neutral-700 disabled:cursor-not-allowed px-6 py-2 lg:py-3 rounded-full transition-colors font-medium text-white"
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center space-x-2">
+                        <div className="animate-spin rounded-full h-4 w-4 lg:h-5 lg:w-5 border-2 border-white border-t-transparent" />
+                        <span>Generating...</span>
+                      </div>
+                    ) : (
+                      'Generate Lesson Plan'
+                    )}
+                  </button>
+                </>
+              ) : (
+                // Q&A Mode: Show text input
+                <>
+                  <input
+                    type="text"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder={getPlaceholderText()}
+                    className="flex-1 bg-transparent text-white placeholder-neutral-400 outline-none text-base lg:text-lg min-w-0"
+                  />
 
-              <button
-                type="submit"
-                disabled={!query.trim() || isLoading}
-                className="bg-neutral-600 hover:bg-neutral-500 disabled:bg-neutral-700 disabled:cursor-not-allowed p-2 lg:p-3 rounded-full transition-colors order-1 sm:order-2 self-end sm:self-center"
-              >
-                {isLoading ? (
-                  <div className="animate-spin rounded-full h-4 w-4 lg:h-5 lg:w-5 border-2 border-white border-t-transparent" />
-                ) : (
-                  <PaperAirplaneIcon className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
-                )}
-              </button>
+                  <button
+                    type="submit"
+                    disabled={!query.trim() || isLoading}
+                    className="bg-neutral-600 hover:bg-neutral-500 disabled:bg-neutral-700 disabled:cursor-not-allowed p-2 lg:p-3 rounded-full transition-colors"
+                  >
+                    {isLoading ? (
+                      <div className="animate-spin rounded-full h-4 w-4 lg:h-5 lg:w-5 border-2 border-white border-t-transparent" />
+                    ) : (
+                      <PaperAirplaneIcon className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
+                    )}
+                  </button>
+                </>
+              )}
             </div>
           </form>
         </div>
