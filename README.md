@@ -437,6 +437,40 @@ GET  /api/cfm/current                     // Get current week lesson
 POST /api/cfm/ask                         // CFM-specific AI questions
 ```
 
+## 💎 **Future Premium Mode Ideas**
+*Saved for potential paid tier expansions:*
+
+### **Specialized Study Modes**
+- **`book-of-mormon-only`**: Missionary-focused mode limited to Book of Mormon text only
+  - *Tone*: Enthusiastic missionary spirit with phrases like "I know this book is true"
+  - *Content*: Book of Mormon + Introduction/Testimony only, no other scriptures
+  - *Use Case*: Mission prep, focused Book of Mormon study
+
+- **`general-conference-only`**: Official apostolic teachings mode (1971-present)
+  - *Tone*: Formal apostolic language, exact conference citations
+  - *Content*: General Conference addresses exclusively
+  - *Use Case*: Conference talk study, official Church position research
+
+- **`youth`**: Seminary teacher style for teenagers
+  - *Tone*: Excited, simple language with "Isn't that so cool?!" enthusiasm
+  - *Content*: All sources but age-appropriate explanations
+  - *Use Case*: Youth groups, seminary discussions
+
+- **`scholar`**: Academic depth for institute/CES instructors
+  - *Tone*: BYU religion professor with original languages and detailed context
+  - *Content*: All sources plus chiastic structures, JST notes, cross-references
+  - *Use Case*: Advanced study, teaching preparation
+
+- **`church-approved-only`**: Official sources verification mode
+  - *Tone*: Official Church position statements
+  - *Content*: Standard Works, General Conference, manuals, Gospel Topics Essays only
+  - *Use Case*: Doctrinal clarification, official position verification
+
+- **`personal-journal`**: Private study companion (future)
+  - *Tone*: Personal and reverent, referencing user's study history
+  - *Content*: User's uploaded notes, patriarchal blessing, study journal
+  - *Use Case*: Personal revelation tracking, private study enhancement
+
 ---
 
 **🎯 Goal**: Generate $49.5k in first 48 hours with 500 lifetime licenses.
