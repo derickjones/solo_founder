@@ -1,6 +1,32 @@
 # Solo Founder - Gospel Guide AI
 
-> **Mission## 🏗️ **Architecture Overview**
+> **Mission**: Ship a paid, production-ready LDS AI Scripture Study App in <14 days
+
+## 🎯 **Project Status: ✅ COMPLETE & DEPLOYED**
+
+**December 3, 2025** - Full-stack AI application with Come Follow Me study mode successfully deployed.
+
+### 🚀 **Live Deployments**
+- **🌐 Frontend**: https://vercel.com/derick-jones-projects/solo-founder (Vercel)
+- **🔌 API**: https://gospel-guide-api-273320302933.us-central1.run.app (Google Cloud Run)
+- **📚 Repository**: https://github.com/derickjones/solo_founder
+
+### ✅ **Fully Operational Features**
+- **🧠 AI-Powered Responses**: OpenAI GPT-4o-mini generates intelligent answers with proper LDS citations
+- **⚡ Real-Time Streaming**: Server-Sent Events for live response generation  
+- **📖 Complete LDS Library**: 58,088 scripture segments with FAISS vector search
+- **📅 Come Follow Me 2025**: Integrated weekly lesson study with actual Doctrine & Covenants schedule
+- **👨‍👩‍👧‍👦 Multi-Audience Support**: Adult, Family, Youth, and Children study modes
+- **🔍 Smart Citations**: Exact references like "(Oct 2016, President Dieter F. Uchtdorf, 'Fourth Floor, Last Door')"
+- **🎨 Dark Theme UI**: Modern chat interface with sidebar-driven mode selection
+- **🔐 Secure Deployment**: Environment-based API key management
+
+## 🆕 **Come Follow Me Features**
+- **📅 2025 Schedule**: 21 weeks of Doctrine & Covenants lessons with real dates
+- **🎯 Lesson Selection**: Dropdown with actual lesson titles and date ranges
+- **👪 Audience Targeting**: Customized content for different family members
+- **🔄 Mode Switching**: Seamless transition between Q&A and Come Follow Me study
+- **📖 Current Week Detection**: Automatically selects current lesson (Dec 1-7: D&C 137-138)## 🏗️ **Architecture Overview**
 
 ### 📡 **System Architecture**
 ```mermaid
@@ -133,6 +159,7 @@ solo_founder/
 │   │   └── content/              # 💾 Raw JSON content
 │   │       ├── book_of_mormon.json
 │   │       ├── general_conference.json
+│   │       ├── come_follow_me.json    # 📅 2025 D&C lessons
 │   │       └── complete_lds_content.json
 │   │
 │   ├── search/                    # 🔍 AI Search Engine
@@ -215,13 +242,17 @@ solo_founder/
 │   ├── deploy.sh           # 🚀 Google Cloud Run deployment
 │   └── Dockerfile          # 🐳 Container configuration
 │
-├── frontend/               # ⚛️ Next.js React Frontend  
+├── frontend/                     # ⚛️ Next.js React Frontend  
 │   ├── src/
-│   │   ├── components/     # 🧩 ChatInterface with streaming
-│   │   ├── app/           # 📱 Next.js 15 app structure
-│   │   └── services/      # 🔌 API integration
-│   ├── vercel.json        # ⚡ Auto-deploy configuration
-│   └── package.json       # 📦 Dependencies
+│   │   ├── components/          # 🧩 React Components
+│   │   │   ├── ChatInterface.tsx # 💬 Streaming chat with mode sync
+│   │   │   └── Sidebar.tsx      # 📋 Mode picker & source controls
+│   │   ├── utils/               # 🛠️ Utility Functions
+│   │   │   └── comeFollowMe.ts  # 📅 2025 D&C lesson data & logic
+│   │   ├── app/                 # 📱 Next.js 16 app structure
+│   │   └── services/            # 🔌 API integration
+│   ├── vercel.json             # ⚡ Auto-deploy configuration
+│   └── package.json            # 📦 Dependencies
 │
 └── .gitignore             # � Security & clean repo
 ```
@@ -393,11 +424,21 @@ npm run dev
 ## 📊 **Performance Metrics**
 - **⚡ Response Time**: ~2-3 seconds for AI-generated responses
 - **📚 Content Coverage**: 58,088 scripture segments across all standard works
+- **📅 Come Follow Me**: 21 weeks of 2025 Doctrine & Covenants lessons with real dates
 - **🎯 Search Accuracy**: Vector similarity with contextual AI interpretation
 - **💻 Streaming**: Real-time response generation with Server-Sent Events
+- **🎨 User Experience**: Sidebar-driven mode selection with audience targeting
+
+## 🔮 **Planned API Features (Coming Soon)**
+```typescript
+// Come Follow Me API endpoints (in development)
+GET  /api/cfm/lessons?year=2025           // List all CFM lessons
+GET  /api/cfm/current                     // Get current week lesson
+POST /api/cfm/ask                         // CFM-specific AI questions
+```
 
 ---
 
 **🎯 Goal**: Generate $49.5k in first 48 hours with 500 lifetime licenses.
 
-**✅ Status**: Ready for production launch! 🚀
+**✅ Status**: Ready for production launch with Come Follow Me study mode! 🚀📅
