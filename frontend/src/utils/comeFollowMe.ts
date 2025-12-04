@@ -93,8 +93,8 @@ export async function loadCFMLessonsFromAPI(): Promise<CFMWeek[]> {
 }
 
 export const CFM_AUDIENCES = [
-  { id: 'Adult', label: 'Adult' },
   { id: 'Family', label: 'Family' },
+  { id: 'Adult', label: 'Adult' },
   { id: 'Youth', label: 'Youth' },
   { id: 'Children', label: 'Children' }
 ];

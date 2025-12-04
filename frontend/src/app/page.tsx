@@ -30,7 +30,7 @@ export default function Home() {
   const [mode, setMode] = useState('Q&A'); // 'Q&A' or 'Come Follow Me'
   
   // CFM state
-  const [cfmAudience, setCfmAudience] = useState('Adult');
+  const [cfmAudience, setCfmAudience] = useState('Family');
   const [cfmWeek, setCfmWeek] = useState<CFMWeek>(getCurrentCFMWeek());
 
   return (
