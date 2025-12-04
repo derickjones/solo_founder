@@ -8,6 +8,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better Docker layer caching
@@ -32,9 +33,5 @@ ENV PORT=8080
 # Expose the port
 EXPOSE $PORT
 
-# Health check (optional but recommended)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s \
-  CMD curl -f http://localhost:$PORT/health || exit 1
-
-# Run the FastAPI server
-CMD exec uvicorn api:app --host 0.0.0.0 --port $PORT --workers 1
+# Run the FastAPI server with longer timeout for startup
+CMD exec uvicorn api:app --host 0.0.0.0 --port $PORT --workers 1 --timeout-keep-alive 65

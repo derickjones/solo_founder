@@ -207,6 +207,7 @@ export const askQuestionStream = async (
 
   console.log('Streaming request body:', body);
 
+  const requestStartTime = Date.now();
   const response = await fetch(`${API_BASE_URL}/ask/stream`, {
     method: 'POST',
     headers: {
@@ -215,7 +216,7 @@ export const askQuestionStream = async (
     body: JSON.stringify(body),
   });
 
-  console.log('Streaming response status:', response.status, response.statusText);
+  console.log('Streaming response status:', response.status, response.statusText, 'after', Date.now() - requestStartTime + 'ms');
 
   if (!response.ok) {
     throw new Error(`Streaming request failed: ${response.statusText}`);
@@ -230,18 +231,22 @@ export const askQuestionStream = async (
   let buffer = '';
 
   console.log('Starting to read streaming response...');
+  let chunkCount = 0;
 
   try {
     while (true) {
       const { done, value } = await reader.read();
       
       if (done) {
-        console.log('Streaming complete');
+        console.log('Streaming complete, total chunks processed:', chunkCount);
         break;
       }
       
+      chunkCount++;
+      
       // Add new chunk to buffer
       buffer += decoder.decode(value, { stream: true });
+      console.log('Raw chunk received:', buffer.slice(-100)); // Show last 100 chars
       
       // Split buffer on double newlines (SSE message boundaries)
       const messages = buffer.split('\n\n');
@@ -256,7 +261,7 @@ export const askQuestionStream = async (
           if (line.startsWith('data: ')) {
             try {
               const data = JSON.parse(line.slice(6));
-              console.log('Received chunk:', data.type, data.content ? data.content.slice(0, 50) + '...' : '');
+              console.log('Parsed chunk:', data.type, data.content ? `"${data.content.slice(0, 20)}..."` : '');
               
               // Transform sources to match our expected format
               if (data.type === 'sources' && data.sources) {

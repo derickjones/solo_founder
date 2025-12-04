@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, startTransition } from 'react';
 import { flushSync } from 'react-dom';
 import { ChevronDownIcon, PaperAirplaneIcon, Bars3Icon } from '@heroicons/react/24/outline';
 import { searchScriptures, SearchResult, askQuestionStream, StreamChunk } from '@/services/api';
@@ -30,6 +30,8 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
   const [modeDropdownOpen, setModeDropdownOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [streamingContent, setStreamingContent] = useState('');
+  const [streamingMessageId, setStreamingMessageId] = useState<number | null>(null);
 
   // Format citations from individual metadata fields
   const formatCitation = (result: SearchResult) => {
@@ -106,44 +108,50 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
     };
     setMessages(prev => [...prev, initialAssistantMessage]);
 
+    // Initialize streaming state
+    setStreamingContent('');
+    setStreamingMessageId(assistantMessageId);
+
     try {
       let fullAnswer = '';
       let sources: SearchResult[] = [];
       let searchTime = 0;
-      let lastUpdateTime = 0;
-      const UPDATE_THROTTLE = 50; // Update UI every 50ms max
 
+      console.log('Starting askQuestionStream with:', { query: searchQuery, mode, selectedSources });
+      const startTime = Date.now();
+      
       await askQuestionStream({
         query: searchQuery,
         mode,
         max_results: sourceCount,
         selectedSources
       }, (chunk: StreamChunk) => {
-        console.log('Received chunk in ChatInterface:', chunk.type, chunk.content ? chunk.content.slice(0, 30) + '...' : '');
+        const elapsed = Date.now() - startTime;
+        console.log('🔥 Chunk received in ChatInterface:', chunk.type, chunk.content ? `"${chunk.content.slice(0, 30)}..."` : '', 'elapsed:', elapsed + 'ms');
+        
         switch (chunk.type) {
           case 'search_complete':
+            console.log('✅ Search complete, found', chunk.total_sources, 'sources');
             searchTime = (chunk.search_time_ms || 0) / 1000;
-            setMessages(prev => prev.map(msg => 
-              msg.id === assistantMessageId 
-                ? { ...msg, content: `✅ Found ${chunk.total_sources || 0} sources. Generating response...`, searchTime }
-                : msg
-            ));
+            // Don't show "Found X sources" message - just continue to content
             break;
             
           case 'content':
             if (chunk.content) {
               fullAnswer += chunk.content;
+              console.log('📝 Content chunk added, fullAnswer length:', fullAnswer.length);
               
-              // Throttle updates for better visual streaming effect
-              const now = Date.now();
-              if (now - lastUpdateTime > UPDATE_THROTTLE) {
-                lastUpdateTime = now;
-                setMessages(prev => prev.map(msg => 
-                  msg.id === assistantMessageId 
-                    ? { ...msg, content: fullAnswer }
-                    : msg
-                ));
-              }
+              // Update streaming state immediately
+              console.log('🔄 Updating streaming content immediately:', fullAnswer.slice(-20));
+              
+              setStreamingContent(fullAnswer);
+              
+              // Also update React state (for final rendering)
+              setMessages(prev => prev.map(msg => 
+                msg.id === assistantMessageId 
+                  ? { ...msg, content: fullAnswer }
+                  : msg
+              ));
             }
             break;
             
@@ -159,12 +167,16 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
             break;
             
           case 'done':
+            console.log('✅ Streaming done, final answer length:', fullAnswer.length);
             // Make sure final content is displayed and mark streaming as complete
             setMessages(prev => prev.map(msg => 
               msg.id === assistantMessageId 
                 ? { ...msg, content: fullAnswer, isStreaming: false }
                 : msg
             ));
+            // Clear streaming state
+            setStreamingMessageId(null);
+            setStreamingContent('');
             setIsLoading(false);
             break;
             
@@ -296,10 +308,10 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                     {message.type === 'assistant' ? (
                       message.content ? (
                         <div className="space-y-4 leading-relaxed text-neutral-100 prose prose-invert max-w-none [&>*]:text-neutral-100">
-                          {message.isStreaming ? (
-                            // During streaming, use simple text with minimal parsing for better performance
+                          {message.isStreaming && message.id === streamingMessageId ? (
+                            // During streaming, show the streaming content state
                             <div className="text-base leading-7 text-neutral-100 whitespace-pre-wrap">
-                              {message.content}
+                              {streamingContent}
                               <span className="inline-block w-2 h-4 bg-green-400 animate-pulse ml-1">|</span>
                             </div>
                           ) : (

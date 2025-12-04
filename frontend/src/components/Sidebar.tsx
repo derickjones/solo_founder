@@ -157,7 +157,16 @@ export default function Sidebar({
       'gc-speaker-ronald-a-rasband', 'gc-speaker-gary-e-stevenson', 'gc-speaker-dale-g-renlund',
       'book-of-mormon', 'doctrine-and-covenants', 'pearl-of-great-price', 'old-testament', 'new-testament'
     ];
-    return selectedSources.length >= allSources.length * 0.8;
+    
+    // Check if we have both conference and scripture sources selected
+    const conferenceSources = getConferenceSources();
+    const scriptureSources = getScriptureSources();
+    
+    const hasConferenceSources = selectedSources.some(source => conferenceSources.includes(source));
+    const hasScriptureSources = selectedSources.some(source => scriptureSources.includes(source));
+    
+    // Only "all selected" if we have both conference AND scripture sources
+    return hasConferenceSources && hasScriptureSources && selectedSources.length >= allSources.length * 0.8;
   };
 
   return (

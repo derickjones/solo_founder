@@ -7,6 +7,7 @@ Deployed on Google Cloud Run for scalable LDS AI search
 import os
 import json
 import logging
+import time
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 
@@ -131,26 +132,39 @@ MODE_FILTERS = {
 @app.on_event("startup")
 async def startup_event():
     """Initialize search engine on startup"""
-    global search_engine
+    global search_engine, openai_client
     try:
         logger.info("🚀 Initializing Gospel Guide search engine...")
+        startup_time = time.time()
         
         # Setup Cloud Storage (download indexes if on Cloud Run)
         if os.getenv('BUCKET_NAME'):
             logger.info("📦 Setting up Cloud Storage...")
+            cloud_start = time.time()
             setup_cloud_storage()
+            logger.info(f"📦 Cloud Storage setup completed in {time.time() - cloud_start:.2f}s")
         
         # Check for OpenAI API key
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
+            logger.error("❌ OPENAI_API_KEY environment variable required")
             raise ValueError("OPENAI_API_KEY environment variable required")
         
-        # Initialize search engine
-        index_dir = os.getenv("INDEX_DIR", "indexes")
-        search_engine = ScriptureSearchEngine(index_dir=index_dir, openai_api_key=api_key)
+        # Initialize OpenAI client
+        logger.info("🤖 Initializing OpenAI client...")
+        openai_client = openai.OpenAI(api_key=api_key)
+        logger.info("✅ OpenAI client initialized")
         
-        logger.info(f"✅ Search engine loaded with {search_engine.index.ntotal:,} segments")
-        logger.info("🎉 Gospel Guide API ready to serve!")
+        # Initialize search engine
+        logger.info("🔍 Loading search engine indexes...")
+        index_dir = os.getenv("INDEX_DIR", "indexes")
+        search_start = time.time()
+        search_engine = ScriptureSearchEngine(index_dir=index_dir, openai_api_key=api_key)
+        search_time = time.time() - search_start
+        
+        total_startup_time = time.time() - startup_time
+        logger.info(f"✅ Search engine loaded with {search_engine.index.ntotal:,} segments in {search_time:.2f}s")
+        logger.info(f"🎉 Gospel Guide API ready to serve! Total startup time: {total_startup_time:.2f}s")
         
     except Exception as e:
         logger.error(f"❌ Failed to initialize search engine: {e}")
@@ -159,17 +173,26 @@ async def startup_event():
 @app.get("/", response_model=HealthResponse)
 async def health_check():
     """Health check endpoint"""
+    # Always return healthy status even if search engine not ready yet
+    # This allows Cloud Run to consider the container started
     return HealthResponse(
         status="healthy",
         version="1.0.0",
         search_engine_loaded=search_engine is not None,
-        total_segments=search_engine.index.ntotal if search_engine else 0
+        total_segments=search_engine.index.ntotal if search_engine and hasattr(search_engine, 'index') else 0
     )
 
 @app.get("/health", response_model=HealthResponse)
 async def health():
     """Alternative health check endpoint"""
     return await health_check()
+
+@app.get("/ready")
+async def readiness_check():
+    """Readiness check - returns 503 if search engine not loaded"""
+    if search_engine is None:
+        raise HTTPException(status_code=503, detail="Search engine not ready")
+    return {"status": "ready", "search_engine_loaded": True}
 
 @app.get("/sources", response_model=SourcesResponse)
 async def get_sources():
@@ -406,6 +429,9 @@ async def ask_question_stream(request: AskRequest):
         
         try:
             # Step 1: Perform search to get relevant sources
+            logger.info(f"🔍 Starting search for: '{request.query}'")
+            search_start = time.time()
+            
             mode_filter = get_mode_source_filter(request.mode)
             
             # Combine mode filter with custom filter
@@ -426,6 +452,8 @@ async def ask_question_stream(request: AskRequest):
             )
             
             search_time_ms = int((time.time() - start_time) * 1000)
+            search_elapsed = time.time() - search_start
+            logger.info(f"✅ Search completed in {search_elapsed:.3f}s, found {len(search_results)} results")
             
             # Send search metadata first
             yield f"data: {json.dumps({'type': 'search_complete', 'search_time_ms': search_time_ms, 'total_sources': len(search_results)})}\n\n"
@@ -436,10 +464,17 @@ async def ask_question_stream(request: AskRequest):
                 return
             
             # Step 2: Build context prompt with search results
+            logger.info(f"📝 Building context prompt...")
+            context_start = time.time()
+            
             context_prompt = build_context_prompt(request.query, search_results, request.mode)
             system_prompt = get_system_prompt(request.mode)
             
+            context_elapsed = time.time() - context_start
+            logger.info(f"✅ Context built in {context_elapsed:.3f}s, length: {len(context_prompt)} chars")
+            
             # Step 3: Stream AI response using OpenAI
+            logger.info(f"🤖 Starting OpenAI streaming...")
             ai_start_time = time.time()
             
             stream = openai_client.chat.completions.create(
@@ -455,10 +490,17 @@ async def ask_question_stream(request: AskRequest):
             
             # Stream the response chunks
             full_response = ""
+            first_chunk = True
             for chunk in stream:
                 if chunk.choices[0].delta.content is not None:
                     content = chunk.choices[0].delta.content
                     full_response += content
+                    
+                    if first_chunk:
+                        openai_first_chunk_time = time.time() - ai_start_time
+                        logger.info(f"🎯 First OpenAI chunk received in {openai_first_chunk_time:.3f}s")
+                        first_chunk = False
+                    
                     yield f"data: {json.dumps({'type': 'content', 'content': content})}\n\n"
             
             ai_time_ms = int((time.time() - ai_start_time) * 1000)
@@ -525,7 +567,9 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 # For local development
 if __name__ == "__main__":
+    logger.info("🏃 Starting Gospel Guide API server...")
     port = int(os.getenv("PORT", 8080))
+    logger.info(f"🌐 Server will listen on port {port}")
     uvicorn.run(
         "api:app",
         host="0.0.0.0",

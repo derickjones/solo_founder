@@ -263,7 +263,113 @@ solo_founder/
 - **Content Sources**: 58,088+ scripture segments from LDS.org
 - **Streaming**: Server-Sent Events for real-time AI responses
 
+## 🚀 **Deployment Guide**
+
+### Prerequisites
+```bash
+# Install Google Cloud CLI
+# Configure authentication
+gcloud auth login
+gcloud config set project gospel-study-474301
+
+# Set required environment variables
+export OPENAI_API_KEY="your-openai-api-key-here"
+```
+
+### Backend Deployment (Google Cloud Run)
+```bash
+cd backend
+source .env  # Ensure OPENAI_API_KEY is set
+
+# Optional: Run pre-deployment checks
+./check-deploy.sh
+
+# Deploy to Cloud Run
+./deploy.sh
+```
+
+The deploy script automatically:
+- ✅ Runs pre-deployment validation (if check-deploy.sh exists)
+- ✅ Uploads content files to Cloud Storage
+- ✅ Builds and pushes Docker image  
+- ✅ Clears conflicting environment variables
+- ✅ Deploys with proper startup probes
+- ✅ Tests API health after deployment
+
+### Frontend Deployment (Vercel)
+```bash
+cd frontend
+# Update API_BASE_URL in src/services/api.ts to your Cloud Run URL
+vercel --prod
+```
+
+## 🔧 **Troubleshooting Common Issues**
+
+### Environment Variable Conflicts
+**Problem**: `Cannot update environment variable [OPENAI_API_KEY] to string literal`
+**Solution**: The deploy script now automatically clears secrets/env vars to prevent conflicts.
+
+### Cloud Storage Access Issues  
+**Problem**: `Cannot access Cloud Storage bucket`
+**Solution**: Ensure bucket name is `gospel-guide-content-gospel-study-474301`, not just `gospel-study-474301`
+
+### Container Startup Failures
+**Problem**: `The user-provided container failed the configured startup probe checks`
+**Solutions**:
+- Check logs: `gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=gospel-guide-api" --limit=20`
+- Verify OPENAI_API_KEY is set: `echo $OPENAI_API_KEY`
+- Check bucket exists: `gsutil ls -p gospel-study-474301`
+
+### Service Shows Error in Console
+**Problem**: Red error status in Cloud Run console
+**Causes**:
+- Failed recent deployments (even if older revision works)
+- Environment variable type mismatches
+- Missing API keys or bucket access
+
+**Solution**: Use the updated deploy.sh which prevents these issues by:
+1. Running pre-deployment validation (check-deploy.sh)
+2. Clearing existing env vars/secrets automatically
+3. Using proper startup probe configuration  
+4. Testing deployment health automatically
+
+### Pre-Deployment Validation
+Run `./check-deploy.sh` before deploying to catch common issues:
+- ✅ Google Cloud authentication
+- ✅ Project configuration
+- ✅ API keys and environment setup  
+- ✅ Required Cloud APIs enabled
+- ✅ Cloud Storage bucket exists
+- ✅ Content and index files present
+
+### Debug Commands
+```bash
+# Check deployment status
+./check-status.sh
+
+# Manual service status
+gcloud run services describe gospel-guide-api --region=us-central1
+
+# View recent logs
+gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=gospel-guide-api" --limit=20
+
+# Test API health
+curl https://gospel-guide-api-273320302933.us-central1.run.app/health
+
+# Test streaming endpoint
+curl -X POST "https://gospel-guide-api-273320302933.us-central1.run.app/ask/stream" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "What is faith?"}'
+```
+
 ## 🚀 **Quick Start**
+
+### Environment Setup
+```bash
+# Create .env file in backend/ directory
+cd backend
+echo "OPENAI_API_KEY=your-openai-api-key-here" > .env
+```
 
 ### Backend (API Server)
 ```bash
