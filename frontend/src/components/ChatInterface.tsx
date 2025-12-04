@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { flushSync } from 'react-dom';
 import { ChevronDownIcon, PaperAirplaneIcon, Bars3Icon } from '@heroicons/react/24/outline';
 import { searchScriptures, SearchResult, askQuestionStream, StreamChunk } from '@/services/api';
@@ -110,6 +110,8 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
       let fullAnswer = '';
       let sources: SearchResult[] = [];
       let searchTime = 0;
+      let lastUpdateTime = 0;
+      const UPDATE_THROTTLE = 50; // Update UI every 50ms max
 
       await askQuestionStream({
         query: searchQuery,
@@ -117,6 +119,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
         max_results: sourceCount,
         selectedSources
       }, (chunk: StreamChunk) => {
+        console.log('Received chunk in ChatInterface:', chunk.type, chunk.content ? chunk.content.slice(0, 30) + '...' : '');
         switch (chunk.type) {
           case 'search_complete':
             searchTime = (chunk.search_time_ms || 0) / 1000;
@@ -131,14 +134,16 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
             if (chunk.content) {
               fullAnswer += chunk.content;
               
-              // Force immediate DOM update
-              flushSync(() => {
+              // Throttle updates for better visual streaming effect
+              const now = Date.now();
+              if (now - lastUpdateTime > UPDATE_THROTTLE) {
+                lastUpdateTime = now;
                 setMessages(prev => prev.map(msg => 
                   msg.id === assistantMessageId 
                     ? { ...msg, content: fullAnswer }
                     : msg
                 ));
-              });
+              }
             }
             break;
             
@@ -154,10 +159,10 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
             break;
             
           case 'done':
-            // Mark streaming as complete for final markdown rendering
+            // Make sure final content is displayed and mark streaming as complete
             setMessages(prev => prev.map(msg => 
               msg.id === assistantMessageId 
-                ? { ...msg, isStreaming: false }
+                ? { ...msg, content: fullAnswer, isStreaming: false }
                 : msg
             ));
             setIsLoading(false);
@@ -291,17 +296,23 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                     {message.type === 'assistant' ? (
                       message.content ? (
                         <div className="space-y-4 leading-relaxed text-neutral-100 prose prose-invert max-w-none [&>*]:text-neutral-100">
-                          <ReactMarkdown 
-                            components={{
-                              strong: ({ children }) => <strong className="font-bold text-white">{children}</strong>,
-                              em: ({ children }) => <em className="italic">{children}</em>,
-                              p: ({ children }) => <p className="text-base leading-7 mb-4 text-neutral-100">{children}</p>
-                            }}
-                          >
-                            {message.content}
-                          </ReactMarkdown>
-                          {message.isStreaming && (
-                            <span className="inline-block w-2 h-4 bg-neutral-400 animate-pulse ml-1">|</span>
+                          {message.isStreaming ? (
+                            // During streaming, use simple text with minimal parsing for better performance
+                            <div className="text-base leading-7 text-neutral-100 whitespace-pre-wrap">
+                              {message.content}
+                              <span className="inline-block w-2 h-4 bg-green-400 animate-pulse ml-1">|</span>
+                            </div>
+                          ) : (
+                            // After streaming is complete, use full markdown rendering
+                            <ReactMarkdown 
+                              components={{
+                                strong: ({ children }) => <strong className="font-bold text-white">{children}</strong>,
+                                em: ({ children }) => <em className="italic">{children}</em>,
+                                p: ({ children }) => <p className="text-base leading-7 mb-4 text-neutral-100">{children}</p>
+                              }}
+                            >
+                              {message.content}
+                            </ReactMarkdown>
                           )}
                         </div>
                       ) : null

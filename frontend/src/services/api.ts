@@ -205,6 +205,8 @@ export const askQuestionStream = async (
     ...(sourceFilter && { source_filter: sourceFilter })
   };
 
+  console.log('Streaming request body:', body);
+
   const response = await fetch(`${API_BASE_URL}/ask/stream`, {
     method: 'POST',
     headers: {
@@ -212,6 +214,8 @@ export const askQuestionStream = async (
     },
     body: JSON.stringify(body),
   });
+
+  console.log('Streaming response status:', response.status, response.statusText);
 
   if (!response.ok) {
     throw new Error(`Streaming request failed: ${response.statusText}`);
@@ -225,11 +229,16 @@ export const askQuestionStream = async (
   const decoder = new TextDecoder();
   let buffer = '';
 
+  console.log('Starting to read streaming response...');
+
   try {
     while (true) {
       const { done, value } = await reader.read();
       
-      if (done) break;
+      if (done) {
+        console.log('Streaming complete');
+        break;
+      }
       
       // Add new chunk to buffer
       buffer += decoder.decode(value, { stream: true });
@@ -247,6 +256,7 @@ export const askQuestionStream = async (
           if (line.startsWith('data: ')) {
             try {
               const data = JSON.parse(line.slice(6));
+              console.log('Received chunk:', data.type, data.content ? data.content.slice(0, 50) + '...' : '');
               
               // Transform sources to match our expected format
               if (data.type === 'sources' && data.sources) {
@@ -270,7 +280,7 @@ export const askQuestionStream = async (
               
               onChunk(data);
             } catch (e) {
-              console.error('Failed to parse SSE data:', e);
+              console.error('Failed to parse SSE data:', e, 'Line:', line);
             }
           }
         }

@@ -16,13 +16,14 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ChevronDownIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronDownIcon$3e$__ = __turbopack_context__.i("[project]/node_modules/@heroicons/react/24/outline/esm/ChevronDownIcon.js [app-ssr] (ecmascript) <export default as ChevronDownIcon>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ChevronUpIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronUpIcon$3e$__ = __turbopack_context__.i("[project]/node_modules/@heroicons/react/24/outline/esm/ChevronUpIcon.js [app-ssr] (ecmascript) <export default as ChevronUpIcon>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$XMarkIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__XMarkIcon$3e$__ = __turbopack_context__.i("[project]/node_modules/@heroicons/react/24/outline/esm/XMarkIcon.js [app-ssr] (ecmascript) <export default as XMarkIcon>");
 'use client';
 ;
 ;
 ;
-function Sidebar({ selectedSources, setSelectedSources, sourceCount, setSourceCount }) {
-    const [generalConferenceOpen, setGeneralConferenceOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
-    const [standardWorksOpen, setStandardWorksOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
+function Sidebar({ selectedSources, setSelectedSources, sourceCount, setSourceCount, isOpen, setIsOpen }) {
+    const [generalConferenceOpen, setGeneralConferenceOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false); // Collapsed by default
+    const [standardWorksOpen, setStandardWorksOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false); // Collapsed by default
     const handleSourceToggle = (source)=>{
         if (selectedSources.includes(source)) {
             setSelectedSources(selectedSources.filter((s)=>s !== source));
@@ -33,60 +34,316 @@ function Sidebar({ selectedSources, setSelectedSources, sourceCount, setSourceCo
             ]);
         }
     };
+    const getConferenceSources = ()=>[
+            'general-conference',
+            'gc-year-2025',
+            'gc-year-2024',
+            'gc-year-2023',
+            'gc-year-2022',
+            'gc-year-2021',
+            'gc-year-2020',
+            'gc-year-2019',
+            'gc-year-2018',
+            'gc-year-2017',
+            'gc-year-2016',
+            'gc-year-2015',
+            'gc-speaker-russell-m-nelson',
+            'gc-speaker-dallin-h-oaks',
+            'gc-speaker-henry-b-eyring',
+            'gc-speaker-jeffrey-r-holland',
+            'gc-speaker-dieter-f-uchtdorf',
+            'gc-speaker-david-a-bednar',
+            'gc-speaker-quentin-l-cook',
+            'gc-speaker-d-todd-christofferson',
+            'gc-speaker-neil-l-andersen',
+            'gc-speaker-ronald-a-rasband',
+            'gc-speaker-gary-e-stevenson',
+            'gc-speaker-dale-g-renlund'
+        ];
+    const isAllConferenceSelected = ()=>{
+        const conferenceSources = getConferenceSources();
+        const selectedConferenceSources = selectedSources.filter((source)=>conferenceSources.includes(source));
+        return selectedConferenceSources.length >= conferenceSources.length * 0.8;
+    };
+    const handleToggleAllConference = ()=>{
+        const conferenceSources = getConferenceSources();
+        if (isAllConferenceSelected()) {
+            // Deselect all conference sources
+            setSelectedSources(selectedSources.filter((source)=>!conferenceSources.includes(source)));
+        } else {
+            // Select all conference sources
+            const otherSources = selectedSources.filter((source)=>!conferenceSources.includes(source));
+            setSelectedSources([
+                ...otherSources,
+                ...conferenceSources
+            ]);
+        }
+    };
+    const getScriptureSources = ()=>[
+            'book-of-mormon',
+            'doctrine-and-covenants',
+            'pearl-of-great-price',
+            'old-testament',
+            'new-testament'
+        ];
+    const isAllScripturesSelected = ()=>{
+        const scriptureSources = getScriptureSources();
+        const selectedScriptureSources = selectedSources.filter((source)=>scriptureSources.includes(source));
+        return selectedScriptureSources.length >= scriptureSources.length * 0.8;
+    };
+    const isOnlyConferenceSelected = ()=>{
+        const conferenceSources = getConferenceSources();
+        const scriptureSources = getScriptureSources();
+        const allSources = [
+            ...conferenceSources,
+            ...scriptureSources
+        ];
+        // Check if only conference sources are selected
+        const selectedConferenceSources = selectedSources.filter((source)=>conferenceSources.includes(source));
+        const selectedScriptureSources = selectedSources.filter((source)=>scriptureSources.includes(source));
+        return selectedConferenceSources.length > 0 && selectedScriptureSources.length === 0;
+    };
+    const isOnlyScripturesSelected = ()=>{
+        const conferenceSources = getConferenceSources();
+        const scriptureSources = getScriptureSources();
+        // Check if only scripture sources are selected
+        const selectedConferenceSources = selectedSources.filter((source)=>conferenceSources.includes(source));
+        const selectedScriptureSources = selectedSources.filter((source)=>scriptureSources.includes(source));
+        return selectedScriptureSources.length > 0 && selectedConferenceSources.length === 0;
+    };
+    const handleToggleAllScriptures = ()=>{
+        const scriptureSources = getScriptureSources();
+        if (isAllScripturesSelected()) {
+            // Deselect all scripture sources
+            setSelectedSources(selectedSources.filter((source)=>!scriptureSources.includes(source)));
+        } else {
+            // Select all scripture sources
+            const otherSources = selectedSources.filter((source)=>!scriptureSources.includes(source));
+            setSelectedSources([
+                ...otherSources,
+                ...scriptureSources
+            ]);
+        }
+    };
+    const handleSelectGeneralConference = ()=>{
+        const conferenceSources = getConferenceSources();
+        setSelectedSources(conferenceSources);
+    };
+    const handleSelectStandardWorks = ()=>{
+        const scriptureSources = getScriptureSources();
+        setSelectedSources(scriptureSources);
+    };
+    const handleSelectBoth = ()=>{
+        const conferenceSources = getConferenceSources();
+        const scriptureSources = getScriptureSources();
+        setSelectedSources([
+            ...conferenceSources,
+            ...scriptureSources
+        ]);
+    };
+    const handleToggleSelectAll = ()=>{
+        const allSources = [
+            // General Conference
+            'general-conference',
+            // By Year
+            'gc-year-2025',
+            'gc-year-2024',
+            'gc-year-2023',
+            'gc-year-2022',
+            'gc-year-2021',
+            'gc-year-2020',
+            'gc-year-2019',
+            'gc-year-2018',
+            'gc-year-2017',
+            'gc-year-2016',
+            'gc-year-2015',
+            // By Speaker
+            'gc-speaker-russell-m-nelson',
+            'gc-speaker-dallin-h-oaks',
+            'gc-speaker-henry-b-eyring',
+            'gc-speaker-jeffrey-r-holland',
+            'gc-speaker-dieter-f-uchtdorf',
+            'gc-speaker-david-a-bednar',
+            'gc-speaker-quentin-l-cook',
+            'gc-speaker-d-todd-christofferson',
+            'gc-speaker-neil-l-andersen',
+            'gc-speaker-ronald-a-rasband',
+            'gc-speaker-gary-e-stevenson',
+            'gc-speaker-dale-g-renlund',
+            // Standard Works
+            'book-of-mormon',
+            'doctrine-and-covenants',
+            'pearl-of-great-price',
+            'old-testament',
+            'new-testament'
+        ];
+        // If most sources are selected, deselect all. Otherwise, select all.
+        if (selectedSources.length >= allSources.length * 0.8) {
+            setSelectedSources([]);
+        } else {
+            setSelectedSources(allSources);
+        }
+    };
+    const isAllSelected = ()=>{
+        const allSources = [
+            'general-conference',
+            'gc-year-2025',
+            'gc-year-2024',
+            'gc-year-2023',
+            'gc-year-2022',
+            'gc-year-2021',
+            'gc-year-2020',
+            'gc-year-2019',
+            'gc-year-2018',
+            'gc-year-2017',
+            'gc-year-2016',
+            'gc-year-2015',
+            'gc-speaker-russell-m-nelson',
+            'gc-speaker-dallin-h-oaks',
+            'gc-speaker-henry-b-eyring',
+            'gc-speaker-jeffrey-r-holland',
+            'gc-speaker-dieter-f-uchtdorf',
+            'gc-speaker-david-a-bednar',
+            'gc-speaker-quentin-l-cook',
+            'gc-speaker-d-todd-christofferson',
+            'gc-speaker-neil-l-andersen',
+            'gc-speaker-ronald-a-rasband',
+            'gc-speaker-gary-e-stevenson',
+            'gc-speaker-dale-g-renlund',
+            'book-of-mormon',
+            'doctrine-and-covenants',
+            'pearl-of-great-price',
+            'old-testament',
+            'new-testament'
+        ];
+        return selectedSources.length >= allSources.length * 0.8;
+    };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "w-80 bg-neutral-800 border-r border-neutral-700 flex flex-col",
+        className: `
+      w-72 lg:w-80 bg-neutral-800 border-r border-neutral-700 flex flex-col
+      fixed lg:relative top-0 left-0 h-full z-30 transition-transform duration-300 ease-in-out
+      ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+    `,
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "p-6 border-b border-neutral-700",
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "flex items-center space-x-3",
+                    className: "flex items-center justify-between",
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "w-8 h-8 bg-neutral-600 rounded-lg flex items-center justify-center",
-                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                className: "text-white font-bold text-sm",
-                                children: "G"
+                            className: "flex items-center space-x-3",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "w-8 h-8 rounded-lg overflow-hidden border border-neutral-600",
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
+                                        src: "/christ.jpeg",
+                                        alt: "Gospel Study Logo",
+                                        className: "w-full h-full object-cover"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/Sidebar.tsx",
+                                        lineNumber: 174,
+                                        columnNumber: 15
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "[project]/src/components/Sidebar.tsx",
+                                    lineNumber: 173,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
+                                    className: "text-xl font-semibold text-white",
+                                    children: "Gospel Study"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/components/Sidebar.tsx",
+                                    lineNumber: 180,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/src/components/Sidebar.tsx",
+                            lineNumber: 172,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                            onClick: ()=>setIsOpen(false),
+                            className: "lg:hidden text-neutral-400 hover:text-white p-1",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$XMarkIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__XMarkIcon$3e$__["XMarkIcon"], {
+                                className: "w-6 h-6"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                lineNumber: 36,
+                                lineNumber: 187,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/components/Sidebar.tsx",
-                            lineNumber: 35,
-                            columnNumber: 11
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
-                            className: "text-xl font-semibold text-white",
-                            children: "Gospel Study"
-                        }, void 0, false, {
-                            fileName: "[project]/src/components/Sidebar.tsx",
-                            lineNumber: 38,
+                            lineNumber: 183,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/Sidebar.tsx",
-                    lineNumber: 34,
+                    lineNumber: 171,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/components/Sidebar.tsx",
-                lineNumber: 33,
+                lineNumber: 170,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "p-6 space-y-4",
+                className: "p-4 lg:p-6 space-y-4 overflow-y-auto flex-1",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "space-y-3",
                         children: [
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                className: "text-sm text-neutral-400",
-                                children: "Sources to search:"
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "flex items-center justify-between",
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                    className: "text-sm text-neutral-400",
+                                    children: "Sources to search:"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/components/Sidebar.tsx",
+                                    lineNumber: 196,
+                                    columnNumber: 13
+                                }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                lineNumber: 45,
+                                lineNumber: 195,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "flex flex-wrap gap-2",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                        onClick: handleToggleSelectAll,
+                                        className: `text-xs px-3 py-1 rounded transition-colors ${isAllSelected() ? 'bg-blue-600 text-white' : 'bg-neutral-700 hover:bg-neutral-600 text-neutral-300'}`,
+                                        children: "Select All"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/Sidebar.tsx",
+                                        lineNumber: 201,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                        onClick: handleSelectGeneralConference,
+                                        className: `text-xs px-3 py-1 rounded transition-colors ${isOnlyConferenceSelected() ? 'bg-blue-600 text-white' : 'bg-neutral-700 hover:bg-neutral-600 text-neutral-300'}`,
+                                        children: "General Conference"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/Sidebar.tsx",
+                                        lineNumber: 211,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                        onClick: handleSelectStandardWorks,
+                                        className: `text-xs px-3 py-1 rounded transition-colors ${isOnlyScripturesSelected() ? 'bg-blue-600 text-white' : 'bg-neutral-700 hover:bg-neutral-600 text-neutral-300'}`,
+                                        children: "Scriptures"
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/components/Sidebar.tsx",
+                                        lineNumber: 221,
+                                        columnNumber: 13
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/components/Sidebar.tsx",
+                                lineNumber: 200,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -94,7 +351,7 @@ function Sidebar({ selectedSources, setSelectedSources, sourceCount, setSourceCo
                                 children: sourceCount
                             }, void 0, false, {
                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                lineNumber: 46,
+                                lineNumber: 233,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -103,16 +360,16 @@ function Sidebar({ selectedSources, setSelectedSources, sourceCount, setSourceCo
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                         type: "range",
                                         min: "1",
-                                        max: "10",
+                                        max: "20",
                                         value: sourceCount,
                                         onChange: (e)=>setSourceCount(parseInt(e.target.value)),
                                         className: "w-full h-2 bg-neutral-700 rounded-lg appearance-none cursor-pointer slider",
                                         style: {
-                                            background: `linear-gradient(to right, #525252 0%, #525252 ${(sourceCount - 1) * 11.11}%, #374151 ${(sourceCount - 1) * 11.11}%, #374151 100%)`
+                                            background: `linear-gradient(to right, #525252 0%, #525252 ${(sourceCount - 1) * 5.26}%, #374151 ${(sourceCount - 1) * 5.26}%, #374151 100%)`
                                         }
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/Sidebar.tsx",
-                                        lineNumber: 50,
+                                        lineNumber: 237,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -122,32 +379,32 @@ function Sidebar({ selectedSources, setSelectedSources, sourceCount, setSourceCo
                                                 children: "1"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                                lineNumber: 62,
+                                                lineNumber: 249,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                children: "10"
+                                                children: "20"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                                lineNumber: 63,
+                                                lineNumber: 250,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/Sidebar.tsx",
-                                        lineNumber: 61,
+                                        lineNumber: 248,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                lineNumber: 49,
+                                lineNumber: 236,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/Sidebar.tsx",
-                        lineNumber: 44,
+                        lineNumber: 194,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -155,7 +412,7 @@ function Sidebar({ selectedSources, setSelectedSources, sourceCount, setSourceCo
                         children: "Select your sources"
                     }, void 0, false, {
                         fileName: "[project]/src/components/Sidebar.tsx",
-                        lineNumber: 68,
+                        lineNumber: 255,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -167,61 +424,36 @@ function Sidebar({ selectedSources, setSelectedSources, sourceCount, setSourceCo
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "flex items-center space-x-3",
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "w-6 h-6 bg-neutral-600 rounded flex items-center justify-center",
-                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                    className: "text-white text-xs",
-                                                    children: "🎤"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/components/Sidebar.tsx",
-                                                    lineNumber: 80,
-                                                    columnNumber: 17
-                                                }, this)
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/components/Sidebar.tsx",
-                                                lineNumber: 79,
-                                                columnNumber: 15
-                                            }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                className: "text-white text-sm",
-                                                children: "General Conference"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/components/Sidebar.tsx",
-                                                lineNumber: 82,
-                                                columnNumber: 15
-                                            }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                className: "bg-neutral-600 text-white text-xs px-2 py-1 rounded",
-                                                children: "1"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/components/Sidebar.tsx",
-                                                lineNumber: 83,
-                                                columnNumber: 15
-                                            }, this)
-                                        ]
-                                    }, void 0, true, {
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            className: "text-white text-sm",
+                                            children: "General Conference"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/components/Sidebar.tsx",
+                                            lineNumber: 266,
+                                            columnNumber: 15
+                                        }, this)
+                                    }, void 0, false, {
                                         fileName: "[project]/src/components/Sidebar.tsx",
-                                        lineNumber: 78,
+                                        lineNumber: 265,
                                         columnNumber: 13
                                     }, this),
                                     generalConferenceOpen ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ChevronUpIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronUpIcon$3e$__["ChevronUpIcon"], {
                                         className: "w-4 h-4 text-neutral-400"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/Sidebar.tsx",
-                                        lineNumber: 86,
+                                        lineNumber: 269,
                                         columnNumber: 15
                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ChevronDownIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronDownIcon$3e$__["ChevronDownIcon"], {
                                         className: "w-4 h-4 text-neutral-400"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/Sidebar.tsx",
-                                        lineNumber: 88,
+                                        lineNumber: 271,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                lineNumber: 74,
+                                lineNumber: 261,
                                 columnNumber: 11
                             }, this),
                             generalConferenceOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -237,20 +469,20 @@ function Sidebar({ selectedSources, setSelectedSources, sourceCount, setSourceCo
                                                 className: "rounded"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                                lineNumber: 96,
+                                                lineNumber: 279,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                 children: "All Sessions (2015-2025)"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                                lineNumber: 102,
+                                                lineNumber: 285,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/Sidebar.tsx",
-                                        lineNumber: 95,
+                                        lineNumber: 278,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -261,7 +493,7 @@ function Sidebar({ selectedSources, setSelectedSources, sourceCount, setSourceCo
                                                 children: "By Year:"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                                lineNumber: 107,
+                                                lineNumber: 290,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -288,31 +520,31 @@ function Sidebar({ selectedSources, setSelectedSources, sourceCount, setSourceCo
                                                                 className: "rounded text-xs"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                                                lineNumber: 111,
+                                                                lineNumber: 294,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                 children: year
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                                                lineNumber: 117,
+                                                                lineNumber: 300,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, year, true, {
                                                         fileName: "[project]/src/components/Sidebar.tsx",
-                                                        lineNumber: 110,
+                                                        lineNumber: 293,
                                                         columnNumber: 21
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                                lineNumber: 108,
+                                                lineNumber: 291,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/Sidebar.tsx",
-                                        lineNumber: 106,
+                                        lineNumber: 289,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -323,7 +555,7 @@ function Sidebar({ selectedSources, setSelectedSources, sourceCount, setSourceCo
                                                 children: "By Speaker:"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                                lineNumber: 125,
+                                                lineNumber: 308,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -353,44 +585,44 @@ function Sidebar({ selectedSources, setSelectedSources, sourceCount, setSourceCo
                                                                 className: "rounded text-xs"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                                                lineNumber: 144,
+                                                                lineNumber: 327,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                 children: speaker
                                                             }, void 0, false, {
                                                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                                                lineNumber: 150,
+                                                                lineNumber: 333,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, speaker, true, {
                                                         fileName: "[project]/src/components/Sidebar.tsx",
-                                                        lineNumber: 143,
+                                                        lineNumber: 326,
                                                         columnNumber: 23
                                                     }, this);
                                                 })
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                                lineNumber: 126,
+                                                lineNumber: 309,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/Sidebar.tsx",
-                                        lineNumber: 124,
+                                        lineNumber: 307,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                lineNumber: 93,
+                                lineNumber: 276,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/Sidebar.tsx",
-                        lineNumber: 73,
+                        lineNumber: 260,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -402,53 +634,36 @@ function Sidebar({ selectedSources, setSelectedSources, sourceCount, setSourceCo
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "flex items-center space-x-3",
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                className: "w-6 h-6 bg-neutral-600 rounded flex items-center justify-center",
-                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                    className: "text-white text-xs",
-                                                    children: "📖"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/components/Sidebar.tsx",
-                                                    lineNumber: 168,
-                                                    columnNumber: 17
-                                                }, this)
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/components/Sidebar.tsx",
-                                                lineNumber: 167,
-                                                columnNumber: 15
-                                            }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                className: "text-white text-sm",
-                                                children: "Standard Works"
-                                            }, void 0, false, {
-                                                fileName: "[project]/src/components/Sidebar.tsx",
-                                                lineNumber: 170,
-                                                columnNumber: 15
-                                            }, this)
-                                        ]
-                                    }, void 0, true, {
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            className: "text-white text-sm",
+                                            children: "Standard Works"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/components/Sidebar.tsx",
+                                            lineNumber: 350,
+                                            columnNumber: 15
+                                        }, this)
+                                    }, void 0, false, {
                                         fileName: "[project]/src/components/Sidebar.tsx",
-                                        lineNumber: 166,
+                                        lineNumber: 349,
                                         columnNumber: 13
                                     }, this),
                                     standardWorksOpen ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ChevronUpIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronUpIcon$3e$__["ChevronUpIcon"], {
                                         className: "w-4 h-4 text-neutral-400"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/Sidebar.tsx",
-                                        lineNumber: 173,
+                                        lineNumber: 353,
                                         columnNumber: 15
                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ChevronDownIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronDownIcon$3e$__["ChevronDownIcon"], {
                                         className: "w-4 h-4 text-neutral-400"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/Sidebar.tsx",
-                                        lineNumber: 175,
+                                        lineNumber: 355,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                lineNumber: 162,
+                                lineNumber: 345,
                                 columnNumber: 11
                             }, this),
                             standardWorksOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -469,43 +684,43 @@ function Sidebar({ selectedSources, setSelectedSources, sourceCount, setSourceCo
                                                 className: "rounded"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                                lineNumber: 189,
+                                                lineNumber: 369,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                 children: work
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                                lineNumber: 195,
+                                                lineNumber: 375,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, work, true, {
                                         fileName: "[project]/src/components/Sidebar.tsx",
-                                        lineNumber: 188,
+                                        lineNumber: 368,
                                         columnNumber: 17
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/src/components/Sidebar.tsx",
-                                lineNumber: 180,
+                                lineNumber: 360,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/Sidebar.tsx",
-                        lineNumber: 161,
+                        lineNumber: 344,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/Sidebar.tsx",
-                lineNumber: 43,
+                lineNumber: 193,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/components/Sidebar.tsx",
-        lineNumber: 31,
+        lineNumber: 164,
         columnNumber: 5
     }, this);
 }
@@ -536,65 +751,103 @@ const MODE_MAPPING = {
 };
 // Map selected sources to API source filters
 const getSourceFilter = (selectedSources)=>{
-    const filters = [];
-    for (const source of selectedSources){
-        if (source.startsWith('gc-year-')) {
-            // Year-based General Conference filter: gc-year-2024
-            const year = parseInt(source.replace('gc-year-', ''));
-            filters.push({
-                source_type: 'conference',
-                year
-            });
-        } else if (source.startsWith('gc-speaker-')) {
-            // Speaker-based filter: gc-speaker-russell-m-nelson
-            const speakerKey = source.replace('gc-speaker-', '');
-            const speakerName = speakerKey.replace(/-/g, ' ').replace(/\b\w/g, (l)=>l.toUpperCase()); // Convert to Title Case
-            filters.push({
-                source_type: 'conference',
-                speaker: speakerName
-            });
-        } else {
-            // Legacy source mappings
-            const sourceMap = {
-                'general-conference': {
-                    source_type: 'conference'
-                },
-                'book-of-mormon': {
-                    source_type: 'scripture',
-                    standard_work: 'Book of Mormon'
-                },
-                'doctrine-and-covenants': {
-                    source_type: 'scripture',
-                    standard_work: 'Doctrine and Covenants'
-                },
-                'pearl-of-great-price': {
-                    source_type: 'scripture',
-                    standard_work: 'Pearl of Great Price'
-                },
-                'old-testament': {
-                    source_type: 'scripture',
-                    standard_work: 'Old Testament'
-                },
-                'new-testament': {
-                    source_type: 'scripture',
-                    standard_work: 'New Testament'
-                }
-            };
-            if (sourceMap[source]) {
-                filters.push(sourceMap[source]);
-            }
-        }
+    // If no sources selected, return undefined (search all)
+    if (selectedSources.length === 0) {
+        return undefined;
     }
-    return filters.length > 0 ? filters : undefined;
+    // If all sources are selected (common case), don't filter
+    const allSources = [
+        'general-conference',
+        'gc-year-2025',
+        'gc-year-2024',
+        'gc-year-2023',
+        'gc-year-2022',
+        'gc-year-2021',
+        'gc-year-2020',
+        'gc-year-2019',
+        'gc-year-2018',
+        'gc-year-2017',
+        'gc-year-2016',
+        'gc-year-2015',
+        'gc-speaker-russell-m-nelson',
+        'gc-speaker-dallin-h-oaks',
+        'gc-speaker-henry-b-eyring',
+        'gc-speaker-jeffrey-r-holland',
+        'gc-speaker-dieter-f-uchtdorf',
+        'gc-speaker-david-a-bednar',
+        'gc-speaker-quentin-l-cook',
+        'gc-speaker-d-todd-christofferson',
+        'gc-speaker-neil-l-andersen',
+        'gc-speaker-ronald-a-rasband',
+        'gc-speaker-gary-e-stevenson',
+        'gc-speaker-dale-g-renlund',
+        'book-of-mormon',
+        'doctrine-and-covenants',
+        'pearl-of-great-price',
+        'old-testament',
+        'new-testament'
+    ];
+    if (selectedSources.length === allSources.length) {
+        return undefined; // Search all sources
+    }
+    // For now, build a single filter from the most specific selection
+    // Priority: specific year/speaker filters > general conference > scripture works
+    // Check for specific General Conference filters first
+    const yearFilters = selectedSources.filter((s)=>s.startsWith('gc-year-'));
+    if (yearFilters.length === 1) {
+        const year = parseInt(yearFilters[0].replace('gc-year-', ''));
+        return {
+            source_type: 'conference',
+            year
+        };
+    }
+    const speakerFilters = selectedSources.filter((s)=>s.startsWith('gc-speaker-'));
+    if (speakerFilters.length === 1) {
+        const speakerKey = speakerFilters[0].replace('gc-speaker-', '');
+        const speakerName = speakerKey.replace(/-/g, ' ').replace(/\b\w/g, (l)=>l.toUpperCase()); // Convert to Title Case
+        return {
+            source_type: 'conference',
+            speaker: speakerName
+        };
+    }
+    // Check for general conference
+    if (selectedSources.includes('general-conference')) {
+        return {
+            source_type: 'conference'
+        };
+    }
+    // Check for specific scripture works
+    const scriptureMap = {
+        'book-of-mormon': 'Book of Mormon',
+        'doctrine-and-covenants': 'Doctrine and Covenants',
+        'pearl-of-great-price': 'Pearl of Great Price',
+        'old-testament': 'Old Testament',
+        'new-testament': 'New Testament'
+    };
+    const scriptureWorks = selectedSources.filter((s)=>scriptureMap[s]);
+    if (scriptureWorks.length === 1) {
+        return {
+            source_type: 'scripture',
+            standard_work: scriptureMap[scriptureWorks[0]]
+        };
+    }
+    // If multiple scripture works selected, filter by scripture type only
+    if (scriptureWorks.length > 1) {
+        return {
+            source_type: 'scripture'
+        };
+    }
+    // Default: no filter (search all)
+    return undefined;
 };
 const searchScriptures = async (request)=>{
     const apiMode = MODE_MAPPING[request.mode || 'AI Q&A'] || 'default';
-    const sourceFilter = request.selectedSources ? getSourceFilter(request.selectedSources) : [];
+    const sourceFilter = request.selectedSources ? getSourceFilter(request.selectedSources) : undefined;
     const body = {
         query: request.query,
         mode: apiMode,
         top_k: request.max_results || 5,
-        ...sourceFilter.length > 0 && {
+        ...sourceFilter && {
             source_filter: sourceFilter
         }
     };
@@ -616,7 +869,7 @@ const searchScriptures = async (request)=>{
         results: data.results.map((result)=>({
                 content: result.content,
                 source: result.metadata?.standard_work || 'Unknown',
-                book: result.metadata?.title,
+                book: result.metadata?.book || result.metadata?.title,
                 chapter: result.metadata?.chapter,
                 verse: result.metadata?.verse,
                 score: result.score,
@@ -636,15 +889,16 @@ const searchScriptures = async (request)=>{
 };
 const askQuestionStream = async (request, onChunk)=>{
     const apiMode = MODE_MAPPING[request.mode || 'AI Q&A'] || 'default';
-    const sourceFilter = request.selectedSources ? getSourceFilter(request.selectedSources) : [];
+    const sourceFilter = request.selectedSources ? getSourceFilter(request.selectedSources) : undefined;
     const body = {
         query: request.query,
         mode: apiMode,
         top_k: request.max_results || 10,
-        ...sourceFilter.length > 0 && {
+        ...sourceFilter && {
             source_filter: sourceFilter
         }
     };
+    console.log('Streaming request body:', body);
     const response = await fetch(`${API_BASE_URL}/ask/stream`, {
         method: 'POST',
         headers: {
@@ -652,6 +906,7 @@ const askQuestionStream = async (request, onChunk)=>{
         },
         body: JSON.stringify(body)
     });
+    console.log('Streaming response status:', response.status, response.statusText);
     if (!response.ok) {
         throw new Error(`Streaming request failed: ${response.statusText}`);
     }
@@ -661,10 +916,14 @@ const askQuestionStream = async (request, onChunk)=>{
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
+    console.log('Starting to read streaming response...');
     try {
         while(true){
             const { done, value } = await reader.read();
-            if (done) break;
+            if (done) {
+                console.log('Streaming complete');
+                break;
+            }
             // Add new chunk to buffer
             buffer += decoder.decode(value, {
                 stream: true
@@ -680,12 +939,13 @@ const askQuestionStream = async (request, onChunk)=>{
                     if (line.startsWith('data: ')) {
                         try {
                             const data = JSON.parse(line.slice(6));
+                            console.log('Received chunk:', data.type, data.content ? data.content.slice(0, 50) + '...' : '');
                             // Transform sources to match our expected format
                             if (data.type === 'sources' && data.sources) {
                                 data.sources = data.sources.map((source)=>({
                                         content: source.content,
                                         source: source.metadata?.standard_work || 'Unknown',
-                                        book: source.metadata?.title,
+                                        book: source.metadata?.book || source.metadata?.title,
                                         chapter: source.metadata?.chapter,
                                         verse: source.metadata?.verse,
                                         score: source.score,
@@ -701,7 +961,7 @@ const askQuestionStream = async (request, onChunk)=>{
                             }
                             onChunk(data);
                         } catch (e) {
-                            console.error('Failed to parse SSE data:', e);
+                            console.error('Failed to parse SSE data:', e, 'Line:', line);
                         }
                     }
                 }
@@ -802,11 +1062,12 @@ __turbopack_context__.s([
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$dom$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-dom.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ChevronDownIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronDownIcon$3e$__ = __turbopack_context__.i("[project]/node_modules/@heroicons/react/24/outline/esm/ChevronDownIcon.js [app-ssr] (ecmascript) <export default as ChevronDownIcon>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$PaperAirplaneIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__PaperAirplaneIcon$3e$__ = __turbopack_context__.i("[project]/node_modules/@heroicons/react/24/outline/esm/PaperAirplaneIcon.js [app-ssr] (ecmascript) <export default as PaperAirplaneIcon>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$Bars3Icon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Bars3Icon$3e$__ = __turbopack_context__.i("[project]/node_modules/@heroicons/react/24/outline/esm/Bars3Icon.js [app-ssr] (ecmascript) <export default as Bars3Icon>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$api$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/services/api.ts [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$markdown$2f$lib$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__Markdown__as__default$3e$__ = __turbopack_context__.i("[project]/node_modules/react-markdown/lib/index.js [app-ssr] (ecmascript) <export Markdown as default>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/client/app-dir/link.js [app-ssr] (ecmascript)");
 'use client';
 ;
 ;
@@ -814,7 +1075,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$mar
 ;
 ;
 ;
-function ChatInterface({ selectedSources, sourceCount }) {
+function ChatInterface({ selectedSources, sourceCount, sidebarOpen, setSidebarOpen }) {
     const [query, setQuery] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])('');
     const [mode, setMode] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])('AI Q&A');
     const [modeDropdownOpen, setModeDropdownOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
@@ -895,12 +1156,15 @@ function ChatInterface({ selectedSources, sourceCount }) {
             let fullAnswer = '';
             let sources = [];
             let searchTime = 0;
+            let lastUpdateTime = 0;
+            const UPDATE_THROTTLE = 50; // Update UI every 50ms max
             await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$services$2f$api$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["askQuestionStream"])({
                 query: searchQuery,
                 mode,
                 max_results: sourceCount,
                 selectedSources
             }, (chunk)=>{
+                console.log('Received chunk in ChatInterface:', chunk.type, chunk.content ? chunk.content.slice(0, 30) + '...' : '');
                 switch(chunk.type){
                     case 'search_complete':
                         searchTime = (chunk.search_time_ms || 0) / 1000;
@@ -913,13 +1177,15 @@ function ChatInterface({ selectedSources, sourceCount }) {
                     case 'content':
                         if (chunk.content) {
                             fullAnswer += chunk.content;
-                            // Force immediate DOM update
-                            (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$dom$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["flushSync"])(()=>{
+                            // Throttle updates for better visual streaming effect
+                            const now = Date.now();
+                            if (now - lastUpdateTime > UPDATE_THROTTLE) {
+                                lastUpdateTime = now;
                                 setMessages((prev)=>prev.map((msg)=>msg.id === assistantMessageId ? {
                                             ...msg,
                                             content: fullAnswer
                                         } : msg));
-                            });
+                            }
                         }
                         break;
                     case 'sources':
@@ -932,9 +1198,10 @@ function ChatInterface({ selectedSources, sourceCount }) {
                         }
                         break;
                     case 'done':
-                        // Mark streaming as complete for final markdown rendering
+                        // Make sure final content is displayed and mark streaming as complete
                         setMessages((prev)=>prev.map((msg)=>msg.id === assistantMessageId ? {
                                     ...msg,
+                                    content: fullAnswer,
                                     isStreaming: false
                                 } : msg));
                         setIsLoading(false);
@@ -959,113 +1226,153 @@ function ChatInterface({ selectedSources, sourceCount }) {
         }
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "flex-1 flex flex-col bg-neutral-900",
+        className: "flex-1 flex flex-col bg-neutral-900 lg:ml-0",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "flex items-center justify-center pt-16 pb-8",
+                className: "lg:hidden flex items-center justify-between p-4 border-b border-neutral-700",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        onClick: ()=>setSidebarOpen(true),
+                        className: "text-neutral-400 hover:text-white p-2",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$Bars3Icon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Bars3Icon$3e$__["Bars3Icon"], {
+                            className: "w-6 h-6"
+                        }, void 0, false, {
+                            fileName: "[project]/src/components/ChatInterface.tsx",
+                            lineNumber: 200,
+                            columnNumber: 11
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/ChatInterface.tsx",
+                        lineNumber: 196,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
+                        className: "text-lg font-semibold text-white",
+                        children: "Gospel Study"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/ChatInterface.tsx",
+                        lineNumber: 202,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "w-10"
+                    }, void 0, false, {
+                        fileName: "[project]/src/components/ChatInterface.tsx",
+                        lineNumber: 203,
+                        columnNumber: 9
+                    }, this),
+                    " "
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/components/ChatInterface.tsx",
+                lineNumber: 195,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "flex items-center justify-center pt-8 lg:pt-16 pb-6 lg:pb-8 px-4",
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "flex flex-col items-center space-y-6",
+                    className: "flex flex-col items-center space-y-4 lg:space-y-6",
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "w-24 h-24 rounded-full overflow-hidden border-2 border-neutral-700",
+                            className: "w-16 h-16 lg:w-24 lg:h-24 rounded-full overflow-hidden border-2 border-neutral-700",
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
                                 src: "/christ.jpeg",
                                 alt: "Gospel Study Assistant Logo",
                                 className: "w-full h-full object-cover"
                             }, void 0, false, {
                                 fileName: "[project]/src/components/ChatInterface.tsx",
-                                lineNumber: 189,
+                                lineNumber: 210,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/components/ChatInterface.tsx",
-                            lineNumber: 188,
+                            lineNumber: 209,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "text-center",
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
-                                    className: "text-4xl font-bold text-white mb-2",
+                                    className: "text-2xl lg:text-4xl font-bold text-white mb-2",
                                     children: "Gospel Study Assistant"
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/ChatInterface.tsx",
-                                    lineNumber: 196,
+                                    lineNumber: 217,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                    className: "text-xl text-neutral-400",
-                                    children: "Ask any question and get intelligent answers with scripture citations"
+                                    className: "text-sm lg:text-xl text-neutral-400 px-4",
+                                    children: "Gospel study made simple to build faith - for Come Follow Me, lessons, and personal study"
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/ChatInterface.tsx",
-                                    lineNumber: 197,
+                                    lineNumber: 218,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/components/ChatInterface.tsx",
-                            lineNumber: 195,
+                            lineNumber: 216,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/ChatInterface.tsx",
-                    lineNumber: 187,
+                    lineNumber: 208,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/components/ChatInterface.tsx",
-                lineNumber: 186,
+                lineNumber: 207,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "px-8 pb-4",
+                className: "px-4 lg:px-8 pb-4",
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "max-w-4xl mx-auto",
                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
                         onSubmit: handleSubmit,
                         className: "relative",
                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                            className: "flex items-center bg-neutral-800 border-2 border-neutral-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 rounded-2xl p-4 transition-all duration-200",
+                            className: "flex flex-col sm:flex-row items-stretch sm:items-center bg-neutral-800 border-2 border-neutral-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 rounded-2xl p-3 lg:p-4 transition-all duration-200 gap-3 sm:gap-0",
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                     type: "text",
                                     value: query,
                                     onChange: (e)=>setQuery(e.target.value),
                                     placeholder: "Ask any gospel question...",
-                                    className: "flex-1 bg-transparent text-white placeholder-neutral-400 outline-none text-lg"
+                                    className: "flex-1 bg-transparent text-white placeholder-neutral-400 outline-none text-base lg:text-lg min-w-0"
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/ChatInterface.tsx",
-                                    lineNumber: 207,
+                                    lineNumber: 228,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "relative mx-4",
+                                    className: "relative sm:mx-4 order-2 sm:order-1",
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                             type: "button",
                                             onClick: ()=>setModeDropdownOpen(!modeDropdownOpen),
-                                            className: "flex items-center space-x-2 bg-neutral-700 hover:bg-neutral-600 px-4 py-2 rounded-lg transition-colors",
+                                            className: "flex items-center justify-center space-x-2 bg-neutral-700 hover:bg-neutral-600 px-3 lg:px-4 py-2 rounded-lg transition-colors w-full sm:w-auto",
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                    className: "text-white text-sm",
+                                                    className: "text-white text-xs lg:text-sm",
                                                     children: mode
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/ChatInterface.tsx",
-                                                    lineNumber: 222,
+                                                    lineNumber: 243,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ChevronDownIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronDownIcon$3e$__["ChevronDownIcon"], {
                                                     className: "w-4 h-4 text-neutral-400"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/ChatInterface.tsx",
-                                                    lineNumber: 223,
+                                                    lineNumber: 244,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/components/ChatInterface.tsx",
-                                            lineNumber: 217,
+                                            lineNumber: 238,
                                             columnNumber: 17
                                         }, this),
                                         modeDropdownOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1080,126 +1387,135 @@ function ChatInterface({ selectedSources, sourceCount }) {
                                                     children: modeOption
                                                 }, modeOption, false, {
                                                     fileName: "[project]/src/components/ChatInterface.tsx",
-                                                    lineNumber: 229,
+                                                    lineNumber: 250,
                                                     columnNumber: 23
                                                 }, this))
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/ChatInterface.tsx",
-                                            lineNumber: 227,
+                                            lineNumber: 248,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/ChatInterface.tsx",
-                                    lineNumber: 216,
+                                    lineNumber: 237,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                     type: "submit",
                                     disabled: !query.trim() || isLoading,
-                                    className: "bg-neutral-600 hover:bg-neutral-500 disabled:bg-neutral-700 disabled:cursor-not-allowed p-3 rounded-full transition-colors",
+                                    className: "bg-neutral-600 hover:bg-neutral-500 disabled:bg-neutral-700 disabled:cursor-not-allowed p-2 lg:p-3 rounded-full transition-colors order-1 sm:order-2 self-end sm:self-center",
                                     children: isLoading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"
+                                        className: "animate-spin rounded-full h-4 w-4 lg:h-5 lg:w-5 border-2 border-white border-t-transparent"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/ChatInterface.tsx",
-                                        lineNumber: 251,
+                                        lineNumber: 272,
                                         columnNumber: 19
                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$PaperAirplaneIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__PaperAirplaneIcon$3e$__["PaperAirplaneIcon"], {
-                                        className: "w-5 h-5 text-white"
+                                        className: "w-4 h-4 lg:w-5 lg:h-5 text-white"
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/ChatInterface.tsx",
-                                        lineNumber: 253,
+                                        lineNumber: 274,
                                         columnNumber: 19
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/ChatInterface.tsx",
-                                    lineNumber: 245,
+                                    lineNumber: 266,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/components/ChatInterface.tsx",
-                            lineNumber: 206,
+                            lineNumber: 227,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/components/ChatInterface.tsx",
-                        lineNumber: 205,
+                        lineNumber: 226,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/components/ChatInterface.tsx",
-                    lineNumber: 204,
+                    lineNumber: 225,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/components/ChatInterface.tsx",
-                lineNumber: 203,
+                lineNumber: 224,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "flex-1 px-8 pb-8 overflow-y-auto",
+                className: "flex-1 px-4 lg:px-8 pb-4 lg:pb-8 overflow-y-auto",
                 children: messages.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "max-w-4xl mx-auto space-y-6",
+                    className: "max-w-4xl mx-auto space-y-4 lg:space-y-6",
                     children: [
                         messages.map((message)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "space-y-4",
                                 children: [
                                     (message.type === 'user' || message.type === 'assistant' && message.content) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: `p-4 rounded-lg ${message.type === 'user' ? 'bg-neutral-600 text-white ml-auto max-w-lg' : 'bg-neutral-700 text-white max-w-full'}`,
+                                        className: `p-3 lg:p-4 rounded-lg ${message.type === 'user' ? 'bg-neutral-600 text-white ml-auto max-w-sm lg:max-w-lg' : 'bg-neutral-700 text-white max-w-full'}`,
                                         children: message.type === 'assistant' ? message.content ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "space-y-4 leading-relaxed text-neutral-100 prose prose-invert max-w-none [&>*]:text-neutral-100",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$markdown$2f$lib$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__Markdown__as__default$3e$__["default"], {
-                                                    components: {
-                                                        strong: ({ children })=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
-                                                                className: "font-bold text-white",
-                                                                children: children
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/src/components/ChatInterface.tsx",
-                                                                lineNumber: 280,
-                                                                columnNumber: 57
-                                                            }, void 0),
-                                                        em: ({ children })=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("em", {
-                                                                className: "italic",
-                                                                children: children
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/src/components/ChatInterface.tsx",
-                                                                lineNumber: 281,
-                                                                columnNumber: 53
-                                                            }, void 0),
-                                                        p: ({ children })=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                                className: "text-base leading-7 mb-4 text-neutral-100",
-                                                                children: children
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/src/components/ChatInterface.tsx",
-                                                                lineNumber: 282,
-                                                                columnNumber: 52
-                                                            }, void 0)
-                                                    },
-                                                    children: message.content
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/components/ChatInterface.tsx",
-                                                    lineNumber: 278,
-                                                    columnNumber: 27
-                                                }, this),
-                                                message.isStreaming && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                    className: "inline-block w-2 h-4 bg-neutral-400 animate-pulse ml-1",
-                                                    children: "|"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/src/components/ChatInterface.tsx",
-                                                    lineNumber: 288,
-                                                    columnNumber: 29
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
+                                            children: message.isStreaming ? // During streaming, use simple text with minimal parsing for better performance
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "text-base leading-7 text-neutral-100 whitespace-pre-wrap",
+                                                children: [
+                                                    message.content,
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        className: "inline-block w-2 h-4 bg-green-400 animate-pulse ml-1",
+                                                        children: "|"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/components/ChatInterface.tsx",
+                                                        lineNumber: 303,
+                                                        columnNumber: 31
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/components/ChatInterface.tsx",
+                                                lineNumber: 301,
+                                                columnNumber: 29
+                                            }, this) : // After streaming is complete, use full markdown rendering
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$markdown$2f$lib$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__Markdown__as__default$3e$__["default"], {
+                                                components: {
+                                                    strong: ({ children })=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
+                                                            className: "font-bold text-white",
+                                                            children: children
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/components/ChatInterface.tsx",
+                                                            lineNumber: 309,
+                                                            columnNumber: 59
+                                                        }, void 0),
+                                                    em: ({ children })=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("em", {
+                                                            className: "italic",
+                                                            children: children
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/components/ChatInterface.tsx",
+                                                            lineNumber: 310,
+                                                            columnNumber: 55
+                                                        }, void 0),
+                                                    p: ({ children })=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                            className: "text-base leading-7 mb-4 text-neutral-100",
+                                                            children: children
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/components/ChatInterface.tsx",
+                                                            lineNumber: 311,
+                                                            columnNumber: 54
+                                                        }, void 0)
+                                                },
+                                                children: message.content
+                                            }, void 0, false, {
+                                                fileName: "[project]/src/components/ChatInterface.tsx",
+                                                lineNumber: 307,
+                                                columnNumber: 29
+                                            }, this)
+                                        }, void 0, false, {
                                             fileName: "[project]/src/components/ChatInterface.tsx",
-                                            lineNumber: 277,
+                                            lineNumber: 298,
                                             columnNumber: 25
                                         }, this) : null : message.content
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/ChatInterface.tsx",
-                                        lineNumber: 268,
+                                        lineNumber: 289,
                                         columnNumber: 19
                                     }, this),
                                     message.type === 'assistant' && message.results && message.results.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1208,13 +1524,13 @@ function ChatInterface({ selectedSources, sourceCount }) {
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "text-sm text-neutral-400 font-medium mb-3 border-b border-neutral-700 pb-2",
                                                 children: [
-                                                    "📚 References (",
+                                                    "References (",
                                                     message.results.length,
                                                     ")"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/components/ChatInterface.tsx",
-                                                lineNumber: 301,
+                                                lineNumber: 328,
                                                 columnNumber: 21
                                             }, this),
                                             message.results.map((result, index)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1230,7 +1546,7 @@ function ChatInterface({ selectedSources, sourceCount }) {
                                                                         children: formatCitation(result)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/src/components/ChatInterface.tsx",
-                                                                        lineNumber: 309,
+                                                                        lineNumber: 336,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     result.url && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
@@ -1252,24 +1568,24 @@ function ChatInterface({ selectedSources, sourceCount }) {
                                                                                     d: "M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/src/components/ChatInterface.tsx",
-                                                                                    lineNumber: 323,
+                                                                                    lineNumber: 350,
                                                                                     columnNumber: 35
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/src/components/ChatInterface.tsx",
-                                                                                lineNumber: 322,
+                                                                                lineNumber: 349,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/src/components/ChatInterface.tsx",
-                                                                        lineNumber: 315,
+                                                                        lineNumber: 342,
                                                                         columnNumber: 31
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/src/components/ChatInterface.tsx",
-                                                                lineNumber: 307,
+                                                                lineNumber: 334,
                                                                 columnNumber: 27
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1280,7 +1596,7 @@ function ChatInterface({ selectedSources, sourceCount }) {
                                                                         children: "Relevance"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/src/components/ChatInterface.tsx",
-                                                                        lineNumber: 331,
+                                                                        lineNumber: 358,
                                                                         columnNumber: 29
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1295,12 +1611,12 @@ function ChatInterface({ selectedSources, sourceCount }) {
                                                                                     }
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/src/components/ChatInterface.tsx",
-                                                                                    lineNumber: 334,
+                                                                                    lineNumber: 361,
                                                                                     columnNumber: 33
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/src/components/ChatInterface.tsx",
-                                                                                lineNumber: 333,
+                                                                                lineNumber: 360,
                                                                                 columnNumber: 31
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1311,42 +1627,42 @@ function ChatInterface({ selectedSources, sourceCount }) {
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/src/components/ChatInterface.tsx",
-                                                                                lineNumber: 342,
+                                                                                lineNumber: 369,
                                                                                 columnNumber: 31
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/src/components/ChatInterface.tsx",
-                                                                        lineNumber: 332,
+                                                                        lineNumber: 359,
                                                                         columnNumber: 29
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/src/components/ChatInterface.tsx",
-                                                                lineNumber: 330,
+                                                                lineNumber: 357,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/src/components/ChatInterface.tsx",
-                                                        lineNumber: 306,
+                                                        lineNumber: 333,
                                                         columnNumber: 25
                                                     }, this)
                                                 }, index, false, {
                                                     fileName: "[project]/src/components/ChatInterface.tsx",
-                                                    lineNumber: 305,
+                                                    lineNumber: 332,
                                                     columnNumber: 23
                                                 }, this))
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/ChatInterface.tsx",
-                                        lineNumber: 300,
+                                        lineNumber: 327,
                                         columnNumber: 19
                                     }, this)
                                 ]
                             }, message.id, true, {
                                 fileName: "[project]/src/components/ChatInterface.tsx",
-                                lineNumber: 266,
+                                lineNumber: 287,
                                 columnNumber: 15
                             }, this)),
                         isLoading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1356,7 +1672,7 @@ function ChatInterface({ selectedSources, sourceCount }) {
                                     className: "animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-500"
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/ChatInterface.tsx",
-                                    lineNumber: 358,
+                                    lineNumber: 385,
                                     columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1364,30 +1680,30 @@ function ChatInterface({ selectedSources, sourceCount }) {
                                     children: "Searching scriptures..."
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/ChatInterface.tsx",
-                                    lineNumber: 359,
+                                    lineNumber: 386,
                                     columnNumber: 17
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/components/ChatInterface.tsx",
-                            lineNumber: 357,
+                            lineNumber: 384,
                             columnNumber: 15
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/ChatInterface.tsx",
-                    lineNumber: 264,
+                    lineNumber: 285,
                     columnNumber: 11
                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "flex-1"
                 }, void 0, false, {
                     fileName: "[project]/src/components/ChatInterface.tsx",
-                    lineNumber: 364,
+                    lineNumber: 391,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/components/ChatInterface.tsx",
-                lineNumber: 262,
+                lineNumber: 283,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1399,47 +1715,51 @@ function ChatInterface({ selectedSources, sourceCount }) {
                             children: "© 2025 Gospel Study Assistant • AI-powered gospel study"
                         }, void 0, false, {
                             fileName: "[project]/src/components/ChatInterface.tsx",
-                            lineNumber: 371,
+                            lineNumber: 398,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "flex space-x-6",
                             children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                                    href: "/terms",
+                                    className: "hover:text-white transition-colors",
                                     children: "Terms of Use"
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/ChatInterface.tsx",
-                                    lineNumber: 373,
+                                    lineNumber: 400,
                                     columnNumber: 13
                                 }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                                    href: "/about",
+                                    className: "hover:text-white transition-colors",
                                     children: "About"
                                 }, void 0, false, {
                                     fileName: "[project]/src/components/ChatInterface.tsx",
-                                    lineNumber: 374,
+                                    lineNumber: 403,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/components/ChatInterface.tsx",
-                            lineNumber: 372,
+                            lineNumber: 399,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/components/ChatInterface.tsx",
-                    lineNumber: 370,
+                    lineNumber: 397,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/components/ChatInterface.tsx",
-                lineNumber: 369,
+                lineNumber: 396,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/components/ChatInterface.tsx",
-        lineNumber: 184,
+        lineNumber: 193,
         columnNumber: 5
     }, this);
 }
@@ -1461,33 +1781,82 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ChatInt
 ;
 ;
 function Home() {
-    const [selectedSources, setSelectedSources] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
-    const [sourceCount, setSourceCount] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(5);
+    // Pre-select all available sources
+    const allSources = [
+        // General Conference
+        'general-conference',
+        // By Year
+        'gc-year-2025',
+        'gc-year-2024',
+        'gc-year-2023',
+        'gc-year-2022',
+        'gc-year-2021',
+        'gc-year-2020',
+        'gc-year-2019',
+        'gc-year-2018',
+        'gc-year-2017',
+        'gc-year-2016',
+        'gc-year-2015',
+        // By Speaker
+        'gc-speaker-russell-m-nelson',
+        'gc-speaker-dallin-h-oaks',
+        'gc-speaker-henry-b-eyring',
+        'gc-speaker-jeffrey-r-holland',
+        'gc-speaker-dieter-f-uchtdorf',
+        'gc-speaker-david-a-bednar',
+        'gc-speaker-quentin-l-cook',
+        'gc-speaker-d-todd-christofferson',
+        'gc-speaker-neil-l-andersen',
+        'gc-speaker-ronald-a-rasband',
+        'gc-speaker-gary-e-stevenson',
+        'gc-speaker-dale-g-renlund',
+        // Standard Works
+        'book-of-mormon',
+        'doctrine-and-covenants',
+        'pearl-of-great-price',
+        'old-testament',
+        'new-testament'
+    ];
+    const [selectedSources, setSelectedSources] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(allSources);
+    const [sourceCount, setSourceCount] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(10);
+    const [sidebarOpen, setSidebarOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "flex h-screen bg-gray-900 text-white",
+        className: "flex h-screen bg-gray-900 text-white relative",
         children: [
+            sidebarOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden",
+                onClick: ()=>setSidebarOpen(false)
+            }, void 0, false, {
+                fileName: "[project]/src/app/page.tsx",
+                lineNumber: 32,
+                columnNumber: 9
+            }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$Sidebar$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                 selectedSources: selectedSources,
                 setSelectedSources: setSelectedSources,
                 sourceCount: sourceCount,
-                setSourceCount: setSourceCount
+                setSourceCount: setSourceCount,
+                isOpen: sidebarOpen,
+                setIsOpen: setSidebarOpen
             }, void 0, false, {
                 fileName: "[project]/src/app/page.tsx",
-                lineNumber: 13,
+                lineNumber: 38,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ChatInterface$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                 selectedSources: selectedSources,
-                sourceCount: sourceCount
+                sourceCount: sourceCount,
+                sidebarOpen: sidebarOpen,
+                setSidebarOpen: setSidebarOpen
             }, void 0, false, {
                 fileName: "[project]/src/app/page.tsx",
-                lineNumber: 19,
+                lineNumber: 46,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/page.tsx",
-        lineNumber: 12,
+        lineNumber: 29,
         columnNumber: 5
     }, this);
 }
