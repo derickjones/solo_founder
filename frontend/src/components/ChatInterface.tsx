@@ -227,7 +227,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
           </div>
           <div className="text-center">
             <h1 className="text-2xl lg:text-4xl font-bold text-white mb-2">Gospel Study Assistant</h1>
-            <p className="text-sm lg:text-xl text-neutral-400 px-4">Gospel study made simple to build faith - for Come Follow Me, lessons, and personal study</p>
+            <p className="text-sm lg:text-xl text-neutral-400 px-4">Ask questions. Find answers. Build faith.</p>
           </div>
         </div>
       </div>

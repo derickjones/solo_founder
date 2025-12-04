@@ -162,11 +162,14 @@ export default function Sidebar({
     const conferenceSources = getConferenceSources();
     const scriptureSources = getScriptureSources();
     
-    const hasConferenceSources = selectedSources.some(source => conferenceSources.includes(source));
-    const hasScriptureSources = selectedSources.some(source => scriptureSources.includes(source));
+    const selectedConferenceSources = selectedSources.filter(source => conferenceSources.includes(source));
+    const selectedScriptureSources = selectedSources.filter(source => scriptureSources.includes(source));
     
-    // Only "all selected" if we have both conference AND scripture sources
-    return hasConferenceSources && hasScriptureSources && selectedSources.length >= allSources.length * 0.8;
+    // Only "all selected" if we have a good representation from BOTH categories
+    const hasSignificantConference = selectedConferenceSources.length >= conferenceSources.length * 0.3;
+    const hasSignificantScriptures = selectedScriptureSources.length >= scriptureSources.length * 0.8;
+    
+    return hasSignificantConference && hasSignificantScriptures && selectedSources.length >= allSources.length * 0.6;
   };
 
   return (
