@@ -171,37 +171,31 @@ export default function Sidebar({
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <label className="text-sm text-neutral-400">Sources to search:</label>
-            <button
-              onClick={handleToggleSelectAll}
-              className={`text-xs px-3 py-1 rounded transition-colors ${
-                isAllSelected()
-                  ? 'bg-red-600 hover:bg-red-500 text-white'
-                  : 'bg-blue-600 hover:bg-blue-500 text-white'
-              }`}
-            >
-              {isAllSelected() ? 'Deselect All' : 'Select All'}
-            </button>
           </div>
 
           {/* Quick filter buttons */}
           <div className="flex flex-wrap gap-2">
             <button
+              onClick={handleToggleSelectAll}
+              className={`text-xs px-3 py-1 rounded transition-colors ${
+                isAllSelected()
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-neutral-700 hover:bg-neutral-600 text-neutral-300'
+              }`}
+            >
+              Select All
+            </button>
+            <button
               onClick={handleSelectGeneralConference}
-              className="text-xs px-3 py-1 rounded bg-purple-600 hover:bg-purple-500 text-white transition-colors"
+              className="text-xs px-3 py-1 rounded bg-neutral-700 hover:bg-neutral-600 text-neutral-300 transition-colors"
             >
               General Conference
             </button>
             <button
               onClick={handleSelectStandardWorks}
-              className="text-xs px-3 py-1 rounded bg-green-600 hover:bg-green-500 text-white transition-colors"
+              className="text-xs px-3 py-1 rounded bg-neutral-700 hover:bg-neutral-600 text-neutral-300 transition-colors"
             >
-              Standard Works
-            </button>
-            <button
-              onClick={handleSelectBoth}
-              className="text-xs px-3 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
-            >
-              Both
+              Scriptures
             </button>
           </div>
 
