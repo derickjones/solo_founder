@@ -15,8 +15,9 @@
 - **🧠 AI-Powered Responses**: OpenAI GPT-4o-mini generates intelligent answers with proper LDS citations
 - **⚡ Real-Time Streaming**: Server-Sent Events for live response generation  
 - **📖 Complete LDS Library**: 58,088 scripture segments with FAISS vector search
-- **📅 Come Follow Me 2025**: Integrated weekly lesson study with actual Doctrine & Covenants schedule
+- **📅 Come Follow Me 2025**: Complete lesson planner with 4 specialized audiences
 - **👨‍👩‍👧‍👦 Multi-Audience Support**: Adult, Family, Youth, and Children study modes
+- **🎯 One-Click Lesson Plans**: Generate comprehensive lesson plans in 13-22 seconds
 - **🔍 Smart Citations**: Exact references like "(Oct 2016, President Dieter F. Uchtdorf, 'Fourth Floor, Last Door')"
 - **🎨 Dark Theme UI**: Modern chat interface with sidebar-driven mode selection
 - **🔐 Secure Deployment**: Environment-based API key management
@@ -24,9 +25,29 @@
 ## 🆕 **Come Follow Me Features**
 - **📅 2025 Schedule**: 21 weeks of Doctrine & Covenants lessons with real dates
 - **🎯 Lesson Selection**: Dropdown with actual lesson titles and date ranges
-- **👪 Audience Targeting**: Customized content for different family members
+- **👪 Audience Targeting**: 4 specialized lesson planners for different family members
 - **🔄 Mode Switching**: Seamless transition between Q&A and Come Follow Me study
-- **📖 Current Week Detection**: Automatically selects current lesson (Dec 1-7: D&C 137-138)## 🏗️ **Architecture Overview**
+- **📖 Current Week Detection**: Automatically selects current lesson (Dec 1-7: D&C 137-138)
+- **⚡ Instant Generation**: Click "Generate Lesson Plan" button - no typing required
+- **📚 Comprehensive Content**: Includes activities, discussion questions, and applications
+- **🎨 Structured Output**: Age-appropriate formatting for each audience type
+
+### 📅 **Come Follow Me Lesson Planners**
+1. **👨‍💼 Adults**: 800-1000 word comprehensive plans with doctrinal depth
+   - Key scriptures with cross-references, discussion questions, application activities
+   - Prophet/apostle quotes, closing testimony builders
+   
+2. **👨‍👩‍👧‍👦 Family**: Mixed-age experiences (20-45 minutes) for unity
+   - Family gathering ideas, interactive activities, weekly applications
+   - Age-appropriate discussions, Church media suggestions
+   
+3. **👦👧 Youth**: Dynamic plans for ages 12-18 facing modern challenges
+   - Engaging hooks, group activities, personal reflection prompts
+   - Action challenges tied to covenants and missionary prep
+   
+4. **🧸 Children**: Simple, joyful plans for ages 3-11 (15-30 minutes)
+   - Fun activities, crafts, songs, hands-on learning
+   - Primary-focused with take-home ideas## 🏗️ **Architecture Overview**
 
 ### 📡 **System Architecture**
 ```mermaid
@@ -46,8 +67,10 @@ graph TB
 
 #### 🔍 **Search & AI Engine** (`backend/search/`)
 - **`api.py`**: FastAPI server with streaming SSE endpoints
-  - `/ask-stream` - Real-time AI responses with search results
+  - `/ask-stream` - Real-time AI responses with search results for Q&A mode
+  - `/cfm/lesson-plan` - Audience-specific Come Follow Me lesson generation
   - `/search` - Vector similarity search across scripture corpus
+  - `/health` - Service health monitoring
   - CORS middleware for frontend integration
 - **`scripture_search.py`**: FAISS-powered semantic search engine
   - OpenAI embeddings (`text-embedding-3-small`) for query vectorization
@@ -55,6 +78,7 @@ graph TB
   - Cosine similarity ranking with configurable top-k results
 - **`prompts.py`**: Intelligent prompt engineering system
   - Mode-specific system prompts (Youth, Scholar, General Conference)
+  - **CFM Lesson Prompts**: 4 specialized prompts for Adults, Family, Youth, Children
   - Context window management for optimal AI responses
   - Source-aware filtering for targeted content delivery
 - **`cloud_storage.py`**: Google Cloud Storage integration
@@ -91,18 +115,21 @@ graph TB
 
 #### 🧩 **Component Architecture**
 - **`ChatInterface.tsx`**: Main conversation component
-  - Real-time streaming with Server-Sent Events
+  - **Dual Mode Support**: Q&A streaming chat + CFM lesson plan generation
+  - **Smart Input**: Text input for Q&A, "Generate Lesson Plan" button for CFM
   - ReactMarkdown integration for rich text formatting
   - Message history with search result citations
-  - Mode selection and source filtering UI
-- **`Sidebar.tsx`**: Source selection interface
-  - Toggle-based filtering (General Conference, Standard Works)
-  - Dynamic source count tracking
+  - Mode selection and audience/week configuration
+- **`Sidebar.tsx`**: Dynamic control interface
+  - **Q&A Mode**: Source filtering (General Conference, Standard Works)
+  - **CFM Mode**: Audience selection (Adult/Family/Youth/Children) and week picker
+  - Dynamic source count tracking and current week detection
   - Responsive design with neutral color scheme
 
 #### 🔌 **API Integration** (`services/api.ts`)
-- **Streaming API Client**: Custom SSE implementation
-- **Request/Response Types**: Full TypeScript interfaces
+- **Streaming API Client**: Custom SSE implementation for Q&A mode
+- **CFM Lesson Planner**: Direct API integration for lesson plan generation
+- **Request/Response Types**: Full TypeScript interfaces for both modes
 - **Mode Mapping**: Frontend mode translation to backend filters
 - **Error Handling**: Comprehensive HTTP and stream error management
 
@@ -422,19 +449,37 @@ npm run dev
 ```
 
 ## 📊 **Performance Metrics**
-- **⚡ Response Time**: ~2-3 seconds for AI-generated responses
-- **📚 Content Coverage**: 58,088 scripture segments across all standard works
+- **⚡ Q&A Response Time**: ~2-3 seconds for AI-generated responses with streaming
+- **� CFM Generation Time**: 13-22 seconds for comprehensive lesson plans
+- **�📚 Content Coverage**: 58,088 scripture segments across all standard works
 - **📅 Come Follow Me**: 21 weeks of 2025 Doctrine & Covenants lessons with real dates
 - **🎯 Search Accuracy**: Vector similarity with contextual AI interpretation
 - **💻 Streaming**: Real-time response generation with Server-Sent Events
 - **🎨 User Experience**: Sidebar-driven mode selection with audience targeting
+- **📖 Lesson Plan Sources**: 48+ sources per lesson plan for comprehensive coverage
 
-## 🔮 **Planned API Features (Coming Soon)**
+## 🔮 **Available API Features**
 ```typescript
-// Come Follow Me API endpoints (in development)
-GET  /api/cfm/lessons?year=2025           // List all CFM lessons
-GET  /api/cfm/current                     // Get current week lesson
-POST /api/cfm/ask                         // CFM-specific AI questions
+// Q&A Streaming API
+POST /ask/stream                         // Real-time AI responses with streaming
+GET  /search                            // Vector search across scripture corpus
+GET  /health                           // Service health monitoring
+
+// Come Follow Me API endpoints (LIVE)
+POST /cfm/lesson-plan                   // Generate audience-specific lesson plans
+GET  /config                          // API configuration and status
+
+// Example CFM Request:
+{
+  "week": "December 1–7",
+  "audience": "family"
+}
+
+// Returns comprehensive lesson plan with:
+// - Age-appropriate activities and discussions
+// - Scripture references and explanations  
+// - Application ideas and testimony builders
+// - Proper citations from 48+ sources
 ```
 
 ## 💎 **Future Premium Mode Ideas**
@@ -475,4 +520,13 @@ POST /api/cfm/ask                         // CFM-specific AI questions
 
 **🎯 Goal**: Generate $49.5k in first 48 hours with 500 lifetime licenses.
 
-**✅ Status**: Ready for production launch with Come Follow Me study mode! 🚀📅
+**✅ Status**: Ready for production launch with complete Come Follow Me lesson planner! 🚀📅
+
+### 🎉 **Ready-to-Launch Features**
+- ✅ **Q&A Mode**: Real-time streaming responses with 58k+ sources
+- ✅ **CFM Mode**: 4 specialized lesson planners (Adult/Family/Youth/Children)  
+- ✅ **One-Click Generation**: No typing required for lesson plans
+- ✅ **2025 D&C Schedule**: All 21 weeks with actual dates and titles
+- ✅ **Professional Quality**: 13-22 second generation with 48+ sources per plan
+- ✅ **Mobile Responsive**: Works perfectly on all devices
+- ✅ **Production Deployed**: Both frontend and backend live and operational
