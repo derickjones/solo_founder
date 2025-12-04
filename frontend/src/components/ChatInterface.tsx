@@ -33,6 +33,15 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
   const [streamingContent, setStreamingContent] = useState('');
   const [streamingMessageId, setStreamingMessageId] = useState<number | null>(null);
 
+  // Reset chat function
+  const resetChat = () => {
+    setMessages([]);
+    setQuery('');
+    setIsLoading(false);
+    setStreamingContent('');
+    setStreamingMessageId(null);
+  };
+
   // Format citations from individual metadata fields
   const formatCitation = (result: SearchResult) => {
     if (result.speaker && result.title) {
@@ -226,7 +235,12 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
             />
           </div>
           <div className="text-center">
-            <h1 className="text-2xl lg:text-4xl font-bold text-white mb-2">Gospel Study Assistant</h1>
+            <button 
+              onClick={resetChat}
+              className="text-2xl lg:text-4xl font-bold text-white mb-2 hover:text-blue-300 transition-colors cursor-pointer"
+            >
+              Gospel Study Assistant
+            </button>
             <p className="text-sm lg:text-xl text-neutral-400 px-4">Ask questions. Find answers. Build faith.</p>
           </div>
         </div>
@@ -331,6 +345,21 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                     ) : (
                       message.content
                     )}
+                  </div>
+                )}
+                
+                {/* Reset button for assistant messages */}
+                {message.type === 'assistant' && message.content && !message.isStreaming && (
+                  <div className="flex justify-end mt-3">
+                    <button
+                      onClick={resetChat}
+                      className="inline-flex items-center px-3 py-2 text-sm text-neutral-400 hover:text-white bg-neutral-800 hover:bg-neutral-700 border border-neutral-600 rounded-lg transition-all duration-200"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      Start New Conversation
+                    </button>
                   </div>
                 )}
                 
