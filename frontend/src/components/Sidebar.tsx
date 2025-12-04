@@ -264,7 +264,6 @@ export default function Sidebar({
           >
             <div className="flex items-center space-x-3">
               <span className="text-white text-sm">General Conference</span>
-              <span className="bg-neutral-600 text-white text-xs px-2 py-1 rounded">1</span>
             </div>
             {generalConferenceOpen ? (
               <ChevronUpIcon className="w-4 h-4 text-neutral-400" />
