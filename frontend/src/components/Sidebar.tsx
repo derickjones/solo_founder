@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ChevronDownIcon, ChevronUpIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { getCurrentCFMWeek, CFM_2025_SCHEDULE, CFM_AUDIENCES, formatCFMWeekDisplay } from '@/utils/comeFollowMe';
 
 interface SidebarProps {
   selectedSources: string[];
@@ -10,6 +11,8 @@ interface SidebarProps {
   setSourceCount: (count: number) => void;
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
+  mode: string;
+  setMode: (mode: string) => void;
 }
 
 export default function Sidebar({
@@ -19,9 +22,15 @@ export default function Sidebar({
   setSourceCount,
   isOpen,
   setIsOpen,
+  mode,
+  setMode,
 }: SidebarProps) {
   const [generalConferenceOpen, setGeneralConferenceOpen] = useState(false); // Collapsed by default
   const [standardWorksOpen, setStandardWorksOpen] = useState(false); // Collapsed by default
+  
+  // Come Follow Me state
+  const [cfmAudience, setCfmAudience] = useState('Adult');
+  const [selectedCfmWeek, setSelectedCfmWeek] = useState(getCurrentCFMWeek());
 
   const handleSourceToggle = (source: string) => {
     if (selectedSources.includes(source)) {
@@ -180,7 +189,7 @@ export default function Sidebar({
     `}>
       {/* Header */}
       <div className="p-6 border-b border-neutral-700">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 rounded-lg overflow-hidden border border-neutral-600">
               <img 
@@ -199,9 +208,92 @@ export default function Sidebar({
             <XMarkIcon className="w-6 h-6" />
           </button>
         </div>
+        
+        {/* Mode Picker */}
+        <div className="space-y-2">
+          <label className="text-sm text-neutral-400">Study Mode:</label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setMode('Q&A')}
+              className={`text-sm px-3 py-2 rounded transition-colors ${
+                mode === 'Q&A'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-neutral-700 hover:bg-neutral-600 text-neutral-300'
+              }`}
+            >
+              Q&A
+            </button>
+            <button
+              onClick={() => setMode('Come Follow Me')}
+              className={`text-sm px-3 py-2 rounded transition-colors ${
+                mode === 'Come Follow Me'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-neutral-700 hover:bg-neutral-600 text-neutral-300'
+              }`}
+            >
+              Come Follow Me
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Sources to search section */}
+      {/* Come Follow Me section */}
+      {mode === 'Come Follow Me' && (
+        <div className="p-4 lg:p-6 space-y-4 overflow-y-auto flex-1">
+          {/* Week Selector */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-sm text-neutral-400">Select lesson:</label>
+            </div>
+            <select
+              value={selectedCfmWeek?.id || ''}
+              onChange={(e) => {
+                const selectedWeek = CFM_2025_SCHEDULE.find(w => w.id === e.target.value);
+                setSelectedCfmWeek(selectedWeek || CFM_2025_SCHEDULE[0]);
+              }}
+              className="w-full p-3 bg-neutral-700 border border-neutral-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              {CFM_2025_SCHEDULE.map((week) => (
+                <option key={week.id} value={week.id}>
+                  {week.dates}: {week.lesson}
+                </option>
+              ))}
+            </select>
+            <div className="p-3 bg-neutral-700 rounded-lg">
+              <div className="text-white text-sm font-medium">{selectedCfmWeek?.lesson || 'Select a lesson'}</div>
+              <div className="text-neutral-300 text-xs">{selectedCfmWeek?.reference || 'Doctrine & Covenants'}</div>
+              {selectedCfmWeek?.dates && (
+                <div className="text-blue-400 text-xs mt-1">{selectedCfmWeek.dates}</div>
+              )}
+            </div>
+          </div>
+
+          {/* Study Audience */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-sm text-neutral-400">Study audience:</label>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {CFM_AUDIENCES.map((audience) => (
+                <button
+                  key={audience.id}
+                  onClick={() => setCfmAudience(audience.id)}
+                  className={`text-xs px-3 py-1 rounded transition-colors ${
+                    cfmAudience === audience.id
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-neutral-700 hover:bg-neutral-600 text-neutral-300'
+                  }`}
+                >
+                  {audience.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sources to search section - only show in Q&A mode */}
+      {mode === 'Q&A' && (
       <div className="p-4 lg:p-6 space-y-4 overflow-y-auto flex-1">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
@@ -391,6 +483,7 @@ export default function Sidebar({
           )}
         </div>
       </div>
+      )}
     </div>
   );
 }

@@ -22,16 +22,21 @@ interface ChatInterfaceProps {
   sourceCount: number;
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
+  mode: string;
+  setMode: (mode: string) => void;
 }
 
-export default function ChatInterface({ selectedSources, sourceCount, sidebarOpen, setSidebarOpen }: ChatInterfaceProps) {
+export default function ChatInterface({ selectedSources, sourceCount, sidebarOpen, setSidebarOpen, mode, setMode }: ChatInterfaceProps) {
   const [query, setQuery] = useState('');
-  const [mode, setMode] = useState('AI Q&A');
   const [modeDropdownOpen, setModeDropdownOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
   const [streamingMessageId, setStreamingMessageId] = useState<number | null>(null);
+  
+  // Come Follow Me specific state
+  const [cfmAudience, setCfmAudience] = useState('Adult');
+  const [cfmWeek, setCfmWeek] = useState('');
 
   // Reset chat function
   const resetChat = () => {
@@ -40,6 +45,14 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
     setIsLoading(false);
     setStreamingContent('');
     setStreamingMessageId(null);
+  };
+
+  // Dynamic placeholder text based on mode
+  const getPlaceholderText = () => {
+    if (mode === 'Come Follow Me') {
+      return `Ask about this week's ${cfmAudience.toLowerCase()} Come Follow Me lesson...`;
+    }
+    return 'Ask any gospel question...';
   };
 
   // Format citations from individual metadata fields
@@ -84,13 +97,8 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
   };
 
   const modes = [
-    'AI Q&A',
-    'Scripture Study',
-    'General Conference',
-    'Book of Mormon',
-    'Come Follow Me',
-    'Youth Mode',
-    'Scholar Mode'
+    'Q&A',
+    'Come Follow Me'
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -255,7 +263,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Ask any gospel question..."
+                placeholder={getPlaceholderText()}
                 className="flex-1 bg-transparent text-white placeholder-neutral-400 outline-none text-base lg:text-lg min-w-0"
               />
               

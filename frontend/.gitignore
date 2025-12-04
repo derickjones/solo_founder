@@ -2,7 +2,6 @@
 
 # dependencies
 /node_modules
-**/node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -16,7 +15,6 @@
 
 # next.js
 /.next/
-frontend/.next/
 /out/
 
 # production
@@ -25,16 +23,6 @@ frontend/.next/
 # misc
 .DS_Store
 *.pem
-
-# Python cache
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-.venv/
-venv/
-env/
 
 # debug
 npm-debug.log*

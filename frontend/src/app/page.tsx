@@ -24,6 +24,9 @@ export default function Home() {
   const [selectedSources, setSelectedSources] = useState<string[]>(allSources);
   const [sourceCount, setSourceCount] = useState(10);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Shared mode state - controlled by sidebar, used by chat
+  const [mode, setMode] = useState('Q&A'); // 'Q&A' or 'Come Follow Me'
 
   return (
     <div className="flex h-screen bg-gray-900 text-white relative">
@@ -42,12 +45,16 @@ export default function Home() {
         setSourceCount={setSourceCount}
         isOpen={sidebarOpen}
         setIsOpen={setSidebarOpen}
+        mode={mode}
+        setMode={setMode}
       />
       <ChatInterface 
         selectedSources={selectedSources}
         sourceCount={sourceCount}
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
+        mode={mode}
+        setMode={setMode}
       />
     </div>
   );
