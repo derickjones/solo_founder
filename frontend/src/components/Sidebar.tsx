@@ -70,6 +70,29 @@ export default function Sidebar({
     return selectedScriptureSources.length >= scriptureSources.length * 0.8;
   };
 
+  const isOnlyConferenceSelected = () => {
+    const conferenceSources = getConferenceSources();
+    const scriptureSources = getScriptureSources();
+    const allSources = [...conferenceSources, ...scriptureSources];
+    
+    // Check if only conference sources are selected
+    const selectedConferenceSources = selectedSources.filter(source => conferenceSources.includes(source));
+    const selectedScriptureSources = selectedSources.filter(source => scriptureSources.includes(source));
+    
+    return selectedConferenceSources.length > 0 && selectedScriptureSources.length === 0;
+  };
+
+  const isOnlyScripturesSelected = () => {
+    const conferenceSources = getConferenceSources();
+    const scriptureSources = getScriptureSources();
+    
+    // Check if only scripture sources are selected
+    const selectedConferenceSources = selectedSources.filter(source => conferenceSources.includes(source));
+    const selectedScriptureSources = selectedSources.filter(source => scriptureSources.includes(source));
+    
+    return selectedScriptureSources.length > 0 && selectedConferenceSources.length === 0;
+  };
+
   const handleToggleAllScriptures = () => {
     const scriptureSources = getScriptureSources();
     
@@ -187,13 +210,21 @@ export default function Sidebar({
             </button>
             <button
               onClick={handleSelectGeneralConference}
-              className="text-xs px-3 py-1 rounded bg-neutral-700 hover:bg-neutral-600 text-neutral-300 transition-colors"
+              className={`text-xs px-3 py-1 rounded transition-colors ${
+                isOnlyConferenceSelected()
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-neutral-700 hover:bg-neutral-600 text-neutral-300'
+              }`}
             >
               General Conference
             </button>
             <button
               onClick={handleSelectStandardWorks}
-              className="text-xs px-3 py-1 rounded bg-neutral-700 hover:bg-neutral-600 text-neutral-300 transition-colors"
+              className={`text-xs px-3 py-1 rounded transition-colors ${
+                isOnlyScripturesSelected()
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-neutral-700 hover:bg-neutral-600 text-neutral-300'
+              }`}
             >
               Scriptures
             </button>
