@@ -2,11 +2,12 @@
 
 import { useState, useRef, startTransition, useEffect } from 'react';
 import { flushSync } from 'react-dom';
-import { ChevronDownIcon, PaperAirplaneIcon, Bars3Icon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, PaperAirplaneIcon, Bars3Icon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon, ChevronRightIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMLessonPlan, CFMLessonPlanRequest } from '@/services/api';
 import ReactMarkdown from 'react-markdown';
 import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
 import { CFM_AUDIENCES } from '@/utils/comeFollowMe';
+import Link from 'next/link';
 
 interface Message {
   id: number;
@@ -16,8 +17,6 @@ interface Message {
   searchTime?: number;
   isStreaming?: boolean;
 }
-
-import Link from 'next/link';
 
 interface ChatInterfaceProps {
   selectedSources: string[];
@@ -377,7 +376,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
       </div>
 
       {/* Mobile hamburger menu */}
-      <div className="lg:hidden flex items-center justify-between p-4 pr-20 border-b border-neutral-700">
+      <div className="lg:hidden flex items-center justify-between p-4 border-b border-neutral-700">
         <button
           onClick={() => setSidebarOpen(true)}
           className="text-neutral-400 hover:text-white p-2"
@@ -389,7 +388,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
       </div>
 
       {/* Header with logo */}
-      <div className="flex items-center justify-center pt-6 lg:pt-12 pb-4 lg:pb-6 px-4">
+      <div className="relative flex items-center justify-center pt-6 lg:pt-12 pb-4 lg:pb-6 px-4">
         <div className="flex flex-col items-center space-y-4 lg:space-y-6">
           <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full overflow-hidden border-2 border-neutral-700">
             <img 
@@ -723,6 +722,9 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
               </div>
             </div>
             <div className="flex space-x-6">
+              <Link href="/pricing" className="hover:text-white transition-colors">
+                Pricing
+              </Link>
               <Link href="/terms" className="hover:text-white transition-colors">
                 Terms of Use
               </Link>
