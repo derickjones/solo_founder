@@ -340,10 +340,16 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
           <button
             type="button"
             onClick={() => setModeDropdownOpen(!modeDropdownOpen)}
-            className="flex items-center justify-center space-x-2 bg-neutral-700/90 backdrop-blur-sm hover:bg-neutral-600/90 px-3 py-2 rounded-lg transition-colors shadow-lg border border-neutral-600/50"
+            className={`flex items-center justify-center space-x-2 backdrop-blur-sm px-3 py-2 rounded-lg transition-all duration-200 shadow-lg ${
+              mode === 'Come Follow Me'
+                ? 'bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/50 text-blue-300'
+                : 'bg-neutral-700/90 hover:bg-neutral-600/90 border border-neutral-600/50 text-white'
+            }`}
           >
-            <span className="text-white text-sm font-medium whitespace-nowrap">{mode}</span>
-            <ChevronDownIcon className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+            <span className="text-sm font-medium whitespace-nowrap">{mode}</span>
+            <ChevronDownIcon className={`w-4 h-4 flex-shrink-0 ${
+              mode === 'Come Follow Me' ? 'text-blue-400' : 'text-neutral-400'
+            }`} />
           </button>
           
           {modeDropdownOpen && (
