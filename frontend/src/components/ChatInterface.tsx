@@ -290,6 +290,17 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
 
   return (
     <div className="flex-1 flex flex-col bg-neutral-900 lg:ml-0">
+      {/* Desktop sidebar toggle button - only show when sidebar is closed */}
+      {!sidebarOpen && (
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="hidden lg:block fixed top-6 left-6 z-20 text-neutral-400 hover:text-white/80 p-2 rounded-lg hover:bg-neutral-800/50 bg-neutral-900/90 backdrop-blur-sm border border-neutral-700/50 transition-all"
+          title="Open sidebar"
+        >
+          <Bars3Icon className="w-5 h-5" />
+        </button>
+      )}
+      
       {/* Top-right mode selector */}
       <div className="absolute top-4 right-4 lg:top-6 lg:right-8 z-10">
         <div className="relative">
@@ -380,7 +391,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                   <button
                     type="submit"
                     disabled={!cfmWeek || isLoading}
-                    className="bg-blue-600 hover:bg-blue-500 disabled:bg-neutral-700 disabled:cursor-not-allowed px-6 py-2 lg:py-3 rounded-full transition-colors font-medium text-white"
+                    className="relative bg-blue-600/80 hover:bg-blue-600 disabled:bg-neutral-800/50 disabled:cursor-not-allowed px-6 py-2 lg:py-3 rounded-xl transition-all duration-200 font-medium text-white hover:text-blue-50 disabled:text-neutral-500 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 border border-blue-500/50 hover:border-blue-400 disabled:border-neutral-700/30 disabled:shadow-none"
                   >
                     {isLoading ? (
                       <div className="flex items-center space-x-2">

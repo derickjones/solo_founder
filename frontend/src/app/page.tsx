@@ -24,7 +24,7 @@ export default function Home() {
   
   const [selectedSources, setSelectedSources] = useState<string[]>(allSources);
   const [sourceCount, setSourceCount] = useState(10);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   
   // Shared mode state - controlled by sidebar, used by chat
   const [mode, setMode] = useState('Q&A'); // 'Q&A' or 'Come Follow Me'
