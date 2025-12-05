@@ -2,9 +2,10 @@
 
 import { useState, useRef, startTransition } from 'react';
 import { flushSync } from 'react-dom';
-import { ChevronDownIcon, PaperAirplaneIcon, Bars3Icon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, PaperAirplaneIcon, Bars3Icon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMLessonPlan, CFMLessonPlanRequest } from '@/services/api';
 import ReactMarkdown from 'react-markdown';
+import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
 
 interface Message {
   id: number;
@@ -35,6 +36,26 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
   const [isLoading, setIsLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
   const [streamingMessageId, setStreamingMessageId] = useState<number | null>(null);
+
+  // PDF download handler
+  const handleDownloadPDF = async (messageContent: string) => {
+    try {
+      // Extract lesson plan details from the message content or current state
+      const lessonData: LessonPlanData = {
+        title: `${cfmAudience} Lesson Plan`,
+        date: cfmWeek,
+        audience: cfmAudience,
+        content: messageContent,
+        scripture: cfmWeek // Using week as scripture reference for now
+      };
+
+      await generateLessonPlanPDF(lessonData);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      // Could add toast notification here
+      alert('Error generating PDF. Please try again.');
+    }
+  };
 
   // Reset chat function
   const resetChat = () => {
@@ -437,9 +458,20 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                   </div>
                 )}
                 
-                {/* Reset button for assistant messages */}
+                {/* Action buttons for assistant messages */}
                 {message.type === 'assistant' && message.content && !message.isStreaming && (
-                  <div className="flex justify-end mt-2">
+                  <div className="flex justify-end gap-2 mt-2">
+                    {/* Download PDF button - only show for Come Follow Me mode */}
+                    {mode === 'Come Follow Me' && (
+                      <button
+                        onClick={() => handleDownloadPDF(message.content)}
+                        className="inline-flex items-center px-3 py-2 text-sm text-neutral-400 hover:text-white bg-neutral-800 hover:bg-neutral-700 border border-neutral-600 rounded-lg transition-all duration-200"
+                      >
+                        <ArrowDownTrayIcon className="w-4 h-4 mr-2" />
+                        Download PDF
+                      </button>
+                    )}
+                    
                     <button
                       onClick={resetChat}
                       className="inline-flex items-center px-3 py-2 text-sm text-neutral-400 hover:text-white bg-neutral-800 hover:bg-neutral-700 border border-neutral-600 rounded-lg transition-all duration-200"
