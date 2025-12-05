@@ -280,9 +280,9 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
       </div>
 
       {/* Header with logo */}
-      <div className="flex items-center justify-center pt-8 lg:pt-16 pb-6 lg:pb-8 px-4">
-        <div className="flex flex-col items-center space-y-4 lg:space-y-6">
-          <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full overflow-hidden border-2 border-neutral-700">
+      <div className="flex items-center justify-center pt-4 lg:pt-6 pb-3 lg:pb-4 px-4">
+        <div className="flex flex-col items-center space-y-2 lg:space-y-3">
+          <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-full overflow-hidden border-2 border-neutral-700">
             <img 
               src="/christ.jpeg" 
               alt="Gospel Study Assistant Logo" 
@@ -292,21 +292,21 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
           <div className="text-center">
             <button 
               onClick={resetChat}
-              className="text-2xl lg:text-4xl font-bold text-white mb-2 hover:text-blue-300 transition-colors cursor-pointer"
+              className="text-xl lg:text-2xl font-bold text-white mb-1 hover:text-blue-300 transition-colors cursor-pointer"
             >
               Gospel Study Assistant
             </button>
-            <p className="text-sm lg:text-xl text-neutral-400 px-4">Ask questions. Find answers. Build faith.</p>
+            <p className="text-xs lg:text-sm text-neutral-400 px-4">Ask questions. Find answers. Build faith.</p>
           </div>
         </div>
       </div>
 
       {/* Input area below header */}
-      <div className="px-4 lg:px-8 pb-4">
-        <div className="max-w-4xl mx-auto">
+      <div className="px-4 lg:px-8 pb-2">
+        <div className="max-w-6xl mx-auto">
           <form onSubmit={handleSubmit} className="relative">
             {/* Mode Selector - Always visible */}
-            <div className="flex justify-center mb-4">
+            <div className="flex justify-center mb-2">
               <div className="relative">
                 <button
                   type="button"
@@ -395,14 +395,14 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 px-4 lg:px-8 pb-4 lg:pb-8 overflow-y-auto">
+      <div className="flex-1 px-4 lg:px-6 pb-2 lg:pb-4 overflow-y-auto">
         {messages.length > 0 ? (
-          <div className="max-w-4xl mx-auto space-y-4 lg:space-y-6">
+          <div className="max-w-6xl mx-auto space-y-2 lg:space-y-3">
             {messages.map((message) => (
-              <div key={message.id} className="space-y-4">
+              <div key={message.id} className="space-y-2">
                 {(message.type === 'user' || (message.type === 'assistant' && message.content)) && (
                   <div
-                    className={`p-3 lg:p-4 rounded-lg ${
+                    className={`p-2 lg:p-3 rounded-lg ${
                       message.type === 'user'
                         ? 'bg-neutral-600 text-white ml-auto max-w-sm lg:max-w-lg'
                         : 'bg-neutral-700 text-white max-w-full'
@@ -410,10 +410,10 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                   >
                     {message.type === 'assistant' ? (
                       message.content ? (
-                        <div className="space-y-4 leading-relaxed text-neutral-100 prose prose-invert max-w-none [&>*]:text-neutral-100">
+                        <div className="space-y-2 leading-relaxed text-neutral-100 prose prose-invert max-w-none [&>*]:text-neutral-100">
                           {message.isStreaming && message.id === streamingMessageId ? (
                             // During streaming, show the streaming content state
-                            <div className="text-base leading-7 text-neutral-100 whitespace-pre-wrap">
+                            <div className="text-base leading-6 text-neutral-100 whitespace-pre-wrap">
                               {streamingContent}
                               <span className="inline-block w-2 h-4 bg-green-400 animate-pulse ml-1">|</span>
                             </div>
@@ -423,7 +423,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                               components={{
                                 strong: ({ children }) => <strong className="font-bold text-white">{children}</strong>,
                                 em: ({ children }) => <em className="italic">{children}</em>,
-                                p: ({ children }) => <p className="text-base leading-7 mb-4 text-neutral-100">{children}</p>
+                                p: ({ children }) => <p className="text-base leading-6 mb-2 text-neutral-100">{children}</p>
                               }}
                             >
                               {message.content}
@@ -439,7 +439,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                 
                 {/* Reset button for assistant messages */}
                 {message.type === 'assistant' && message.content && !message.isStreaming && (
-                  <div className="flex justify-end mt-3">
+                  <div className="flex justify-end mt-2">
                     <button
                       onClick={resetChat}
                       className="inline-flex items-center px-3 py-2 text-sm text-neutral-400 hover:text-white bg-neutral-800 hover:bg-neutral-700 border border-neutral-600 rounded-lg transition-all duration-200"
@@ -518,13 +518,18 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
             )}
           </div>
         ) : (
-          <div className="flex-1" />
+          // Show empty state but don't take up much space
+          <div className="flex-1 flex items-center justify-center min-h-[200px]">
+            <div className="text-center text-neutral-500">
+              <p>Start a conversation by asking a question above</p>
+            </div>
+          </div>
         )}
       </div>
 
       {/* Footer */}
-      <div className="px-8 py-4 border-t border-neutral-700">
-        <div className="max-w-4xl mx-auto flex items-center justify-between text-sm text-neutral-400">
+      <div className="px-6 py-2 border-t border-neutral-700">
+        <div className="max-w-6xl mx-auto flex items-center justify-between text-sm text-neutral-400">
           <div>© 2025 Gospel Study Assistant • AI-powered gospel study</div>
           <div className="flex space-x-6">
             <Link href="/terms" className="hover:text-white transition-colors">
