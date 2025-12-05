@@ -187,52 +187,52 @@ export default function Sidebar({
 
   return (
     <div className={`
-      w-72 lg:w-80 bg-neutral-800 border-r border-neutral-700 flex flex-col
-      fixed lg:relative top-0 left-0 h-full z-30 transition-transform duration-300 ease-in-out
+      w-72 lg:w-80 bg-neutral-900/95 backdrop-blur-sm border-r border-neutral-800/50 flex flex-col
+      fixed lg:relative top-0 left-0 h-full z-30 transition-all duration-300 ease-in-out
       ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
     `}>
       {/* Header */}
-      <div className="p-6 border-b border-neutral-700">
-        <div className="flex items-center justify-between mb-4">
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-lg overflow-hidden border border-neutral-600">
+            <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-neutral-700/50">
               <img 
                 src="/christ.jpeg" 
                 alt="Gospel Study Logo" 
                 className="w-full h-full object-cover"
               />
             </div>
-            <h1 className="text-xl font-semibold text-white">Gospel Study</h1>
+            <h1 className="text-lg font-medium text-white/90">Gospel Study</h1>
           </div>
           {/* Mobile close button */}
           <button
             onClick={() => setIsOpen(false)}
-            className="lg:hidden text-neutral-400 hover:text-white p-1"
+            className="lg:hidden text-neutral-400 hover:text-white/80 p-1.5 rounded-lg hover:bg-neutral-800/50 transition-all"
           >
-            <XMarkIcon className="w-6 h-6" />
+            <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
         
         {/* Mode Picker */}
-        <div className="space-y-2">
-          <label className="text-sm text-neutral-400">Study Mode:</label>
-          <div className="grid grid-cols-2 gap-2">
+        <div className="space-y-3">
+          <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Study Mode</span>
+          <div className="flex bg-neutral-800/50 rounded-xl p-1">
             <button
               onClick={() => setMode('Q&A')}
-              className={`text-sm px-3 py-2 rounded transition-colors ${
+              className={`relative flex-1 text-sm py-2.5 rounded-lg font-medium transition-all duration-200 ${
                 mode === 'Q&A'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-neutral-700 hover:bg-neutral-600 text-neutral-300'
+                  ? 'bg-blue-500/20 text-blue-300 shadow-lg shadow-blue-500/20 border-l-2 border-blue-400'
+                  : 'text-neutral-400 hover:text-white/80'
               }`}
             >
               Q&A
             </button>
             <button
               onClick={() => setMode('Come Follow Me')}
-              className={`text-sm px-3 py-2 rounded transition-colors ${
+              className={`relative flex-1 text-sm py-2.5 rounded-lg font-medium transition-all duration-200 ${
                 mode === 'Come Follow Me'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-neutral-700 hover:bg-neutral-600 text-neutral-300'
+                  ? 'bg-blue-500/20 text-blue-300 shadow-lg shadow-blue-500/20 border-l-2 border-blue-400'
+                  : 'text-neutral-400 hover:text-white/80'
               }`}
             >
               Come Follow Me
@@ -243,49 +243,45 @@ export default function Sidebar({
 
       {/* Come Follow Me section */}
       {mode === 'Come Follow Me' && (
-        <div className="p-4 lg:p-6 space-y-4 overflow-y-auto flex-1">
+        <div className="px-6 pb-6 space-y-6 overflow-y-auto flex-1">
           {/* Week Selector */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-sm text-neutral-400">Select lesson:</label>
-            </div>
+            <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Lesson</span>
             <select
               value={cfmWeek?.id || ''}
               onChange={(e) => {
                 const selectedWeek = CFM_2025_SCHEDULE.find(w => w.id === e.target.value);
                 setCfmWeek(selectedWeek || CFM_2025_SCHEDULE[0]);
               }}
-              className="w-full p-3 bg-neutral-700 border border-neutral-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full p-3 bg-neutral-800/50 border-0 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/20 appearance-none cursor-pointer"
             >
               {CFM_2025_SCHEDULE.map((week) => (
-                <option key={week.id} value={week.id}>
+                <option key={week.id} value={week.id} className="bg-neutral-800">
                   {week.dates}: {week.lesson}
                 </option>
               ))}
             </select>
-            <div className="p-3 bg-neutral-700 rounded-lg">
+            <div className="p-3 bg-neutral-800/30 rounded-xl border border-neutral-700/30">
               <div className="text-white text-sm font-medium">{cfmWeek?.lesson || 'Select a lesson'}</div>
-              <div className="text-neutral-300 text-xs">{cfmWeek?.reference || 'Doctrine & Covenants'}</div>
+              <div className="text-neutral-400 text-xs">{cfmWeek?.reference || 'Doctrine & Covenants'}</div>
               {cfmWeek?.dates && (
-                <div className="text-blue-400 text-xs mt-1">{cfmWeek.dates}</div>
+                <div className="text-neutral-500 text-xs mt-1">{cfmWeek.dates}</div>
               )}
             </div>
           </div>
 
           {/* Study Audience */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-sm text-neutral-400">Study audience:</label>
-            </div>
+            <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Audience</span>
             <div className="grid grid-cols-2 gap-2">
               {CFM_AUDIENCES.map((audience) => (
                 <button
                   key={audience.id}
                   onClick={() => setCfmAudience(audience.id)}
-                  className={`text-xs px-3 py-1 rounded transition-colors ${
+                  className={`relative text-xs py-2.5 rounded-lg font-medium transition-all duration-200 ${
                     cfmAudience === audience.id
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-neutral-700 hover:bg-neutral-600 text-neutral-300'
+                      ? 'bg-blue-500/20 text-blue-300 shadow-lg shadow-blue-500/20 border-l-2 border-blue-400'
+                      : 'bg-neutral-800/30 text-neutral-400 hover:text-white/80 hover:bg-neutral-800/50 border border-neutral-700/30'
                   }`}
                 >
                   {audience.label}
@@ -298,80 +294,76 @@ export default function Sidebar({
 
       {/* Sources to search section - only show in Q&A mode */}
       {mode === 'Q&A' && (
-      <div className="p-4 lg:p-6 space-y-4 overflow-y-auto flex-1">
+      <div className="px-6 pb-6 space-y-6 overflow-y-auto flex-1">
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <label className="text-sm text-neutral-400">Sources to search:</label>
-          </div>
+          <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Sources</span>
 
           {/* Quick filter buttons */}
           <div className="flex flex-wrap gap-2">
             <button
               onClick={handleToggleSelectAll}
-              className={`text-xs px-3 py-1 rounded transition-colors ${
+              className={`relative text-xs px-3 py-2 rounded-lg font-medium transition-all duration-200 ${
                 isAllSelected()
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-neutral-700 hover:bg-neutral-600 text-neutral-300'
+                  ? 'bg-blue-500/20 text-blue-300 shadow-lg shadow-blue-500/20 border-l-2 border-blue-400'
+                  : 'bg-neutral-800/30 text-neutral-400 hover:text-white/80 hover:bg-neutral-800/50 border border-neutral-700/30'
               }`}
             >
               Select All
             </button>
             <button
               onClick={handleSelectGeneralConference}
-              className={`text-xs px-3 py-1 rounded transition-colors ${
+              className={`relative text-xs px-3 py-2 rounded-lg font-medium transition-all duration-200 ${
                 isOnlyConferenceSelected()
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-neutral-700 hover:bg-neutral-600 text-neutral-300'
+                  ? 'bg-blue-500/20 text-blue-300 shadow-lg shadow-blue-500/20 border-l-2 border-blue-400'
+                  : 'bg-neutral-800/30 text-neutral-400 hover:text-white/80 hover:bg-neutral-800/50 border border-neutral-700/30'
               }`}
             >
-              General Conference
+              Conference
             </button>
             <button
               onClick={handleSelectStandardWorks}
-              className={`text-xs px-3 py-1 rounded transition-colors ${
+              className={`relative text-xs px-3 py-2 rounded-lg font-medium transition-all duration-200 ${
                 isOnlyScripturesSelected()
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-neutral-700 hover:bg-neutral-600 text-neutral-300'
+                  ? 'bg-blue-500/20 text-blue-300 shadow-lg shadow-blue-500/20 border-l-2 border-blue-400'
+                  : 'bg-neutral-800/30 text-neutral-400 hover:text-white/80 hover:bg-neutral-800/50 border border-neutral-700/30'
               }`}
             >
               Scriptures
             </button>
           </div>
 
-          <div className="text-2xl font-bold text-white">{sourceCount}</div>
-          
-          {/* Range slider */}
-          <div className="relative">
+          {/* Sources count */}
+          <div className="bg-neutral-800/30 rounded-xl p-4 border border-neutral-700/30">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm text-neutral-400">Results per query</span>
+              <span className="text-lg font-medium text-white">{sourceCount}</span>
+            </div>
             <input
               type="range"
               min="1"
               max="20"
               value={sourceCount}
               onChange={(e) => setSourceCount(parseInt(e.target.value))}
-              className="w-full h-2 bg-neutral-700 rounded-lg appearance-none cursor-pointer slider"
+              className="w-full h-2 bg-neutral-700/50 rounded-lg appearance-none cursor-pointer slider"
               style={{
-                background: `linear-gradient(to right, #525252 0%, #525252 ${(sourceCount - 1) * 5.26}%, #374151 ${(sourceCount - 1) * 5.26}%, #374151 100%)`
+                background: `linear-gradient(to right, #404040 0%, #404040 ${(sourceCount - 1) * 5.26}%, #262626 ${(sourceCount - 1) * 5.26}%, #262626 100%)`
               }}
             />
-            <div className="flex justify-between text-xs text-neutral-500 mt-1">
+            <div className="flex justify-between text-xs text-neutral-500 mt-2">
               <span>1</span>
               <span>20</span>
             </div>
           </div>
         </div>
 
-        <div className="text-sm text-neutral-400 mt-4">
-          Select your sources
-        </div>
-
         {/* General Conference dropdown */}
         <div className="space-y-2">
           <button
             onClick={() => setGeneralConferenceOpen(!generalConferenceOpen)}
-            className="w-full flex items-center justify-between p-3 bg-neutral-700 rounded-lg hover:bg-neutral-600 transition-colors"
+            className="w-full flex items-center justify-between p-3 bg-neutral-800/30 rounded-xl hover:bg-neutral-800/50 transition-all duration-200 border border-neutral-700/30"
           >
             <div className="flex items-center space-x-3">
-              <span className="text-white text-sm">General Conference</span>
+              <span className="text-white text-sm font-medium">General Conference</span>
             </div>
             {generalConferenceOpen ? (
               <ChevronUpIcon className="w-4 h-4 text-neutral-400" />
@@ -381,29 +373,29 @@ export default function Sidebar({
           </button>
 
           {generalConferenceOpen && (
-            <div className="ml-6 space-y-3">
+            <div className="ml-3 space-y-2">
               {/* All General Conference */}
-              <label className="flex items-center space-x-2 text-sm text-neutral-300">
+              <label className="flex items-center space-x-3 text-sm text-neutral-300 p-2 rounded-lg hover:bg-neutral-800/30 cursor-pointer transition-colors">
                 <input
                   type="checkbox"
                   checked={selectedSources.includes('general-conference')}
                   onChange={() => handleSourceToggle('general-conference')}
-                  className="rounded"
+                  className="w-4 h-4 text-blue-400 bg-neutral-700 border-neutral-600 rounded focus:ring-blue-500/50 focus:ring-2 checked:bg-blue-500 checked:border-blue-400 checked:shadow-lg checked:shadow-blue-500/30"
                 />
                 <span>All Sessions (2015-2025)</span>
               </label>
 
               {/* By Year */}
-              <div className="space-y-1">
-                <div className="text-xs text-neutral-400 font-medium">By Year:</div>
-                <div className="grid grid-cols-2 gap-1">
+              <div className="space-y-2">
+                <div className="text-xs text-neutral-500 font-medium uppercase tracking-wider">By Year</div>
+                <div className="grid grid-cols-3 gap-1">
                   {[2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015].map(year => (
-                    <label key={year} className="flex items-center space-x-1 text-xs text-neutral-300">
+                    <label key={year} className="flex items-center space-x-2 text-xs text-neutral-300 p-1.5 rounded-lg hover:bg-neutral-800/30 cursor-pointer transition-colors">
                       <input
                         type="checkbox"
                         checked={selectedSources.includes(`gc-year-${year}`)}
                         onChange={() => handleSourceToggle(`gc-year-${year}`)}
-                        className="rounded text-xs"
+                        className="w-3.5 h-3.5 text-blue-400 bg-neutral-700 border-neutral-600 rounded focus:ring-blue-500/50 focus:ring-1 checked:bg-blue-500 checked:border-blue-400 checked:shadow-sm checked:shadow-blue-500/30"
                       />
                       <span>{year}</span>
                     </label>
@@ -412,8 +404,8 @@ export default function Sidebar({
               </div>
 
               {/* By Speaker */}
-              <div className="space-y-1">
-                <div className="text-xs text-neutral-400 font-medium">By Speaker:</div>
+              <div className="space-y-2">
+                <div className="text-xs text-neutral-500 font-medium uppercase tracking-wider">By Speaker</div>
                 <div className="space-y-1">
                   {[
                     'Russell M. Nelson',
@@ -431,12 +423,12 @@ export default function Sidebar({
                   ].map(speaker => {
                     const speakerKey = `gc-speaker-${speaker.toLowerCase().replace(/\s+/g, '-').replace('.', '')}`;
                     return (
-                      <label key={speaker} className="flex items-center space-x-1 text-xs text-neutral-300">
+                      <label key={speaker} className="flex items-center space-x-2 text-xs text-neutral-300 p-1.5 rounded-lg hover:bg-neutral-800/30 cursor-pointer transition-colors">
                         <input
                           type="checkbox"
                           checked={selectedSources.includes(speakerKey)}
                           onChange={() => handleSourceToggle(speakerKey)}
-                          className="rounded text-xs"
+                          className="w-3.5 h-3.5 text-blue-400 bg-neutral-700 border-neutral-600 rounded focus:ring-blue-500/50 focus:ring-1 checked:bg-blue-500 checked:border-blue-400 checked:shadow-sm checked:shadow-blue-500/30"
                         />
                         <span>{speaker}</span>
                       </label>
@@ -452,10 +444,10 @@ export default function Sidebar({
         <div className="space-y-2">
           <button
             onClick={() => setStandardWorksOpen(!standardWorksOpen)}
-            className="w-full flex items-center justify-between p-3 bg-neutral-700 rounded-lg hover:bg-neutral-600 transition-colors"
+            className="w-full flex items-center justify-between p-3 bg-neutral-800/30 rounded-xl hover:bg-neutral-800/50 transition-all duration-200 border border-neutral-700/30"
           >
             <div className="flex items-center space-x-3">
-              <span className="text-white text-sm">Standard Works</span>
+              <span className="text-white text-sm font-medium">Standard Works</span>
             </div>
             {standardWorksOpen ? (
               <ChevronUpIcon className="w-4 h-4 text-neutral-400" />
@@ -465,7 +457,7 @@ export default function Sidebar({
           </button>
 
           {standardWorksOpen && (
-            <div className="ml-6 space-y-2">
+            <div className="ml-3 space-y-2">
               {[
                 'Book of Mormon',
                 'Doctrine & Covenants',
@@ -473,12 +465,12 @@ export default function Sidebar({
                 'Old Testament',
                 'New Testament'
               ].map((work) => (
-                <label key={work} className="flex items-center space-x-2 text-sm text-neutral-300">
+                <label key={work} className="flex items-center space-x-3 text-sm text-neutral-300 p-2 rounded-lg hover:bg-neutral-800/30 cursor-pointer transition-colors">
                   <input
                     type="checkbox"
                     checked={selectedSources.includes(work.toLowerCase().replace(/\s+/g, '-').replace('&', 'and'))}
                     onChange={() => handleSourceToggle(work.toLowerCase().replace(/\s+/g, '-').replace('&', 'and'))}
-                    className="rounded"
+                    className="w-4 h-4 text-blue-400 bg-neutral-700 border-neutral-600 rounded focus:ring-blue-500/50 focus:ring-2 checked:bg-blue-500 checked:border-blue-400 checked:shadow-lg checked:shadow-blue-500/30"
                   />
                   <span>{work}</span>
                 </label>

@@ -303,7 +303,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
           </button>
           
           {modeDropdownOpen && (
-            <div className="absolute top-full right-0 mt-2 bg-neutral-700 rounded-lg shadow-xl border border-neutral-600 py-2 min-w-40 z-50">
+            <div className="absolute top-full right-0 mt-2 bg-neutral-800/95 backdrop-blur-sm rounded-xl shadow-xl border border-neutral-700/50 py-2 min-w-40 z-50">
               {modes.map((modeOption) => (
                 <button
                   key={modeOption}
@@ -312,7 +312,11 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                     setMode(modeOption);
                     setModeDropdownOpen(false);
                   }}
-                  className="block w-full px-4 py-2 text-left text-white hover:bg-neutral-600 transition-colors text-sm whitespace-nowrap"
+                  className={`relative block w-full px-4 py-2.5 text-left transition-all duration-200 text-sm whitespace-nowrap ${
+                    mode === modeOption
+                      ? 'bg-blue-500/20 text-blue-300 shadow-lg shadow-blue-500/20 border-l-2 border-blue-400'
+                      : 'text-neutral-300 hover:bg-neutral-700/50 hover:text-white/80'
+                  }`}
                 >
                   {modeOption}
                 </button>
@@ -424,10 +428,10 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                   <button
                     key={audience.id}
                     onClick={() => setCfmAudience(audience.id)}
-                    className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                    className={`relative px-3 py-1.5 text-sm rounded-lg font-medium transition-all duration-200 ${
                       cfmAudience === audience.id
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-neutral-700 hover:bg-neutral-600 text-neutral-300'
+                        ? 'bg-blue-500/20 text-blue-300 shadow-lg shadow-blue-500/20 border-l-2 border-blue-400'
+                        : 'bg-neutral-700/50 hover:bg-neutral-600/50 text-neutral-300 hover:text-white/80 border border-neutral-600/30'
                     }`}
                   >
                     {audience.label}
