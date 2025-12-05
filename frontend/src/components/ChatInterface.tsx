@@ -712,16 +712,24 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
       </div>
 
       {/* Footer */}
-      <div className="px-6 py-2 border-t border-neutral-700">
-        <div className="max-w-6xl mx-auto flex items-center justify-between text-sm text-neutral-400">
-          <div>© 2025 Gospel Study Assistant • AI-powered gospel study</div>
-          <div className="flex space-x-6">
-            <Link href="/terms" className="hover:text-white transition-colors">
-              Terms of Use
-            </Link>
-            <Link href="/about" className="hover:text-white transition-colors">
-              About
-            </Link>
+      <div className="px-6 py-3 border-t border-neutral-700">
+        <div className="max-w-6xl mx-auto text-sm text-neutral-400">
+          <div className="flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col space-y-1">
+              <div>© 2025 Gospel Study Assistant • AI-powered gospel study</div>
+              <div className="text-xs text-neutral-500">
+                Content from The Church of Jesus Christ of Latter-day Saints is used by permission. 
+                All rights reserved by the respective copyright holders.
+              </div>
+            </div>
+            <div className="flex space-x-6">
+              <Link href="/terms" className="hover:text-white transition-colors">
+                Terms of Use
+              </Link>
+              <Link href="/about" className="hover:text-white transition-colors">
+                About
+              </Link>
+            </div>
           </div>
         </div>
       </div>
