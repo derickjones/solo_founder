@@ -267,6 +267,38 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
 
   return (
     <div className="flex-1 flex flex-col bg-neutral-900 lg:ml-0">
+      {/* Top-right mode selector */}
+      <div className="absolute top-4 right-4 lg:top-6 lg:right-8 z-10">
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setModeDropdownOpen(!modeDropdownOpen)}
+            className="flex items-center justify-center space-x-2 bg-neutral-700/90 backdrop-blur-sm hover:bg-neutral-600/90 px-3 py-2 rounded-lg transition-colors shadow-lg border border-neutral-600/50"
+          >
+            <span className="text-white text-sm font-medium">{mode}</span>
+            <ChevronDownIcon className="w-4 h-4 text-neutral-400" />
+          </button>
+          
+          {modeDropdownOpen && (
+            <div className="absolute top-full right-0 mt-2 bg-neutral-700 rounded-lg shadow-xl border border-neutral-600 py-2 min-w-40">
+              {modes.map((modeOption) => (
+                <button
+                  key={modeOption}
+                  type="button"
+                  onClick={() => {
+                    setMode(modeOption);
+                    setModeDropdownOpen(false);
+                  }}
+                  className="block w-full px-4 py-2 text-left text-white hover:bg-neutral-600 transition-colors text-sm"
+                >
+                  {modeOption}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Mobile hamburger menu */}
       <div className="lg:hidden flex items-center justify-between p-4 border-b border-neutral-700">
         <button
@@ -280,9 +312,9 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
       </div>
 
       {/* Header with logo */}
-      <div className="flex items-center justify-center pt-4 lg:pt-6 pb-3 lg:pb-4 px-4">
-        <div className="flex flex-col items-center space-y-2 lg:space-y-3">
-          <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-full overflow-hidden border-2 border-neutral-700">
+      <div className="flex items-center justify-center pt-6 lg:pt-12 pb-4 lg:pb-6 px-4">
+        <div className="flex flex-col items-center space-y-4 lg:space-y-6">
+          <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full overflow-hidden border-2 border-neutral-700">
             <img 
               src="/christ.jpeg" 
               alt="Gospel Study Assistant Logo" 
@@ -292,11 +324,11 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
           <div className="text-center">
             <button 
               onClick={resetChat}
-              className="text-xl lg:text-2xl font-bold text-white mb-1 hover:text-blue-300 transition-colors cursor-pointer"
+              className="text-2xl lg:text-4xl font-bold text-white mb-2 hover:text-blue-300 transition-colors cursor-pointer"
             >
               Gospel Study Assistant
             </button>
-            <p className="text-xs lg:text-sm text-neutral-400 px-4">Ask questions. Find answers. Build faith.</p>
+            <p className="text-sm lg:text-xl text-neutral-400 px-4">Ask questions. Find answers. Build faith.</p>
           </div>
         </div>
       </div>
@@ -305,38 +337,6 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
       <div className="px-4 lg:px-8 pb-2">
         <div className="max-w-6xl mx-auto">
           <form onSubmit={handleSubmit} className="relative">
-            {/* Mode Selector - Always visible */}
-            <div className="flex justify-center mb-2">
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setModeDropdownOpen(!modeDropdownOpen)}
-                  className="flex items-center justify-center space-x-2 bg-neutral-700 hover:bg-neutral-600 px-4 lg:px-6 py-2 lg:py-3 rounded-lg transition-colors"
-                >
-                  <span className="text-white text-sm lg:text-base font-medium">{mode}</span>
-                  <ChevronDownIcon className="w-4 h-4 text-neutral-400" />
-                </button>
-                
-                {modeDropdownOpen && (
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-neutral-700 rounded-lg shadow-lg border border-neutral-600 py-2 min-w-40">
-                    {modes.map((modeOption) => (
-                      <button
-                        key={modeOption}
-                        type="button"
-                        onClick={() => {
-                          setMode(modeOption);
-                          setModeDropdownOpen(false);
-                        }}
-                        className="block w-full px-4 py-2 text-left text-white hover:bg-neutral-600 transition-colors text-sm"
-                      >
-                        {modeOption}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-            
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center bg-neutral-800 border-2 border-neutral-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 rounded-2xl p-3 lg:p-4 transition-all duration-200 gap-3 sm:gap-0">
               
               {mode === 'Come Follow Me' ? (
