@@ -6,6 +6,7 @@ import { ChevronDownIcon, PaperAirplaneIcon, Bars3Icon, ArrowDownTrayIcon } from
 import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMLessonPlan, CFMLessonPlanRequest } from '@/services/api';
 import ReactMarkdown from 'react-markdown';
 import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
+import { CFM_AUDIENCES } from '@/utils/comeFollowMe';
 
 interface Message {
   id: number;
@@ -26,10 +27,11 @@ interface ChatInterfaceProps {
   mode: string;
   setMode: (mode: string) => void;
   cfmAudience: string;
+  setCfmAudience: (audience: string) => void;
   cfmWeek: string;
 }
 
-export default function ChatInterface({ selectedSources, sourceCount, sidebarOpen, setSidebarOpen, mode, setMode, cfmAudience, cfmWeek }: ChatInterfaceProps) {
+export default function ChatInterface({ selectedSources, sourceCount, sidebarOpen, setSidebarOpen, mode, setMode, cfmAudience, setCfmAudience, cfmWeek }: ChatInterfaceProps) {
   const [query, setQuery] = useState('');
   const [modeDropdownOpen, setModeDropdownOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -412,6 +414,28 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
               )}
             </div>
           </form>
+          
+          {/* Audience selection - only show in Come Follow Me mode */}
+          {mode === 'Come Follow Me' && (
+            <div className="mt-4 flex justify-center">
+              <div className="flex flex-wrap gap-2 justify-center">
+                <span className="text-sm text-neutral-400 mr-2 flex items-center">Study audience:</span>
+                {CFM_AUDIENCES.map((audience) => (
+                  <button
+                    key={audience.id}
+                    onClick={() => setCfmAudience(audience.id)}
+                    className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                      cfmAudience === audience.id
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-neutral-700 hover:bg-neutral-600 text-neutral-300'
+                    }`}
+                  >
+                    {audience.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
