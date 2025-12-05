@@ -601,8 +601,8 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
               </div>
             ))}
             
-            {/* Loading indicator */}
-            {isLoading && (
+            {/* Loading indicator - only show for Q&A mode */}
+            {isLoading && mode === 'Q&A' && (
               <div className="flex items-center justify-center p-4">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-500"></div>
                 <span className="ml-3 text-neutral-400">Searching scriptures...</span>
