@@ -526,17 +526,10 @@ export default function Sidebar({
           </div>
         ) : (
           <div className="space-y-3">
-            {/* Sign Up */}
-            <SignUpButton mode="modal">
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg transition-colors font-medium">
-                Get Started Free
-              </button>
-            </SignUpButton>
-            
             {/* Sign In */}
             <SignInButton mode="modal">
-              <button className="w-full text-blue-400 hover:text-blue-300 transition-colors text-sm py-2">
-                Already have an account? Sign In
+              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg transition-colors font-medium">
+                Sign In
               </button>
             </SignInButton>
             
