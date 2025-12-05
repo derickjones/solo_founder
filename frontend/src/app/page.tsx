@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import ChatInterface from '@/components/ChatInterface';
 import { getCurrentCFMWeek, CFMWeek } from '@/utils/comeFollowMe';
@@ -24,7 +24,22 @@ export default function Home() {
   
   const [selectedSources, setSelectedSources] = useState<string[]>(allSources);
   const [sourceCount, setSourceCount] = useState(10);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // Start closed, will be set based on screen size
+  
+  // Set sidebar state based on screen size
+  useEffect(() => {
+    const handleResize = () => {
+      const isDesktop = window.innerWidth >= 1024; // lg breakpoint
+      setSidebarOpen(isDesktop);
+    };
+    
+    // Set initial state
+    handleResize();
+    
+    // Listen for resize events
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   // Shared mode state - controlled by sidebar, used by chat
   const [mode, setMode] = useState('Q&A'); // 'Q&A' or 'Come Follow Me'

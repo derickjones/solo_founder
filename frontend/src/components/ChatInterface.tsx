@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useRef, startTransition } from 'react';
+import { useState, useRef, startTransition, useEffect } from 'react';
 import { flushSync } from 'react-dom';
-import { ChevronDownIcon, PaperAirplaneIcon, Bars3Icon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, PaperAirplaneIcon, Bars3Icon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMLessonPlan, CFMLessonPlanRequest } from '@/services/api';
 import ReactMarkdown from 'react-markdown';
 import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
@@ -38,6 +38,40 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
   const [isLoading, setIsLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
   const [streamingMessageId, setStreamingMessageId] = useState<number | null>(null);
+  const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null);
+
+  // Copy to clipboard handler
+  const handleCopyToClipboard = async (content: string, messageId: number) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopiedMessageId(messageId);
+      // Reset after 2 seconds
+      setTimeout(() => setCopiedMessageId(null), 2000);
+    } catch (error) {
+      console.error('Failed to copy to clipboard:', error);
+    }
+  };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+/ or Cmd+/ to toggle sidebar
+      if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+        e.preventDefault();
+        setSidebarOpen(!sidebarOpen);
+      }
+      
+      // Escape to close mode dropdown
+      if (e.key === 'Escape') {
+        if (modeDropdownOpen) {
+          setModeDropdownOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [sidebarOpen, setSidebarOpen, modeDropdownOpen]);
 
   // PDF download handler
   const handleDownloadPDF = async (messageContent: string) => {
@@ -217,7 +251,6 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
             case 'search_complete':
               console.log('✅ Search complete, found', chunk.total_sources, 'sources');
               searchTime = (chunk.search_time_ms || 0) / 1000;
-              // Don't show "Found X sources" message - just continue to content
               break;
               
             case 'content':
@@ -294,7 +327,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
       {!sidebarOpen && (
         <button
           onClick={() => setSidebarOpen(true)}
-          className="hidden lg:block fixed top-6 left-6 z-20 text-neutral-400 hover:text-white/80 p-2 rounded-lg hover:bg-neutral-800/50 bg-neutral-900/90 backdrop-blur-sm border border-neutral-700/50 transition-all"
+          className="hidden lg:block fixed top-6 left-6 z-20 text-neutral-400 hover:text-neutral-200 p-2 rounded-lg hover:bg-neutral-700/50 bg-neutral-800/90 backdrop-blur-sm border border-neutral-600/50 transition-all"
           title="Open sidebar"
         >
           <Bars3Icon className="w-5 h-5" />
@@ -560,6 +593,24 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                 {/* Action buttons for assistant messages */}
                 {message.type === 'assistant' && message.content && !message.isStreaming && (
                   <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-neutral-700">
+                    {/* Copy button */}
+                    <button
+                      onClick={() => handleCopyToClipboard(message.content, message.id)}
+                      className="relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 bg-neutral-800/30 text-neutral-400 hover:text-white/80 hover:bg-neutral-800/50 border border-neutral-700/30"
+                    >
+                      {copiedMessageId === message.id ? (
+                        <>
+                          <CheckIcon className="w-4 h-4 mr-2 text-green-400" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <ClipboardDocumentIcon className="w-4 h-4 mr-2" />
+                          Copy
+                        </>
+                      )}
+                    </button>
+                    
                     {/* Download PDF button - only show for Come Follow Me mode */}
                     {mode === 'Come Follow Me' && (
                       <button

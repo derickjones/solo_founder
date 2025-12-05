@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDownIcon, ChevronUpIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, ChevronUpIcon, XMarkIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
 import { getCurrentCFMWeek, CFM_2025_SCHEDULE, CFM_AUDIENCES, formatCFMWeekDisplay, CFMWeek } from '@/utils/comeFollowMe';
 
 interface SidebarProps {
@@ -190,7 +190,7 @@ export default function Sidebar({
       w-72 lg:w-80 bg-neutral-900/95 backdrop-blur-sm border-r border-neutral-800/50 flex flex-col
       fixed lg:relative top-0 left-0 h-full z-30 transition-all duration-300 ease-in-out
       ${isOpen ? 'translate-x-0' : '-translate-x-full lg:-translate-x-full'}
-      ${isOpen ? 'lg:w-80' : 'lg:w-0'}
+      ${isOpen ? 'lg:w-80' : 'lg:hidden'}
     `}>
       {/* Header */}
       <div className="p-6">
@@ -211,7 +211,7 @@ export default function Sidebar({
             className="hidden lg:block text-neutral-400 hover:text-white/80 p-1.5 rounded-lg hover:bg-neutral-800/50 transition-all"
             title="Collapse sidebar"
           >
-            <XMarkIcon className="w-5 h-5" />
+            <ChevronLeftIcon className="w-5 h-5" />
           </button>
           {/* Mobile close button */}
           <button
