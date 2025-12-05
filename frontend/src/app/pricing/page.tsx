@@ -7,7 +7,11 @@ import { CheckIcon } from '@heroicons/react/24/outline';
 import { SUBSCRIPTION_PLANS } from '@/lib/stripe';
 import Link from 'next/link';
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+// Only load Stripe if publishable key is available
+const stripePromise = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY && 
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY !== 'your_stripe_publishable_key_here'
+  ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
+  : null;
 
 export default function PricingPage() {
   const { isSignedIn } = useUser();
@@ -17,6 +21,12 @@ export default function PricingPage() {
     if (!isSignedIn) {
       // Redirect to sign up if not signed in
       window.location.href = '/sign-up';
+      return;
+    }
+
+    // Check if Stripe is configured
+    if (!stripePromise) {
+      alert('Payment processing is not available yet. Please check back soon!');
       return;
     }
 
@@ -32,6 +42,11 @@ export default function PricingPage() {
       });
 
       if (!response.ok) {
+        const errorData = await response.json();
+        if (errorData.code === 'STRIPE_NOT_CONFIGURED') {
+          alert('Payment processing is being set up. Please check back soon!');
+          return;
+        }
         throw new Error('Failed to create checkout session');
       }
 
@@ -43,6 +58,7 @@ export default function PricingPage() {
       }
     } catch (error) {
       console.error('Error creating checkout session:', error);
+      alert('There was an error processing your request. Please try again.');
     } finally {
       setLoading(null);
     }

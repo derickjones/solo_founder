@@ -2,12 +2,25 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { auth } from '@clerk/nextjs/server';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-11-17.clover',
-});
+// Initialize Stripe only if API key is available
+let stripe: Stripe | null = null;
+if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY !== 'your_stripe_secret_key_here') {
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+}
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if Stripe is configured
+    if (!stripe) {
+      return NextResponse.json(
+        { 
+          error: 'Payment processing not configured yet. Please contact support.',
+          code: 'STRIPE_NOT_CONFIGURED'
+        }, 
+        { status: 503 }
+      );
+    }
+
     const { userId } = await auth();
     
     if (!userId) {
