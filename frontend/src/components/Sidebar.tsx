@@ -526,10 +526,10 @@ export default function Sidebar({
           </div>
         ) : (
           <div className="space-y-3">
-            {/* Sign In */}
+            {/* Sign In/Sign Up */}
             <SignInButton mode="modal">
               <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg transition-colors font-medium">
-                Sign In
+                Get Started
               </button>
             </SignInButton>
             
