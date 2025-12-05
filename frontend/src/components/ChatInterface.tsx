@@ -423,7 +423,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
           {mode === 'Come Follow Me' && (
             <div className="mt-4 flex justify-center">
               <div className="flex flex-wrap gap-2 justify-center">
-                <span className="text-sm text-neutral-400 mr-2 flex items-center">Study audience:</span>
+                <span className="text-sm text-neutral-400 mr-2 flex items-center">Audience:</span>
                 {CFM_AUDIENCES.map((audience) => (
                   <button
                     key={audience.id}
