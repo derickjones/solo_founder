@@ -5,6 +5,7 @@ import Sidebar from '@/components/Sidebar';
 import ChatInterface from '@/components/ChatInterface';
 import { getCurrentCFMWeek, CFMWeek } from '@/utils/comeFollowMe';
 
+// Trigger redeploy with Clerk environment variables
 export default function Home() {
   // Pre-select all available sources
   const allSources = [
