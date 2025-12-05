@@ -275,12 +275,12 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
             onClick={() => setModeDropdownOpen(!modeDropdownOpen)}
             className="flex items-center justify-center space-x-2 bg-neutral-700/90 backdrop-blur-sm hover:bg-neutral-600/90 px-3 py-2 rounded-lg transition-colors shadow-lg border border-neutral-600/50"
           >
-            <span className="text-white text-sm font-medium">{mode}</span>
-            <ChevronDownIcon className="w-4 h-4 text-neutral-400" />
+            <span className="text-white text-sm font-medium whitespace-nowrap">{mode}</span>
+            <ChevronDownIcon className="w-4 h-4 text-neutral-400 flex-shrink-0" />
           </button>
           
           {modeDropdownOpen && (
-            <div className="absolute top-full right-0 mt-2 bg-neutral-700 rounded-lg shadow-xl border border-neutral-600 py-2 min-w-40">
+            <div className="absolute top-full right-0 mt-2 bg-neutral-700 rounded-lg shadow-xl border border-neutral-600 py-2 min-w-40 z-50">
               {modes.map((modeOption) => (
                 <button
                   key={modeOption}
@@ -289,7 +289,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                     setMode(modeOption);
                     setModeDropdownOpen(false);
                   }}
-                  className="block w-full px-4 py-2 text-left text-white hover:bg-neutral-600 transition-colors text-sm"
+                  className="block w-full px-4 py-2 text-left text-white hover:bg-neutral-600 transition-colors text-sm whitespace-nowrap"
                 >
                   {modeOption}
                 </button>
@@ -300,7 +300,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
       </div>
 
       {/* Mobile hamburger menu */}
-      <div className="lg:hidden flex items-center justify-between p-4 border-b border-neutral-700">
+      <div className="lg:hidden flex items-center justify-between p-4 pr-20 border-b border-neutral-700">
         <button
           onClick={() => setSidebarOpen(true)}
           className="text-neutral-400 hover:text-white p-2"
@@ -367,7 +367,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                 </>
               ) : (
                 // Q&A Mode: Show text input
-                <>
+                <div className="flex items-center gap-3 w-full">
                   <input
                     type="text"
                     value={query}
@@ -379,7 +379,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                   <button
                     type="submit"
                     disabled={!query.trim() || isLoading}
-                    className="bg-neutral-600 hover:bg-neutral-500 disabled:bg-neutral-700 disabled:cursor-not-allowed p-2 lg:p-3 rounded-full transition-colors"
+                    className="bg-neutral-600 hover:bg-neutral-500 disabled:bg-neutral-700 disabled:cursor-not-allowed p-2 lg:p-3 rounded-full transition-colors flex-shrink-0"
                   >
                     {isLoading ? (
                       <div className="animate-spin rounded-full h-4 w-4 lg:h-5 lg:w-5 border-2 border-white border-t-transparent" />
@@ -387,7 +387,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                       <PaperAirplaneIcon className="w-4 h-4 lg:w-5 lg:h-5 text-white" />
                     )}
                   </button>
-                </>
+                </div>
               )}
             </div>
           </form>
@@ -518,12 +518,8 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
             )}
           </div>
         ) : (
-          // Show empty state but don't take up much space
-          <div className="flex-1 flex items-center justify-center min-h-[200px]">
-            <div className="text-center text-neutral-500">
-              <p>Start a conversation by asking a question above</p>
-            </div>
-          </div>
+          // Empty state - just take up minimal space
+          <div className="flex-1"></div>
         )}
       </div>
 
