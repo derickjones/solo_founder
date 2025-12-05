@@ -34,58 +34,57 @@ export default function TermsOfUse() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-xl font-semibold text-white mb-4">3. Content Sources and Intellectual Property</h2>
+            <h2 className="text-xl font-semibold text-white mb-4">3. Content Sources and Fair Use</h2>
             <div className="text-neutral-300 mb-4 space-y-4">
-              <p>Our content is sourced from the following copyrighted materials:</p>
+              <p>This service provides AI-powered search and study tools that reference content from:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>The Holy Scriptures (Book of Mormon, Bible, Doctrine & Covenants, Pearl of Great Price)</li>
                 <li>General Conference talks and addresses</li>
-                <li>Official Church publications and materials</li>
                 <li>Come Follow Me curriculum and study guides</li>
-                <li>Other official publications of The Church of Jesus Christ of Latter-day Saints</li>
+                <li>Other publicly available Church materials</li>
               </ul>
               
               <div className="bg-neutral-800 border-l-4 border-blue-500 p-4 my-6">
-                <h3 className="font-semibold text-white mb-2">Important Attribution Notice</h3>
+                <h3 className="font-semibold text-white mb-2">Fair Use Declaration</h3>
                 <p className="text-sm">
-                  All content from The Church of Jesus Christ of Latter-day Saints is used with respect for their intellectual property rights. 
-                  The Church owns the copyright to the Book of Mormon, Doctrine and Covenants, Pearl of Great Price, General Conference talks, 
-                  Come Follow Me materials, and other official publications. This service is provided for educational and personal study purposes only.
+                  This service operates under fair use principles (17 U.S.C. § 107) as a transformative tool that 
+                  provides search, analysis, and study assistance. We do not reproduce substantial portions of 
+                  copyrighted materials, but rather provide AI-powered search and contextual assistance for study purposes.
                 </p>
               </div>
 
               <p>
-                <strong>Fair Use and Educational Purpose:</strong> This service operates under the principles of fair use for educational, 
-                non-commercial purposes. We do not claim ownership of any Church-produced content and acknowledge all rights remain 
-                with The Church of Jesus Christ of Latter-day Saints.
+                <strong>Transformative Nature:</strong> Our service transforms how users interact with religious texts 
+                by providing AI-powered search, question-answering, and study assistance tools. The service does not 
+                substitute for original materials but enhances study through technological assistance.
               </p>
 
               <p>
-                <strong>No Endorsement:</strong> This service is not officially affiliated with, endorsed by, or sponsored by 
-                The Church of Jesus Christ of Latter-day Saints. It is an independent educational tool created to assist in scripture study.
+                <strong>No Endorsement:</strong> This service is independently operated and is not affiliated with, 
+                endorsed by, or sponsored by The Church of Jesus Christ of Latter-day Saints. All Church-produced 
+                content remains the property of The Church of Jesus Christ of Latter-day Saints.
               </p>
             </div>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-xl font-semibold text-white mb-4">4. Content Usage and Redistribution</h2>
+            <h2 className="text-xl font-semibold text-white mb-4">4. Service Model and Licensing</h2>
             <div className="text-neutral-300 mb-4 space-y-4">
-              <p>Users of this service agree to the following restrictions:</p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>Content may not be redistributed, republished, or used for commercial purposes without explicit permission</li>
-                <li>Any sharing of AI-generated responses must include appropriate attribution to original sources</li>
-                <li>Users may not create derivative works based on copyrighted Church materials accessed through this service</li>
-                <li>Church content remains subject to the original copyright terms and conditions</li>
-              </ul>
+              <p>
+                <strong>Technology Service:</strong> Users pay for access to AI-powered search technology, user interface, 
+                hosting, and computational resources - not for the underlying religious content itself, which remains 
+                freely available through official Church channels.
+              </p>
               
               <p>
-                For official Church content usage policies, please refer to the 
-                <a href="https://www.churchofjesuschrist.org/legal/terms-of-use" 
-                   className="text-blue-400 hover:text-blue-300 underline" 
-                   target="_blank" 
-                   rel="noopener noreferrer">
-                  Church's official Terms of Use
-                </a>.
+                <strong>Respect for Original Sources:</strong> We encourage users to access original materials directly 
+                through official Church websites and publications. This service is designed to supplement, not replace, 
+                direct scripture study and official Church resources.
+              </p>
+              
+              <p>
+                <strong>Content Limitations:</strong> Our service provides search results, contextual assistance, and study tools. 
+                For complete texts, official interpretations, and authoritative doctrine, users should consult original sources.
               </p>
             </div>
           </section>
@@ -109,9 +108,9 @@ export default function TermsOfUse() {
               <li>Use the service for lawful and appropriate purposes</li>
               <li>Not attempt to compromise the security or functionality of the service</li>
               <li>Respect the religious nature and intent of the content</li>
-              <li>Not redistribute or republish content without proper authorization</li>
-              <li>Acknowledge and respect the intellectual property rights of The Church of Jesus Christ of Latter-day Saints</li>
-              <li>Use content in accordance with fair use principles for personal, educational purposes only</li>
+              <li>Not use the service to republish or redistribute substantial portions of copyrighted materials</li>
+              <li>Acknowledge that original content remains the property of The Church of Jesus Christ of Latter-day Saints</li>
+              <li>Consult original sources for authoritative doctrine and complete texts</li>
             </ul>
           </section>
 

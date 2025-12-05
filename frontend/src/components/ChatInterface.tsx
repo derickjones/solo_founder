@@ -718,8 +718,8 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
             <div className="flex flex-col space-y-1">
               <div>© 2025 Gospel Study Assistant • AI-powered gospel study</div>
               <div className="text-xs text-neutral-500">
-                Content from The Church of Jesus Christ of Latter-day Saints is used by permission. 
-                All rights reserved by the respective copyright holders.
+                This service provides AI-powered search and study tools. Content from The Church of Jesus Christ 
+                of Latter-day Saints remains their property and is referenced under fair use principles.
               </div>
             </div>
             <div className="flex space-x-6">
