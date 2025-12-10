@@ -265,10 +265,6 @@ solo_founder/
 │   │       ├── scripture_index.faiss
 │   │       ├── scripture_metadata.pkl
 │   │       └── config.json
-│   │
-│   └── src/                      # 📚 Shared libraries
-│       └── lib/
-│           └── prompts.ts       # 📝 TypeScript prompts
 │
 ├── frontend/                     # ⚛️ Next.js Frontend
 │   ├── package.json             # 📦 Dependencies + Auth/Payment

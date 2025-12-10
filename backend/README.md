@@ -169,7 +169,6 @@ gospelguide/                 # Backend & Data Pipeline
 │   ├── api.py             # ✅ FastAPI service (deployed)
 │   ├── build_embeddings.py # ⚠️ Needs rebuild with content
 │   └── scripture_search.py # ✅ Core search logic
-└── src/lib/prompts.ts     # ✅ 8 specialized modes
 
 gospelguide-frontend/        # Frontend Application  
 ├── src/
@@ -274,7 +273,7 @@ Each mode has a distinct personality and knowledge scope:
 - [x] **OpenAI embeddings pipeline**: 58,088 segments processed ✅
 - [x] **FAISS index creation**: 340MB search index operational ✅
 - [x] **Search API**: Python scripture_search.py with source filtering ✅
-- [x] **TypeScript Integration**: Enhanced prompts.ts with mode filtering ✅
+- [x] **Python Prompts**: Enhanced prompts.py with mode filtering ✅
 - [x] **Quality Validation**: All search modes tested and working ✅
 
 ### Phase 2: API & Frontend (Days 5-8) 🎯 CURRENT PRIORITY
@@ -321,7 +320,7 @@ Each mode has a distinct personality and knowledge scope:
 - **✅ Content Pipeline**: Complete 45MB LDS content library (58,088 segments)
 - **✅ Vector Search**: FAISS index with OpenAI embeddings functional
 - **✅ Search API**: Python scripture_search.py with advanced filtering
-- **✅ TypeScript Integration**: Enhanced prompts.ts with mode-based source filtering
+- **✅ Python Prompts**: Enhanced prompts.py with mode-based source filtering
 - **✅ Quality Validation**: All 8 specialized modes tested and working
 - **✅ Modular Architecture**: Individual scrapers + master orchestrator
 - **✅ Documentation**: Complete setup and usage instructions
@@ -433,9 +432,6 @@ gospelguide/
 │       ├── scripture_index.faiss    # ✅ 340MB (58,088 vectors)
 │       ├── scripture_metadata.pkl   # ✅ 17MB (rich metadata)
 │       └── config.json              # ✅ Index configuration
-└── src/                            # ✅ COMPLETE: Enhanced prompts
-    └── lib/
-        └── prompts.ts              # ✅ 8 modes + source filtering
 ```
 
 **Status Overview:**
