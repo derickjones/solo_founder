@@ -236,13 +236,6 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
         return;
       }
       
-      // Add a system message showing what we're generating
-      const systemMessage: Message = { 
-        id: Date.now(), 
-        type: 'user', 
-        content: `Generate ${cfmAudience} lesson plan for ${cfmWeek}`
-      };
-      setMessages(prev => [...prev, systemMessage]);
     } else {
       // For Q&A mode, require a question
       if (!query.trim()) return;
