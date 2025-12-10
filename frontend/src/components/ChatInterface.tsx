@@ -39,6 +39,8 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
   const [streamingContent, setStreamingContent] = useState('');
   const [streamingMessageId, setStreamingMessageId] = useState<number | null>(null);
   const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null);
+  const [showProductTiles, setShowProductTiles] = useState(true);
+  const [currentTileIndex, setCurrentTileIndex] = useState(0);
 
   // Copy to clipboard handler
   const handleCopyToClipboard = async (content: string, messageId: number) => {
@@ -72,6 +74,55 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [sidebarOpen, setSidebarOpen, modeDropdownOpen]);
+
+  // Product tiles data
+  const productTiles = [
+    {
+      title: "Reliable Gospel Study",
+      content: "Two powerful modes: Q&A for instant answers and Come Follow Me for lesson planning. Search across Standard Works, General Conference talks, and CFM curriculum. Designed to build faith and deepen understanding through inspired study with exact citations.",
+      icon: "🤖",
+      action: "Try Q&A"
+    },
+    {
+      title: "Customize Your Study",
+      content: "Use the sidebar to select Come Follow Me weeks and target audience. Choose between adults, families, youth, or children lesson plans. Switch between Q&A mode for questions and CFM mode for lesson preparation.",
+      icon: "⚙️",
+      action: "Explore Sidebar"
+    },
+    {
+      title: "Unlimited Study Power",
+      content: "Free tier: Basic Q&A with limited daily questions. Premium ($4.99/month): Unlimited questions, lesson plan generation, PDF exports. Save hours of lesson preparation with AI-generated content.",
+      icon: "⭐",
+      action: "Start Free Trial"
+    }
+  ];
+
+  // Auto-hide product tiles after 30 seconds and auto-scroll
+  useEffect(() => {
+    if (!showProductTiles) return;
+
+    // Auto-scroll tiles every 4 seconds
+    const scrollInterval = setInterval(() => {
+      setCurrentTileIndex((prev) => (prev + 1) % productTiles.length);
+    }, 4000);
+
+    // Hide tiles after 30 seconds
+    const hideTimer = setTimeout(() => {
+      setShowProductTiles(false);
+    }, 30000);
+
+    return () => {
+      clearInterval(scrollInterval);
+      clearTimeout(hideTimer);
+    };
+  }, [showProductTiles, productTiles.length]);
+
+  // Hide tiles when user starts interacting (typing or sending messages)
+  useEffect(() => {
+    if (messages.length > 0 || query.length > 0) {
+      setShowProductTiles(false);
+    }
+  }, [messages.length, query.length]);
 
   // PDF download handler
   const handleDownloadPDF = async (messageContent: string) => {
@@ -713,8 +764,76 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
             )}
           </div>
         ) : (
-          // Empty state - just take up minimal space
-          <div className="flex-1"></div>
+          // Empty state with product explanation tiles
+          <div className="flex-1 flex items-center justify-center px-4">
+            {showProductTiles && (
+              <div className="max-w-6xl mx-auto">
+                {/* Desktop: 3-column grid */}
+                <div className="hidden lg:grid lg:grid-cols-3 gap-6">
+                  {productTiles.map((tile, index) => (
+                    <div
+                      key={index}
+                      className="bg-neutral-800/50 border border-neutral-700/50 rounded-xl p-6 hover:bg-neutral-800/70 transition-all duration-300 hover:border-blue-500/30 group"
+                    >
+                      <div className="text-3xl mb-4">{tile.icon}</div>
+                      <h3 className="text-lg font-semibold text-white mb-3 group-hover:text-blue-300 transition-colors">
+                        {tile.title}
+                      </h3>
+                      <p className="text-neutral-400 text-sm leading-relaxed mb-4 group-hover:text-neutral-300 transition-colors">
+                        {tile.content}
+                      </p>
+                      <button className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors">
+                        {tile.action} →
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Mobile: Scrolling carousel */}
+                <div className="lg:hidden">
+                  <div className="relative">
+                    <div className="bg-neutral-800/50 border border-neutral-700/50 rounded-xl p-6 min-h-[280px] flex flex-col">
+                      <div className="text-3xl mb-4">{productTiles[currentTileIndex].icon}</div>
+                      <h3 className="text-lg font-semibold text-white mb-3 text-blue-300">
+                        {productTiles[currentTileIndex].title}
+                      </h3>
+                      <p className="text-neutral-400 text-sm leading-relaxed mb-4 flex-grow">
+                        {productTiles[currentTileIndex].content}
+                      </p>
+                      <button className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors self-start">
+                        {productTiles[currentTileIndex].action} →
+                      </button>
+                    </div>
+
+                    {/* Navigation dots */}
+                    <div className="flex justify-center space-x-2 mt-4">
+                      {productTiles.map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setCurrentTileIndex(index)}
+                          className={`w-2 h-2 rounded-full transition-colors ${
+                            index === currentTileIndex
+                              ? 'bg-blue-400'
+                              : 'bg-neutral-600 hover:bg-neutral-500'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Dismiss button */}
+                <div className="flex justify-center mt-6">
+                  <button
+                    onClick={() => setShowProductTiles(false)}
+                    className="text-neutral-500 hover:text-neutral-400 text-xs transition-colors"
+                  >
+                    Hide this introduction
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         )}
       </div>
 
