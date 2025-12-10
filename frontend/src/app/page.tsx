@@ -82,7 +82,8 @@ export default function Home() {
         setMode={setMode}
         cfmAudience={cfmAudience}
         setCfmAudience={setCfmAudience}
-        cfmWeek={cfmWeek.dates}
+        cfmWeek={cfmWeek}
+        setCfmWeek={setCfmWeek}
       />
     </div>
   );

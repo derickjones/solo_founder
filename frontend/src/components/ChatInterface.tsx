@@ -6,7 +6,7 @@ import { ChevronDownIcon, PaperAirplaneIcon, Bars3Icon, ArrowDownTrayIcon, Clipb
 import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMLessonPlan, CFMLessonPlanRequest } from '@/services/api';
 import ReactMarkdown from 'react-markdown';
 import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
-import { CFM_AUDIENCES } from '@/utils/comeFollowMe';
+import { CFM_AUDIENCES, CFM_2025_SCHEDULE, CFMWeek } from '@/utils/comeFollowMe';
 import Link from 'next/link';
 
 interface Message {
@@ -27,10 +27,11 @@ interface ChatInterfaceProps {
   setMode: (mode: string) => void;
   cfmAudience: string;
   setCfmAudience: (audience: string) => void;
-  cfmWeek: string;
+  cfmWeek: CFMWeek;
+  setCfmWeek: (week: CFMWeek) => void;
 }
 
-export default function ChatInterface({ selectedSources, sourceCount, sidebarOpen, setSidebarOpen, mode, setMode, cfmAudience, setCfmAudience, cfmWeek }: ChatInterfaceProps) {
+export default function ChatInterface({ selectedSources, sourceCount, sidebarOpen, setSidebarOpen, mode, setMode, cfmAudience, setCfmAudience, cfmWeek, setCfmWeek }: ChatInterfaceProps) {
   const [query, setQuery] = useState('');
   const [modeDropdownOpen, setModeDropdownOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -78,10 +79,10 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
       // Extract lesson plan details from the message content or current state
       const lessonData: LessonPlanData = {
         title: `${cfmAudience} Lesson Plan`,
-        date: cfmWeek,
+        date: cfmWeek?.dates || '',
         audience: cfmAudience,
         content: messageContent,
-        scripture: cfmWeek // Using week as scripture reference for now
+        scripture: cfmWeek?.reference || '' // Using week reference as scripture
       };
 
       await generateLessonPlanPDF(lessonData);
@@ -211,10 +212,10 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
     try {
       if (mode === 'Come Follow Me') {
         // Handle CFM lesson plan generation
-        console.log('Generating CFM lesson plan with:', { week: cfmWeek, audience: cfmAudience.toLowerCase() });
+        console.log('Generating CFM lesson plan with:', { week: cfmWeek?.lesson, audience: cfmAudience.toLowerCase() });
         
         const response = await generateCFMLessonPlan({
-          week: cfmWeek,
+          week: cfmWeek?.lesson || '',
           audience: cfmAudience.toLowerCase() === 'adult' ? 'adults' : cfmAudience.toLowerCase() as 'youth' | 'family' | 'children'
         });
         
@@ -416,23 +417,52 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center bg-neutral-800 border-2 border-neutral-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 rounded-2xl p-3 lg:p-4 transition-all duration-200 gap-3 sm:gap-0">
               
               {mode === 'Come Follow Me' ? (
-                // CFM Mode: Show lesson plan generation button
-                <>
-                  <div className="flex-1 flex items-center text-neutral-300 text-base lg:text-lg">
-                    {cfmWeek ? (
-                      <>Generate {cfmAudience} lesson plan for {cfmWeek}</>
-                    ) : (
-                      <>Select a week and audience in the sidebar to generate a lesson plan</>
-                    )}
+                // CFM Mode: Show lesson plan generation controls
+                <div className="flex-1 space-y-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {/* Lesson Selector */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Lesson</label>
+                      <select
+                        value={cfmWeek?.id || ''}
+                        onChange={(e) => {
+                          const selectedWeek = CFM_2025_SCHEDULE.find(w => w.id === e.target.value);
+                          setCfmWeek(selectedWeek || CFM_2025_SCHEDULE[0]);
+                        }}
+                        className="w-full p-3 bg-neutral-700/50 border border-neutral-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 appearance-none cursor-pointer"
+                      >
+                        {CFM_2025_SCHEDULE.map((week) => (
+                          <option key={week.id} value={week.id} className="bg-neutral-800">
+                            {week.lesson}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Audience Selector */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Audience</label>
+                      <select
+                        value={cfmAudience}
+                        onChange={(e) => setCfmAudience(e.target.value)}
+                        className="w-full p-3 bg-neutral-700/50 border border-neutral-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 appearance-none cursor-pointer"
+                      >
+                        {CFM_AUDIENCES.map((audience) => (
+                          <option key={audience.id} value={audience.id} className="bg-neutral-800">
+                            {audience.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                   
                   <button
                     type="submit"
                     disabled={!cfmWeek || isLoading}
-                    className="relative bg-blue-600/80 hover:bg-blue-600 disabled:bg-neutral-800/50 disabled:cursor-not-allowed px-6 py-2 lg:py-3 rounded-xl transition-all duration-200 font-medium text-white hover:text-blue-50 disabled:text-neutral-500 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 border border-blue-500/50 hover:border-blue-400 disabled:border-neutral-700/30 disabled:shadow-none"
+                    className="w-full relative bg-blue-600/80 hover:bg-blue-600 disabled:bg-neutral-800/50 disabled:cursor-not-allowed px-6 py-3 rounded-xl transition-all duration-200 font-medium text-white hover:text-blue-50 disabled:text-neutral-500 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 border border-blue-500/50 hover:border-blue-400 disabled:border-neutral-700/30 disabled:shadow-none"
                   >
                     {isLoading ? (
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center justify-center space-x-2">
                         <div className="animate-spin rounded-full h-4 w-4 lg:h-5 lg:w-5 border-2 border-white border-t-transparent" />
                         <span>Generating...</span>
                       </div>
@@ -440,7 +470,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                       'Generate Lesson Plan'
                     )}
                   </button>
-                </>
+                </div>
               ) : (
                 // Q&A Mode: Show text input
                 <div className="flex items-center gap-3 w-full">
