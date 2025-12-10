@@ -79,20 +79,32 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
   const productTiles = [
     {
       title: "Reliable Gospel Study",
-      content: "Two powerful modes: Q&A for instant answers and Come Follow Me for lesson planning. Search across Standard Works, General Conference talks, and CFM curriculum. Designed to build faith and deepen understanding through inspired study with exact citations.",
-      icon: "🤖",
+      content: [
+        "Q&A mode for instant answers to gospel questions",
+        "Come Follow Me mode for comprehensive lesson planning", 
+        "Search Standard Works, General Conference, and CFM curriculum",
+        "All answers include exact citations for verification"
+      ],
       action: "Try Q&A"
     },
     {
       title: "Customize Your Study",
-      content: "Use the sidebar to select Come Follow Me weeks and target audience. Choose between adults, families, youth, or children lesson plans. Switch between Q&A mode for questions and CFM mode for lesson preparation.",
-      icon: "⚙️",
+      content: [
+        "Select specific Come Follow Me weeks from sidebar",
+        "Choose target audience: adults, families, youth, or children",
+        "Switch seamlessly between Q&A and lesson planning modes",
+        "Tailor content to your teaching needs"
+      ],
       action: "Explore Sidebar"
     },
     {
       title: "Unlimited Study Power",
-      content: "Free tier: Basic Q&A with limited daily questions. Premium ($4.99/month): Unlimited questions, lesson plan generation, PDF exports. Save hours of lesson preparation with AI-generated content.",
-      icon: "⭐",
+      content: [
+        "Free: Basic Q&A with daily question limits",
+        "Premium ($4.99/month): Unlimited questions and lesson plans",
+        "Generate PDF exports for offline use",
+        "Save hours of preparation time each week"
+      ],
       action: "Start Free Trial"
     }
   ];
@@ -770,40 +782,68 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
               <div className="max-w-6xl mx-auto">
                 {/* Desktop: 3-column grid */}
                 <div className="hidden lg:grid lg:grid-cols-3 gap-6">
-                  {productTiles.map((tile, index) => (
-                    <div
-                      key={index}
-                      className="bg-neutral-800/50 border border-neutral-700/50 rounded-xl p-6 hover:bg-neutral-800/70 transition-all duration-300 hover:border-blue-500/30 group"
-                    >
-                      <div className="text-3xl mb-4">{tile.icon}</div>
-                      <h3 className="text-lg font-semibold text-white mb-3 group-hover:text-blue-300 transition-colors">
-                        {tile.title}
-                      </h3>
-                      <p className="text-neutral-400 text-sm leading-relaxed mb-4 group-hover:text-neutral-300 transition-colors">
-                        {tile.content}
-                      </p>
-                      <button className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors">
-                        {tile.action} →
-                      </button>
-                    </div>
-                  ))}
+                  {productTiles.map((tile, index) => {
+                    const tileColors = [
+                      { bg: "bg-blue-900/20", border: "border-blue-700/30", hover: "hover:bg-blue-800/30", hoverBorder: "hover:border-blue-500/50", accent: "text-blue-400", hoverAccent: "text-blue-300" },
+                      { bg: "bg-purple-900/20", border: "border-purple-700/30", hover: "hover:bg-purple-800/30", hoverBorder: "hover:border-purple-500/50", accent: "text-purple-400", hoverAccent: "text-purple-300" },
+                      { bg: "bg-emerald-900/20", border: "border-emerald-700/30", hover: "hover:bg-emerald-800/30", hoverBorder: "hover:border-emerald-500/50", accent: "text-emerald-400", hoverAccent: "text-emerald-300" }
+                    ];
+                    const colors = tileColors[index];
+                    
+                    return (
+                      <div
+                        key={index}
+                        className={`${colors.bg} border ${colors.border} rounded-xl p-6 ${colors.hover} transition-all duration-300 ${colors.hoverBorder} group`}
+                      >
+                        <h3 className={`text-lg font-semibold text-white mb-4 group-hover:${colors.hoverAccent} transition-colors`}>
+                          {tile.title}
+                        </h3>
+                        <ul className="text-neutral-400 text-sm leading-relaxed mb-6 space-y-2 group-hover:text-neutral-300 transition-colors">
+                          {tile.content.map((item, i) => (
+                            <li key={i} className="flex items-start">
+                              <span className={`${colors.accent} mr-2 mt-1`}>•</span>
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        <button className={`${colors.accent} hover:${colors.hoverAccent} text-sm font-medium transition-colors`}>
+                          {tile.action} →
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
 
                 {/* Mobile: Scrolling carousel */}
                 <div className="lg:hidden">
                   <div className="relative">
-                    <div className="bg-neutral-800/50 border border-neutral-700/50 rounded-xl p-6 min-h-[280px] flex flex-col">
-                      <div className="text-3xl mb-4">{productTiles[currentTileIndex].icon}</div>
-                      <h3 className="text-lg font-semibold text-white mb-3 text-blue-300">
-                        {productTiles[currentTileIndex].title}
-                      </h3>
-                      <p className="text-neutral-400 text-sm leading-relaxed mb-4 flex-grow">
-                        {productTiles[currentTileIndex].content}
-                      </p>
-                      <button className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors self-start">
-                        {productTiles[currentTileIndex].action} →
-                      </button>
-                    </div>
+                    {(() => {
+                      const tileColors = [
+                        { bg: "bg-blue-900/20", border: "border-blue-700/30", accent: "text-blue-400", hoverAccent: "text-blue-300" },
+                        { bg: "bg-purple-900/20", border: "border-purple-700/30", accent: "text-purple-400", hoverAccent: "text-purple-300" },
+                        { bg: "bg-emerald-900/20", border: "border-emerald-700/30", accent: "text-emerald-400", hoverAccent: "text-emerald-300" }
+                      ];
+                      const colors = tileColors[currentTileIndex];
+                      
+                      return (
+                        <div className={`${colors.bg} border ${colors.border} rounded-xl p-6 min-h-[320px] flex flex-col`}>
+                          <h3 className={`text-lg font-semibold text-white mb-4 ${colors.hoverAccent}`}>
+                            {productTiles[currentTileIndex].title}
+                          </h3>
+                          <ul className="text-neutral-400 text-sm leading-relaxed mb-6 space-y-2 flex-grow">
+                            {productTiles[currentTileIndex].content.map((item, i) => (
+                              <li key={i} className="flex items-start">
+                                <span className={`${colors.accent} mr-2 mt-1`}>•</span>
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                          <button className={`${colors.accent} hover:${colors.hoverAccent} text-sm font-medium transition-colors self-start`}>
+                            {productTiles[currentTileIndex].action} →
+                          </button>
+                        </div>
+                      );
+                    })()}
 
                     {/* Navigation dots */}
                     <div className="flex justify-center space-x-2 mt-4">
