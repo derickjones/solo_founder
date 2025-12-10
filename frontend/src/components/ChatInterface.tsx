@@ -433,7 +433,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                       >
                         {CFM_2025_SCHEDULE.map((week) => (
                           <option key={week.id} value={week.id} className="bg-neutral-800">
-                            {week.lesson}
+                            {week.dates}: {week.lesson}
                           </option>
                         ))}
                       </select>
@@ -721,11 +721,8 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
       {/* Footer */}
       <div className="px-6 py-3 border-t border-neutral-700">
         <div className="max-w-6xl mx-auto text-sm text-neutral-400">
-          <div className="flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-col space-y-1">
-              {/* Copyright moved to Terms of Use page */}
-            </div>
-            <div className="flex space-x-6">
+          <div className="flex justify-center items-center">
+            <div className="flex space-x-8">
               <Link href="/pricing" className="hover:text-white transition-colors">
                 Pricing
               </Link>
