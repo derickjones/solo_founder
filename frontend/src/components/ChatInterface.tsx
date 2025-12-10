@@ -715,11 +715,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
         <div className="max-w-6xl mx-auto text-sm text-neutral-400">
           <div className="flex flex-col space-y-2 lg:space-y-0 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-col space-y-1">
-              <div>© 2025 Gospel Study Assistant • AI-powered gospel study</div>
-              <div className="text-xs text-neutral-500">
-                This service provides AI-powered search and study tools. Content from The Church of Jesus Christ 
-                of Latter-day Saints remains their property and is referenced under fair use principles.
-              </div>
+              {/* Copyright moved to Terms of Use page */}
             </div>
             <div className="flex space-x-6">
               <Link href="/pricing" className="hover:text-white transition-colors">

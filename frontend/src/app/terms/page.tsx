@@ -148,6 +148,22 @@ export default function TermsOfUse() {
               For questions about these terms or the service, please contact us through the appropriate channels provided on our website.
             </p>
           </section>
+
+          <section className="mb-8">
+            <h2 className="text-xl font-semibold text-white mb-4">12. Copyright Notice</h2>
+            <div className="text-neutral-300 mb-4 space-y-3">
+              <p className="font-medium">© 2025 Gospel Study Assistant • AI-powered gospel study</p>
+              <p className="text-sm">
+                This service provides AI-powered search and study tools. Content from The Church of Jesus Christ 
+                of Latter-day Saints remains their property and is referenced under fair use principles for 
+                educational and spiritual study purposes.
+              </p>
+              <p className="text-sm text-neutral-400">
+                The Gospel Study Assistant is an independent service and is not affiliated with, 
+                endorsed by, or sponsored by The Church of Jesus Christ of Latter-day Saints.
+              </p>
+            </div>
+          </section>
         </div>
       </div>
     </div>
