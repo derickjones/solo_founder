@@ -384,7 +384,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
         >
           <Bars3Icon className="w-6 h-6" />
         </button>
-        <h1 className="text-lg font-semibold text-white">Gospel Study</h1>
+        <div className="w-10"></div> {/* Spacer */}
         <div className="w-10"></div> {/* Spacer for centering */}
       </div>
 
