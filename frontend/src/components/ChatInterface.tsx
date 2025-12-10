@@ -497,28 +497,6 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
               )}
             </div>
           </form>
-          
-          {/* Audience selection - only show in Come Follow Me mode */}
-          {mode === 'Come Follow Me' && (
-            <div className="mt-4 flex justify-center">
-              <div className="flex flex-wrap gap-2 justify-center">
-                <span className="text-sm text-neutral-400 mr-2 flex items-center">Audience:</span>
-                {CFM_AUDIENCES.map((audience) => (
-                  <button
-                    key={audience.id}
-                    onClick={() => setCfmAudience(audience.id)}
-                    className={`relative px-3 py-1.5 text-sm rounded-lg font-medium transition-all duration-200 ${
-                      cfmAudience === audience.id
-                        ? 'bg-blue-500/20 text-blue-300 shadow-lg shadow-blue-500/20 border-l-2 border-blue-400'
-                        : 'bg-neutral-700/50 hover:bg-neutral-600/50 text-neutral-300 hover:text-white/80 border border-neutral-600/30'
-                    }`}
-                  >
-                    {audience.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
