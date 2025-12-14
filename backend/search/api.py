@@ -23,7 +23,7 @@ import json
 # Import our search engine, cloud storage, and prompts
 from scripture_search import ScriptureSearchEngine
 from cloud_storage import setup_cloud_storage
-from prompts import get_system_prompt, build_context_prompt, get_mode_source_filter, CFM_LESSON_PROMPTS
+from prompts import get_system_prompt, build_context_prompt, get_mode_source_filter, CFM_LESSON_PROMPTS, CFM_STUDY_GUIDE_PROMPTS
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -197,7 +197,8 @@ async def get_config():
         "available_endpoints": {
             "search": True,  # Always available with search engine
             "stream_response": search_engine is not None,
-            "cfm_lesson_plan": search_engine is not None and openai_client is not None
+            "cfm_lesson_plan": search_engine is not None and openai_client is not None,
+            "cfm_deep_dive": openai_client is not None  # Only needs OpenAI, loads bundles directly
         }
     }
     
@@ -588,6 +589,21 @@ class LessonPlanResponse(BaseModel):
     sources_used: int
     generation_time_ms: int
 
+# CFM Deep Dive Models
+class CFMDeepDiveRequest(BaseModel):
+    week_number: int  # Week number 2-52 for CFM 2026
+    study_level: str = "intermediate"  # basic, intermediate, advanced
+
+class CFMDeepDiveResponse(BaseModel):
+    week_number: int
+    week_title: str
+    date_range: str
+    study_level: str
+    study_guide: str
+    bundle_sources: int
+    total_characters: int
+    generation_time_ms: int
+
 # Helper functions for lesson planning
 def load_cfm_content():
     """Load Come Follow Me content from JSON file"""
@@ -609,6 +625,130 @@ def load_cfm_content():
         logger.error(f"Failed to load CFM content: {e}")
         return []
         return []
+
+# Helper functions for CFM 2026 Deep Dive
+def load_cfm_2026_bundle(week_number: int):
+    """Load a specific CFM 2026 Old Testament weekly bundle"""
+    try:
+        # Try production path first
+        bundle_dir = Path("/app/scripts/content/bundles/cfm_2026/old_testament_bundles")
+        logger.info(f"Trying production path: {bundle_dir} (exists: {bundle_dir.exists()})")
+        
+        if not bundle_dir.exists():
+            # Fallback for local development
+            current_file = Path(__file__)
+            bundle_dir = current_file.parent.parent / "scripts" / "content" / "bundles" / "cfm_2026" / "old_testament_bundles"
+            logger.info(f"Trying local path: {bundle_dir} (exists: {bundle_dir.exists()})")
+        
+        if not bundle_dir.exists():
+            logger.error(f"Bundle directory not found: {bundle_dir}")
+            return None
+        
+        # List directory contents for debugging
+        if bundle_dir.exists():
+            files_in_dir = list(bundle_dir.iterdir())
+            logger.info(f"Files in bundle directory: {[f.name for f in files_in_dir[:10]]}")  # Show first 10 files
+        
+        # Find the bundle file for this week - format is week_XX_Date_Scripture.json
+        bundle_files = list(bundle_dir.glob(f"week_{week_number:02d}_*.json"))
+        
+        if not bundle_files:
+            logger.error(f"No bundle file found for week {week_number} in {bundle_dir}")
+            return None
+            
+        bundle_path = bundle_files[0]
+        logger.info(f"Loading CFM 2026 bundle from: {bundle_path}")
+        
+        with open(bundle_path, 'r', encoding='utf-8') as f:
+            bundle = json.load(f)
+            logger.info(f"Loaded week {week_number} bundle: {bundle.get('title', 'Unknown')} with {len(bundle.get('content_sources', []))} sources")
+            return bundle
+            
+    except Exception as e:
+        logger.error(f"Failed to load CFM 2026 bundle for week {week_number}: {e}", exc_info=True)
+        return None
+
+def format_cfm_bundle_content(bundle: dict) -> str:
+    """Format the CFM bundle content for AI processing"""
+    if not bundle:
+        logger.error("format_cfm_bundle_content: bundle is None or empty")
+        return ""
+    
+    if not isinstance(bundle, dict):
+        logger.error(f"format_cfm_bundle_content: bundle is not a dict, it's a {type(bundle)}: {bundle}")
+        return ""
+    
+    content_parts = []
+    
+    # Add header info
+    content_parts.append(f"=== COME FOLLOW ME 2026 - WEEK {bundle.get('week_number', '?')} ===")
+    content_parts.append(f"Title: {bundle.get('title', 'Unknown')}")
+    content_parts.append(f"Date Range: {bundle.get('date_range', 'Unknown')}")
+    
+    # Format primary scriptures
+    primary_scriptures = []
+    for scripture in bundle.get('primary_scriptures', []):
+        book = scripture.get('book', '')
+        chapters = scripture.get('chapters', [])
+        if book and chapters:
+            primary_scriptures.append(f"{book} {', '.join(chapters)}")
+    content_parts.append(f"Primary Scriptures: {'; '.join(primary_scriptures)}")
+    content_parts.append("")
+    
+    # Add all content sources
+    content_sources = bundle.get('content_sources', [])
+    for i, source in enumerate(content_sources, 1):
+        source_type = source.get('source_type', 'Unknown')
+        title = source.get('title', 'Untitled')
+        content = source.get('content', '')
+        
+        content_parts.append(f"--- SOURCE {i}: {source_type.upper()} ---")
+        content_parts.append(f"Title: {title}")
+        content_parts.append(f"Content:\n{content}")
+        content_parts.append("")
+    
+    # Add any scripture content
+    if 'scripture_content' in bundle:
+        content_parts.append("--- SCRIPTURE TEXT ---")
+        scripture_content = bundle['scripture_content']
+        
+        for book, book_content in scripture_content.items():
+            for chapter, chapter_content in book_content.items():
+                verses = chapter_content.get('verses', {})
+                
+                content_parts.append(f"{book} {chapter}:")
+                for verse in verses.values():
+                    verse_num = verse.get('verse', '')
+                    verse_text = verse.get('text', '')
+                    content_parts.append(f"{verse_num}. {verse_text}")
+                content_parts.append("")
+    
+    # Add teaching ideas if available
+    if 'teaching_ideas' in bundle:
+        content_parts.append("--- TEACHING IDEAS ---")
+        for idea in bundle['teaching_ideas']:
+            content_parts.append(f"• {idea}")
+        content_parts.append("")
+    
+    # Add discussion questions if available
+    if 'discussion_questions' in bundle:
+        content_parts.append("--- DISCUSSION QUESTIONS ---")
+        for question in bundle['discussion_questions']:
+            content_parts.append(f"• {question}")
+        content_parts.append("")
+    
+    # Add themes and cross-references
+    if 'themes' in bundle:
+        content_parts.append(f"--- KEY THEMES ---")
+        content_parts.append(', '.join(bundle['themes']))
+        content_parts.append("")
+    
+    if 'cross_references' in bundle:
+        content_parts.append("--- CROSS-REFERENCES ---")
+        content_parts.append(', '.join(bundle['cross_references']))
+        content_parts.append("")
+    
+    return '\n'.join(content_parts)
 
 def get_cfm_week_content(week_identifier: str):
     """Get all CFM content for a specific week"""
@@ -779,6 +919,113 @@ async def create_lesson_plan(request: LessonPlanRequest):
     except Exception as e:
         logger.error(f"Lesson plan generation error: {e}")
         raise HTTPException(status_code=500, detail=f"Lesson plan generation failed: {str(e)}")
+
+@app.post("/cfm/deep-dive", response_model=CFMDeepDiveResponse)
+async def create_cfm_deep_dive_study_guide(request: CFMDeepDiveRequest):
+    """
+    Generate a CFM 2026 Deep Dive study guide using complete weekly bundles
+    
+    This endpoint:
+    1. Loads the complete CFM 2026 Old Testament weekly bundle (scripture text, seminary materials, etc.)
+    2. Uses the entire bundle as context for AI generation
+    3. Creates study guides at basic, intermediate, or advanced sophistication levels
+    4. Follows the same faith-building approach as the Q&A API
+    """
+    if not openai_client:
+        raise HTTPException(
+            status_code=503, 
+            detail="OpenAI API client not available. Please set the OPENAI_API_KEY environment variable."
+        )
+    
+    # Validate week number
+    if not (2 <= request.week_number <= 52):
+        raise HTTPException(status_code=400, detail="Week number must be between 2 and 52 (CFM 2026 Old Testament schedule)")
+    
+    # Validate study level
+    if request.study_level not in CFM_STUDY_GUIDE_PROMPTS:
+        raise HTTPException(status_code=400, detail=f"Invalid study level. Must be one of: {list(CFM_STUDY_GUIDE_PROMPTS.keys())}")
+    
+    try:
+        start_time = time.time()
+        
+        # Step 1: Load the complete CFM 2026 bundle for this week
+        logger.info(f"Loading CFM 2026 bundle for week {request.week_number}")
+        bundle = load_cfm_2026_bundle(request.week_number)
+        logger.info(f"Bundle loaded: {type(bundle)}, keys: {list(bundle.keys()) if isinstance(bundle, dict) else 'Not a dict'}")
+        
+        if not bundle:
+            raise HTTPException(
+                status_code=404, 
+                detail=f"CFM 2026 bundle not found for week {request.week_number}. Please ensure the bundle files are available."
+            )
+        
+        # Step 2: Format the entire bundle as context
+        logger.info("Formatting bundle content...")
+        bundle_content = format_cfm_bundle_content(bundle)
+        logger.info(f"Bundle content formatted: {len(bundle_content)} characters")
+        
+        if not bundle_content:
+            raise HTTPException(
+                status_code=500, 
+                detail=f"Failed to format content for week {request.week_number}"
+            )
+        
+        # Step 3: Get the appropriate study level prompt
+        logger.info(f"Getting prompt for study level: {request.study_level}")
+        system_prompt = CFM_STUDY_GUIDE_PROMPTS[request.study_level]
+        
+        # Step 4: Create the user prompt with the full bundle context
+        user_prompt = f"""
+        Please create a {request.study_level} level study guide for this Come Follow Me 2026 Old Testament week.
+        
+        Use the complete weekly bundle content provided below to create a comprehensive study guide that follows the same faith-building experience as Gospel Guide's Q&A system - helping people build testimony, find answers in scripture, and draw closer to Christ.
+        
+        COMPLETE WEEKLY BUNDLE CONTENT:
+        {bundle_content}
+        
+        Please create a study guide that uses all the rich content provided above, following your instructions for {request.study_level} level sophistication. Ensure everything is based strictly on the bundle content provided.
+        """
+        
+        # Step 5: Generate the study guide using OpenAI
+        logger.info(f"Generating {request.study_level} study guide for week {request.week_number}")
+        ai_start = time.time()
+        
+        response = openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            max_tokens=3000,  # Allow longer responses for advanced guides
+            temperature=0.7
+        )
+        
+        ai_time_ms = int((time.time() - ai_start) * 1000)
+        study_guide = response.choices[0].message.content
+        
+        # Step 6: Prepare response data
+        total_time_ms = int((time.time() - start_time) * 1000)
+        bundle_sources = len(bundle.get('content_sources', []))
+        total_characters = bundle.get('total_content_length', 0)
+        
+        logger.info(f"Generated {request.study_level} study guide for week {request.week_number} using {bundle_sources} sources ({total_characters:,} chars) in {total_time_ms}ms")
+        
+        return CFMDeepDiveResponse(
+            week_number=request.week_number,
+            week_title=bundle.get('title', 'Unknown'),
+            date_range=bundle.get('date_range', 'Unknown'),
+            study_level=request.study_level,
+            study_guide=study_guide,
+            bundle_sources=bundle_sources,
+            total_characters=total_characters,
+            generation_time_ms=total_time_ms
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"CFM Deep Dive generation error: {e}")
+        raise HTTPException(status_code=500, detail=f"Study guide generation failed: {str(e)}")
 
 # For local development
 if __name__ == "__main__":

@@ -1,103 +1,195 @@
-# Solo Founder - Gospel Guide AI
+# Gospel Stud### ✅ **Complete Features**
+- **🧠 AI-Powered Study**: OpenAI GPT-4o-mini with real-time streaming responses
+- **📖 Complete LDS Library**: 58,088 scripture segments with FAISS vector search
+- **📅 Come Follow Me 2026**: Complete Old Testament study system with 51 weekly bundles
+- **� CFM Deep Dive API**: Comprehensive study guide generation with 3 sophistication levels
+- **�👪 Multi-Audience Support**: Adult, Family, Youth, and Children study modes  
+- **📚 Enhanced Content**: Seminary Teacher materials integrated (208 lessons, 47 CFM weeks)
+- **🔐 Authentication**: Clerk integration with Google/Apple login
+- **💳 Payment Processing**: Stripe subscription system ($4.99/month)
+- **🎨 Professional UI**: Elegant dark theme with product onboarding tiles
+- **📱 Mobile Responsive**: Works seamlessly across all devicesnt - LDS AI Study Platform
 
-> **Mission**: Ship a paid, production-ready LDS AI Scripture Study App with complete monetization infrastructure
+> **Mission**: Production-ready LDS AI Scripture Study App with complete monetization infrastructure
 
-## 🎯 **Project Status: 🚀 MONETIZATION READY (90% Complete)**
+## 🎯 **Project Status: 🚀 MONETIZATION READY (95% Complete)**
 
-**December 5, 2025** - Full-stack AI application with authentication, payment processing, and subscription management.
+**December 9, 2025** - Full-stack AI application with authentication, payment processing, and subscription management.
 
 ### 🚀 **Live Deployments**
 - **🌐 Frontend**: https://vercel.com/derick-jones-projects/solo-founder (Vercel)
 - **🔌 API**: https://gospel-guide-api-273320302933.us-central1.run.app (Google Cloud Run)
 - **📚 Repository**: https://github.com/derickjones/solo_founder
-- **💳 Payment System**: Stripe integration ready for live deployment
 
-### ✅ **Complete Monetization Infrastructure**
-- **🔐 Authentication**: Full Clerk integration with Google/Apple login support
-- **💳 Payment Processing**: Complete Stripe subscription system ($4.99/month)
-- **👤 User Management**: Sign-in/sign-up flows with custom dark theme styling
-- **📊 Subscription Management**: Pricing page, checkout flows, and webhook handling
-- **⚖️ Legal Framework**: Commercial-ready Terms of Use for LDS content usage
-- **🎨 Professional UI**: Elegant blue glow design with sidebar authentication
-
-### ✅ **Core Application Features**
-- **🧠 AI-Powered Responses**: OpenAI GPT-4o-mini generates intelligent answers with proper LDS citations
-- **⚡ Real-Time Streaming**: Server-Sent Events for live response generation  
+### ✅ **Complete Features**
+- **🧠 AI-Powered Study**: OpenAI GPT-4o-mini with real-time streaming responses
 - **📖 Complete LDS Library**: 58,088 scripture segments with FAISS vector search
-- **📅 Come Follow Me 2025**: Complete lesson planner with 4 specialized audiences
-- **👨‍👩‍👧‍👦 Multi-Audience Support**: Adult, Family, Youth, and Children study modes
-- **🎯 One-Click Lesson Plans**: Generate comprehensive lesson plans in 13-22 seconds
-- **🔍 Smart Citations**: Exact references like "(Oct 2016, President Dieter F. Uchtdorf, 'Fourth Floor, Last Door')"
-- **🎨 Dark Theme UI**: Modern chat interface with sidebar-driven mode selection
-- **🔐 Secure Deployment**: Environment-based API key management
+- **📅 Come Follow Me 2025**: Complete Doctrine & Covenants lesson planner
+- **👪 Multi-Audience Support**: Adult, Family, Youth, and Children study modes
+- **🔐 Authentication**: Clerk integration with Google/Apple login
+- **💳 Payment Processing**: Stripe subscription system ($4.99/month)
+- **🎨 Professional UI**: Elegant dark theme with product onboarding tiles
+- **� Mobile Responsive**: Works seamlessly across all devices
 
-## 🆕 **Come Follow Me Features**
-- **📅 2025 Schedule**: 21 weeks of Doctrine & Covenants lessons with real dates
-- **🎯 Lesson Selection**: Dropdown with actual lesson titles and date ranges
-- **👪 Audience Targeting**: 4 specialized lesson planners for different family members
-- **🔄 Mode Switching**: Seamless transition between Q&A and Come Follow Me study
-- **📖 Current Week Detection**: Automatically selects current lesson (Dec 1-7: D&C 137-138)
-- **⚡ Instant Generation**: Click "Generate Lesson Plan" button - no typing required
-- **📚 Comprehensive Content**: Includes activities, discussion questions, and applications
-- **🎨 Structured Output**: Age-appropriate formatting for each audience type
+## 🎯 **Business Model**
 
-### 📅 **Come Follow Me Lesson Planners**
-1. **👨‍💼 Adults**: 800-1000 word comprehensive plans with doctrinal depth
-   - Key scriptures with cross-references, discussion questions, application activities
-   - Prophet/apostle quotes, closing testimony builders
-   
-2. **👨‍👩‍👧‍👦 Family**: Mixed-age experiences (20-45 minutes) for unity
-   - Family gathering ideas, interactive activities, weekly applications
-   - Age-appropriate discussions, Church media suggestions
-   
-3. **👦👧 Youth**: Dynamic plans for ages 12-18 facing modern challenges
-   - Engaging hooks, group activities, personal reflection prompts
-   - Action challenges tied to covenants and missionary prep
-   
-4. **🧸 Children**: Simple, joyful plans for ages 3-11 (15-30 minutes)
-   - Fun activities, crafts, songs, hands-on learning
-   - Primary-focused with take-home ideas## 🏗️ **Monetization Architecture**
+### 💰 **Pricing Strategy**
+- **Free Tier**: Basic Q&A with daily question limits
+- **Premium**: $4.99/month - Unlimited queries + Come Follow Me lesson planning
+- **Target Revenue**: $2,500/month with 500 subscribers
 
-### 🔐 **Authentication System** (Clerk)
-```mermaid
-graph TB
-    A[User] --> B[Sign In Options]
-    B --> C[Google Login]
-    B --> D[Apple Login]  
-    B --> E[Email/Password]
-    C --> F[Clerk Authentication]
-    D --> F
-    E --> F
-    F --> G[Protected Dashboard]
-    G --> H[Free Tier: 5 queries/day]
-    G --> I[Premium: Unlimited + CFM]
+### 📊 **Revenue Projections**
+- **Conservative**: 200 subscribers × $4.99 = $998/month
+- **Realistic**: 500 subscribers × $4.99 = $2,495/month  
+- **Optimistic**: 1,000 subscribers × $4.99 = $4,990/month
+
+## 🏗️ **Technical Architecture**
+
+### ⚛️ **Frontend (Next.js 16)**
+- **TypeScript + Tailwind CSS**: Modern React with full type safety
+- **Dual Mode Interface**: Q&A streaming chat + CFM lesson generation
+- **Product Onboarding**: Auto-hiding tiles with bullet points and color themes
+- **Sidebar Controls**: Dynamic mode switching with authentication
+- **Payment Integration**: Stripe Checkout with subscription management
+
+### 🐍 **Backend (FastAPI)**
+- **Streaming API**: Server-Sent Events for real-time AI responses
+- **Vector Search**: FAISS-powered semantic search across 58k+ segments
+- **AI Integration**: OpenAI GPT-4o-mini with specialized prompts
+- **Content Pipeline**: Automated web scraping and embedding generation
+- **Cloud Storage**: Google Cloud Storage for indexes and metadata
+
+### � **Authentication & Payments**
+- **Clerk**: Complete user management with social login
+- **Stripe**: Subscription processing with webhook handling
+- **Legal Framework**: Commercial-ready Terms of Use
+
+## � **Project Structure**
+
+```
+solo_founder/
+├── README.md                      # 📋 Project documentation
+├── backend/                       # 🐍 Python Backend
+│   ├── search/                    # 🔍 AI search & response system
+│   │   ├── api.py                # 🌐 FastAPI with streaming endpoints
+│   │   ├── scripture_search.py   # 📚 FAISS vector search
+│   │   ├── prompts.py            # 🧠 AI prompt engineering
+│   │   └── indexes/              # 💾 Vector database
+│   ├── scripts/                  # 🕷️ Content acquisition pipeline
+│   │   ├── cfm/                  # 📅 Come Follow Me system
+│   │   │   ├── core/             # 🏗️ Modular CFM infrastructure
+│   │   │   └── years/cfm_2026/   # 📖 2026 Old Testament bundles
+│   │   ├── content/              # 📊 Generated weekly study materials
+│   │   └── scrapers/             # 🔧 Scripture & lesson scrapers
+│   └── deploy.sh                 # 🚀 Cloud Run deployment
+│
+├── frontend/                     # ⚛️ Next.js Frontend
+│   ├── src/
+│   │   ├── components/           # 🧩 React Components
+│   │   │   ├── ChatInterface.tsx # 💬 Main chat with product tiles
+│   │   │   └── Sidebar.tsx       # 📋 Mode selector + authentication
+│   │   ├── app/                  # 📱 App Router with auth pages
+│   │   └── services/             # 🔌 API integration
+│   └── package.json              # � Dependencies + auth/payment
 ```
 
-### 💳 **Payment Processing** (Stripe)
-```mermaid
-graph TB
-    A[User clicks Upgrade] --> B[Stripe Checkout Session]
-    B --> C[Secure Payment Form]
-    C --> D[Payment Processing]
-    D --> E[Webhook Confirmation]
-    E --> F[Subscription Activated]
-    F --> G[Premium Features Unlocked]
-    G --> H[Unlimited Queries]
-    G --> I[Come Follow Me Access]
-    G --> J[Advanced Study Tools]
+## 🚀 **Getting Started**
+
+### 🔑 **Environment Setup**
+```bash
+# Frontend (.env.local)
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_SECRET_KEY=sk_test_...
+
+# Backend (.env)
+OPENAI_API_KEY=sk-...
 ```
 
-### 📊 **User Journey & Monetization**
-1. **Discovery**: User finds Gospel Guide through organic search/referrals
-2. **Free Trial**: 5 questions per day to experience AI quality
-3. **Value Realization**: Users see the depth and accuracy of responses
-4. **Upgrade Trigger**: Hit daily limit or want CFM lesson planning
-5. **Seamless Payment**: One-click $4.99/month subscription via Stripe
-6. **Premium Experience**: Unlimited access + advanced features
+### 🏃‍♂️ **Local Development**
+```bash
+# Backend
+cd backend/search
+pip install -r requirements.txt
+python3 api.py
 
-### 📡 **System Architecture**
-```mermaid
-graph TB
+# Frontend
+cd frontend
+npm install
+npm run dev
+```
+
+### 🚀 **Deployment**
+```bash
+# Backend to Google Cloud Run
+cd backend
+./deploy.sh
+
+# Frontend to Vercel
+cd frontend
+vercel --prod
+```
+
+## 📊 **Performance Metrics**
+- **Q&A Response Time**: 2-3 seconds with streaming
+- **CFM Generation**: 13-22 seconds for comprehensive lesson plans
+- **🆕 CFM Deep Dive**: 20-25 seconds for advanced study guides with 6+ sources
+- **Content Coverage**: 58,088 scripture segments + 239 CFM sources
+- **2026 Study System**: 51 weeks of Old Testament curriculum (2M+ characters)  
+- **📚 Seminary Integration**: 208 lessons mapped to 47 CFM weeks
+- **Search Accuracy**: Vector similarity + AI interpretation
+
+## � **API Endpoints**
+```typescript
+// Core Features
+POST /ask/stream              // Streaming AI responses
+POST /cfm/lesson-plan         // Generate lesson plans  
+POST /cfm/deep-dive          // 🆕 Advanced study guides (Basic/Intermediate/Advanced)
+GET  /search                  // Vector search
+GET  /health                  // Service monitoring
+
+// CFM Deep Dive API
+POST /cfm/deep-dive
+{
+  "week_number": 3,           // Week 1-51 for 2026 Old Testament
+  "study_level": "advanced"   // "basic" | "intermediate" | "advanced"
+}
+
+// Response includes:
+{
+  "week_number": 3,
+  "week_title": "Genesis 1–2; Moses 2–3; Abraham 4–5", 
+  "study_level": "advanced",
+  "study_guide": "### Comprehensive study content...",
+  "bundle_sources": 6,
+  "total_characters": 48544,
+  "generation_time_ms": 25515
+}
+
+// Authentication (Clerk)
+GET  /sign-in                 // Custom sign-in page
+GET  /sign-up                 // Registration page
+
+// Payments (Stripe)  
+POST /api/stripe/checkout     // Create subscription
+POST /api/stripe/webhook      // Handle events
+GET  /pricing                 // Subscription plans
+```
+
+## 🎯 **Launch Checklist**
+- [x] Complete authentication system
+- [x] Payment infrastructure  
+- [x] Production deployment
+- [x] Product onboarding experience
+- [ ] Stripe account setup and live API keys
+- [ ] Usage tracking implementation
+- [ ] Final testing and launch
+
+**🎉 Ready to launch with just Stripe account configuration remaining!**
+
+---
+*Built with ❤️ for the LDS community*
     A[User] --> B[Next.js Frontend<br/>Vercel]
     B --> C[Clerk Auth<br/>Google/Apple Login]
     B --> D[FastAPI Backend<br/>Google Cloud Run]
@@ -118,7 +210,8 @@ graph TB
 #### 🔍 **Search & AI Engine** (`backend/search/`)
 - **`api.py`**: FastAPI server with streaming SSE endpoints
   - `/ask-stream` - Real-time AI responses with search results for Q&A mode
-  - `/cfm/lesson-plan` - Audience-specific Come Follow Me lesson generation
+  - `/cfm/lesson-plan` - Audience-specific Come Follow Me lesson generation  
+  - `/cfm/deep-dive` - **🆕 Advanced study guides** with 3 sophistication levels (Basic/Intermediate/Advanced)
   - `/search` - Vector similarity search across scripture corpus
   - `/health` - Service health monitoring
   - CORS middleware for frontend integration
@@ -140,8 +233,14 @@ graph TB
   - Parallel scraping of LDS.org content
   - Test mode for development iterations
   - Progress tracking and error handling
+- **📅 CFM Pipeline** (`cfm/`): **Complete 2026 Old Testament System**
+  - **Core Infrastructure** (`core/`): Modular base classes and schema
+  - **2026 Bundles** (`years/cfm_2026/`): 51-week Old Testament curriculum
+  - **Unified Content** (`cfm_2026_old_testament/`): Weekly bundle generation pipeline
+  - **📚 Seminary Integration**: Enhanced Seminary Teacher materials (208 lessons)
 - **Individual Scrapers**: Modular content extractors
   - `scrape_book_of_mormon.py`, `scrape_general_conference.py`, etc.
+  - `scrape_seminary.py` - **🆕 Seminary Teacher lesson integration**  
   - BeautifulSoup + lxml for robust HTML parsing
   - Structured JSON output with rich metadata
 - **`build_embeddings.py`**: Vector index construction
@@ -572,44 +671,62 @@ npm run dev
 - **User Retention**: Unlimited access drives daily engagement
 - **Average Revenue Per User (ARPU)**: $4.99/month base rate
 
-## 🔮 **API Endpoints & Features**
-```typescript
-// Authentication & User Management (Clerk)
-GET  /sign-in                           // Custom sign-in page
-GET  /sign-up                           // Custom registration page  
-GET  /user-profile                      // User dashboard and settings
+## 🔮 **Latest API Features & Usage**
 
-// Payment Processing (Stripe)
-POST /api/stripe/checkout               // Create subscription checkout session
-POST /api/stripe/webhook                // Handle subscription events
-GET  /pricing                          // Subscription plans and pricing
+### 🆕 **CFM Deep Dive API** - Advanced Study Guide Generation
 
-// Core Application API
-POST /ask/stream                        // Real-time AI responses with streaming
-GET  /search                           // Vector search across scripture corpus
-GET  /health                           // Service health monitoring
+The newest addition to the Gospel Guide API provides comprehensive study guides with three sophistication levels:
 
-// Come Follow Me API (Premium Feature)
-POST /cfm/lesson-plan                   // Generate audience-specific lesson plans
-GET  /config                           // API configuration and status
+**Endpoint**: `POST /cfm/deep-dive`
 
-// Example CFM Request:
+**Features**:
+- **📖 Complete Bundle Context**: Each week's entire content bundle sent to AI (40k+ characters)
+- **🎯 Three Study Levels**: Basic, Intermediate, Advanced with increasing depth
+- **📚 Multi-Source Integration**: CFM manual + Seminary materials + General Conference
+- **⚡ Fast Generation**: 20-25 seconds for comprehensive study guides
+- **📊 Rich Metadata**: Source count, character count, generation time included
+
+**Request**:
+```json
 {
-  "week": "December 1–7", 
-  "audience": "family"
-}
-
-// Example Authentication Flow:
-{
-  "user": {
-    "id": "user_...",
-    "email": "user@example.com",
-    "subscription": "premium",
-    "queriesUsed": 25,
-    "queriesLimit": "unlimited"
-  }
+  "week_number": 3,           // Week 1-51 for 2026 Old Testament  
+  "study_level": "advanced"   // "basic" | "intermediate" | "advanced"
 }
 ```
+
+**Response**:
+```json
+{
+  "week_number": 3,
+  "week_title": "Genesis 1–2; Moses 2–3; Abraham 4–5",
+  "study_level": "advanced", 
+  "study_guide": "### Complete study content with theological analysis...",
+  "bundle_sources": 6,
+  "total_characters": 48544,
+  "generation_time_ms": 25515
+}
+```
+
+**Study Level Differences**:
+
+- **Basic**: Simple explanations, practical applications, basic questions
+- **Intermediate**: Historical context, cross-references, teaching ideas  
+- **Advanced**: Theological analysis, original languages, scholarly insights, prophetic patterns
+
+**Live Example**:
+```bash
+curl -X POST "https://gospel-guide-api-273320302933.us-central1.run.app/cfm/deep-dive" \
+  -H "Content-Type: application/json" \
+  -d '{"week_number": 3, "study_level": "advanced"}'
+```
+
+This API is perfect for:
+- **📖 Personal Study**: Deep theological insights and cross-references
+- **👨‍🏫 Teaching Preparation**: Seminary/institute instructors  
+- **👪 Family Study**: Age-appropriate content for family discussions
+- **🎓 Academic Research**: Scholarly analysis with historical context
+
+---
 
 ## 💎 **Future Premium Mode Ideas**
 *Saved for potential paid tier expansions:*

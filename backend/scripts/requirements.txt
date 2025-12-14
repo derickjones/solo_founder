@@ -1,9 +1,0 @@
-# Python dependencies for GospelGuide content scraping
-requests>=2.31.0
-beautifulsoup4>=4.12.0
-lxml>=4.9.0
-openai>=1.3.0
-faiss-cpu>=1.7.0
-numpy>=1.24.0
-google-cloud-storage>=2.10.0
-tqdm>=4.66.0
