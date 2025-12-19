@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ChevronDownIcon, PaperAirplaneIcon, Bars3Icon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon, ChevronRightIcon, UserCircleIcon } from '@heroicons/react/24/outline';
-import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMDeepDive, CFMDeepDiveRequest } from '@/services/api';
+import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMDeepDive, CFMDeepDiveRequest, generateCFMLessonPlan, CFMLessonPlanRequest, generateCFMAudioSummary, CFMAudioSummaryRequest } from '@/services/api';
 import ReactMarkdown from 'react-markdown';
 import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
 import { CFM_AUDIENCES, CFM_2026_SCHEDULE, CFMWeek } from '@/utils/comeFollowMe';
@@ -326,66 +326,44 @@ export default function ChatInterface({
           setStreamingContent('');
           setIsLoading(false);
         } else {
-          // Handle placeholders for lesson plans and audio summaries
-          let placeholderContent = '';
+          // Handle lesson plans and audio summaries with actual API calls
+          
+          // Get week number from CFM schedule
+          const weekIndex = CFM_2026_SCHEDULE.findIndex((w: CFMWeek) => w.id === cfmWeek?.id);
+          const weekNumber = weekIndex >= 0 ? weekIndex + 1 : 1;
           
           if (cfmStudyType === 'lesson-plans') {
-            placeholderContent = `# 🚧 Lesson Plans Coming Soon!
-
-## ${cfmWeek?.lesson} - ${cfmLessonPlanLevel.charAt(0).toUpperCase() + cfmLessonPlanLevel.slice(1)} Lesson Plan
-
-**Scripture Reference:** ${cfmWeek?.reference}  
-**Dates:** ${cfmWeek?.dates}
-
-### What's Coming:
-- **Interactive Activities** tailored for ${cfmLessonPlanLevel} audiences
-- **Discussion Questions** with varying complexity levels
-- **Visual Aids** and handout suggestions
-- **Time Management** guides for different lesson lengths
-- **Supplementary Resources** and cross-references
-
-### Current Status:
-This feature is in active development! We're working on creating lesson plans that will help you teach meaningful Come Follow Me lessons.
-
-**Expected Features:**
-${cfmLessonPlanLevel === 'adult' ? '• Deep doctrinal discussions\n• Case study scenarios\n• Group activities and role-plays\n• Service project ideas' : ''}
-${cfmLessonPlanLevel === 'youth' ? '• Interactive games and challenges\n• Modern examples and applications\n• Multimedia suggestions\n• Small group discussions' : ''}
-${cfmLessonPlanLevel === 'children' ? '• Hands-on activities and crafts\n• Stories and examples\n• Songs and movement activities\n• Take-home activities for families' : ''}
-
-*Want to be notified when this launches? Let us know!*`;
+            const response = await generateCFMLessonPlan({
+              week_number: weekNumber,
+              audience: cfmLessonPlanLevel
+            });
+            
+            // Update the message with the lesson plan
+            setMessages(prev => prev.map(msg => 
+              msg.id === assistantMessageId 
+                ? { ...msg, content: response.lesson_plan, isStreaming: false }
+                : msg
+            ));
           } else if (cfmStudyType === 'audio-summary') {
-            placeholderContent = `# 🎧 Audio Summaries Coming Soon!
-
-## ${cfmWeek?.lesson} - ${cfmAudioSummaryLevel.charAt(0).toUpperCase() + cfmAudioSummaryLevel.slice(1)} Audio Summary
-
-**Scripture Reference:** ${cfmWeek?.reference}  
-**Dates:** ${cfmWeek?.dates}  
-**Duration:** ${cfmAudioSummaryLevel === 'short' ? '5 minutes' : cfmAudioSummaryLevel === 'medium' ? '10 minutes' : '15 minutes'}
-
-### What's Coming:
-- **Professional Narration** of key insights and themes
-- **Scripture Readings** with proper pronunciation guides
-- **Background Music** to enhance the spiritual experience
-- **Downloadable MP3** files for offline listening
-- **Multiple Voices** for dialogue and variety
-
-### Current Status:
-We're developing AI-powered audio summaries that will bring the scriptures to life through engaging narration and thoughtful commentary.
-
-**Expected Features:**
-${cfmAudioSummaryLevel === 'short' ? '• Overview of main themes\n• Key verses highlighted\n• Perfect for busy families' : ''}
-${cfmAudioSummaryLevel === 'medium' ? '• Exploration of concepts\n• Historical context included\n• Great for commuting or exercise' : ''}
-${cfmAudioSummaryLevel === 'long' ? '• Analysis\n• Multiple perspectives shared\n• Deep doctrinal insights\n• Perfect for personal study' : ''}
-
-*This feature will be perfect for multitasking learners who want to study while commuting, exercising, or doing chores!*`;
+            // Map our frontend types to backend duration
+            const durationMap = {
+              'short': '5min' as const,
+              'medium': '15min' as const,
+              'long': '30min' as const
+            };
+            
+            const response = await generateCFMAudioSummary({
+              week_number: weekNumber,
+              duration: durationMap[cfmAudioSummaryLevel]
+            });
+            
+            // Update the message with the audio summary
+            setMessages(prev => prev.map(msg => 
+              msg.id === assistantMessageId 
+                ? { ...msg, content: response.audio_script, isStreaming: false }
+                : msg
+            ));
           }
-          
-          // Update the message with the placeholder content
-          setMessages(prev => prev.map(msg => 
-            msg.id === assistantMessageId 
-              ? { ...msg, content: placeholderContent, isStreaming: false }
-              : msg
-          ));
           
           setStreamingMessageId(null);
           setStreamingContent('');

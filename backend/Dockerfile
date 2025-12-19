@@ -12,19 +12,13 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better Docker layer caching
-COPY requirements-unified.txt ./requirements.txt
+COPY requirements.txt ./requirements.txt
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy search engine code
-COPY search/ .
-
-# Copy CFM content data
-COPY scripts/content/ ./scripts/content/
-
-# Copy FAISS index files
-COPY search/indexes/ ./indexes/
+# Copy all backend files
+COPY . .
 
 # Set environment variables
 ENV PYTHONPATH=/app
@@ -36,5 +30,5 @@ ENV PORT=8080
 # Expose the port
 EXPOSE $PORT
 
-# Run the FastAPI server with longer timeout for startup
-CMD exec uvicorn api:app --host 0.0.0.0 --port $PORT --workers 1 --timeout-keep-alive 65
+# Run the FastAPI server with main.py entry point
+CMD exec python main.py

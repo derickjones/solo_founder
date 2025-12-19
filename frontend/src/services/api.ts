@@ -63,6 +63,40 @@ export interface CFMDeepDiveResponse {
   content_sources: number;
 }
 
+// CFM Lesson Plans interfaces
+export interface CFMLessonPlanRequest {
+  week_number: number;
+  audience: 'adult' | 'youth' | 'children';
+}
+
+export interface CFMLessonPlanResponse {
+  week_number: number;
+  week_title: string;
+  date_range: string;
+  audience: string;
+  lesson_plan: string;
+  bundle_sources: number;
+  total_characters: number;
+  generation_time_ms: number;
+}
+
+// CFM Audio Summary interfaces
+export interface CFMAudioSummaryRequest {
+  week_number: number;
+  duration: '5min' | '15min' | '30min';
+}
+
+export interface CFMAudioSummaryResponse {
+  week_number: number;
+  week_title: string;
+  date_range: string;
+  duration: string;
+  audio_script: string;
+  bundle_sources: number;
+  total_characters: number;
+  generation_time_ms: number;
+}
+
 // Map frontend modes to API modes
 const MODE_MAPPING: Record<string, string> = {
   'AI Q&A': 'default',
@@ -340,6 +374,40 @@ export const generateCFMDeepDive = async (request: CFMDeepDiveRequest): Promise<
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.detail || `Failed to generate study guide: ${response.statusText}`);
+  }
+
+  return response.json();
+};
+
+export const generateCFMLessonPlan = async (request: CFMLessonPlanRequest): Promise<CFMLessonPlanResponse> => {
+  const response = await fetch(`${API_BASE_URL}/cfm/lesson-plans`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || `Failed to generate lesson plan: ${response.statusText}`);
+  }
+
+  return response.json();
+};
+
+export const generateCFMAudioSummary = async (request: CFMAudioSummaryRequest): Promise<CFMAudioSummaryResponse> => {
+  const response = await fetch(`${API_BASE_URL}/cfm/audio-summary`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || `Failed to generate audio summary: ${response.statusText}`);
   }
 
   return response.json();

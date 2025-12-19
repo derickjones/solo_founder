@@ -21,9 +21,9 @@ import openai
 import json
 
 # Import our search engine, cloud storage, and prompts
-from scripture_search import ScriptureSearchEngine
-from cloud_storage import setup_cloud_storage
-from prompts import get_system_prompt, build_context_prompt, get_mode_source_filter, CFM_STUDY_GUIDE_PROMPTS
+from .scripture_search import ScriptureSearchEngine
+from .cloud_storage import setup_cloud_storage
+from .prompts import get_system_prompt, build_context_prompt, get_mode_source_filter, CFM_STUDY_GUIDE_PROMPTS, CFM_LESSON_PLAN_PROMPTS, CFM_AUDIO_SUMMARY_PROMPTS
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -139,16 +139,31 @@ async def startup_event():
             openai_client = openai.OpenAI(api_key=api_key)
             logger.info("✅ OpenAI client initialized")
         
-        # Initialize search engine
-        logger.info("🔍 Loading search engine indexes...")
+        # Initialize search engine (optional - only if indexes exist)
+        logger.info("🔍 Checking for search engine indexes...")
         index_dir = os.getenv("INDEX_DIR", "indexes")
-        search_start = time.time()
-        search_engine = ScriptureSearchEngine(index_dir=index_dir, openai_api_key=api_key)
-        search_time = time.time() - search_start
+        config_path = os.path.join(index_dir, "config.json")
+        
+        if os.path.exists(config_path):
+            logger.info("📚 Index files found, loading search engine...")
+            search_start = time.time()
+            search_engine = ScriptureSearchEngine(index_dir=index_dir, openai_api_key=api_key)
+            search_time = time.time() - search_start
+            logger.info(f"✅ Search engine loaded with {search_engine.index.ntotal:,} segments in {search_time:.2f}s")
+        else:
+            logger.warning("⚠️  Search index files not found - search functionality will be disabled")
+            logger.warning(f"⚠️  Looking for: {config_path}")
+            search_engine = None
         
         total_startup_time = time.time() - startup_time
-        logger.info(f"✅ Search engine loaded with {search_engine.index.ntotal:,} segments in {search_time:.2f}s")
-        logger.info(f"🎉 Gospel Guide API ready to serve! Total startup time: {total_startup_time:.2f}s")
+        if search_engine:
+            logger.info(f"🚀 Gospel Guide API started successfully in {total_startup_time:.2f}s")
+            logger.info(f"📊 Search engine ready with {search_engine.index.ntotal:,} segments")
+        else:
+            logger.info(f"🚀 Gospel Guide API started in {total_startup_time:.2f}s (search disabled)")
+        
+        logger.info(f"💡 OpenAI client: {'✅ Ready' if openai_client else '❌ Disabled'}")
+        logger.info("🎯 CFM Deep Dive, Lesson Plans, and Audio Summary APIs are available")
         
     except Exception as e:
         logger.error(f"❌ Failed to initialize search engine: {e}")
@@ -198,7 +213,9 @@ async def get_config():
             "search": True,  # Always available with search engine
             "stream_response": search_engine is not None,
             "cfm_lesson_plan": search_engine is not None and openai_client is not None,
-            "cfm_deep_dive": openai_client is not None  # Only needs OpenAI, loads bundles directly
+            "cfm_deep_dive": openai_client is not None,  # Only needs OpenAI, loads bundles directly
+            "cfm_lesson_plans": openai_client is not None,  # New lesson plans API
+            "cfm_audio_summary": openai_client is not None   # New audio summary API
         }
     }
     
@@ -590,6 +607,36 @@ class CFMDeepDiveResponse(BaseModel):
     total_characters: int
     generation_time_ms: int
 
+# CFM Lesson Plans Models
+class CFMLessonPlanRequest(BaseModel):
+    week_number: int  # Week number 2-52 for CFM 2026
+    audience: str = "adult"  # adult, youth, children
+
+class CFMLessonPlanResponse(BaseModel):
+    week_number: int
+    week_title: str
+    date_range: str
+    audience: str
+    lesson_plan: str
+    bundle_sources: int
+    total_characters: int
+    generation_time_ms: int
+
+# CFM Audio Summary Models
+class CFMAudioSummaryRequest(BaseModel):
+    week_number: int  # Week number 2-52 for CFM 2026
+    duration: str = "5min"  # 5min, 15min, 30min
+
+class CFMAudioSummaryResponse(BaseModel):
+    week_number: int
+    week_title: str
+    date_range: str
+    duration: str
+    audio_script: str
+    bundle_sources: int
+    total_characters: int
+    generation_time_ms: int
+
 # Helper functions for CFM 2026 Deep Dive
 def load_cfm_2026_bundle(week_number: int):
     """Load a specific CFM 2026 Old Testament weekly bundle"""
@@ -823,6 +870,226 @@ async def create_cfm_deep_dive_study_guide(request: CFMDeepDiveRequest):
     except Exception as e:
         logger.error(f"CFM Deep Dive generation error: {e}")
         raise HTTPException(status_code=500, detail=f"Study guide generation failed: {str(e)}")
+
+@app.post("/cfm/lesson-plans", response_model=CFMLessonPlanResponse)
+async def create_cfm_lesson_plan(request: CFMLessonPlanRequest):
+    """
+    Generate a CFM 2026 Lesson Plan using complete weekly bundles
+    
+    This endpoint:
+    1. Loads the complete CFM 2026 Old Testament weekly bundle
+    2. Uses the entire bundle as context for AI generation
+    3. Creates lesson plans for adult, youth, or children audiences
+    4. Follows audience-appropriate teaching methods and activities
+    """
+    if not openai_client:
+        raise HTTPException(
+            status_code=503, 
+            detail="OpenAI API client not available. Please set the OPENAI_API_KEY environment variable."
+        )
+    
+    # Validate week number
+    if not (2 <= request.week_number <= 52):
+        raise HTTPException(status_code=400, detail="Week number must be between 2 and 52 (CFM 2026 Old Testament schedule)")
+    
+    # Validate audience
+    if request.audience not in CFM_LESSON_PLAN_PROMPTS:
+        raise HTTPException(status_code=400, detail=f"Invalid audience. Must be one of: {list(CFM_LESSON_PLAN_PROMPTS.keys())}")
+    
+    try:
+        start_time = time.time()
+        
+        # Step 1: Load the complete CFM 2026 bundle for this week
+        logger.info(f"Loading CFM 2026 bundle for week {request.week_number}")
+        bundle = load_cfm_2026_bundle(request.week_number)
+        logger.info(f"Bundle loaded: {type(bundle)}, keys: {list(bundle.keys()) if isinstance(bundle, dict) else 'Not a dict'}")
+        
+        if not bundle:
+            raise HTTPException(
+                status_code=404, 
+                detail=f"CFM 2026 bundle not found for week {request.week_number}. Please ensure the bundle files are available."
+            )
+        
+        # Step 2: Format the entire bundle as context
+        logger.info("Formatting bundle content...")
+        bundle_content = format_cfm_bundle_content(bundle)
+        logger.info(f"Bundle content formatted: {len(bundle_content)} characters")
+        
+        if not bundle_content:
+            raise HTTPException(
+                status_code=500, 
+                detail=f"Failed to format content for week {request.week_number}"
+            )
+        
+        # Step 3: Get the appropriate audience prompt
+        logger.info(f"Getting prompt for audience: {request.audience}")
+        system_prompt = CFM_LESSON_PLAN_PROMPTS[request.audience]
+        
+        # Step 4: Create the user prompt with the full bundle context
+        user_prompt = f"""
+        Please create a {request.audience} lesson plan for this Come Follow Me 2026 Old Testament week.
+        
+        Use the complete weekly bundle content provided below to create a comprehensive lesson plan that follows the same faith-building experience as Gospel Guide's study system - helping people build testimony, find answers in scripture, and draw closer to Christ.
+        
+        COMPLETE WEEKLY BUNDLE CONTENT:
+        {bundle_content}
+        
+        Please create a lesson plan that uses all the rich content provided above, following your instructions for {request.audience} audience. Ensure everything is based strictly on the bundle content provided.
+        """
+        
+        # Step 5: Generate the lesson plan using OpenAI
+        logger.info(f"Generating {request.audience} lesson plan for week {request.week_number}")
+        ai_start = time.time()
+        
+        response = openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            max_tokens=3000,  # Allow longer responses for detailed lesson plans
+            temperature=0.7
+        )
+        
+        ai_time_ms = int((time.time() - ai_start) * 1000)
+        lesson_plan = response.choices[0].message.content
+        
+        # Step 6: Prepare response data
+        total_time_ms = int((time.time() - start_time) * 1000)
+        bundle_sources = len(bundle.get('content_sources', []))
+        total_characters = bundle.get('total_content_length', 0)
+        
+        logger.info(f"Generated {request.audience} lesson plan for week {request.week_number} using {bundle_sources} sources ({total_characters:,} chars) in {total_time_ms}ms")
+        
+        # Clean title by removing leading semicolon if present
+        clean_title = bundle.get('title', 'Unknown').lstrip(';')
+        
+        return CFMLessonPlanResponse(
+            week_number=request.week_number,
+            week_title=clean_title,
+            date_range=bundle.get('date_range', 'Unknown'),
+            audience=request.audience,
+            lesson_plan=lesson_plan,
+            bundle_sources=bundle_sources,
+            total_characters=total_characters,
+            generation_time_ms=total_time_ms
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"CFM Lesson Plan generation error: {e}")
+        raise HTTPException(status_code=500, detail=f"Lesson plan generation failed: {str(e)}")
+
+@app.post("/cfm/audio-summary", response_model=CFMAudioSummaryResponse)
+async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
+    """
+    Generate a CFM 2026 Audio Summary Script using complete weekly bundles
+    
+    This endpoint:
+    1. Loads the complete CFM 2026 Old Testament weekly bundle
+    2. Uses the entire bundle as context for AI generation
+    3. Creates conversational audio scripts for 5min, 15min, or 30min durations
+    4. Structures content as natural dialogue between faithful hosts
+    """
+    if not openai_client:
+        raise HTTPException(
+            status_code=503, 
+            detail="OpenAI API client not available. Please set the OPENAI_API_KEY environment variable."
+        )
+    
+    # Validate week number
+    if not (2 <= request.week_number <= 52):
+        raise HTTPException(status_code=400, detail="Week number must be between 2 and 52 (CFM 2026 Old Testament schedule)")
+    
+    # Validate duration
+    if request.duration not in CFM_AUDIO_SUMMARY_PROMPTS:
+        raise HTTPException(status_code=400, detail=f"Invalid duration. Must be one of: {list(CFM_AUDIO_SUMMARY_PROMPTS.keys())}")
+    
+    try:
+        start_time = time.time()
+        
+        # Step 1: Load the complete CFM 2026 bundle for this week
+        logger.info(f"Loading CFM 2026 bundle for week {request.week_number}")
+        bundle = load_cfm_2026_bundle(request.week_number)
+        logger.info(f"Bundle loaded: {type(bundle)}, keys: {list(bundle.keys()) if isinstance(bundle, dict) else 'Not a dict'}")
+        
+        if not bundle:
+            raise HTTPException(
+                status_code=404, 
+                detail=f"CFM 2026 bundle not found for week {request.week_number}. Please ensure the bundle files are available."
+            )
+        
+        # Step 2: Format the entire bundle as context
+        logger.info("Formatting bundle content...")
+        bundle_content = format_cfm_bundle_content(bundle)
+        logger.info(f"Bundle content formatted: {len(bundle_content)} characters")
+        
+        if not bundle_content:
+            raise HTTPException(
+                status_code=500, 
+                detail=f"Failed to format content for week {request.week_number}"
+            )
+        
+        # Step 3: Get the appropriate duration prompt
+        logger.info(f"Getting prompt for duration: {request.duration}")
+        system_prompt = CFM_AUDIO_SUMMARY_PROMPTS[request.duration]
+        
+        # Step 4: Create the user prompt with the full bundle context
+        user_prompt = f"""
+        Please create a {request.duration} audio summary script for this Come Follow Me 2026 Old Testament week.
+        
+        Use the complete weekly bundle content provided below to create a conversational audio script that follows the same faith-building experience as Gospel Guide's study system - helping people build testimony, find answers in scripture, and draw closer to Christ.
+        
+        COMPLETE WEEKLY BUNDLE CONTENT:
+        {bundle_content}
+        
+        Please create an audio script that uses all the rich content provided above, following your instructions for {request.duration} duration. Ensure everything is based strictly on the bundle content provided.
+        """
+        
+        # Step 5: Generate the audio script using OpenAI
+        logger.info(f"Generating {request.duration} audio script for week {request.week_number}")
+        ai_start = time.time()
+        
+        response = openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            max_tokens=3000,  # Allow longer responses for detailed scripts
+            temperature=0.7
+        )
+        
+        ai_time_ms = int((time.time() - ai_start) * 1000)
+        audio_script = response.choices[0].message.content
+        
+        # Step 6: Prepare response data
+        total_time_ms = int((time.time() - start_time) * 1000)
+        bundle_sources = len(bundle.get('content_sources', []))
+        total_characters = bundle.get('total_content_length', 0)
+        
+        logger.info(f"Generated {request.duration} audio script for week {request.week_number} using {bundle_sources} sources ({total_characters:,} chars) in {total_time_ms}ms")
+        
+        # Clean title by removing leading semicolon if present
+        clean_title = bundle.get('title', 'Unknown').lstrip(';')
+        
+        return CFMAudioSummaryResponse(
+            week_number=request.week_number,
+            week_title=clean_title,
+            date_range=bundle.get('date_range', 'Unknown'),
+            duration=request.duration,
+            audio_script=audio_script,
+            bundle_sources=bundle_sources,
+            total_characters=total_characters,
+            generation_time_ms=total_time_ms
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"CFM Audio Summary generation error: {e}")
+        raise HTTPException(status_code=500, detail=f"Audio summary generation failed: {str(e)}")
 
 # For local development
 if __name__ == "__main__":
