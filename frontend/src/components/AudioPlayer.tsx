@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { PlayIcon, PauseIcon, SpeakerWaveIcon, UserIcon } from '@heroicons/react/24/outline';
+import { PlayIcon, PauseIcon, SpeakerWaveIcon } from '@heroicons/react/24/outline';
 
 interface AudioPlayerProps {
   audioFiles: {
@@ -12,49 +12,23 @@ interface AudioPlayerProps {
   title: string;
 }
 
-interface AudioTrack {
-  id: string;
-  label: string;
-  icon: React.ComponentType<any>;
-  base64Data: string;
-}
-
 export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
-  const [currentTrack, setCurrentTrack] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
+  const [isLoaded, setIsLoaded] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Prepare tracks from available audio files
-  const tracks: AudioTrack[] = [];
-  
-  if (audioFiles.combined) {
-    tracks.push({
-      id: 'combined',
-      label: 'Full Conversation',
-      icon: SpeakerWaveIcon,
-      base64Data: audioFiles.combined
-    });
-  }
-  
-  if (audioFiles.host_only) {
-    tracks.push({
-      id: 'host_only',
-      label: 'Host Only',
-      icon: UserIcon,
-      base64Data: audioFiles.host_only
-    });
-  }
-  
-  if (audioFiles.guest_only) {
-    tracks.push({
-      id: 'guest_only', 
-      label: 'Guest Only',
-      icon: UserIcon,
-      base64Data: audioFiles.guest_only
-    });
+  // Only use the combined audio file
+  const audioData = audioFiles.combined;
+
+  if (!audioData) {
+    return (
+      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <p className="text-gray-500 text-center">Audio file is being generated...</p>
+      </div>
+    );
   }
 
   // Convert base64 to blob URL
@@ -68,18 +42,14 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
     return URL.createObjectURL(blob);
   };
 
-  // Load and play selected track
-  const playTrack = (trackId: string) => {
-    const track = tracks.find(t => t.id === trackId);
-    if (!track || !audioRef.current) return;
-
-    const audioUrl = getAudioUrl(track.base64Data);
-    audioRef.current.src = audioUrl;
-    setCurrentTrack(trackId);
-    
-    audioRef.current.play();
-    setIsPlaying(true);
-  };
+  // Initialize audio when component loads
+  useEffect(() => {
+    if (audioRef.current && audioData && !isLoaded) {
+      const audioUrl = getAudioUrl(audioData);
+      audioRef.current.src = audioUrl;
+      setIsLoaded(true);
+    }
+  }, [audioData, isLoaded]);
 
   // Toggle play/pause
   const togglePlayPause = () => {
@@ -111,7 +81,7 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
       audio.removeEventListener('loadedmetadata', updateDuration);
       audio.removeEventListener('ended', handleEnded);
     };
-  }, [currentTrack]);
+  }, [isLoaded]);
 
   // Seek to position
   const seek = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,99 +100,68 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  if (tracks.length === 0) {
-    return (
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-        <p className="text-gray-500 text-center">Audio files are being generated...</p>
-      </div>
-    );
-  }
-
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">🎧 Audio Summary - {title}</h3>
       
-      {/* Track Selection */}
-      <div className="space-y-2">
-        <h4 className="text-sm font-medium text-gray-700">Select Audio Track:</h4>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          {tracks.map((track) => {
-            const IconComponent = track.icon;
-            const isActive = currentTrack === track.id;
-            
-            return (
-              <button
-                key={track.id}
-                onClick={() => playTrack(track.id)}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive 
-                    ? 'bg-blue-100 text-blue-700 border border-blue-300' 
-                    : 'bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100'
-                }`}
-              >
-                <IconComponent className="h-4 w-4" />
-                <span>{track.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
       {/* Audio Controls */}
-      {currentTrack && (
-        <div className="space-y-3">
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={togglePlayPause}
-              className="flex items-center justify-center w-10 h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-colors"
-            >
-              {isPlaying ? (
-                <PauseIcon className="h-5 w-5" />
-              ) : (
-                <PlayIcon className="h-5 w-5 ml-0.5" />
-              )}
-            </button>
-            
-            <div className="flex-1 space-y-1">
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={duration ? (currentTime / duration) * 100 : 0}
-                onChange={seek}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-              />
-              <div className="flex justify-between text-xs text-gray-500">
-                <span>{formatTime(currentTime)}</span>
-                <span>{formatTime(duration)}</span>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <SpeakerWaveIcon className="h-4 w-4 text-gray-400" />
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.1"
-                value={volume}
-                onChange={(e) => {
-                  const newVolume = parseFloat(e.target.value);
-                  setVolume(newVolume);
-                  if (audioRef.current) {
-                    audioRef.current.volume = newVolume;
-                  }
-                }}
-                className="w-16 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-              />
+      <div className="space-y-3">
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={togglePlayPause}
+            className="flex items-center justify-center w-12 h-12 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-colors shadow-lg"
+          >
+            {isPlaying ? (
+              <PauseIcon className="h-6 w-6" />
+            ) : (
+              <PlayIcon className="h-6 w-6 ml-0.5" />
+            )}
+          </button>
+          
+          <div className="flex-1 space-y-1">
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={duration ? (currentTime / duration) * 100 : 0}
+              onChange={seek}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+            />
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>{formatTime(currentTime)}</span>
+              <span>{formatTime(duration)}</span>
             </div>
           </div>
           
+          <div className="flex items-center space-x-2">
+            <SpeakerWaveIcon className="h-4 w-4 text-gray-400" />
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.1"
+              value={volume}
+              onChange={(e) => {
+                const newVolume = parseFloat(e.target.value);
+                setVolume(newVolume);
+                if (audioRef.current) {
+                  audioRef.current.volume = newVolume;
+                }
+              }}
+              className="w-16 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
+          </div>
+        </div>
+        
+        <div className="text-center">
           <p className="text-sm text-gray-600">
-            Now playing: {tracks.find(t => t.id === currentTrack)?.label}
+            🎙️ Interactive Gospel Discussion - {duration > 0 ? formatTime(duration) : 'Loading...'}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            Listen to a thoughtful conversation about this week's Come Follow Me study
           </p>
         </div>
-      )}
+      </div>
 
       <audio ref={audioRef} preload="metadata" />
       

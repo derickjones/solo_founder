@@ -1056,7 +1056,7 @@ def parse_dialogue_and_generate_audio(script_text: str) -> Dict[str, str]:
                     input=host_text,
                     response_format="mp3"
                 )
-                audio_files['host_only'] = base64.b64encode(host_response.content).decode()
+                audio_files['host'] = base64.b64encode(host_response.content).decode()
             
             # Generate guest audio (use 'nova' voice - friendly female voice)  
             guest_text = " ".join(guest_parts)
@@ -1068,7 +1068,7 @@ def parse_dialogue_and_generate_audio(script_text: str) -> Dict[str, str]:
                     input=guest_text,
                     response_format="mp3"
                 )
-                audio_files['guest_only'] = base64.b64encode(guest_response.content).decode()
+                audio_files['guest'] = base64.b64encode(guest_response.content).decode()
             
             # For combined audio, we'll create a simplified version with clear speaker labels
             # This could be enhanced later with audio mixing
