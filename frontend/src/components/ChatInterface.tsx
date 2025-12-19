@@ -643,7 +643,7 @@ ${cfmAudioSummaryLevel === 'long' ? '• Comprehensive analysis\n• Multiple pe
                     <div className="space-y-3">
                       {cfmStudyType === 'deep-dive' && (
                         <>
-                          <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Study Level</label>
+                          <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider text-center block">Study Level</label>
                           <div className="bg-neutral-700/30 p-4 rounded-lg">
                             <StudyLevelSlider 
                               selectedLevel={cfmStudyLevel} 
@@ -655,44 +655,48 @@ ${cfmAudioSummaryLevel === 'long' ? '• Comprehensive analysis\n• Multiple pe
                       
                       {cfmStudyType === 'lesson-plans' && (
                         <>
-                          <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Audience</label>
-                          <div className="grid grid-cols-3 gap-2">
-                            {['adult', 'youth', 'children'].map((level) => (
-                              <button
-                                key={level}
-                                type="button"
-                                onClick={() => setCfmLessonPlanLevel(level as LessonPlanLevel)}
-                                className={`p-3 rounded-lg text-sm font-medium transition-all duration-200 border capitalize ${
-                                  cfmLessonPlanLevel === level
-                                    ? 'bg-purple-600/80 border-purple-500 text-white shadow-lg shadow-purple-500/30'
-                                    : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
-                                }`}
-                              >
-                                {level}
-                              </button>
-                            ))}
+                          <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider text-center block">Audience</label>
+                          <div className="bg-neutral-700/30 p-4 rounded-lg">
+                            <div className="grid grid-cols-3 gap-2">
+                              {['adult', 'youth', 'children'].map((level) => (
+                                <button
+                                  key={level}
+                                  type="button"
+                                  onClick={() => setCfmLessonPlanLevel(level as LessonPlanLevel)}
+                                  className={`p-3 rounded-lg text-sm font-medium transition-all duration-200 border capitalize ${
+                                    cfmLessonPlanLevel === level
+                                      ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
+                                      : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
+                                  }`}
+                                >
+                                  {level}
+                                </button>
+                              ))}
+                            </div>
                           </div>
                         </>
                       )}
                       
                       {cfmStudyType === 'audio-summary' && (
                         <>
-                          <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Duration</label>
-                          <div className="grid grid-cols-3 gap-2">
-                            {['short', 'medium', 'long'].map((level) => (
-                              <button
-                                key={level}
-                                type="button"
-                                onClick={() => setCfmAudioSummaryLevel(level as AudioSummaryLevel)}
-                                className={`p-3 rounded-lg text-sm font-medium transition-all duration-200 border capitalize ${
-                                  cfmAudioSummaryLevel === level
-                                    ? 'bg-green-600/80 border-green-500 text-white shadow-lg shadow-green-500/30'
-                                    : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
-                                }`}
-                              >
-                                {level} {level === 'short' ? '(5 min)' : level === 'medium' ? '(10 min)' : '(15 min)'}
-                              </button>
-                            ))}
+                          <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider text-center block">Duration</label>
+                          <div className="bg-neutral-700/30 p-4 rounded-lg">
+                            <div className="grid grid-cols-3 gap-2">
+                              {['short', 'medium', 'long'].map((level) => (
+                                <button
+                                  key={level}
+                                  type="button"
+                                  onClick={() => setCfmAudioSummaryLevel(level as AudioSummaryLevel)}
+                                  className={`p-3 rounded-lg text-sm font-medium transition-all duration-200 border capitalize ${
+                                    cfmAudioSummaryLevel === level
+                                      ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
+                                      : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
+                                  }`}
+                                >
+                                  {level} {level === 'short' ? '(5 min)' : level === 'medium' ? '(10 min)' : '(15 min)'}
+                                </button>
+                              ))}
+                            </div>
                           </div>
                         </>
                       )}
