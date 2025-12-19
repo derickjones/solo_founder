@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { ChevronDownIcon, ChevronUpIcon, XMarkIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
 import { useUser, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
-import { getCurrentCFMWeek, CFM_2025_SCHEDULE, CFM_AUDIENCES, formatCFMWeekDisplay, CFMWeek } from '@/utils/comeFollowMe';
+import { getCurrentCFMWeek, CFM_2026_SCHEDULE, CFM_AUDIENCES, formatCFMWeekDisplay, CFMWeek } from '@/utils/comeFollowMe';
 
 interface SidebarProps {
   selectedSources: string[];
@@ -262,12 +262,12 @@ export default function Sidebar({
             <select
               value={cfmWeek?.id || ''}
               onChange={(e) => {
-                const selectedWeek = CFM_2025_SCHEDULE.find(w => w.id === e.target.value);
-                setCfmWeek(selectedWeek || CFM_2025_SCHEDULE[0]);
+                const selectedWeek = CFM_2026_SCHEDULE.find((w: CFMWeek) => w.id === e.target.value);
+                setCfmWeek(selectedWeek || CFM_2026_SCHEDULE[0]);
               }}
               className="w-full p-3 bg-neutral-800/50 border-0 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/20 appearance-none cursor-pointer"
             >
-              {CFM_2025_SCHEDULE.map((week) => (
+              {CFM_2026_SCHEDULE.map((week: CFMWeek) => (
                 <option key={week.id} value={week.id} className="bg-neutral-800">
                   {week.dates}: {week.lesson}
                 </option>
