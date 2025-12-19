@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getCurrentCFMWeek, CFMWeek, formatCFMWeekDisplay, CFM_2025_SCHEDULE } from '@/utils/comeFollowMe';
+import { getCurrentCFMWeek, CFMWeek, formatCFMWeekDisplay, CFM_2026_SCHEDULE } from '@/utils/comeFollowMe';
 import StudyLevelSlider from '@/components/StudyLevelSlider';
 import { generateCFMDeepDive, CFMDeepDiveRequest } from '@/services/api';
 import { ChevronLeftIcon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon } from '@heroicons/react/24/outline';
@@ -29,7 +29,7 @@ export default function ComeFollowMePage() {
 
   // Get week number from CFM schedule
   const getWeekNumber = (week: CFMWeek): number => {
-    const index = CFM_2025_SCHEDULE.findIndex(w => w.id === week.id);
+    const index = CFM_2026_SCHEDULE.findIndex((w: CFMWeek) => w.id === week.id);
     return index >= 0 ? index + 1 : 1;
   };
 
@@ -135,12 +135,12 @@ export default function ComeFollowMePage() {
                 <select
                   value={currentWeek.id}
                   onChange={(e) => {
-                    const selected = CFM_2025_SCHEDULE.find(w => w.id === e.target.value);
+                    const selected = CFM_2026_SCHEDULE.find((w: CFMWeek) => w.id === e.target.value);
                     if (selected) setCurrentWeek(selected);
                   }}
                   className="w-full bg-gray-900 border border-gray-600 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 >
-                  {CFM_2025_SCHEDULE.map((week, index) => (
+                  {CFM_2026_SCHEDULE.map((week: CFMWeek, index: number) => (
                     <option key={week.id} value={week.id}>
                       Week {index + 1}: {week.lesson}
                     </option>

@@ -270,7 +270,6 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
     try {
       if (mode === 'Come Follow Me') {
         // Handle CFM deep dive generation with study levels
-        console.log('Generating CFM study guide with:', { week: cfmWeek?.id, studyLevel: cfmStudyLevel, audience: cfmAudience });
         
         // Get week number from CFM schedule
         const weekIndex = CFM_2026_SCHEDULE.findIndex((w: CFMWeek) => w.id === cfmWeek?.id);
@@ -297,7 +296,6 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
         let sources: SearchResult[] = [];
         let searchTime = 0;
 
-        console.log('Starting askQuestionStream with:', { query: searchQuery, mode, selectedSources });
         const startTime = Date.now();
         
         await askQuestionStream({
@@ -307,22 +305,17 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
           selectedSources
         }, (chunk: StreamChunk) => {
           const elapsed = Date.now() - startTime;
-          console.log('🔥 Chunk received in ChatInterface:', chunk.type, chunk.content ? `"${chunk.content.slice(0, 30)}..."` : '', 'elapsed:', elapsed + 'ms');
           
           switch (chunk.type) {
             case 'search_complete':
-              console.log('✅ Search complete, found', chunk.total_sources, 'sources');
               searchTime = (chunk.search_time_ms || 0) / 1000;
               break;
               
             case 'content':
               if (chunk.content) {
                 fullAnswer += chunk.content;
-                console.log('📝 Content chunk added, fullAnswer length:', fullAnswer.length);
                 
                 // Update streaming state immediately
-                console.log('🔄 Updating streaming content immediately:', fullAnswer.slice(-20));
-                
                 setStreamingContent(fullAnswer);
                 
                 // Also update React state (for final rendering)
@@ -346,7 +339,6 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
               break;
               
             case 'done':
-              console.log('✅ Streaming done, final answer length:', fullAnswer.length);
               // Make sure final content is displayed and mark streaming as complete
               setMessages(prev => prev.map(msg => 
                 msg.id === assistantMessageId 
