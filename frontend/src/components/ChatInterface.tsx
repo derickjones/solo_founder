@@ -84,6 +84,10 @@ export default function ChatInterface({
   const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null);
   const [showProductTiles, setShowProductTiles] = useState(true);
   const [currentTileIndex, setCurrentTileIndex] = useState(0);
+  
+  // Voice selection state for audio summaries
+  const [hostVoice, setHostVoice] = useState<'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer'>('onyx');
+  const [guestVoice, setGuestVoice] = useState<'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer'>('shimmer');
 
   // Copy to clipboard handler
   const handleCopyToClipboard = async (content: string, messageId: number) => {
@@ -361,7 +365,9 @@ export default function ChatInterface({
             
             const response = await generateCFMAudioSummary({
               week_number: weekNumber,
-              duration: durationMap[cfmAudioSummaryLevel]
+              duration: durationMap[cfmAudioSummaryLevel],
+              host_voice: hostVoice,
+              guest_voice: guestVoice
             });
             
             // Update the message with the audio summary
@@ -689,6 +695,44 @@ export default function ChatInterface({
                                   {level} {level === 'short' ? '(5 min)' : level === 'medium' ? '(10 min)' : '(15 min)'}
                                 </button>
                               ))}
+                            </div>
+                          </div>
+                          
+                          {/* Voice Selection */}
+                          <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider text-center block mt-4">Voice Selection</label>
+                          <div className="bg-neutral-700/30 p-4 rounded-lg space-y-3">
+                            {/* Host Voice */}
+                            <div>
+                              <label className="text-xs font-medium text-neutral-300 mb-2 block">Host Voice</label>
+                              <select 
+                                value={hostVoice}
+                                onChange={(e) => setHostVoice(e.target.value as any)}
+                                className="w-full p-2 rounded-md bg-neutral-600 border border-neutral-500 text-white text-sm focus:border-blue-500 focus:outline-none"
+                              >
+                                <option value="onyx">Onyx (Deep, Professional)</option>
+                                <option value="alloy">Alloy (Warm, Clear)</option>
+                                <option value="echo">Echo (Authoritative)</option>
+                                <option value="fable">Fable (Expressive)</option>
+                                <option value="nova">Nova (Friendly)</option>
+                                <option value="shimmer">Shimmer (Soft, Pleasant)</option>
+                              </select>
+                            </div>
+                            
+                            {/* Guest Voice */}
+                            <div>
+                              <label className="text-xs font-medium text-neutral-300 mb-2 block">Guest Voice</label>
+                              <select 
+                                value={guestVoice}
+                                onChange={(e) => setGuestVoice(e.target.value as any)}
+                                className="w-full p-2 rounded-md bg-neutral-600 border border-neutral-500 text-white text-sm focus:border-blue-500 focus:outline-none"
+                              >
+                                <option value="shimmer">Shimmer (Soft, Pleasant)</option>
+                                <option value="nova">Nova (Friendly)</option>
+                                <option value="alloy">Alloy (Warm, Clear)</option>
+                                <option value="echo">Echo (Authoritative)</option>
+                                <option value="fable">Fable (Expressive)</option>
+                                <option value="onyx">Onyx (Deep, Professional)</option>
+                              </select>
                             </div>
                           </div>
                         </>

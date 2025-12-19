@@ -84,6 +84,8 @@ export interface CFMLessonPlanResponse {
 export interface CFMAudioSummaryRequest {
   week_number: number;
   duration: '5min' | '15min' | '30min';
+  host_voice?: 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
+  guest_voice?: 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
 }
 
 export interface CFMAudioSummaryResponse {

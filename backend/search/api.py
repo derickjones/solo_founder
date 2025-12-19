@@ -628,6 +628,8 @@ class CFMLessonPlanResponse(BaseModel):
 class CFMAudioSummaryRequest(BaseModel):
     week_number: int  # Week number 2-52 for CFM 2026
     duration: str = "5min"  # 5min, 15min, 30min
+    host_voice: str = "onyx"  # Host voice: alloy, echo, fable, onyx, nova, shimmer
+    guest_voice: str = "shimmer"  # Guest voice: alloy, echo, fable, onyx, nova, shimmer
 
 class CFMAudioSummaryResponse(BaseModel):
     week_number: int
@@ -984,7 +986,7 @@ async def create_cfm_lesson_plan(request: CFMLessonPlanRequest):
         logger.error(f"CFM Lesson Plan generation error: {e}")
         raise HTTPException(status_code=500, detail=f"Lesson plan generation failed: {str(e)}")
 
-def parse_dialogue_and_generate_audio(script_text: str) -> Dict[str, str]:
+def parse_dialogue_and_generate_audio(script_text: str, host_voice: str = "onyx", guest_voice: str = "shimmer") -> Dict[str, str]:
     """
     Parse dialogue script and generate audio files with different voices for host and guest
     Returns base64 encoded audio files
@@ -1046,25 +1048,25 @@ def parse_dialogue_and_generate_audio(script_text: str) -> Dict[str, str]:
         audio_files = {}
         
         if openai_client:
-            # Generate host audio (use 'alloy' voice - more professional/warm)
+            # Generate host audio with selected voice
             host_text = " ".join(host_parts)
             if host_text.strip():
-                logger.info("Generating host audio...")
+                logger.info(f"Generating host audio with voice: {host_voice}")
                 host_response = openai_client.audio.speech.create(
                     model="tts-1",
-                    voice="alloy",  # Professional, warm male voice
+                    voice=host_voice,
                     input=host_text,
                     response_format="mp3"
                 )
                 audio_files['host_only'] = base64.b64encode(host_response.content).decode()
             
-            # Generate guest audio (use 'nova' voice - friendly female voice)  
+            # Generate guest audio with selected voice
             guest_text = " ".join(guest_parts)
             if guest_text.strip():
-                logger.info("Generating guest audio...")
+                logger.info(f"Generating guest audio with voice: {guest_voice}")
                 guest_response = openai_client.audio.speech.create(
                     model="tts-1", 
-                    voice="nova",  # Friendly, engaging female voice
+                    voice=guest_voice,
                     input=guest_text,
                     response_format="mp3"
                 )
@@ -1076,7 +1078,7 @@ def parse_dialogue_and_generate_audio(script_text: str) -> Dict[str, str]:
             logger.info("Generating combined audio...")
             combined_response = openai_client.audio.speech.create(
                 model="tts-1",
-                voice="onyx",  # Clear, neutral voice for combined reading
+                voice="alloy",  # Neutral voice for combined reading
                 input=combined_text,
                 response_format="mp3"
             )
@@ -1182,7 +1184,11 @@ async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
         
         # Generate audio files from the script
         logger.info("Generating audio files with different voices...")
-        audio_files = parse_dialogue_and_generate_audio(audio_script)
+        audio_files = parse_dialogue_and_generate_audio(
+            audio_script, 
+            host_voice=request.host_voice,
+            guest_voice=request.guest_voice
+        )
         
         # Clean title by removing leading semicolon if present
         clean_title = bundle.get('title', 'Unknown').lstrip(';')
