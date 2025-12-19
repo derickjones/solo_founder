@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { ChevronDownIcon, ChevronUpIcon, XMarkIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
 import { useUser, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
-import { getCurrentCFMWeek, CFM_2026_SCHEDULE, CFM_AUDIENCES, formatCFMWeekDisplay, CFMWeek } from '@/utils/comeFollowMe';
+import { getCurrentCFMWeek, CFM_2026_SCHEDULE, formatCFMWeekDisplay, CFMWeek } from '@/utils/comeFollowMe';
 
 interface SidebarProps {
   selectedSources: string[];
@@ -15,8 +15,6 @@ interface SidebarProps {
   setIsOpen: (open: boolean) => void;
   mode: string;
   setMode: (mode: string) => void;
-  cfmAudience: string;
-  setCfmAudience: (audience: string) => void;
   cfmWeek: CFMWeek;
   setCfmWeek: (week: CFMWeek) => void;
 }
@@ -30,8 +28,6 @@ export default function Sidebar({
   setIsOpen,
   mode,
   setMode,
-  cfmAudience,
-  setCfmAudience,
   cfmWeek,
   setCfmWeek,
 }: SidebarProps) {
@@ -279,26 +275,6 @@ export default function Sidebar({
               {cfmWeek?.dates && (
                 <div className="text-neutral-500 text-xs mt-1">{cfmWeek.dates}</div>
               )}
-            </div>
-          </div>
-
-          {/* Study Audience */}
-          <div className="space-y-3">
-            <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Audience</span>
-            <div className="grid grid-cols-2 gap-2">
-              {CFM_AUDIENCES.map((audience) => (
-                <button
-                  key={audience.id}
-                  onClick={() => setCfmAudience(audience.id)}
-                  className={`relative text-xs py-2.5 rounded-lg font-medium transition-all duration-200 ${
-                    cfmAudience === audience.id
-                      ? 'bg-blue-500/20 text-blue-300 shadow-lg shadow-blue-500/20 border-l-2 border-blue-400'
-                      : 'bg-neutral-800/30 text-neutral-400 hover:text-white/80 hover:bg-neutral-800/50 border border-neutral-700/30'
-                  }`}
-                >
-                  {audience.label}
-                </button>
-              ))}
             </div>
           </div>
         </div>

@@ -72,8 +72,6 @@ export default function Home() {
         setIsOpen={setSidebarOpen}
         mode={mode}
         setMode={setMode}
-        cfmAudience={cfmAudience}
-        setCfmAudience={setCfmAudience}
         cfmWeek={cfmWeek}
         setCfmWeek={setCfmWeek}
       />

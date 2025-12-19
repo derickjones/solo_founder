@@ -1,20 +1,10 @@
-# Gospel Stud### ✅ **Complete Features**
-- **🧠 AI-Powered Study**: OpenAI GPT-4o-mini with real-time streaming responses
-- **📖 Complete LDS Library**: 58,088 scripture segments with FAISS vector search
-- **📅 Come Follow Me 2026**: Complete Old Testament study system with 51 weekly bundles
-- **� CFM Deep Dive API**: Comprehensive study guide generation with 3 sophistication levels
-- **�👪 Multi-Audience Support**: Adult, Family, Youth, and Children study modes  
-- **📚 Enhanced Content**: Seminary Teacher materials integrated (208 lessons, 47 CFM weeks)
-- **🔐 Authentication**: Clerk integration with Google/Apple login
-- **💳 Payment Processing**: Stripe subscription system ($4.99/month)
-- **🎨 Professional UI**: Elegant dark theme with product onboarding tiles
-- **📱 Mobile Responsive**: Works seamlessly across all devicesnt - LDS AI Study Platform
+# Gospel Study Assistant - LDS AI Study Platform
 
 > **Mission**: Production-ready LDS AI Scripture Study App with complete monetization infrastructure
 
 ## 🎯 **Project Status: 🚀 MONETIZATION READY (95% Complete)**
 
-**December 9, 2025** - Full-stack AI application with authentication, payment processing, and subscription management.
+**December 18, 2025** - Full-stack AI application with authentication, payment processing, and advanced Come Follow Me study system.
 
 ### 🚀 **Live Deployments**
 - **🌐 Frontend**: https://vercel.com/derick-jones-projects/solo-founder (Vercel)
@@ -24,18 +14,21 @@
 ### ✅ **Complete Features**
 - **🧠 AI-Powered Study**: OpenAI GPT-4o-mini with real-time streaming responses
 - **📖 Complete LDS Library**: 58,088 scripture segments with FAISS vector search
-- **📅 Come Follow Me 2025**: Complete Doctrine & Covenants lesson planner
-- **👪 Multi-Audience Support**: Adult, Family, Youth, and Children study modes
-- **🔐 Authentication**: Clerk integration with Google/Apple login
+- **📅 Come Follow Me 2026**: Complete Old Testament study system with 51 weekly bundles
+- **🎯 CFM Deep Dive API**: Comprehensive study guide generation with 3 sophistication levels
+- **🔮 Study Type Selection**: Deep Dive Study (working) + Lesson Plans & Audio Summary (placeholders)
+- **👪 Multi-Audience Support**: Family, Adult, Youth, and Children study modes
+- **� Enhanced Content**: Seminary Teacher materials integrated (208 lessons, 47 CFM weeks)
+- **�🔐 Authentication**: Clerk integration with Google/Apple login
 - **💳 Payment Processing**: Stripe subscription system ($4.99/month)
-- **🎨 Professional UI**: Elegant dark theme with product onboarding tiles
-- **� Mobile Responsive**: Works seamlessly across all devices
+- **🎨 Professional UI**: Elegant dark theme with consistent blue styling
+- **📱 Mobile Responsive**: Works seamlessly across all devices
 
 ## 🎯 **Business Model**
 
 ### 💰 **Pricing Strategy**
 - **Free Tier**: Basic Q&A with daily question limits
-- **Premium**: $4.99/month - Unlimited queries + Come Follow Me lesson planning
+- **Premium**: $4.99/month - Unlimited queries + Come Follow Me Deep Dive study guides
 - **Target Revenue**: $2,500/month with 500 subscribers
 
 ### 📊 **Revenue Projections**
@@ -47,7 +40,9 @@
 
 ### ⚛️ **Frontend (Next.js 16)**
 - **TypeScript + Tailwind CSS**: Modern React with full type safety
-- **Dual Mode Interface**: Q&A streaming chat + CFM lesson generation
+- **Dual Mode Interface**: Q&A streaming chat + CFM study generation
+- **CFM Study Types**: Deep Dive Study (Basic/Intermediate/Advanced) + placeholders for Lesson Plans & Audio Summary
+- **Consistent UI**: Unified blue styling with professional selectors and containers
 - **Product Onboarding**: Auto-hiding tiles with bullet points and color themes
 - **Sidebar Controls**: Dynamic mode switching with authentication
 - **Payment Integration**: Stripe Checkout with subscription management
@@ -56,6 +51,8 @@
 - **Streaming API**: Server-Sent Events for real-time AI responses
 - **Vector Search**: FAISS-powered semantic search across 58k+ segments
 - **AI Integration**: OpenAI GPT-4o-mini with specialized prompts
+- **CFM 2026 System**: Complete Old Testament weekly bundles with seminary integration
+- **Clean Architecture**: Removed legacy lesson plan code, focused on working features
 - **Content Pipeline**: Automated web scraping and embedding generation
 - **Cloud Storage**: Google Cloud Storage for indexes and metadata
 

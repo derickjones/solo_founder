@@ -117,7 +117,7 @@ export default function ChatInterface({
       title: "Reliable Gospel Study",
       content: [
         "Q&A mode for instant answers to gospel questions",
-        "Come Follow Me mode for comprehensive lesson planning", 
+        "Come Follow Me mode for lesson planning", 
         "Search Standard Works, General Conference, and CFM curriculum",
         "All answers include exact citations for verification"
       ],
@@ -345,12 +345,12 @@ export default function ChatInterface({
 - **Supplementary Resources** and cross-references
 
 ### Current Status:
-This feature is in active development! We're working on creating comprehensive lesson plans that will help you teach meaningful Come Follow Me lessons.
+This feature is in active development! We're working on creating lesson plans that will help you teach meaningful Come Follow Me lessons.
 
 **Expected Features:**
 ${cfmLessonPlanLevel === 'adult' ? '• Deep doctrinal discussions\n• Case study scenarios\n• Group activities and role-plays\n• Service project ideas' : ''}
 ${cfmLessonPlanLevel === 'youth' ? '• Interactive games and challenges\n• Modern examples and applications\n• Multimedia suggestions\n• Small group discussions' : ''}
-${cfmLessonPlanLevel === 'children' ? '• Hands-on activities and crafts\n• Simple stories and examples\n• Songs and movement activities\n• Take-home activities for families' : ''}
+${cfmLessonPlanLevel === 'children' ? '• Hands-on activities and crafts\n• Stories and examples\n• Songs and movement activities\n• Take-home activities for families' : ''}
 
 *Want to be notified when this launches? Let us know!*`;
           } else if (cfmStudyType === 'audio-summary') {
@@ -373,9 +373,9 @@ ${cfmLessonPlanLevel === 'children' ? '• Hands-on activities and crafts\n• S
 We're developing AI-powered audio summaries that will bring the scriptures to life through engaging narration and thoughtful commentary.
 
 **Expected Features:**
-${cfmAudioSummaryLevel === 'short' ? '• Quick overview of main themes\n• Key verses highlighted\n• Perfect for busy families' : ''}
-${cfmAudioSummaryLevel === 'medium' ? '• Detailed exploration of concepts\n• Historical context included\n• Great for commuting or exercise' : ''}
-${cfmAudioSummaryLevel === 'long' ? '• Comprehensive analysis\n• Multiple perspectives shared\n• Deep doctrinal insights\n• Perfect for personal study' : ''}
+${cfmAudioSummaryLevel === 'short' ? '• Overview of main themes\n• Key verses highlighted\n• Perfect for busy families' : ''}
+${cfmAudioSummaryLevel === 'medium' ? '• Exploration of concepts\n• Historical context included\n• Great for commuting or exercise' : ''}
+${cfmAudioSummaryLevel === 'long' ? '• Analysis\n• Multiple perspectives shared\n• Deep doctrinal insights\n• Perfect for personal study' : ''}
 
 *This feature will be perfect for multitasking learners who want to study while commuting, exercising, or doing chores!*`;
           }
@@ -638,8 +638,10 @@ ${cfmAudioSummaryLevel === 'long' ? '• Comprehensive analysis\n• Multiple pe
                         </button>
                       </div>
                     </div>
+                  </div>
 
-                    {/* Dynamic Level Selection Based on Study Type */}
+                  {/* Dynamic Level Selection Based on Study Type - Centered */}
+                  <div className="max-w-2xl mx-auto">
                     <div className="space-y-3">
                       {cfmStudyType === 'deep-dive' && (
                         <>
@@ -725,17 +727,6 @@ ${cfmAudioSummaryLevel === 'long' ? '• Comprehensive analysis\n• Multiple pe
                           {cfmStudyType === 'lesson-plans' && `Create ${cfmLessonPlanLevel.charAt(0).toUpperCase() + cfmLessonPlanLevel.slice(1)} Lesson Plan`}
                           {cfmStudyType === 'audio-summary' && `Generate ${cfmAudioSummaryLevel.charAt(0).toUpperCase() + cfmAudioSummaryLevel.slice(1)} Audio Summary`}
                         </span>
-                        <div className="text-xs opacity-75 mt-1">
-                          {cfmStudyType === 'deep-dive' && cfmStudyLevel === 'basic' && '10-15 minute read • Perfect for families'}
-                          {cfmStudyType === 'deep-dive' && cfmStudyLevel === 'intermediate' && '15-20 minute read • Great for Sunday School teachers'}
-                          {cfmStudyType === 'deep-dive' && cfmStudyLevel === 'advanced' && '20-30 minute read • Designed for institute instructors'}
-                          {cfmStudyType === 'lesson-plans' && cfmLessonPlanLevel === 'adult' && 'Coming soon • Full lesson plan with activities'}
-                          {cfmStudyType === 'lesson-plans' && cfmLessonPlanLevel === 'youth' && 'Coming soon • Youth-focused activities and discussions'}
-                          {cfmStudyType === 'lesson-plans' && cfmLessonPlanLevel === 'children' && 'Coming soon • Kid-friendly activities and games'}
-                          {cfmStudyType === 'audio-summary' && cfmAudioSummaryLevel === 'short' && 'Coming soon • 5-minute narrated summary'}
-                          {cfmStudyType === 'audio-summary' && cfmAudioSummaryLevel === 'medium' && 'Coming soon • 10-minute detailed overview'}
-                          {cfmStudyType === 'audio-summary' && cfmAudioSummaryLevel === 'long' && 'Coming soon • 15-minute comprehensive discussion'}
-                        </div>
                       </>
                     )}
                   </button>
