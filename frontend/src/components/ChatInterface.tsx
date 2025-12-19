@@ -1,12 +1,11 @@
 'use client';
 
-import { useState, useRef, startTransition, useEffect } from 'react';
-import { flushSync } from 'react-dom';
+import { useState, useEffect } from 'react';
 import { ChevronDownIcon, PaperAirplaneIcon, Bars3Icon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon, ChevronRightIcon, UserCircleIcon } from '@heroicons/react/24/outline';
-import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMLessonPlan, CFMLessonPlanRequest, generateCFMDeepDive, CFMDeepDiveRequest } from '@/services/api';
+import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMDeepDive, CFMDeepDiveRequest } from '@/services/api';
 import ReactMarkdown from 'react-markdown';
 import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
-import { CFM_AUDIENCES, CFM_2025_SCHEDULE, CFMWeek } from '@/utils/comeFollowMe';
+import { CFM_AUDIENCES, CFM_2026_SCHEDULE, CFMWeek } from '@/utils/comeFollowMe';
 import Link from 'next/link';
 import StudyLevelSlider from './StudyLevelSlider';
 
@@ -274,7 +273,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
         console.log('Generating CFM study guide with:', { week: cfmWeek?.id, studyLevel: cfmStudyLevel, audience: cfmAudience });
         
         // Get week number from CFM schedule
-        const weekIndex = CFM_2025_SCHEDULE.findIndex(w => w.id === cfmWeek?.id);
+        const weekIndex = CFM_2026_SCHEDULE.findIndex((w: CFMWeek) => w.id === cfmWeek?.id);
         const weekNumber = weekIndex >= 0 ? weekIndex + 1 : 1;
         
         const response = await generateCFMDeepDive({
@@ -490,12 +489,12 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                       <select
                         value={cfmWeek?.id || ''}
                         onChange={(e) => {
-                          const selectedWeek = CFM_2025_SCHEDULE.find(w => w.id === e.target.value);
-                          setCfmWeek(selectedWeek || CFM_2025_SCHEDULE[0]);
+                          const selectedWeek = CFM_2026_SCHEDULE.find((w: CFMWeek) => w.id === e.target.value);
+                          setCfmWeek(selectedWeek || CFM_2026_SCHEDULE[0]);
                         }}
                         className="w-full p-3 bg-neutral-700/50 border border-neutral-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 appearance-none cursor-pointer"
                       >
-                        {CFM_2025_SCHEDULE.map((week, index) => (
+                        {CFM_2026_SCHEDULE.map((week: CFMWeek, index: number) => (
                           <option key={week.id} value={week.id} className="bg-neutral-800">
                             Week {index + 1}: {week.lesson}
                           </option>

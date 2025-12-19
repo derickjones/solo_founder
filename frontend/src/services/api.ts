@@ -48,21 +48,6 @@ export interface AskResponse {
   response_time: number;
 }
 
-// Come Follow Me interfaces
-export interface CFMLessonPlanRequest {
-  week: string;
-  audience: 'adults' | 'youth' | 'family' | 'children';
-}
-
-export interface CFMLessonPlanResponse {
-  week: string;
-  audience: string;
-  lesson_title: string;
-  lesson_plan: string;
-  sources_used: number;
-  generation_time_ms: number;
-}
-
 // CFM Deep Dive interfaces (new optimized API)
 export interface CFMDeepDiveRequest {
   week_number: number;
@@ -235,8 +220,6 @@ export const askQuestionStream = async (
     ...(sourceFilter && { source_filter: sourceFilter })
   };
 
-  console.log('Streaming request body:', body);
-
   const requestStartTime = Date.now();
   const response = await fetch(`${API_BASE_URL}/ask/stream`, {
     method: 'POST',
@@ -245,8 +228,6 @@ export const askQuestionStream = async (
     },
     body: JSON.stringify(body),
   });
-
-  console.log('Streaming response status:', response.status, response.statusText, 'after', Date.now() - requestStartTime + 'ms');
 
   if (!response.ok) {
     throw new Error(`Streaming request failed: ${response.statusText}`);
@@ -260,7 +241,6 @@ export const askQuestionStream = async (
   const decoder = new TextDecoder();
   let buffer = '';
 
-  console.log('Starting to read streaming response...');
   let chunkCount = 0;
 
   try {
@@ -268,7 +248,6 @@ export const askQuestionStream = async (
       const { done, value } = await reader.read();
       
       if (done) {
-        console.log('Streaming complete, total chunks processed:', chunkCount);
         break;
       }
       
@@ -276,7 +255,6 @@ export const askQuestionStream = async (
       
       // Add new chunk to buffer
       buffer += decoder.decode(value, { stream: true });
-      console.log('Raw chunk received:', buffer.slice(-100)); // Show last 100 chars
       
       // Split buffer on double newlines (SSE message boundaries)
       const messages = buffer.split('\n\n');
@@ -291,7 +269,6 @@ export const askQuestionStream = async (
           if (line.startsWith('data: ')) {
             try {
               const data = JSON.parse(line.slice(6));
-              console.log('Parsed chunk:', data.type, data.content ? `"${data.content.slice(0, 20)}..."` : '');
               
               // Transform sources to match our expected format
               if (data.type === 'sources' && data.sources) {
@@ -350,29 +327,8 @@ export const getHealth = async (): Promise<{ status: string, segments_loaded: nu
   };
 };
 
-export const generateCFMLessonPlan = async (request: CFMLessonPlanRequest): Promise<CFMLessonPlanResponse> => {
-  console.log('Generating CFM lesson plan:', request);
-  
-  const response = await fetch(`${API_BASE_URL}/cfm/lesson-plan`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(request),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.detail || `Failed to generate lesson plan: ${response.statusText}`);
-  }
-
-  return response.json();
-};
-
-// New CFM Deep Dive API function
+// CFM Deep Dive API function
 export const generateCFMDeepDive = async (request: CFMDeepDiveRequest): Promise<CFMDeepDiveResponse> => {
-  console.log('Generating CFM deep dive study guide:', request);
-  
   const response = await fetch(`${API_BASE_URL}/cfm/deep-dive`, {
     method: 'POST',
     headers: {
