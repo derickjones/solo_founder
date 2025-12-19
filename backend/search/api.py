@@ -23,7 +23,7 @@ import json
 # Import our search engine, cloud storage, and prompts
 from scripture_search import ScriptureSearchEngine
 from cloud_storage import setup_cloud_storage
-from prompts import get_system_prompt, build_context_prompt, get_mode_source_filter, CFM_LESSON_PROMPTS, CFM_STUDY_GUIDE_PROMPTS
+from prompts import get_system_prompt, build_context_prompt, get_mode_source_filter, CFM_STUDY_GUIDE_PROMPTS
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -131,7 +131,7 @@ async def startup_event():
         # Check for OpenAI API key
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
-            logger.warning("⚠️  OPENAI_API_KEY environment variable not set - lesson planner will be disabled")
+            logger.warning("⚠️  OPENAI_API_KEY environment variable not set - CFM Deep Dive will be disabled")
             openai_client = None
         else:
             # Initialize OpenAI client
@@ -575,20 +575,6 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={"detail": f"Internal server error: {str(exc)}"}
     )
 
-# New Lesson Planner Models
-class LessonPlanRequest(BaseModel):
-    week: str  # e.g., "November 24–30" or week identifier
-    audience: str = "adults"  # adults, family, youth, children
-    custom_query: Optional[str] = None  # Additional context or specific focus
-
-class LessonPlanResponse(BaseModel):
-    week: str
-    audience: str
-    lesson_title: str
-    lesson_plan: str
-    sources_used: int
-    generation_time_ms: int
-
 # CFM Deep Dive Models
 class CFMDeepDiveRequest(BaseModel):
     week_number: int  # Week number 2-52 for CFM 2026
@@ -603,28 +589,6 @@ class CFMDeepDiveResponse(BaseModel):
     bundle_sources: int
     total_characters: int
     generation_time_ms: int
-
-# Helper functions for lesson planning
-def load_cfm_content():
-    """Load Come Follow Me content from JSON file"""
-    try:
-        # In Docker container, this will be /app/scripts/content/come_follow_me.json
-        # Since we're in /app and scripts/content is copied to /app/scripts/content/
-        cfm_path = Path("/app/scripts/content/come_follow_me.json")
-        if not cfm_path.exists():
-            # Fallback for local development - go up from search/ to backend/ then to scripts/
-            current_file = Path(__file__)
-            cfm_path = current_file.parent.parent / "scripts" / "content" / "come_follow_me.json"
-        
-        logger.info(f"Loading CFM content from: {cfm_path}")
-        with open(cfm_path, 'r', encoding='utf-8') as f:
-            content = json.load(f)
-            logger.info(f"Loaded {len(content)} CFM items")
-            return content
-    except Exception as e:
-        logger.error(f"Failed to load CFM content: {e}")
-        return []
-        return []
 
 # Helper functions for CFM 2026 Deep Dive
 def load_cfm_2026_bundle(week_number: int):
@@ -749,176 +713,6 @@ def format_cfm_bundle_content(bundle: dict) -> str:
         content_parts.append("")
     
     return '\n'.join(content_parts)
-
-def get_cfm_week_content(week_identifier: str):
-    """Get all CFM content for a specific week"""
-    cfm_content = load_cfm_content()
-    week_content = []
-    
-    # Find content matching the week identifier
-    for item in cfm_content:
-        if week_identifier.lower() in item.get('week_info', '').lower() or \
-           week_identifier.lower() in item.get('lesson_title', '').lower():
-            week_content.append(item)
-    
-    return week_content
-
-def extract_scripture_references(content_list: List[Dict]):
-    """Extract scripture references from CFM content to get full chapters"""
-    references = set()
-    
-    for item in content_list:
-        content = item.get('content', '') + ' ' + item.get('lesson_title', '')
-        
-        # Extract D&C references like "Doctrine and Covenants 135-136" or "D&C 135:3"
-        dc_matches = re.findall(r'(?:Doctrine and Covenants?|D&C)\s+(\d+)(?:[-–](\d+))?(?::(\d+))?', content, re.IGNORECASE)
-        for match in dc_matches:
-            start_section = int(match[0])
-            end_section = int(match[1]) if match[1] else start_section
-            for section in range(start_section, end_section + 1):
-                references.add(f"Doctrine and Covenants {section}")
-        
-        # Extract other scripture references (Book of Mormon, Bible, etc.)
-        scripture_matches = re.findall(r'(\w+(?:\s+\w+)*)\s+(\d+)(?::(\d+))?', content)
-        for match in scripture_matches:
-            book = match[0]
-            chapter = match[1]
-            # Only include if it looks like a scripture book
-            if book in ['1 Nephi', '2 Nephi', 'Jacob', 'Enos', 'Jarom', 'Omni', 'Mosiah', 
-                       'Alma', 'Helaman', 'Mormon', 'Ether', 'Moroni', 'Matthew', 'Mark',
-                       'Luke', 'John', 'Acts', 'Romans', 'Genesis', 'Exodus', 'Psalms']:
-                references.add(f"{book} {chapter}")
-    
-    return list(references)
-
-@app.post("/cfm/lesson-plan", response_model=LessonPlanResponse)
-async def create_lesson_plan(request: LessonPlanRequest):
-    """
-    Generate a comprehensive Come Follow Me lesson plan for the specified week and audience
-    
-    This endpoint:
-    1. Retrieves all CFM content for the specified week
-    2. Extracts referenced scripture chapters and retrieves their full content
-    3. Searches for additional relevant materials across all sources
-    4. Uses audience-specific prompts to generate structured lesson plans
-    """
-    if not search_engine:
-        raise HTTPException(status_code=503, detail="Search engine not initialized. Please check server logs.")
-    
-    if not openai_client:
-        raise HTTPException(
-            status_code=503, 
-            detail="OpenAI API client not available. Please set the OPENAI_API_KEY environment variable in the Cloud Run service configuration."
-        )
-    
-    # Validate audience
-    if request.audience not in CFM_LESSON_PROMPTS:
-        raise HTTPException(status_code=400, detail=f"Invalid audience. Must be one of: {list(CFM_LESSON_PROMPTS.keys())}")
-    
-    try:
-        start_time = time.time()
-        
-        # Step 1: Get CFM content for the week
-        logger.info(f"Retrieving CFM content for week: {request.week}")
-        cfm_content = get_cfm_week_content(request.week)
-        
-        if not cfm_content:
-            raise HTTPException(status_code=404, detail=f"No CFM content found for week: {request.week}")
-        
-        lesson_title = cfm_content[0].get('lesson_title', 'Come Follow Me Study')
-        
-        # Step 2: Extract scripture references and search for full chapters
-        scripture_refs = extract_scripture_references(cfm_content)
-        logger.info(f"Found scripture references: {scripture_refs}")
-        
-        # Step 3: Build comprehensive context from multiple sources
-        all_context = []
-        
-        # Add CFM content
-        cfm_text = "\n\n--- Come Follow Me Content ---\n"
-        for item in cfm_content:
-            cfm_text += f"Citation: {item.get('citation', '')}\n"
-            cfm_text += f"Content: {item.get('content', '')}\n\n"
-        all_context.append(cfm_text)
-        
-        # Search for scripture chapters and related content
-        search_queries = scripture_refs + [lesson_title]
-        if request.custom_query:
-            search_queries.append(request.custom_query)
-        
-        for query in search_queries[:5]:  # Limit to avoid overwhelming context
-            try:
-                results = search_engine.search(
-                    query=query,
-                    top_k=5,
-                    mode_filter=MODE_FILTERS["default"],
-                    min_score=0.3
-                )
-                
-                if results:
-                    context_text = f"\n\n--- Search Results for: {query} ---\n"
-                    for result in results:
-                        context_text += f"Source: {result['metadata'].get('citation', 'Unknown')}\n"
-                        context_text += f"Content: {result['content']}\n\n"
-                    all_context.append(context_text)
-            except Exception as e:
-                logger.warning(f"Search failed for query '{query}': {e}")
-                continue
-        
-        # Combine all context
-        combined_context = "\n".join(all_context)
-        
-        # Step 4: Generate lesson plan using audience-specific prompt
-        system_prompt = CFM_LESSON_PROMPTS[request.audience]
-        
-        user_prompt = f"""
-        Please create a detailed lesson plan for the Come Follow Me study week: "{request.week}"
-        Lesson Title: {lesson_title}
-        Target Audience: {request.audience.title()}
-        
-        {f"Additional Focus: {request.custom_query}" if request.custom_query else ""}
-        
-        Use the following retrieved content to create an accurate, engaging lesson plan:
-        
-        {combined_context}
-        
-        Please follow the structured format specified in your instructions and base all content on the retrieved sources provided above.
-        """
-        
-        # Generate AI response
-        ai_start = time.time()
-        response = openai_client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            max_tokens=2000,
-            temperature=0.7
-        )
-        
-        ai_time_ms = int((time.time() - ai_start) * 1000)
-        lesson_plan = response.choices[0].message.content
-        
-        total_time_ms = int((time.time() - start_time) * 1000)
-        sources_count = len(cfm_content) + sum(1 for query in search_queries if query)
-        
-        logger.info(f"Generated {request.audience} lesson plan for '{request.week}' using {sources_count} sources in {total_time_ms}ms")
-        
-        return LessonPlanResponse(
-            week=request.week,
-            audience=request.audience,
-            lesson_title=lesson_title,
-            lesson_plan=lesson_plan,
-            sources_used=sources_count,
-            generation_time_ms=total_time_ms
-        )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Lesson plan generation error: {e}")
-        raise HTTPException(status_code=500, detail=f"Lesson plan generation failed: {str(e)}")
 
 @app.post("/cfm/deep-dive", response_model=CFMDeepDiveResponse)
 async def create_cfm_deep_dive_study_guide(request: CFMDeepDiveRequest):

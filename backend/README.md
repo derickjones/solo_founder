@@ -66,7 +66,7 @@ The API service requires the following environment variables for full functional
 
 | **Variable** | **Required** | **Purpose** | **Example** |
 |--------------|--------------|-------------|-------------|
-| `OPENAI_API_KEY` | Optional* | AI lesson planner functionality | `sk-proj-...` |
+| `OPENAI_API_KEY` | Optional* | AI-powered CFM Deep Dive functionality | `sk-proj-...` |
 
 *Note: The service will start successfully without `OPENAI_API_KEY`, but the `/cfm/lesson-plan` endpoint will return a helpful error message with setup instructions.
 
