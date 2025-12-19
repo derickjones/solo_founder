@@ -8,6 +8,7 @@ import ReactMarkdown from 'react-markdown';
 import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
 import { CFM_AUDIENCES, CFM_2025_SCHEDULE, CFMWeek } from '@/utils/comeFollowMe';
 import Link from 'next/link';
+import StudyLevelSlider from './StudyLevelSlider';
 
 interface Message {
   id: number;
@@ -479,12 +480,13 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center bg-neutral-800 border-2 border-neutral-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 rounded-2xl p-3 lg:p-4 transition-all duration-200 gap-3 sm:gap-0">
               
               {mode === 'Come Follow Me' ? (
-                // CFM Mode: Show lesson plan generation controls
-                <div className="flex-1 space-y-4">
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                    {/* Lesson Selector */}
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Lesson</label>
+                // CFM Mode: Enhanced Study Guide Interface
+                <div className="w-full space-y-6">
+                  {/* Study Controls */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Week Selection */}
+                    <div className="space-y-3">
+                      <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Current Week</label>
                       <select
                         value={cfmWeek?.id || ''}
                         onChange={(e) => {
@@ -499,64 +501,44 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                           </option>
                         ))}
                       </select>
+                      <div className="text-xs text-neutral-500 space-y-1">
+                        <div>{cfmWeek?.dates}</div>
+                        <div className="font-medium text-neutral-400">{cfmWeek?.reference}</div>
+                      </div>
                     </div>
 
-                    {/* Study Level Selector */}
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Study Level</label>
-                      <select
-                        value={cfmStudyLevel}
-                        onChange={(e) => setCfmStudyLevel(e.target.value as 'basic' | 'intermediate' | 'advanced')}
-                        className="w-full p-3 bg-neutral-700/50 border border-neutral-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 appearance-none cursor-pointer"
-                      >
-                        <option value="basic" className="bg-neutral-800">📚 Basic (10-15 min)</option>
-                        <option value="intermediate" className="bg-neutral-800">🎓 Intermediate (15-20 min)</option>
-                        <option value="advanced" className="bg-neutral-800">🔬 Advanced (20-30 min)</option>
-                      </select>
+                    {/* Study Level with Interactive Slider */}
+                    <div className="space-y-3">
+                      <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Study Level</label>
+                      <div className="bg-neutral-700/30 p-4 rounded-lg">
+                        <StudyLevelSlider 
+                          selectedLevel={cfmStudyLevel} 
+                          onLevelChange={setCfmStudyLevel}
+                        />
+                      </div>
                     </div>
+                  </div>
 
-                    {/* Audience Selector */}
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Audience</label>
-                      <select
-                        value={cfmAudience}
-                        onChange={(e) => setCfmAudience(e.target.value)}
-                        className="w-full p-3 bg-neutral-700/50 border border-neutral-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 appearance-none cursor-pointer"
-                      >
-                        {CFM_AUDIENCES.map((audience) => (
-                          <option key={audience.id} value={audience.id} className="bg-neutral-800">
-                            {audience.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                  
-                  {/* Link to Dedicated CFM Page */}
-                  <div className="flex items-center justify-between bg-blue-900/20 border border-blue-500/30 rounded-lg p-3">
-                    <div className="flex-1 text-sm text-blue-200">
-                      Want the full experience? Try our dedicated Come Follow Me page with enhanced features.
-                    </div>
-                    <Link 
-                      href="/come-follow-me"
-                      className="ml-3 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
-                    >
-                      Open CFM Page →
-                    </Link>
-                  </div>
-                  
+                  {/* Generate Button */}
                   <button
                     type="submit"
                     disabled={!cfmWeek || isLoading}
-                    className="w-full relative bg-blue-600/80 hover:bg-blue-600 disabled:bg-neutral-800/50 disabled:cursor-not-allowed px-6 py-3 rounded-xl transition-all duration-200 font-medium text-white hover:text-blue-50 disabled:text-neutral-500 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 border border-blue-500/50 hover:border-blue-400 disabled:border-neutral-700/30 disabled:shadow-none"
+                    className="w-full relative bg-blue-600/80 hover:bg-blue-600 disabled:bg-neutral-800/50 disabled:cursor-not-allowed px-6 py-4 rounded-xl transition-all duration-200 font-medium text-white hover:text-blue-50 disabled:text-neutral-500 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 border border-blue-500/50 hover:border-blue-400 disabled:border-neutral-700/30 disabled:shadow-none"
                   >
                     {isLoading ? (
                       <div className="flex items-center justify-center space-x-2">
-                        <div className="animate-spin rounded-full h-4 w-4 lg:h-5 lg:w-5 border-2 border-white border-t-transparent" />
-                        <span>Generating...</span>
+                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+                        <span>Generating {cfmStudyLevel.charAt(0).toUpperCase() + cfmStudyLevel.slice(1)} Study Guide...</span>
                       </div>
                     ) : (
-                      `Generate ${cfmStudyLevel.charAt(0).toUpperCase() + cfmStudyLevel.slice(1)} Study Guide`
+                      <>
+                        <span className="text-lg">Generate {cfmStudyLevel.charAt(0).toUpperCase() + cfmStudyLevel.slice(1)} Study Guide</span>
+                        <div className="text-xs opacity-75 mt-1">
+                          {cfmStudyLevel === 'basic' && '10-15 minute read • Perfect for families'}
+                          {cfmStudyLevel === 'intermediate' && '15-20 minute read • Great for Sunday School teachers'}
+                          {cfmStudyLevel === 'advanced' && '20-30 minute read • Designed for institute instructors'}
+                        </div>
+                      </>
                     )}
                   </button>
                 </div>
@@ -600,9 +582,34 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                     className={`${
                       message.type === 'user'
                         ? 'bg-neutral-600 text-white ml-auto max-w-sm lg:max-w-lg p-3 lg:p-4 rounded-lg'
+                        : mode === 'Come Follow Me'
+                        ? 'bg-gradient-to-br from-blue-900/30 to-blue-800/20 border border-blue-500/20 text-white max-w-full p-8 rounded-xl shadow-lg'
                         : 'bg-neutral-800 text-white max-w-full p-6 rounded-lg'
                     }`}
                   >
+                    {/* CFM Study Guide Header */}
+                    {message.type === 'assistant' && mode === 'Come Follow Me' && message.content && (
+                      <div className="mb-6 pb-4 border-b border-blue-500/20">
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <h2 className="text-xl font-bold text-blue-200 mb-2">
+                              {cfmStudyLevel.charAt(0).toUpperCase() + cfmStudyLevel.slice(1)} Study Guide
+                            </h2>
+                            <div className="text-sm text-blue-300/80">
+                              {cfmWeek?.lesson} • {cfmWeek?.dates}
+                            </div>
+                            <div className="text-xs text-blue-300/60 mt-1">
+                              {cfmWeek?.reference}
+                            </div>
+                          </div>
+                          <div className="text-xs text-blue-300/60 bg-blue-900/40 px-3 py-1 rounded-full">
+                            {cfmStudyLevel === 'basic' && '📚 10-15 min read'}
+                            {cfmStudyLevel === 'intermediate' && '🎓 15-20 min read'} 
+                            {cfmStudyLevel === 'advanced' && '🔬 20-30 min read'}
+                          </div>
+                        </div>
+                      </div>
+                    )}
                     {message.type === 'assistant' ? (
                       message.content ? (
                         <div className="space-y-6 leading-relaxed text-neutral-100 max-w-none">
@@ -617,22 +624,22 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                             <ReactMarkdown 
                               components={{
                                 h1: ({ children }) => (
-                                  <h1 className="text-xl font-semibold text-white mb-4 mt-6">
+                                  <h1 className={`text-xl font-semibold mb-4 mt-6 ${mode === 'Come Follow Me' ? 'text-blue-200' : 'text-white'}`}>
                                     {children}
                                   </h1>
                                 ),
                                 h2: ({ children }) => (
-                                  <h2 className="text-lg font-semibold text-white mb-3 mt-5">
+                                  <h2 className={`text-lg font-semibold mb-3 mt-5 ${mode === 'Come Follow Me' ? 'text-blue-300' : 'text-white'}`}>
                                     {children}
                                   </h2>
                                 ),
                                 h3: ({ children }) => (
-                                  <h3 className="text-base font-semibold text-white mb-3 mt-4">
+                                  <h3 className={`text-base font-semibold mb-3 mt-4 ${mode === 'Come Follow Me' ? 'text-yellow-300' : 'text-white'}`}>
                                     {children}
                                   </h3>
                                 ),
                                 h4: ({ children }) => (
-                                  <h4 className="text-base font-medium text-white mb-2 mt-4">
+                                  <h4 className={`text-base font-medium mb-2 mt-4 ${mode === 'Come Follow Me' ? 'text-yellow-200' : 'text-white'}`}>
                                     {children}
                                   </h4>
                                 ),
@@ -667,7 +674,11 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                                   </li>
                                 ),
                                 blockquote: ({ children }) => (
-                                  <blockquote className="border-l-2 border-neutral-600 pl-4 my-4 italic text-neutral-400">
+                                  <blockquote className={`border-l-2 pl-4 my-4 italic ${
+                                    mode === 'Come Follow Me' 
+                                    ? 'border-blue-400 text-blue-200 bg-blue-900/20 py-3 rounded-r-lg' 
+                                    : 'border-neutral-600 text-neutral-400'
+                                  }`}>
                                     {children}
                                   </blockquote>
                                 ),
