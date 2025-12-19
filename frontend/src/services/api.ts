@@ -63,6 +63,21 @@ export interface CFMLessonPlanResponse {
   generation_time_ms: number;
 }
 
+// CFM Deep Dive interfaces (new optimized API)
+export interface CFMDeepDiveRequest {
+  week_number: number;
+  study_level: 'basic' | 'intermediate' | 'advanced';
+}
+
+export interface CFMDeepDiveResponse {
+  week_number: number;
+  study_level: string;
+  title: string;
+  study_guide: string;
+  generation_time: number;
+  content_sources: number;
+}
+
 // Map frontend modes to API modes
 const MODE_MAPPING: Record<string, string> = {
   'AI Q&A': 'default',
@@ -349,6 +364,26 @@ export const generateCFMLessonPlan = async (request: CFMLessonPlanRequest): Prom
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.detail || `Failed to generate lesson plan: ${response.statusText}`);
+  }
+
+  return response.json();
+};
+
+// New CFM Deep Dive API function
+export const generateCFMDeepDive = async (request: CFMDeepDiveRequest): Promise<CFMDeepDiveResponse> => {
+  console.log('Generating CFM deep dive study guide:', request);
+  
+  const response = await fetch(`${API_BASE_URL}/cfm/deep-dive`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || `Failed to generate study guide: ${response.statusText}`);
   }
 
   return response.json();

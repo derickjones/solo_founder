@@ -48,6 +48,7 @@ export default function Home() {
   // CFM state
   const [cfmAudience, setCfmAudience] = useState('Family');
   const [cfmWeek, setCfmWeek] = useState<CFMWeek>(getCurrentCFMWeek());
+  const [cfmStudyLevel, setCfmStudyLevel] = useState<'basic' | 'intermediate' | 'advanced'>('basic');
 
   return (
     <div className="flex h-screen bg-gray-900 text-white relative">
@@ -84,6 +85,8 @@ export default function Home() {
         setCfmAudience={setCfmAudience}
         cfmWeek={cfmWeek}
         setCfmWeek={setCfmWeek}
+        cfmStudyLevel={cfmStudyLevel}
+        setCfmStudyLevel={setCfmStudyLevel}
       />
     </div>
   );

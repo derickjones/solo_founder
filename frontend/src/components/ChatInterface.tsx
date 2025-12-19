@@ -3,7 +3,7 @@
 import { useState, useRef, startTransition, useEffect } from 'react';
 import { flushSync } from 'react-dom';
 import { ChevronDownIcon, PaperAirplaneIcon, Bars3Icon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon, ChevronRightIcon, UserCircleIcon } from '@heroicons/react/24/outline';
-import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMLessonPlan, CFMLessonPlanRequest } from '@/services/api';
+import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMLessonPlan, CFMLessonPlanRequest, generateCFMDeepDive, CFMDeepDiveRequest } from '@/services/api';
 import ReactMarkdown from 'react-markdown';
 import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
 import { CFM_AUDIENCES, CFM_2025_SCHEDULE, CFMWeek } from '@/utils/comeFollowMe';
@@ -29,9 +29,11 @@ interface ChatInterfaceProps {
   setCfmAudience: (audience: string) => void;
   cfmWeek: CFMWeek;
   setCfmWeek: (week: CFMWeek) => void;
+  cfmStudyLevel: 'basic' | 'intermediate' | 'advanced';
+  setCfmStudyLevel: (level: 'basic' | 'intermediate' | 'advanced') => void;
 }
 
-export default function ChatInterface({ selectedSources, sourceCount, sidebarOpen, setSidebarOpen, mode, setMode, cfmAudience, setCfmAudience, cfmWeek, setCfmWeek }: ChatInterfaceProps) {
+export default function ChatInterface({ selectedSources, sourceCount, sidebarOpen, setSidebarOpen, mode, setMode, cfmAudience, setCfmAudience, cfmWeek, setCfmWeek, cfmStudyLevel, setCfmStudyLevel }: ChatInterfaceProps) {
   const [query, setQuery] = useState('');
   const [modeDropdownOpen, setModeDropdownOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -267,18 +269,22 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
 
     try {
       if (mode === 'Come Follow Me') {
-        // Handle CFM lesson plan generation
-        console.log('Generating CFM lesson plan with:', { week: cfmWeek?.lesson, audience: cfmAudience.toLowerCase() });
+        // Handle CFM deep dive generation with study levels
+        console.log('Generating CFM study guide with:', { week: cfmWeek?.id, studyLevel: cfmStudyLevel, audience: cfmAudience });
         
-        const response = await generateCFMLessonPlan({
-          week: cfmWeek?.lesson || '',
-          audience: cfmAudience.toLowerCase() === 'adult' ? 'adults' : cfmAudience.toLowerCase() as 'youth' | 'family' | 'children'
+        // Get week number from CFM schedule
+        const weekIndex = CFM_2025_SCHEDULE.findIndex(w => w.id === cfmWeek?.id);
+        const weekNumber = weekIndex >= 0 ? weekIndex + 1 : 1;
+        
+        const response = await generateCFMDeepDive({
+          week_number: weekNumber,
+          study_level: cfmStudyLevel
         });
         
-        // Update the message with the lesson plan
+        // Update the message with the study guide
         setMessages(prev => prev.map(msg => 
           msg.id === assistantMessageId 
-            ? { ...msg, content: response.lesson_plan, isStreaming: false }
+            ? { ...msg, content: response.study_guide, isStreaming: false }
             : msg
         ));
         
@@ -475,7 +481,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
               {mode === 'Come Follow Me' ? (
                 // CFM Mode: Show lesson plan generation controls
                 <div className="flex-1 space-y-4">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                     {/* Lesson Selector */}
                     <div className="space-y-2">
                       <label className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Lesson</label>
@@ -487,11 +493,25 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                         }}
                         className="w-full p-3 bg-neutral-700/50 border border-neutral-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 appearance-none cursor-pointer"
                       >
-                        {CFM_2025_SCHEDULE.map((week) => (
+                        {CFM_2025_SCHEDULE.map((week, index) => (
                           <option key={week.id} value={week.id} className="bg-neutral-800">
-                            {week.dates}: {week.lesson}
+                            Week {index + 1}: {week.lesson}
                           </option>
                         ))}
+                      </select>
+                    </div>
+
+                    {/* Study Level Selector */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Study Level</label>
+                      <select
+                        value={cfmStudyLevel}
+                        onChange={(e) => setCfmStudyLevel(e.target.value as 'basic' | 'intermediate' | 'advanced')}
+                        className="w-full p-3 bg-neutral-700/50 border border-neutral-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 appearance-none cursor-pointer"
+                      >
+                        <option value="basic" className="bg-neutral-800">📚 Basic (10-15 min)</option>
+                        <option value="intermediate" className="bg-neutral-800">🎓 Intermediate (15-20 min)</option>
+                        <option value="advanced" className="bg-neutral-800">🔬 Advanced (20-30 min)</option>
                       </select>
                     </div>
 
@@ -512,6 +532,19 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                     </div>
                   </div>
                   
+                  {/* Link to Dedicated CFM Page */}
+                  <div className="flex items-center justify-between bg-blue-900/20 border border-blue-500/30 rounded-lg p-3">
+                    <div className="flex-1 text-sm text-blue-200">
+                      Want the full experience? Try our dedicated Come Follow Me page with enhanced features.
+                    </div>
+                    <Link 
+                      href="/come-follow-me"
+                      className="ml-3 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                    >
+                      Open CFM Page →
+                    </Link>
+                  </div>
+                  
                   <button
                     type="submit"
                     disabled={!cfmWeek || isLoading}
@@ -523,7 +556,7 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                         <span>Generating...</span>
                       </div>
                     ) : (
-                      'Generate Lesson Plan'
+                      `Generate ${cfmStudyLevel.charAt(0).toUpperCase() + cfmStudyLevel.slice(1)} Study Guide`
                     )}
                   </button>
                 </div>

@@ -133,10 +133,10 @@ When provided with a complete CFM weekly bundle, create a detailed study guide i
 **Discussion Framework**: 8-10 thoughtful questions progressing from understanding to application to testimony.
 **Gospel Connections**: How this week's theme connects to the Plan of Salvation and modern covenants.
 **Teaching Moments**: 3-4 ways to share these principles with family, friends, or church classes.
-**Seminary Integration**: How the Seminary Teacher materials enhance adult understanding.
+**Seminary Synthesis**: Highlight 2-3 specific insights or activities from the Seminary Teacher manual that would enrich adult or family study, and explain how teachers can adapt them.
 **Personal Reflection**: Deeper questions for journal study and spiritual growth.
 
-Maintain scholarly accuracy while keeping content spiritually uplifting. Connect Old Testament principles to modern prophetic teachings. Length: 800-1200 words.""",
+Where appropriate, include 2-3 relevant quotes from living prophets or recent general conference talks (2015-2025) that connect to this week's themes. Maintain scholarly accuracy while keeping content spiritually uplifting. Connect Old Testament principles to modern prophetic teachings. Length: 800-1200 words.""",
 
     'advanced': f"""{BASE_SYSTEM_PROMPT}
 
@@ -150,13 +150,13 @@ When given a complete CFM weekly bundle with all resources, develop an in-depth 
 **Prophetic Patterns**: How this week's content demonstrates divine patterns of revelation, covenant-making, and redemption.
 **Cross-Reference Web**: Extensive connections to related passages in all standard works and modern revelation.
 **Historical and Cultural Context**: Background that enhances understanding of the ancient world and its spiritual lessons.
-**Seminary Synthesis**: How Seminary Teacher materials can inform adult gospel study and teaching.
+**Seminary Synthesis**: Highlight 2-3 specific insights or activities from the Seminary Teacher manual that would enrich adult or family study, and explain how teachers can adapt them.
 **Teaching Applications**: Sophisticated discussion questions and activities for various audiences (adult classes, family study, personal reflection).
 **Modern Application**: Specific ways these ancient truths address contemporary challenges and questions.
 **Testimony Development**: How deep study of these principles builds unshakeable faith in Jesus Christ.
 **Additional Study**: Recommended resources for further exploration of the week's themes.
 
-Maintain the highest scholarly standards while preserving the spiritual power of the text. Include extensive citations and cross-references. Target length: 1200-1800 words."""
+Use clear markdown headings (### or ####) for each required section exactly as listed. Where appropriate, include 2-3 relevant quotes from living prophets or recent general conference talks (2015-2025) that connect to this week's themes. Maintain the highest scholarly standards while preserving the spiritual power of the text. Include extensive citations and cross-references. Target length: 1200-1800 words."""
 }
 
 CITATION_INSTRUCTIONS = """

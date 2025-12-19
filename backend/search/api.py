@@ -1010,9 +1010,12 @@ async def create_cfm_deep_dive_study_guide(request: CFMDeepDiveRequest):
         
         logger.info(f"Generated {request.study_level} study guide for week {request.week_number} using {bundle_sources} sources ({total_characters:,} chars) in {total_time_ms}ms")
         
+        # Clean title by removing leading semicolon if present
+        clean_title = bundle.get('title', 'Unknown').lstrip(';')
+        
         return CFMDeepDiveResponse(
             week_number=request.week_number,
-            week_title=bundle.get('title', 'Unknown'),
+            week_title=clean_title,
             date_range=bundle.get('date_range', 'Unknown'),
             study_level=request.study_level,
             study_guide=study_guide,
