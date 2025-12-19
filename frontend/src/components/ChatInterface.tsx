@@ -8,6 +8,7 @@ import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
 import { CFM_AUDIENCES, CFM_2026_SCHEDULE, CFMWeek } from '@/utils/comeFollowMe';
 import Link from 'next/link';
 import StudyLevelSlider from './StudyLevelSlider';
+import AudioPlayer from './AudioPlayer';
 
 // Add study type definition
 type CFMStudyType = 'deep-dive' | 'lesson-plans' | 'audio-summary';
@@ -22,6 +23,12 @@ interface Message {
   results?: SearchResult[];
   searchTime?: number;
   isStreaming?: boolean;
+  audioFiles?: {
+    combined?: string;
+    host_only?: string;
+    guest_only?: string;
+  };
+  audioTitle?: string;
 }
 
 interface ChatInterfaceProps {
@@ -360,7 +367,13 @@ export default function ChatInterface({
             // Update the message with the audio summary
             setMessages(prev => prev.map(msg => 
               msg.id === assistantMessageId 
-                ? { ...msg, content: response.audio_script, isStreaming: false }
+                ? { 
+                    ...msg, 
+                    content: response.audio_script, 
+                    audioFiles: response.audio_files,
+                    audioTitle: `${response.week_title} (${response.duration})`,
+                    isStreaming: false 
+                  }
                 : msg
             ));
           }
@@ -866,6 +879,16 @@ export default function ChatInterface({
                       ) : null
                     ) : (
                       message.content
+                    )}
+                    
+                    {/* Audio Player for audio summaries */}
+                    {message.audioFiles && message.audioTitle && (
+                      <div className="mt-6">
+                        <AudioPlayer 
+                          audioFiles={message.audioFiles}
+                          title={message.audioTitle}
+                        />
+                      </div>
                     )}
                   </div>
                 )}

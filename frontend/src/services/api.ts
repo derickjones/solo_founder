@@ -92,6 +92,11 @@ export interface CFMAudioSummaryResponse {
   date_range: string;
   duration: string;
   audio_script: string;
+  audio_files?: {
+    combined?: string;
+    host_only?: string;
+    guest_only?: string;
+  };
   bundle_sources: number;
   total_characters: number;
   generation_time_ms: number;

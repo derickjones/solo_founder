@@ -9,6 +9,8 @@ import json
 import logging
 import re
 import time
+import base64
+import io
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 
@@ -633,6 +635,7 @@ class CFMAudioSummaryResponse(BaseModel):
     date_range: str
     duration: str
     audio_script: str
+    audio_files: Optional[Dict[str, str]] = None  # Base64 encoded audio files: {"combined": "base64...", "host_only": "base64...", "guest_only": "base64..."}
     bundle_sources: int
     total_characters: int
     generation_time_ms: int
@@ -981,6 +984,112 @@ async def create_cfm_lesson_plan(request: CFMLessonPlanRequest):
         logger.error(f"CFM Lesson Plan generation error: {e}")
         raise HTTPException(status_code=500, detail=f"Lesson plan generation failed: {str(e)}")
 
+def parse_dialogue_and_generate_audio(script_text: str) -> Dict[str, str]:
+    """
+    Parse dialogue script and generate audio files with different voices for host and guest
+    Returns base64 encoded audio files
+    """
+    try:
+        # Parse the script to separate host and guest parts
+        lines = script_text.split('\n')
+        host_parts = []
+        guest_parts = []
+        combined_audio_segments = []
+        
+        current_speaker = None
+        current_text = ""
+        
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+                
+            # Check if line starts with **Host**: or **Guest**:
+            if line.startswith('**Host**:'):
+                # Save previous speaker's text
+                if current_speaker and current_text.strip():
+                    if current_speaker == 'host':
+                        host_parts.append(current_text.strip())
+                    else:
+                        guest_parts.append(current_text.strip())
+                
+                # Start new host section
+                current_speaker = 'host'
+                current_text = line.replace('**Host**:', '').strip()
+                
+            elif line.startswith('**Guest**:'):
+                # Save previous speaker's text  
+                if current_speaker and current_text.strip():
+                    if current_speaker == 'host':
+                        host_parts.append(current_text.strip())
+                    else:
+                        guest_parts.append(current_text.strip())
+                
+                # Start new guest section
+                current_speaker = 'guest'
+                current_text = line.replace('**Guest**:', '').strip()
+                
+            else:
+                # Continue current speaker's text
+                current_text += " " + line
+        
+        # Don't forget the last speaker
+        if current_speaker and current_text.strip():
+            if current_speaker == 'host':
+                host_parts.append(current_text.strip())
+            else:
+                guest_parts.append(current_text.strip())
+        
+        logger.info(f"Parsed dialogue: {len(host_parts)} host parts, {len(guest_parts)} guest parts")
+        
+        # Generate audio using OpenAI's text-to-speech API
+        audio_files = {}
+        
+        if openai_client:
+            # Generate host audio (use 'alloy' voice - more professional/warm)
+            host_text = " ".join(host_parts)
+            if host_text.strip():
+                logger.info("Generating host audio...")
+                host_response = openai_client.audio.speech.create(
+                    model="tts-1",
+                    voice="alloy",  # Professional, warm male voice
+                    input=host_text,
+                    response_format="mp3"
+                )
+                audio_files['host_only'] = base64.b64encode(host_response.content).decode()
+            
+            # Generate guest audio (use 'nova' voice - friendly female voice)  
+            guest_text = " ".join(guest_parts)
+            if guest_text.strip():
+                logger.info("Generating guest audio...")
+                guest_response = openai_client.audio.speech.create(
+                    model="tts-1", 
+                    voice="nova",  # Friendly, engaging female voice
+                    input=guest_text,
+                    response_format="mp3"
+                )
+                audio_files['guest_only'] = base64.b64encode(guest_response.content).decode()
+            
+            # For combined audio, we'll create a simplified version with clear speaker labels
+            # This could be enhanced later with audio mixing
+            combined_text = script_text.replace('**Host**:', 'Host:').replace('**Guest**:', 'Guest:')
+            logger.info("Generating combined audio...")
+            combined_response = openai_client.audio.speech.create(
+                model="tts-1",
+                voice="onyx",  # Clear, neutral voice for combined reading
+                input=combined_text,
+                response_format="mp3"
+            )
+            audio_files['combined'] = base64.b64encode(combined_response.content).decode()
+            
+        logger.info(f"Generated {len(audio_files)} audio files")
+        return audio_files
+        
+    except Exception as e:
+        logger.error(f"Audio generation error: {e}")
+        # Return empty dict on error - endpoint will still return script
+        return {}
+
 @app.post("/cfm/audio-summary", response_model=CFMAudioSummaryResponse)
 async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
     """
@@ -1071,6 +1180,10 @@ async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
         
         logger.info(f"Generated {request.duration} audio script for week {request.week_number} using {bundle_sources} sources ({total_characters:,} chars) in {total_time_ms}ms")
         
+        # Generate audio files from the script
+        logger.info("Generating audio files with different voices...")
+        audio_files = parse_dialogue_and_generate_audio(audio_script)
+        
         # Clean title by removing leading semicolon if present
         clean_title = bundle.get('title', 'Unknown').lstrip(';')
         
@@ -1080,6 +1193,7 @@ async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
             date_range=bundle.get('date_range', 'Unknown'),
             duration=request.duration,
             audio_script=audio_script,
+            audio_files=audio_files if audio_files else None,
             bundle_sources=bundle_sources,
             total_characters=total_characters,
             generation_time_ms=total_time_ms
