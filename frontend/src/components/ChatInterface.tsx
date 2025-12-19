@@ -9,6 +9,12 @@ import { CFM_AUDIENCES, CFM_2026_SCHEDULE, CFMWeek } from '@/utils/comeFollowMe'
 import Link from 'next/link';
 import StudyLevelSlider from './StudyLevelSlider';
 
+// Add study type definition
+type CFMStudyType = 'deep-dive' | 'lesson-plans' | 'audio-summary';
+type DeepDiveLevel = 'basic' | 'intermediate' | 'advanced';
+type LessonPlanLevel = 'adult' | 'youth' | 'children';
+type AudioSummaryLevel = 'short' | 'medium' | 'long';
+
 interface Message {
   id: number;
   type: 'user' | 'assistant';
@@ -29,11 +35,39 @@ interface ChatInterfaceProps {
   setCfmAudience: (audience: string) => void;
   cfmWeek: CFMWeek;
   setCfmWeek: (week: CFMWeek) => void;
-  cfmStudyLevel: 'basic' | 'intermediate' | 'advanced';
-  setCfmStudyLevel: (level: 'basic' | 'intermediate' | 'advanced') => void;
+  cfmStudyType: CFMStudyType;
+  setCfmStudyType: (type: CFMStudyType) => void;
+  // Deep Dive Study levels
+  cfmStudyLevel: DeepDiveLevel;
+  setCfmStudyLevel: (level: DeepDiveLevel) => void;
+  // Lesson Plan levels  
+  cfmLessonPlanLevel: LessonPlanLevel;
+  setCfmLessonPlanLevel: (level: LessonPlanLevel) => void;
+  // Audio Summary levels
+  cfmAudioSummaryLevel: AudioSummaryLevel;
+  setCfmAudioSummaryLevel: (level: AudioSummaryLevel) => void;
 }
 
-export default function ChatInterface({ selectedSources, sourceCount, sidebarOpen, setSidebarOpen, mode, setMode, cfmAudience, setCfmAudience, cfmWeek, setCfmWeek, cfmStudyLevel, setCfmStudyLevel }: ChatInterfaceProps) {
+export default function ChatInterface({ 
+  selectedSources, 
+  sourceCount, 
+  sidebarOpen, 
+  setSidebarOpen, 
+  mode, 
+  setMode, 
+  cfmAudience, 
+  setCfmAudience, 
+  cfmWeek, 
+  setCfmWeek, 
+  cfmStudyType, 
+  setCfmStudyType,
+  cfmStudyLevel, 
+  setCfmStudyLevel,
+  cfmLessonPlanLevel,
+  setCfmLessonPlanLevel,
+  cfmAudioSummaryLevel,
+  setCfmAudioSummaryLevel
+}: ChatInterfaceProps) {
   const [query, setQuery] = useState('');
   const [modeDropdownOpen, setModeDropdownOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -269,27 +303,94 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
 
     try {
       if (mode === 'Come Follow Me') {
-        // Handle CFM deep dive generation with study levels
-        
-        // Get week number from CFM schedule
-        const weekIndex = CFM_2026_SCHEDULE.findIndex((w: CFMWeek) => w.id === cfmWeek?.id);
-        const weekNumber = weekIndex >= 0 ? weekIndex + 1 : 1;
-        
-        const response = await generateCFMDeepDive({
-          week_number: weekNumber,
-          study_level: cfmStudyLevel
-        });
-        
-        // Update the message with the study guide
-        setMessages(prev => prev.map(msg => 
-          msg.id === assistantMessageId 
-            ? { ...msg, content: response.study_guide, isStreaming: false }
-            : msg
-        ));
-        
-        setStreamingMessageId(null);
-        setStreamingContent('');
-        setIsLoading(false);
+        if (cfmStudyType === 'deep-dive') {
+          // Handle CFM deep dive generation with study levels (existing functionality)
+          
+          // Get week number from CFM schedule
+          const weekIndex = CFM_2026_SCHEDULE.findIndex((w: CFMWeek) => w.id === cfmWeek?.id);
+          const weekNumber = weekIndex >= 0 ? weekIndex + 1 : 1;
+          
+          const response = await generateCFMDeepDive({
+            week_number: weekNumber,
+            study_level: cfmStudyLevel
+          });
+          
+          // Update the message with the study guide
+          setMessages(prev => prev.map(msg => 
+            msg.id === assistantMessageId 
+              ? { ...msg, content: response.study_guide, isStreaming: false }
+              : msg
+          ));
+          
+          setStreamingMessageId(null);
+          setStreamingContent('');
+          setIsLoading(false);
+        } else {
+          // Handle placeholders for lesson plans and audio summaries
+          let placeholderContent = '';
+          
+          if (cfmStudyType === 'lesson-plans') {
+            placeholderContent = `# 🚧 Lesson Plans Coming Soon!
+
+## ${cfmWeek?.lesson} - ${cfmLessonPlanLevel.charAt(0).toUpperCase() + cfmLessonPlanLevel.slice(1)} Lesson Plan
+
+**Scripture Reference:** ${cfmWeek?.reference}  
+**Dates:** ${cfmWeek?.dates}
+
+### What's Coming:
+- **Interactive Activities** tailored for ${cfmLessonPlanLevel} audiences
+- **Discussion Questions** with varying complexity levels
+- **Visual Aids** and handout suggestions
+- **Time Management** guides for different lesson lengths
+- **Supplementary Resources** and cross-references
+
+### Current Status:
+This feature is in active development! We're working on creating comprehensive lesson plans that will help you teach meaningful Come Follow Me lessons.
+
+**Expected Features:**
+${cfmLessonPlanLevel === 'adult' ? '• Deep doctrinal discussions\n• Case study scenarios\n• Group activities and role-plays\n• Service project ideas' : ''}
+${cfmLessonPlanLevel === 'youth' ? '• Interactive games and challenges\n• Modern examples and applications\n• Multimedia suggestions\n• Small group discussions' : ''}
+${cfmLessonPlanLevel === 'children' ? '• Hands-on activities and crafts\n• Simple stories and examples\n• Songs and movement activities\n• Take-home activities for families' : ''}
+
+*Want to be notified when this launches? Let us know!*`;
+          } else if (cfmStudyType === 'audio-summary') {
+            placeholderContent = `# 🎧 Audio Summaries Coming Soon!
+
+## ${cfmWeek?.lesson} - ${cfmAudioSummaryLevel.charAt(0).toUpperCase() + cfmAudioSummaryLevel.slice(1)} Audio Summary
+
+**Scripture Reference:** ${cfmWeek?.reference}  
+**Dates:** ${cfmWeek?.dates}  
+**Duration:** ${cfmAudioSummaryLevel === 'short' ? '5 minutes' : cfmAudioSummaryLevel === 'medium' ? '10 minutes' : '15 minutes'}
+
+### What's Coming:
+- **Professional Narration** of key insights and themes
+- **Scripture Readings** with proper pronunciation guides
+- **Background Music** to enhance the spiritual experience
+- **Downloadable MP3** files for offline listening
+- **Multiple Voices** for dialogue and variety
+
+### Current Status:
+We're developing AI-powered audio summaries that will bring the scriptures to life through engaging narration and thoughtful commentary.
+
+**Expected Features:**
+${cfmAudioSummaryLevel === 'short' ? '• Quick overview of main themes\n• Key verses highlighted\n• Perfect for busy families' : ''}
+${cfmAudioSummaryLevel === 'medium' ? '• Detailed exploration of concepts\n• Historical context included\n• Great for commuting or exercise' : ''}
+${cfmAudioSummaryLevel === 'long' ? '• Comprehensive analysis\n• Multiple perspectives shared\n• Deep doctrinal insights\n• Perfect for personal study' : ''}
+
+*This feature will be perfect for multitasking learners who want to study while commuting, exercising, or doing chores!*`;
+          }
+          
+          // Update the message with the placeholder content
+          setMessages(prev => prev.map(msg => 
+            msg.id === assistantMessageId 
+              ? { ...msg, content: placeholderContent, isStreaming: false }
+              : msg
+          ));
+          
+          setStreamingMessageId(null);
+          setStreamingContent('');
+          setIsLoading(false);
+        }
       } else {
         // Handle regular Q&A streaming
         let fullAnswer = '';
@@ -498,15 +599,103 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                       </div>
                     </div>
 
-                    {/* Study Level with Interactive Slider */}
+                    {/* Study Type Selection */}
                     <div className="space-y-3">
-                      <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Study Level</label>
-                      <div className="bg-neutral-700/30 p-4 rounded-lg">
-                        <StudyLevelSlider 
-                          selectedLevel={cfmStudyLevel} 
-                          onLevelChange={setCfmStudyLevel}
-                        />
+                      <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Study Type</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setCfmStudyType('deep-dive')}
+                          className={`p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
+                            cfmStudyType === 'deep-dive'
+                              ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
+                              : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
+                          }`}
+                        >
+                          Deep Dive Study
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCfmStudyType('lesson-plans')}
+                          className={`p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
+                            cfmStudyType === 'lesson-plans'
+                              ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
+                              : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
+                          }`}
+                        >
+                          Lesson Plans
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCfmStudyType('audio-summary')}
+                          className={`p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
+                            cfmStudyType === 'audio-summary'
+                              ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
+                              : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
+                          }`}
+                        >
+                          Audio Summary
+                        </button>
                       </div>
+                    </div>
+
+                    {/* Dynamic Level Selection Based on Study Type */}
+                    <div className="space-y-3">
+                      {cfmStudyType === 'deep-dive' && (
+                        <>
+                          <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Study Level</label>
+                          <div className="bg-neutral-700/30 p-4 rounded-lg">
+                            <StudyLevelSlider 
+                              selectedLevel={cfmStudyLevel} 
+                              onLevelChange={setCfmStudyLevel}
+                            />
+                          </div>
+                        </>
+                      )}
+                      
+                      {cfmStudyType === 'lesson-plans' && (
+                        <>
+                          <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Audience</label>
+                          <div className="grid grid-cols-3 gap-2">
+                            {['adult', 'youth', 'children'].map((level) => (
+                              <button
+                                key={level}
+                                type="button"
+                                onClick={() => setCfmLessonPlanLevel(level as LessonPlanLevel)}
+                                className={`p-3 rounded-lg text-sm font-medium transition-all duration-200 border capitalize ${
+                                  cfmLessonPlanLevel === level
+                                    ? 'bg-purple-600/80 border-purple-500 text-white shadow-lg shadow-purple-500/30'
+                                    : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
+                                }`}
+                              >
+                                {level}
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                      
+                      {cfmStudyType === 'audio-summary' && (
+                        <>
+                          <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Duration</label>
+                          <div className="grid grid-cols-3 gap-2">
+                            {['short', 'medium', 'long'].map((level) => (
+                              <button
+                                key={level}
+                                type="button"
+                                onClick={() => setCfmAudioSummaryLevel(level as AudioSummaryLevel)}
+                                className={`p-3 rounded-lg text-sm font-medium transition-all duration-200 border capitalize ${
+                                  cfmAudioSummaryLevel === level
+                                    ? 'bg-green-600/80 border-green-500 text-white shadow-lg shadow-green-500/30'
+                                    : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
+                                }`}
+                              >
+                                {level} {level === 'short' ? '(5 min)' : level === 'medium' ? '(10 min)' : '(15 min)'}
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
 
@@ -519,15 +708,29 @@ export default function ChatInterface({ selectedSources, sourceCount, sidebarOpe
                     {isLoading ? (
                       <div className="flex items-center justify-center space-x-2">
                         <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
-                        <span>Generating {cfmStudyLevel.charAt(0).toUpperCase() + cfmStudyLevel.slice(1)} Study Guide...</span>
+                        <span>
+                          {cfmStudyType === 'deep-dive' && `Generating ${cfmStudyLevel.charAt(0).toUpperCase() + cfmStudyLevel.slice(1)} Study Guide...`}
+                          {cfmStudyType === 'lesson-plans' && `Creating ${cfmLessonPlanLevel.charAt(0).toUpperCase() + cfmLessonPlanLevel.slice(1)} Lesson Plan...`}
+                          {cfmStudyType === 'audio-summary' && `Generating ${cfmAudioSummaryLevel.charAt(0).toUpperCase() + cfmAudioSummaryLevel.slice(1)} Audio Summary...`}
+                        </span>
                       </div>
                     ) : (
                       <>
-                        <span className="text-lg">Generate {cfmStudyLevel.charAt(0).toUpperCase() + cfmStudyLevel.slice(1)} Study Guide</span>
+                        <span className="text-lg">
+                          {cfmStudyType === 'deep-dive' && `Generate ${cfmStudyLevel.charAt(0).toUpperCase() + cfmStudyLevel.slice(1)} Study Guide`}
+                          {cfmStudyType === 'lesson-plans' && `Create ${cfmLessonPlanLevel.charAt(0).toUpperCase() + cfmLessonPlanLevel.slice(1)} Lesson Plan`}
+                          {cfmStudyType === 'audio-summary' && `Generate ${cfmAudioSummaryLevel.charAt(0).toUpperCase() + cfmAudioSummaryLevel.slice(1)} Audio Summary`}
+                        </span>
                         <div className="text-xs opacity-75 mt-1">
-                          {cfmStudyLevel === 'basic' && '10-15 minute read • Perfect for families'}
-                          {cfmStudyLevel === 'intermediate' && '15-20 minute read • Great for Sunday School teachers'}
-                          {cfmStudyLevel === 'advanced' && '20-30 minute read • Designed for institute instructors'}
+                          {cfmStudyType === 'deep-dive' && cfmStudyLevel === 'basic' && '10-15 minute read • Perfect for families'}
+                          {cfmStudyType === 'deep-dive' && cfmStudyLevel === 'intermediate' && '15-20 minute read • Great for Sunday School teachers'}
+                          {cfmStudyType === 'deep-dive' && cfmStudyLevel === 'advanced' && '20-30 minute read • Designed for institute instructors'}
+                          {cfmStudyType === 'lesson-plans' && cfmLessonPlanLevel === 'adult' && 'Coming soon • Full lesson plan with activities'}
+                          {cfmStudyType === 'lesson-plans' && cfmLessonPlanLevel === 'youth' && 'Coming soon • Youth-focused activities and discussions'}
+                          {cfmStudyType === 'lesson-plans' && cfmLessonPlanLevel === 'children' && 'Coming soon • Kid-friendly activities and games'}
+                          {cfmStudyType === 'audio-summary' && cfmAudioSummaryLevel === 'short' && 'Coming soon • 5-minute narrated summary'}
+                          {cfmStudyType === 'audio-summary' && cfmAudioSummaryLevel === 'medium' && 'Coming soon • 10-minute detailed overview'}
+                          {cfmStudyType === 'audio-summary' && cfmAudioSummaryLevel === 'long' && 'Coming soon • 15-minute comprehensive discussion'}
                         </div>
                       </>
                     )}

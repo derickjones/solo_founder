@@ -48,7 +48,10 @@ export default function Home() {
   // CFM state
   const [cfmAudience, setCfmAudience] = useState('Family');
   const [cfmWeek, setCfmWeek] = useState<CFMWeek>(getCurrentCFMWeek());
+  const [cfmStudyType, setCfmStudyType] = useState<'deep-dive' | 'lesson-plans' | 'audio-summary'>('deep-dive');
   const [cfmStudyLevel, setCfmStudyLevel] = useState<'basic' | 'intermediate' | 'advanced'>('basic');
+  const [cfmLessonPlanLevel, setCfmLessonPlanLevel] = useState<'adult' | 'youth' | 'children'>('adult');
+  const [cfmAudioSummaryLevel, setCfmAudioSummaryLevel] = useState<'short' | 'medium' | 'long'>('medium');
 
   return (
     <div className="flex h-screen bg-gray-900 text-white relative">
@@ -85,8 +88,14 @@ export default function Home() {
         setCfmAudience={setCfmAudience}
         cfmWeek={cfmWeek}
         setCfmWeek={setCfmWeek}
+        cfmStudyType={cfmStudyType}
+        setCfmStudyType={setCfmStudyType}
         cfmStudyLevel={cfmStudyLevel}
         setCfmStudyLevel={setCfmStudyLevel}
+        cfmLessonPlanLevel={cfmLessonPlanLevel}
+        setCfmLessonPlanLevel={setCfmLessonPlanLevel}
+        cfmAudioSummaryLevel={cfmAudioSummaryLevel}
+        setCfmAudioSummaryLevel={setCfmAudioSummaryLevel}
       />
     </div>
   );
