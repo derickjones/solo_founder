@@ -401,18 +401,43 @@ export const generateCFMLessonPlan = async (request: CFMLessonPlanRequest): Prom
 };
 
 export const generateCFMAudioSummary = async (request: CFMAudioSummaryRequest): Promise<CFMAudioSummaryResponse> => {
-  const response = await fetch(`${API_BASE_URL}/cfm/audio-summary`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(request),
-  });
+  console.log(`🎵 Starting audio generation: ${request.duration} duration, week ${request.week_number}`);
+  
+  // Create AbortController for longer timeout (5 minutes for audio generation)
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minutes
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.detail || `Failed to generate audio summary: ${response.statusText}`);
+  try {
+    const startTime = Date.now();
+    const response = await fetch(`${API_BASE_URL}/cfm/audio-summary`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+      signal: controller.signal,
+    });
+
+    const elapsed = Date.now() - startTime;
+    console.log(`🎵 Audio request completed in ${elapsed}ms`);
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      console.error(`🎵 Audio generation failed: ${response.status} ${response.statusText}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Failed to generate audio summary: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log(`🎵 Audio generation successful: ${result.audio_files ? 'Audio included' : 'No audio'}`);
+    return result;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error('🎵 Audio generation timed out after 5 minutes');
+      throw new Error('Audio generation timed out. Please try a shorter duration or try again later.');
+    }
+    console.error('🎵 Audio generation error:', error);
+    throw error;
   }
-
-  return response.json();
 };
