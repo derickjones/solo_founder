@@ -370,19 +370,12 @@ export default function ChatInterface({
               guest_voice: guestVoice
             });
             
-            console.log('Audio summary response:', {
-              duration: response.duration,
-              hasAudioFiles: !!response.audio_files,
-              audioFileKeys: response.audio_files ? Object.keys(response.audio_files) : 'none',
-              scriptLength: response.audio_script?.length || 0
-            });
-            
             // Update the message with the audio summary
             setMessages(prev => prev.map(msg => 
               msg.id === assistantMessageId 
                 ? { 
                     ...msg, 
-                    content: response.audio_script, 
+                    content: '', // Don't show transcript for audio summaries
                     audioFiles: response.audio_files,
                     audioTitle: `${response.week_title} (${response.duration})`,
                     isStreaming: false 
@@ -547,7 +540,8 @@ export default function ChatInterface({
         <div className="w-10"></div> {/* Spacer for centering */}
       </div>
 
-      {/* Header with logo */}
+      {/* Header with logo - only show when no messages */}
+      {messages.length === 0 && (
       <div className="relative flex items-center justify-center pt-6 lg:pt-12 pb-4 lg:pb-6 px-4">
         <div className="flex flex-col items-center space-y-4 lg:space-y-6">
           <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full overflow-hidden border-2 border-neutral-700">
@@ -568,6 +562,7 @@ export default function ChatInterface({
           </div>
         </div>
       </div>
+      )}
 
       {/* Input area below header */}
       <div className="px-4 lg:px-8 pb-2">
@@ -808,7 +803,7 @@ export default function ChatInterface({
           <div className="max-w-6xl mx-auto space-y-6">
             {messages.map((message) => (
               <div key={message.id} className="space-y-4">
-                {(message.type === 'user' || (message.type === 'assistant' && message.content)) && (
+                {(message.type === 'user' || (message.type === 'assistant' && (message.content || message.audioFiles))) && (
                   <div
                     className={`${
                       message.type === 'user'
