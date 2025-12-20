@@ -1184,11 +1184,14 @@ async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
         
         # Generate audio files from the script
         logger.info("Generating audio files with different voices...")
+        logger.info(f"Audio script length: {len(audio_script)} characters")
+        logger.info(f"Host voice: {request.host_voice}, Guest voice: {request.guest_voice}")
         audio_files = parse_dialogue_and_generate_audio(
             audio_script, 
             host_voice=request.host_voice,
             guest_voice=request.guest_voice
         )
+        logger.info(f"Audio files generated: {list(audio_files.keys()) if audio_files else 'None'}")
         
         # Clean title by removing leading semicolon if present
         clean_title = bundle.get('title', 'Unknown').lstrip(';')

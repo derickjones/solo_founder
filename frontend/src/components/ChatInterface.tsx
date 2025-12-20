@@ -370,6 +370,13 @@ export default function ChatInterface({
               guest_voice: guestVoice
             });
             
+            console.log('Audio summary response:', {
+              duration: response.duration,
+              hasAudioFiles: !!response.audio_files,
+              audioFileKeys: response.audio_files ? Object.keys(response.audio_files) : 'none',
+              scriptLength: response.audio_script?.length || 0
+            });
+            
             // Update the message with the audio summary
             setMessages(prev => prev.map(msg => 
               msg.id === assistantMessageId 
