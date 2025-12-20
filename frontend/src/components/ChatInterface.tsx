@@ -728,21 +728,25 @@ export default function ChatInterface({
                       
                       {cfmStudyType === 'audio-summary' && (
                         <>
-                          <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider text-center block">Duration</label>
+                          <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider text-center block">Study Level</label>
                           <div className="bg-neutral-700/30 p-3 md:p-4 rounded-lg">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                              {['short', 'medium', 'long'].map((level) => (
+                              {[
+                                { level: 'short', label: 'Basic' },
+                                { level: 'medium', label: 'Intermediate' },
+                                { level: 'long', label: 'Advanced' }
+                              ].map(({ level, label }) => (
                                 <button
                                   key={level}
                                   type="button"
                                   onClick={() => setCfmAudioSummaryLevel(level as AudioSummaryLevel)}
-                                  className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border capitalize ${
+                                  className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
                                     cfmAudioSummaryLevel === level
                                       ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
                                       : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
                                   }`}
                                 >
-                                  {level} {level === 'short' ? '(5 min)' : level === 'medium' ? '(15 min)' : '(30 min)'}
+                                  {label}
                                 </button>
                               ))}
                             </div>
