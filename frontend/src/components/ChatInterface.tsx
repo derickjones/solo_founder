@@ -809,7 +809,7 @@ export default function ChatInterface({
                       <div className="flex items-center justify-center space-x-2">
                         <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
                         <span>
-                          {cfmStudyType === 'deep-dive' && `Generating ${cfmStudyLevel.charAt(0).toUpperCase() + cfmStudyLevel.slice(1)} Study Guide...`}
+                          {cfmStudyType === 'deep-dive' && `Generating Deep Dive...`}
                           {cfmStudyType === 'lesson-plans' && `Creating ${cfmLessonPlanLevel.charAt(0).toUpperCase() + cfmLessonPlanLevel.slice(1)} Lesson Plan...`}
                           {cfmStudyType === 'audio-summary' && `Generating ${cfmAudioSummaryLevel.charAt(0).toUpperCase() + cfmAudioSummaryLevel.slice(1)} Audio Summary...`}
                           {cfmStudyType === 'core-content' && `Organizing Core Content...`}
@@ -818,7 +818,7 @@ export default function ChatInterface({
                     ) : (
                       <>
                         <span className="text-lg">
-                          {cfmStudyType === 'deep-dive' && `Generate ${cfmStudyLevel.charAt(0).toUpperCase() + cfmStudyLevel.slice(1)} Study Guide`}
+                          {cfmStudyType === 'deep-dive' && `Generate Deep Dive`}
                           {cfmStudyType === 'lesson-plans' && `Create ${cfmLessonPlanLevel.charAt(0).toUpperCase() + cfmLessonPlanLevel.slice(1)} Lesson Plan`}
                           {cfmStudyType === 'audio-summary' && `Generate ${cfmAudioSummaryLevel.charAt(0).toUpperCase() + cfmAudioSummaryLevel.slice(1)} Audio Summary`}
                           {cfmStudyType === 'core-content' && `Organize Core Content`}
@@ -888,7 +888,7 @@ export default function ChatInterface({
                         <div className="flex items-center justify-between mb-3">
                           <div>
                             <h2 className="text-xl font-bold text-neutral-200 mb-2">
-                              {cfmStudyLevel.charAt(0).toUpperCase() + cfmStudyLevel.slice(1)} Study Guide
+                              {cfmStudyLevel.charAt(0).toUpperCase() + cfmStudyLevel.slice(1)} Deep Dive
                             </h2>
                             <div className="text-sm text-neutral-300">
                               {cfmWeek?.lesson} • {cfmWeek?.dates}

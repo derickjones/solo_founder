@@ -92,7 +92,7 @@ export default function StudyLevelSlider({ selectedLevel, onLevelChange }: Study
       {/* Selected Level Info */}
       <div className="text-center">
         <div className={`text-lg font-semibold ${STUDY_LEVELS[selectedIndex].color}`}>
-          {STUDY_LEVELS[selectedIndex].label} Study Guide
+          {STUDY_LEVELS[selectedIndex].label} Study Level
         </div>
       </div>
     </div>
