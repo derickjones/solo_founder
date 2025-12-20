@@ -1243,40 +1243,48 @@ async def generate_cfm_core_content(request: CFMCoreContentRequest):
         if not bundle:
             raise HTTPException(status_code=404, detail=f"Week {request.week_number} bundle not found")
         
-        # Build context from all content types in the bundle
+        # Build context from all content types in the bundle (same approach as other endpoints)
         context_parts = []
         bundle_sources = 0
         total_characters = 0
         
-        # Add Come Follow Me content first
-        if 'come_follow_me' in bundle and bundle['come_follow_me']:
+        # Use the same content_sources structure as the other CFM endpoints
+        content_sources = bundle.get('content_sources', [])
+        if not content_sources:
+            raise HTTPException(status_code=404, detail=f"No content sources found for week {request.week_number}")
+        
+        # Group content by source type
+        cfm_content = []
+        scripture_content = []
+        seminary_content = []
+        
+        for source in content_sources:
+            source_type = source.get('source_type', '').lower()
+            content = source.get('content', '').strip()
+            
+            if content:
+                if source_type == 'cfm':
+                    cfm_content.append(content)
+                elif source_type == 'scripture':
+                    scripture_content.append(content)
+                elif source_type == 'seminary_teacher':
+                    seminary_content.append(content)
+                
+                bundle_sources += 1
+                total_characters += len(content)
+        
+        # Add organized content sections
+        if cfm_content:
             context_parts.append("=== COME FOLLOW ME CONTENT ===")
-            for item in bundle['come_follow_me']:
-                content = item.get('content', '').strip()
-                if content:
-                    context_parts.append(content)
-                    bundle_sources += 1
-                    total_characters += len(content)
+            context_parts.extend(cfm_content)
         
-        # Add Scripture content second
-        if 'scriptures' in bundle and bundle['scriptures']:
+        if scripture_content:
             context_parts.append("\n=== SCRIPTURE PASSAGES ===")
-            for item in bundle['scriptures']:
-                content = item.get('content', '').strip()
-                if content:
-                    context_parts.append(content)
-                    bundle_sources += 1
-                    total_characters += len(content)
+            context_parts.extend(scripture_content)
         
-        # Add Seminary content last
-        if 'seminary' in bundle and bundle['seminary']:
+        if seminary_content:
             context_parts.append("\n=== SEMINARY MATERIALS ===")
-            for item in bundle['seminary']:
-                content = item.get('content', '').strip()
-                if content:
-                    context_parts.append(content)
-                    bundle_sources += 1
-                    total_characters += len(content)
+            context_parts.extend(seminary_content)
         
         if not context_parts:
             raise HTTPException(status_code=404, detail=f"No content found for week {request.week_number}")
