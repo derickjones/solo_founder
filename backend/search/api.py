@@ -628,8 +628,7 @@ class CFMLessonPlanResponse(BaseModel):
 class CFMAudioSummaryRequest(BaseModel):
     week_number: int  # Week number 2-52 for CFM 2026
     duration: str = "5min"  # 5min, 15min, 30min
-    host_voice: str = "onyx"  # Host voice: alloy, echo, fable, onyx, nova, shimmer
-    guest_voice: str = "shimmer"  # Guest voice: alloy, echo, fable, onyx, nova, shimmer
+    voice: str = "alloy"  # Voice: alloy, echo, fable, onyx, nova, shimmer
 
 class CFMAudioSummaryResponse(BaseModel):
     week_number: int
@@ -637,7 +636,7 @@ class CFMAudioSummaryResponse(BaseModel):
     date_range: str
     duration: str
     audio_script: str
-    audio_files: Optional[Dict[str, str]] = None  # Base64 encoded audio files: {"combined": "base64...", "host_only": "base64...", "guest_only": "base64..."}
+    audio_files: Optional[Dict[str, str]] = None  # Base64 encoded audio file: {"combined": "base64..."}
     bundle_sources: int
     total_characters: int
     generation_time_ms: int
@@ -986,113 +985,35 @@ async def create_cfm_lesson_plan(request: CFMLessonPlanRequest):
         logger.error(f"CFM Lesson Plan generation error: {e}")
         raise HTTPException(status_code=500, detail=f"Lesson plan generation failed: {str(e)}")
 
-def parse_dialogue_and_generate_audio(script_text: str, host_voice: str = "onyx", guest_voice: str = "shimmer") -> Dict[str, str]:
+def parse_dialogue_and_generate_audio(script_text: str, voice: str = "alloy") -> Dict[str, str]:
     """
-    Parse dialogue script and generate audio files with different voices for host and guest
-    Returns base64 encoded audio files
+    Generate a single audio file from the summary talk script
+    Returns base64 encoded audio file
     """
     try:
-        # Parse the script to separate host and guest parts
-        lines = script_text.split('\n')
-        host_parts = []
-        guest_parts = []
-        combined_audio_segments = []
-        
-        current_speaker = None
-        current_text = ""
-        
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-                
-            # Check if line starts with **Host**: or **Guest**:
-            if line.startswith('**Host**:'):
-                # Save previous speaker's text
-                if current_speaker and current_text.strip():
-                    if current_speaker == 'host':
-                        host_parts.append(current_text.strip())
-                    else:
-                        guest_parts.append(current_text.strip())
-                
-                # Start new host section
-                current_speaker = 'host'
-                current_text = line.replace('**Host**:', '').strip()
-                
-            elif line.startswith('**Guest**:'):
-                # Save previous speaker's text  
-                if current_speaker and current_text.strip():
-                    if current_speaker == 'host':
-                        host_parts.append(current_text.strip())
-                    else:
-                        guest_parts.append(current_text.strip())
-                
-                # Start new guest section
-                current_speaker = 'guest'
-                current_text = line.replace('**Guest**:', '').strip()
-                
-            else:
-                # Continue current speaker's text
-                current_text += " " + line
-        
-        # Don't forget the last speaker
-        if current_speaker and current_text.strip():
-            if current_speaker == 'host':
-                host_parts.append(current_text.strip())
-            else:
-                guest_parts.append(current_text.strip())
-        
-        logger.info(f"Parsed dialogue: {len(host_parts)} host parts, {len(guest_parts)} guest parts")
+        logger.info(f"Generating engaging summary talk audio with voice: {voice}")
         
         # Generate audio using OpenAI's text-to-speech API
         audio_files = {}
         
         if openai_client:
-            # Generate host audio with selected voice
-            host_text = " ".join(host_parts)
-            if host_text.strip():
-                logger.info(f"Generating host audio with voice: {host_voice}")
-                host_response = openai_client.audio.speech.create(
-                    model="tts-1",
-                    voice=host_voice,
-                    input=host_text,
-                    response_format="mp3"
-                )
-                audio_files['host_only'] = base64.b64encode(host_response.content).decode()
-            
-            # Generate guest audio with selected voice
-            guest_text = " ".join(guest_parts)
-            if guest_text.strip():
-                logger.info(f"Generating guest audio with voice: {guest_voice}")
-                guest_response = openai_client.audio.speech.create(
-                    model="tts-1", 
-                    voice=guest_voice,
-                    input=guest_text,
-                    response_format="mp3"
-                )
-                audio_files['guest_only'] = base64.b64encode(guest_response.content).decode()
-            
-            # For combined audio, we'll create a simplified version with clear speaker labels
-            # This could be enhanced later with audio mixing
-            combined_text = script_text.replace('**Host**:', 'Host:').replace('**Guest**:', 'Guest:')
-            logger.info("Generating combined audio...")
-            combined_response = openai_client.audio.speech.create(
+            # Create audio from the complete summary talk
+            logger.info("Generating engaging summary talk audio...")
+            response = openai_client.audio.speech.create(
                 model="tts-1",
-                voice="alloy",  # Neutral voice for combined reading
-                input=combined_text,
+                voice=voice,
+                input=script_text,
                 response_format="mp3"
             )
-            audio_files['combined'] = base64.b64encode(combined_response.content).decode()
-            
-        logger.info(f"Generated {len(audio_files)} audio files")
+            audio_files['combined'] = base64.b64encode(response.content).decode()
+        
+        logger.info(f"Generated summary talk audio successfully")
         return audio_files
         
     except Exception as e:
         logger.error(f"Audio generation error: {e}")
         # Return empty dict on error - endpoint will still return script
-        return {}
-
-@app.post("/cfm/audio-summary", response_model=CFMAudioSummaryResponse)
+        return {}@app.post("/cfm/audio-summary", response_model=CFMAudioSummaryResponse)
 async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
     """
     Generate a CFM 2026 Audio Summary Script using complete weekly bundles
@@ -1148,14 +1069,21 @@ async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
         
         # Step 4: Create the user prompt with the full bundle context
         user_prompt = f"""
-        Please create a {request.duration} audio summary script for this Come Follow Me 2026 Old Testament week.
+        Please create an engaging {request.duration} audio summary talk for this Come Follow Me 2026 Old Testament week.
         
-        Use the complete weekly bundle content provided below to create a conversational audio script that follows the same faith-building experience as Gospel Guide's study system - helping people build testimony, find answers in scripture, and draw closer to Christ.
+        Create a single-speaker summary talk (not a dialogue) that combines the rich weekly bundle content with fascinating historical context, interesting facts, and gentle humor. Make it feel like listening to a knowledgeable, slightly witty gospel teacher who makes scripture study come alive.
         
         COMPLETE WEEKLY BUNDLE CONTENT:
         {bundle_content}
         
-        Please create an audio script that uses all the rich content provided above, following your instructions for {request.duration} duration. Ensure everything is based strictly on the bundle content provided.
+        Please create an engaging summary talk that:
+        1. Uses all the rich content provided above as the foundation
+        2. Adds appropriate historical context and interesting facts that illuminate the scriptures
+        3. Includes gentle humor and engaging storytelling
+        4. Follows your {request.duration} duration guidelines
+        5. Maintains reverence while being entertaining and educational
+        
+        Base everything on the bundle content while enriching with historical context that enhances understanding and makes the lesson come alive.
         """
         
         # Step 5: Generate the audio script using OpenAI
@@ -1183,14 +1111,10 @@ async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
         logger.info(f"Generated {request.duration} audio script for week {request.week_number} using {bundle_sources} sources ({total_characters:,} chars) in {total_time_ms}ms")
         
         # Generate audio files from the script
-        logger.info("Generating audio files with different voices...")
+        logger.info("Generating audio files...")
         logger.info(f"Audio script length: {len(audio_script)} characters")
-        logger.info(f"Host voice: {request.host_voice}, Guest voice: {request.guest_voice}")
-        audio_files = parse_dialogue_and_generate_audio(
-            audio_script, 
-            host_voice=request.host_voice,
-            guest_voice=request.guest_voice
-        )
+        logger.info(f"Selected voice: {request.voice}")
+        audio_files = parse_dialogue_and_generate_audio(audio_script, voice=request.voice)
         logger.info(f"Audio files generated: {list(audio_files.keys()) if audio_files else 'None'}")
         
         # Clean title by removing leading semicolon if present

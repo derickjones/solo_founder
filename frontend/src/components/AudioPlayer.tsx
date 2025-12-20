@@ -6,8 +6,6 @@ import { PlayIcon, PauseIcon, SpeakerWaveIcon } from '@heroicons/react/24/outlin
 interface AudioPlayerProps {
   audioFiles: {
     combined?: string;
-    host_only?: string;
-    guest_only?: string;
   };
   title: string;
 }
@@ -20,7 +18,7 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Only use the combined audio file
+  // Use the combined audio file (which now has proper voice alternation)
   const audioData = audioFiles.combined;
 
   if (!audioData) {
@@ -102,7 +100,7 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">🎧 Audio Summary - {title}</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">�️ Gospel Summary - {title}</h3>
       
       {/* Audio Controls */}
       <div className="space-y-3">
@@ -155,10 +153,10 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
         
         <div className="text-center">
           <p className="text-sm text-gray-600">
-            🎙️ Interactive Gospel Discussion - {duration > 0 ? formatTime(duration) : 'Loading...'}
+            📚 Engaging Gospel Talk - {duration > 0 ? formatTime(duration) : 'Loading...'}
           </p>
           <p className="text-xs text-gray-500 mt-1">
-            Listen to a thoughtful conversation about this week's Come Follow Me study
+            An engaging summary with historical context and gentle humor about this week's Come Follow Me study
           </p>
         </div>
       </div>
