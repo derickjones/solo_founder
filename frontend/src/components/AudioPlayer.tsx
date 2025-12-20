@@ -23,22 +23,6 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
   // Use the combined audio file
   const audioData = audioFiles.combined;
 
-  if (!audioData) {
-    return (
-      <div className="bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 rounded-xl p-6 shadow-sm">
-        <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center animate-pulse">
-            <div className="w-6 h-6 bg-slate-300 rounded-full"></div>
-          </div>
-          <div className="flex-1">
-            <p className="text-slate-600 font-medium">Generating audio summary...</p>
-            <p className="text-sm text-slate-500">This may take a few moments</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // Convert base64 to blob URL
   const getAudioUrl = (base64Data: string) => {
     const binaryString = atob(base64Data);
@@ -149,75 +133,90 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
       {/* Player Controls */}
       {isExpanded && (
         <div className="p-6 space-y-4">
-          {/* Main Controls */}
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={togglePlayPause}
-              className="flex items-center justify-center w-14 h-14 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg"
-            >
-              {isPlaying ? (
-                <PauseIcon className="w-7 h-7" />
-              ) : (
-                <PlayIcon className="w-7 h-7 ml-0.5" />
-              )}
-            </button>
-            
-            <div className="flex-1 space-y-2">
-              {/* Progress Bar */}
-              <div className="relative">
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={duration ? (currentTime / duration) * 100 : 0}
-                  onChange={seek}
-                  className="w-full h-2 bg-slate-200 rounded-full appearance-none cursor-pointer progress-slider"
-                />
-                <div 
-                  className="absolute top-0 left-0 h-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full pointer-events-none transition-all duration-75"
-                  style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
-                />
+          {!audioData ? (
+            /* Loading State */
+            <div className="flex items-center space-x-3">
+              <div className="w-14 h-14 bg-slate-200 rounded-full flex items-center justify-center animate-pulse">
+                <div className="w-7 h-7 bg-slate-300 rounded-full"></div>
+              </div>
+              <div className="flex-1">
+                <p className="text-slate-600 font-medium">Generating audio summary...</p>
+                <p className="text-sm text-slate-500">This may take a few moments</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Main Controls */}
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={togglePlayPause}
+                  className="flex items-center justify-center w-14 h-14 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg"
+                >
+                  {isPlaying ? (
+                    <PauseIcon className="w-7 h-7" />
+                  ) : (
+                    <PlayIcon className="w-7 h-7 ml-0.5" />
+                  )}
+                </button>
+                
+                <div className="flex-1 space-y-2">
+                  {/* Progress Bar */}
+                  <div className="relative">
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={duration ? (currentTime / duration) * 100 : 0}
+                      onChange={seek}
+                      className="w-full h-2 bg-slate-200 rounded-full appearance-none cursor-pointer progress-slider"
+                    />
+                    <div 
+                      className="absolute top-0 left-0 h-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full pointer-events-none transition-all duration-75"
+                      style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+                    />
+                  </div>
+                  
+                  {/* Time Display */}
+                  <div className="flex justify-between text-sm text-slate-500 font-medium">
+                    <span>{formatTime(currentTime)}</span>
+                    <span>{formatTime(duration)}</span>
+                  </div>
+                </div>
+                
+                {/* Volume Control */}
+                <div className="flex items-center space-x-3">
+                  <SpeakerWaveIcon className="w-5 h-5 text-slate-400" />
+                  <div className="relative w-20">
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      value={volume}
+                      onChange={handleVolumeChange}
+                      className="w-full h-2 bg-slate-200 rounded-full appearance-none cursor-pointer volume-slider"
+                    />
+                    <div 
+                      className="absolute top-0 left-0 h-2 bg-gradient-to-r from-slate-400 to-slate-500 rounded-full pointer-events-none"
+                      style={{ width: `${volume * 100}%` }}
+                    />
+                  </div>
+                </div>
               </div>
               
-              {/* Time Display */}
-              <div className="flex justify-between text-sm text-slate-500 font-medium">
-                <span>{formatTime(currentTime)}</span>
-                <span>{formatTime(duration)}</span>
+              {/* Audio Description */}
+              <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="text-lg">📚</span>
+                  <span className="font-medium text-slate-800">Engaging Gospel Talk</span>
+                  <span className="text-sm text-slate-500">• {formatTime(duration)}</span>
+                </div>
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  An engaging summary with historical context and gentle humor about this week's Come Follow Me study
+                </p>
               </div>
-            </div>
-            
-            {/* Volume Control */}
-            <div className="flex items-center space-x-3">
-              <SpeakerWaveIcon className="w-5 h-5 text-slate-400" />
-              <div className="relative w-20">
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.05"
-                  value={volume}
-                  onChange={handleVolumeChange}
-                  className="w-full h-2 bg-slate-200 rounded-full appearance-none cursor-pointer volume-slider"
-                />
-                <div 
-                  className="absolute top-0 left-0 h-2 bg-gradient-to-r from-slate-400 to-slate-500 rounded-full pointer-events-none"
-                  style={{ width: `${volume * 100}%` }}
-                />
-              </div>
-            </div>
-          </div>
-          
-          {/* Audio Description */}
-          <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-            <div className="flex items-center space-x-2 mb-2">
-              <span className="text-lg">📚</span>
-              <span className="font-medium text-slate-800">Engaging Gospel Talk</span>
-              <span className="text-sm text-slate-500">• {formatTime(duration)}</span>
-            </div>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              An engaging summary with historical context and gentle humor about this week's Come Follow Me study
-            </p>
-          </div>
+            </>
+          )}
         </div>
       )}
 
