@@ -16,6 +16,7 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.8);
+  const [playbackRate, setPlaybackRate] = useState(1.0);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -40,9 +41,10 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
       const audioUrl = getAudioUrl(audioData);
       audioRef.current.src = audioUrl;
       audioRef.current.volume = volume;
+      audioRef.current.playbackRate = playbackRate;
       setIsLoaded(true);
     }
-  }, [audioData, isLoaded, volume]);
+  }, [audioData, isLoaded, volume, playbackRate]);
 
   // Toggle play/pause
   const togglePlayPause = () => {
@@ -92,6 +94,14 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
     setVolume(newVolume);
     if (audioRef.current) {
       audioRef.current.volume = newVolume;
+    }
+  };
+
+  // Handle playback speed change
+  const handlePlaybackRateChange = (rate: number) => {
+    setPlaybackRate(rate);
+    if (audioRef.current) {
+      audioRef.current.playbackRate = rate;
     }
   };
 
@@ -204,16 +214,22 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
                 </div>
               </div>
               
-              {/* Audio Description */}
-              <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                <div className="flex items-center space-x-2 mb-2">
-                  <span className="text-lg">📚</span>
-                  <span className="font-medium text-slate-800">Audio Summary</span>
-                  <span className="text-sm text-slate-500">• {formatTime(duration)}</span>
-                </div>
-                <p className="text-sm text-slate-600 leading-relaxed">
-                  This week's Come Follow Me study
-                </p>
+              {/* Playback Speed Controls */}
+              <div className="flex items-center justify-center space-x-2">
+                <span className="text-sm text-slate-500 font-medium">Speed:</span>
+                {[0.75, 1.0, 1.25, 1.5, 1.75, 2.0].map((rate) => (
+                  <button
+                    key={rate}
+                    onClick={() => handlePlaybackRateChange(rate)}
+                    className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${
+                      playbackRate === rate
+                        ? 'bg-blue-500 text-white shadow-sm'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    {rate === 1.0 ? '1×' : `${rate}×`}
+                  </button>
+                ))}
               </div>
             </>
           )}
