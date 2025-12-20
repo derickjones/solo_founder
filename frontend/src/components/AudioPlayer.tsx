@@ -208,11 +208,11 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
               <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
                 <div className="flex items-center space-x-2 mb-2">
                   <span className="text-lg">📚</span>
-                  <span className="font-medium text-slate-800">Engaging Gospel Talk</span>
+                  <span className="font-medium text-slate-800">Audio Summary</span>
                   <span className="text-sm text-slate-500">• {formatTime(duration)}</span>
                 </div>
                 <p className="text-sm text-slate-600 leading-relaxed">
-                  An engaging summary with historical context and gentle humor about this week's Come Follow Me study
+                  This week's Come Follow Me study
                 </p>
               </div>
             </>
