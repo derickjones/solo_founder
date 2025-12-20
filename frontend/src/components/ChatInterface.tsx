@@ -87,6 +87,10 @@ export default function ChatInterface({
   
   // Voice selection state for audio summaries
   const [selectedVoice, setSelectedVoice] = useState<'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer'>('echo');
+  
+  // Scroll behavior state
+  const [isControlsVisible, setIsControlsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   // Copy to clipboard handler
   const handleCopyToClipboard = async (content: string, messageId: number) => {
@@ -120,6 +124,39 @@ export default function ChatInterface({
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [sidebarOpen, setSidebarOpen, modeDropdownOpen]);
+
+  // Scroll behavior for hiding controls on mobile
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const windowWidth = window.innerWidth;
+      
+      // Only apply scroll behavior on mobile devices
+      if (windowWidth < 768) { // md breakpoint
+        if (currentScrollY > lastScrollY && currentScrollY > 100) {
+          // Scrolling down and past threshold - hide controls
+          setIsControlsVisible(false);
+        } else if (currentScrollY < lastScrollY || currentScrollY <= 50) {
+          // Scrolling up or near top - show controls
+          setIsControlsVisible(true);
+        }
+      } else {
+        // Always show controls on desktop
+        setIsControlsVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    const throttledHandleScroll = () => {
+      requestAnimationFrame(handleScroll);
+    };
+
+    window.addEventListener('scroll', throttledHandleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', throttledHandleScroll);
+  }, [lastScrollY]);
 
   // Product tiles data
   const productTiles = [
@@ -526,6 +563,17 @@ export default function ChatInterface({
         </div>
       </div>
 
+      {/* Floating controls toggle button for mobile - only show in CFM mode when controls are hidden */}
+      {!isControlsVisible && mode === 'Come Follow Me' && (
+        <button
+          onClick={() => setIsControlsVisible(true)}
+          className="md:hidden fixed bottom-4 right-4 z-30 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-all duration-200"
+          title="Show controls"
+        >
+          <ChevronDownIcon className="w-6 h-6 transform rotate-180" />
+        </button>
+      )}
+
       {/* Mobile hamburger menu */}
       <div className="lg:hidden flex items-center justify-between p-4 border-b border-neutral-700">
         <button
@@ -563,18 +611,20 @@ export default function ChatInterface({
       )}
 
       {/* Input area below header */}
-      <div className="px-4 lg:px-8 pb-2">
+      <div className={`px-4 lg:px-8 pb-2 transition-transform duration-300 ${
+        isControlsVisible ? 'transform translate-y-0' : 'transform -translate-y-full md:translate-y-0'
+      }`}>
         <div className="max-w-6xl mx-auto">
           <form onSubmit={handleSubmit} className="relative">
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center bg-neutral-800 border-2 border-neutral-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 rounded-2xl p-3 lg:p-4 transition-all duration-200 gap-3 sm:gap-0">
               
               {mode === 'Come Follow Me' ? (
                 // CFM Mode: Enhanced Study Guide Interface
-                <div className="w-full space-y-6">
+                <div className="w-full space-y-4 md:space-y-6 max-h-[70vh] md:max-h-none overflow-y-auto md:overflow-visible">
                   {/* Study Controls */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 gap-4 md:gap-6">
                     {/* Week Selection */}
-                    <div className="space-y-3">
+                    <div className="space-y-2 md:space-y-3">
                       <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Current Week</label>
                       <select
                         value={cfmWeek?.id || ''}
@@ -582,7 +632,7 @@ export default function ChatInterface({
                           const selectedWeek = CFM_2026_SCHEDULE.find((w: CFMWeek) => w.id === e.target.value);
                           setCfmWeek(selectedWeek || CFM_2026_SCHEDULE[0]);
                         }}
-                        className="w-full p-3 bg-neutral-700/50 border border-neutral-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 appearance-none cursor-pointer"
+                        className="w-full p-2 md:p-3 bg-neutral-700/50 border border-neutral-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 appearance-none cursor-pointer"
                       >
                         {CFM_2026_SCHEDULE.map((week: CFMWeek, index: number) => (
                           <option key={week.id} value={week.id} className="bg-neutral-800">
@@ -597,13 +647,13 @@ export default function ChatInterface({
                     </div>
 
                     {/* Study Type Selection */}
-                    <div className="space-y-3">
+                    <div className="space-y-2 md:space-y-3">
                       <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Study Type</label>
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                         <button
                           type="button"
                           onClick={() => setCfmStudyType('deep-dive')}
-                          className={`p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
+                          className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
                             cfmStudyType === 'deep-dive'
                               ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
                               : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
@@ -614,7 +664,7 @@ export default function ChatInterface({
                         <button
                           type="button"
                           onClick={() => setCfmStudyType('lesson-plans')}
-                          className={`p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
+                          className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
                             cfmStudyType === 'lesson-plans'
                               ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
                               : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
@@ -625,7 +675,7 @@ export default function ChatInterface({
                         <button
                           type="button"
                           onClick={() => setCfmStudyType('audio-summary')}
-                          className={`p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
+                          className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
                             cfmStudyType === 'audio-summary'
                               ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
                               : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
@@ -655,14 +705,14 @@ export default function ChatInterface({
                       {cfmStudyType === 'lesson-plans' && (
                         <>
                           <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider text-center block">Audience</label>
-                          <div className="bg-neutral-700/30 p-4 rounded-lg">
-                            <div className="grid grid-cols-3 gap-2">
+                          <div className="bg-neutral-700/30 p-3 md:p-4 rounded-lg">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                               {['adult', 'youth', 'children'].map((level) => (
                                 <button
                                   key={level}
                                   type="button"
                                   onClick={() => setCfmLessonPlanLevel(level as LessonPlanLevel)}
-                                  className={`p-3 rounded-lg text-sm font-medium transition-all duration-200 border capitalize ${
+                                  className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border capitalize ${
                                     cfmLessonPlanLevel === level
                                       ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
                                       : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
@@ -679,14 +729,14 @@ export default function ChatInterface({
                       {cfmStudyType === 'audio-summary' && (
                         <>
                           <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider text-center block">Duration</label>
-                          <div className="bg-neutral-700/30 p-4 rounded-lg">
-                            <div className="grid grid-cols-3 gap-2">
+                          <div className="bg-neutral-700/30 p-3 md:p-4 rounded-lg">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                               {['short', 'medium', 'long'].map((level) => (
                                 <button
                                   key={level}
                                   type="button"
                                   onClick={() => setCfmAudioSummaryLevel(level as AudioSummaryLevel)}
-                                  className={`p-3 rounded-lg text-sm font-medium transition-all duration-200 border capitalize ${
+                                  className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border capitalize ${
                                     cfmAudioSummaryLevel === level
                                       ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
                                       : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
@@ -700,7 +750,7 @@ export default function ChatInterface({
                           
                           {/* Voice Selection */}
                           <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider text-center block mt-4">Voice Selection</label>
-                          <div className="bg-neutral-700/30 p-4 rounded-lg">
+                          <div className="bg-neutral-700/30 p-3 md:p-4 rounded-lg">
                             <select 
                               value={selectedVoice}
                               onChange={(e) => setSelectedVoice(e.target.value as any)}
@@ -744,6 +794,18 @@ export default function ChatInterface({
                       </>
                     )}
                   </button>
+
+                  {/* Mobile collapse button - only show when controls are visible on mobile */}
+                  {isControlsVisible && (
+                    <button
+                      type="button"
+                      onClick={() => setIsControlsVisible(false)}
+                      className="md:hidden w-full mt-2 bg-neutral-700/50 hover:bg-neutral-600/50 text-neutral-300 py-2 px-4 rounded-lg transition-all duration-200 text-sm flex items-center justify-center space-x-2"
+                    >
+                      <ChevronDownIcon className="w-4 h-4" />
+                      <span>Hide Controls</span>
+                    </button>
+                  )}
                 </div>
               ) : (
                 // Q&A Mode: Show text input

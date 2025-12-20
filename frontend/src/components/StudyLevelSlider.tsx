@@ -65,7 +65,7 @@ export default function StudyLevelSlider({ selectedLevel, onLevelChange }: Study
                 key={level.id}
                 onClick={() => onLevelChange(level.id)}
                 className={`
-                  flex-1 py-2 px-3 rounded-full text-sm font-medium transition-all duration-200
+                  flex-1 py-1.5 px-2 md:py-2 md:px-3 rounded-full text-xs md:text-sm font-medium transition-all duration-200
                   ${isSelected 
                     ? `${level.bgColor} ${level.color} ${level.borderColor} border shadow-lg` 
                     : 'text-gray-400 hover:text-gray-200 hover:bg-gray-600'
