@@ -90,22 +90,10 @@ export default function StudyLevelSlider({ selectedLevel, onLevelChange }: Study
       </div>
       
       {/* Selected Level Info */}
-      <div className="text-center space-y-2">
+      <div className="text-center">
         <div className={`text-lg font-semibold ${STUDY_LEVELS[selectedIndex].color}`}>
           {STUDY_LEVELS[selectedIndex].label} Study Guide
         </div>
-        <div className="text-sm text-gray-400">
-          {STUDY_LEVELS[selectedIndex].description}
-        </div>
-        <div className="text-xs text-gray-500 bg-gray-900 inline-block px-2 py-1 rounded">
-          {STUDY_LEVELS[selectedIndex].duration}
-        </div>
-      </div>
-      
-      {/* Level Indicators */}
-      <div className="flex justify-between text-xs text-gray-500">
-        <span>Quick & Simple</span>
-        <span>Detailed & Comprehensive</span>
       </div>
     </div>
   );

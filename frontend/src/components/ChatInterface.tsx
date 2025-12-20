@@ -806,30 +806,23 @@ export default function ChatInterface({
                     className={`${
                       message.type === 'user'
                         ? 'bg-neutral-600 text-white ml-auto max-w-sm lg:max-w-lg p-3 lg:p-4 rounded-lg'
-                        : mode === 'Come Follow Me'
-                        ? 'bg-gradient-to-br from-blue-900/30 to-blue-800/20 border border-blue-500/20 text-white max-w-full p-8 rounded-xl shadow-lg'
                         : 'bg-neutral-800 text-white max-w-full p-6 rounded-lg'
                     }`}
                   >
                     {/* CFM Study Guide Header */}
                     {message.type === 'assistant' && mode === 'Come Follow Me' && message.content && (
-                      <div className="mb-6 pb-4 border-b border-blue-500/20">
+                      <div className="mb-6 pb-4 border-b border-neutral-600">
                         <div className="flex items-center justify-between mb-3">
                           <div>
-                            <h2 className="text-xl font-bold text-blue-200 mb-2">
+                            <h2 className="text-xl font-bold text-neutral-200 mb-2">
                               {cfmStudyLevel.charAt(0).toUpperCase() + cfmStudyLevel.slice(1)} Study Guide
                             </h2>
-                            <div className="text-sm text-blue-300/80">
+                            <div className="text-sm text-neutral-300">
                               {cfmWeek?.lesson} • {cfmWeek?.dates}
                             </div>
-                            <div className="text-xs text-blue-300/60 mt-1">
+                            <div className="text-xs text-neutral-400 mt-1">
                               {cfmWeek?.reference}
                             </div>
-                          </div>
-                          <div className="text-xs text-blue-300/60 bg-blue-900/40 px-3 py-1 rounded-full">
-                            {cfmStudyLevel === 'basic' && '📚 10-15 min read'}
-                            {cfmStudyLevel === 'intermediate' && '🎓 15-20 min read'} 
-                            {cfmStudyLevel === 'advanced' && '🔬 20-30 min read'}
                           </div>
                         </div>
                       </div>
