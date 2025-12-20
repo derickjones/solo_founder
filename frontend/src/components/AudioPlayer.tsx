@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { PlayIcon, PauseIcon, SpeakerWaveIcon } from '@heroicons/react/24/outline';
+import { PlayIcon, PauseIcon, SpeakerWaveIcon } from '@heroicons/react/24/solid';
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 
 interface AudioPlayerProps {
   audioFiles: {
@@ -14,17 +15,26 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(1);
+  const [volume, setVolume] = useState(0.8);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Use the combined audio file (which now has proper voice alternation)
+  // Use the combined audio file
   const audioData = audioFiles.combined;
 
   if (!audioData) {
     return (
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-        <p className="text-gray-500 text-center">Audio file is being generated...</p>
+      <div className="bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 rounded-xl p-6 shadow-sm">
+        <div className="flex items-center space-x-3">
+          <div className="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center animate-pulse">
+            <div className="w-6 h-6 bg-slate-300 rounded-full"></div>
+          </div>
+          <div className="flex-1">
+            <p className="text-slate-600 font-medium">Generating audio summary...</p>
+            <p className="text-sm text-slate-500">This may take a few moments</p>
+          </div>
+        </div>
       </div>
     );
   }
@@ -45,9 +55,10 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
     if (audioRef.current && audioData && !isLoaded) {
       const audioUrl = getAudioUrl(audioData);
       audioRef.current.src = audioUrl;
+      audioRef.current.volume = volume;
       setIsLoaded(true);
     }
-  }, [audioData, isLoaded]);
+  }, [audioData, isLoaded, volume]);
 
   // Toggle play/pause
   const togglePlayPause = () => {
@@ -91,102 +102,171 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
     setCurrentTime(seekTime);
   };
 
+  // Handle volume change
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = parseFloat(e.target.value);
+    setVolume(newVolume);
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume;
+    }
+  };
+
   // Format time display
   const formatTime = (seconds: number) => {
+    if (isNaN(seconds)) return '0:00';
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">�️ Gospel Summary - {title}</h3>
-      
-      {/* Audio Controls */}
-      <div className="space-y-3">
-        <div className="flex items-center space-x-3">
+    <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-slate-200 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center shadow-lg">
+              <span className="text-white text-lg">🎧</span>
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900">Gospel Summary</h3>
+              <p className="text-sm text-slate-600">{title}</p>
+            </div>
+          </div>
           <button
-            onClick={togglePlayPause}
-            className="flex items-center justify-center w-12 h-12 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-colors shadow-lg"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="p-2 hover:bg-white/50 rounded-lg transition-colors"
           >
-            {isPlaying ? (
-              <PauseIcon className="h-6 w-6" />
+            {isExpanded ? (
+              <ChevronUpIcon className="w-5 h-5 text-slate-500" />
             ) : (
-              <PlayIcon className="h-6 w-6 ml-0.5" />
+              <ChevronDownIcon className="w-5 h-5 text-slate-500" />
             )}
           </button>
-          
-          <div className="flex-1 space-y-1">
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={duration ? (currentTime / duration) * 100 : 0}
-              onChange={seek}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-            />
-            <div className="flex justify-between text-xs text-gray-500">
-              <span>{formatTime(currentTime)}</span>
-              <span>{formatTime(duration)}</span>
+        </div>
+      </div>
+
+      {/* Player Controls */}
+      {isExpanded && (
+        <div className="p-6 space-y-4">
+          {/* Main Controls */}
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={togglePlayPause}
+              className="flex items-center justify-center w-14 h-14 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg"
+            >
+              {isPlaying ? (
+                <PauseIcon className="w-7 h-7" />
+              ) : (
+                <PlayIcon className="w-7 h-7 ml-0.5" />
+              )}
+            </button>
+            
+            <div className="flex-1 space-y-2">
+              {/* Progress Bar */}
+              <div className="relative">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={duration ? (currentTime / duration) * 100 : 0}
+                  onChange={seek}
+                  className="w-full h-2 bg-slate-200 rounded-full appearance-none cursor-pointer progress-slider"
+                />
+                <div 
+                  className="absolute top-0 left-0 h-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full pointer-events-none transition-all duration-75"
+                  style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+                />
+              </div>
+              
+              {/* Time Display */}
+              <div className="flex justify-between text-sm text-slate-500 font-medium">
+                <span>{formatTime(currentTime)}</span>
+                <span>{formatTime(duration)}</span>
+              </div>
+            </div>
+            
+            {/* Volume Control */}
+            <div className="flex items-center space-x-3">
+              <SpeakerWaveIcon className="w-5 h-5 text-slate-400" />
+              <div className="relative w-20">
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={volume}
+                  onChange={handleVolumeChange}
+                  className="w-full h-2 bg-slate-200 rounded-full appearance-none cursor-pointer volume-slider"
+                />
+                <div 
+                  className="absolute top-0 left-0 h-2 bg-gradient-to-r from-slate-400 to-slate-500 rounded-full pointer-events-none"
+                  style={{ width: `${volume * 100}%` }}
+                />
+              </div>
             </div>
           </div>
           
-          <div className="flex items-center space-x-2">
-            <SpeakerWaveIcon className="h-4 w-4 text-gray-400" />
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.1"
-              value={volume}
-              onChange={(e) => {
-                const newVolume = parseFloat(e.target.value);
-                setVolume(newVolume);
-                if (audioRef.current) {
-                  audioRef.current.volume = newVolume;
-                }
-              }}
-              className="w-16 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-            />
+          {/* Audio Description */}
+          <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+            <div className="flex items-center space-x-2 mb-2">
+              <span className="text-lg">📚</span>
+              <span className="font-medium text-slate-800">Engaging Gospel Talk</span>
+              <span className="text-sm text-slate-500">• {formatTime(duration)}</span>
+            </div>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              An engaging summary with historical context and gentle humor about this week's Come Follow Me study
+            </p>
           </div>
         </div>
-        
-        <div className="text-center">
-          <p className="text-sm text-gray-600">
-            📚 Engaging Gospel Talk - {duration > 0 ? formatTime(duration) : 'Loading...'}
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            An engaging summary with historical context and gentle humor about this week's Come Follow Me study
-          </p>
-        </div>
-      </div>
+      )}
 
       <audio ref={audioRef} preload="metadata" />
       
       <style jsx>{`
-        .slider::-webkit-slider-thumb {
+        .progress-slider::-webkit-slider-thumb {
+          appearance: none;
+          height: 20px;
+          width: 20px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #3b82f6, #6366f1);
+          cursor: pointer;
+          box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+          transition: all 0.15s ease-in-out;
+          position: relative;
+          z-index: 10;
+        }
+        
+        .progress-slider::-webkit-slider-thumb:hover {
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6);
+          transform: scale(1.1);
+        }
+        
+        .volume-slider::-webkit-slider-thumb {
           appearance: none;
           height: 16px;
           width: 16px;
           border-radius: 50%;
-          background: #3b82f6;
+          background: #64748b;
           cursor: pointer;
-          box-shadow: 0 0 2px 0 #555;
-          transition: background 0.15s ease-in-out;
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+          transition: all 0.15s ease-in-out;
         }
         
-        .slider::-webkit-slider-thumb:hover {
-          background: #2563eb;
+        .volume-slider::-webkit-slider-thumb:hover {
+          background: #475569;
+          transform: scale(1.1);
         }
         
-        .slider::-moz-range-thumb {
-          height: 16px;
-          width: 16px;
+        .progress-slider::-moz-range-thumb,
+        .volume-slider::-moz-range-thumb {
+          height: 20px;
+          width: 20px;
           border-radius: 50%;
           background: #3b82f6;
           cursor: pointer;
           border: none;
-          box-shadow: 0 0 2px 0 #555;
+          box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
         }
       `}</style>
     </div>
