@@ -692,7 +692,7 @@ export default function ChatInterface({
                                       : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
                                   }`}
                                 >
-                                  {level} {level === 'short' ? '(5 min)' : level === 'medium' ? '(10 min)' : '(15 min)'}
+                                  {level} {level === 'short' ? '(5 min)' : level === 'medium' ? '(15 min)' : '(30 min)'}
                                 </button>
                               ))}
                             </div>
