@@ -794,24 +794,7 @@ export default function ChatInterface({
                       )}
 
                       {cfmStudyType === 'core-content' && (
-                        <>
-                          <div className="bg-neutral-700/30 p-3 md:p-4 rounded-lg text-center">
-                            <div className="text-sm text-neutral-300 space-y-2">
-                              <p className="font-medium">📖 Organized Study Materials</p>
-                              <p className="text-xs text-neutral-400">
-                                This will organize the week's content into clean sections:
-                              </p>
-                              <div className="text-xs text-neutral-400 space-y-1">
-                                <div>• Come Follow Me lesson content</div>
-                                <div>• Related scripture passages</div>
-                                <div>• Seminary materials</div>
-                              </div>
-                              <p className="text-xs text-neutral-500 mt-3">
-                                All formatting, verses, and quotes will be preserved
-                              </p>
-                            </div>
-                          </div>
-                        </>
+                        <></>
                       )}
                     </div>
                   </div>
