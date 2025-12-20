@@ -217,7 +217,8 @@ async def get_config():
             "cfm_lesson_plan": search_engine is not None and openai_client is not None,
             "cfm_deep_dive": openai_client is not None,  # Only needs OpenAI, loads bundles directly
             "cfm_lesson_plans": openai_client is not None,  # New lesson plans API
-            "cfm_audio_summary": openai_client is not None   # New audio summary API
+            "cfm_audio_summary": openai_client is not None,   # New audio summary API
+            "cfm_core_content": openai_client is not None     # New core content API
         }
     }
     
@@ -637,6 +638,19 @@ class CFMAudioSummaryResponse(BaseModel):
     duration: str
     audio_script: str
     audio_files: Optional[Dict[str, str]] = None  # Base64 encoded audio file: {"combined": "base64..."}
+    bundle_sources: int
+    total_characters: int
+    generation_time_ms: int
+
+# CFM Core Content Models
+class CFMCoreContentRequest(BaseModel):
+    week_number: int  # Week number 2-52 for CFM 2026
+
+class CFMCoreContentResponse(BaseModel):
+    week_number: int
+    week_title: str
+    date_range: str
+    core_content: str
     bundle_sources: int
     total_characters: int
     generation_time_ms: int
@@ -1212,6 +1226,136 @@ async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
     except Exception as e:
         logger.error(f"CFM Audio Summary generation error: {e}")
         raise HTTPException(status_code=500, detail=f"Audio summary generation failed: {str(e)}")
+
+@app.post("/cfm/core-content", response_model=CFMCoreContentResponse)
+async def generate_cfm_core_content(request: CFMCoreContentRequest):
+    """Generate organized core content for a specific CFM week - raw materials organized by section"""
+    try:
+        # Check if OpenAI client is available
+        if not openai_client:
+            raise HTTPException(status_code=503, detail="AI service unavailable - OpenAI API key not configured")
+        
+        start_time = time.time()
+        logger.info(f"Generating CFM core content for week {request.week_number}")
+        
+        # Load the CFM 2026 Old Testament bundle for the specific week
+        bundle = load_cfm_2026_bundle(request.week_number)
+        if not bundle:
+            raise HTTPException(status_code=404, detail=f"Week {request.week_number} bundle not found")
+        
+        # Build context from all content types in the bundle
+        context_parts = []
+        bundle_sources = 0
+        total_characters = 0
+        
+        # Add Come Follow Me content first
+        if 'come_follow_me' in bundle and bundle['come_follow_me']:
+            context_parts.append("=== COME FOLLOW ME CONTENT ===")
+            for item in bundle['come_follow_me']:
+                content = item.get('content', '').strip()
+                if content:
+                    context_parts.append(content)
+                    bundle_sources += 1
+                    total_characters += len(content)
+        
+        # Add Scripture content second
+        if 'scriptures' in bundle and bundle['scriptures']:
+            context_parts.append("\n=== SCRIPTURE PASSAGES ===")
+            for item in bundle['scriptures']:
+                content = item.get('content', '').strip()
+                if content:
+                    context_parts.append(content)
+                    bundle_sources += 1
+                    total_characters += len(content)
+        
+        # Add Seminary content last
+        if 'seminary' in bundle and bundle['seminary']:
+            context_parts.append("\n=== SEMINARY MATERIALS ===")
+            for item in bundle['seminary']:
+                content = item.get('content', '').strip()
+                if content:
+                    context_parts.append(content)
+                    bundle_sources += 1
+                    total_characters += len(content)
+        
+        if not context_parts:
+            raise HTTPException(status_code=404, detail=f"No content found for week {request.week_number}")
+        
+        context_text = "\n\n".join(context_parts)
+        logger.info(f"Built context with {bundle_sources} sources, {total_characters:,} characters")
+        
+        # Create the core content organization prompt
+        core_content_prompt = f"""You are an expert at organizing LDS study materials. Your task is to take the provided Come Follow Me content and organize it into clean, well-structured sections while preserving all original formatting, verse references, and quotes.
+
+Please organize this content into the following structure:
+
+# Core Study Materials - Week {request.week_number}
+
+## 📖 Come Follow Me Lesson
+
+[Organize the Come Follow Me content here, preserving all original formatting, headings, and structure]
+
+## 📜 Scripture Passages  
+
+[Present the scripture content here, maintaining verse structure and references exactly as provided]
+
+## 🎓 Seminary Materials
+
+[Include seminary materials here, keeping all formatting and structure intact]
+
+IMPORTANT GUIDELINES:
+- Preserve ALL original formatting, including headings, bullet points, verse numbers
+- Keep all scripture references exactly as they appear
+- Maintain all quotes and citations in their original form
+- Do not summarize or paraphrase - present the content as organized sections
+- Use clean markdown formatting for readability
+- Keep verse structure intact (e.g., "1 Nephi 3:7" should stay exactly as formatted)
+
+Content to organize:
+
+{context_text}"""
+
+        # Generate the organized content using OpenAI
+        messages = [
+            {"role": "user", "content": core_content_prompt}
+        ]
+        
+        logger.info("Calling OpenAI API for core content organization...")
+        
+        # Use GPT-4 for better formatting and organization
+        completion = openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            max_tokens=4000,
+            temperature=0.3  # Lower temperature for more consistent formatting
+        )
+        
+        core_content = completion.choices[0].message.content.strip()
+        
+        end_time = time.time()
+        total_time_ms = int((end_time - start_time) * 1000)
+        
+        logger.info(f"Generated core content in {total_time_ms}ms")
+        logger.info(f"Core content length: {len(core_content)} characters")
+        
+        # Clean title by removing leading semicolon if present
+        clean_title = bundle.get('title', 'Unknown').lstrip(';')
+        
+        return CFMCoreContentResponse(
+            week_number=request.week_number,
+            week_title=clean_title,
+            date_range=bundle.get('date_range', 'Unknown'),
+            core_content=core_content,
+            bundle_sources=bundle_sources,
+            total_characters=total_characters,
+            generation_time_ms=total_time_ms
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"CFM Core Content generation error: {e}")
+        raise HTTPException(status_code=500, detail=f"Core content generation failed: {str(e)}")
 
 # For local development
 if __name__ == "__main__":

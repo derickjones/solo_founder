@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ChevronDownIcon, PaperAirplaneIcon, Bars3Icon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon, ChevronRightIcon, UserCircleIcon } from '@heroicons/react/24/outline';
-import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMDeepDive, CFMDeepDiveRequest, generateCFMLessonPlan, CFMLessonPlanRequest, generateCFMAudioSummary, CFMAudioSummaryRequest } from '@/services/api';
+import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMDeepDive, CFMDeepDiveRequest, generateCFMLessonPlan, CFMLessonPlanRequest, generateCFMAudioSummary, CFMAudioSummaryRequest, generateCFMCoreContent, CFMCoreContentRequest } from '@/services/api';
 import ReactMarkdown from 'react-markdown';
 import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
 import { CFM_AUDIENCES, CFM_2026_SCHEDULE, CFMWeek } from '@/utils/comeFollowMe';
@@ -11,7 +11,7 @@ import StudyLevelSlider from './StudyLevelSlider';
 import AudioPlayer from './AudioPlayer';
 
 // Add study type definition
-type CFMStudyType = 'deep-dive' | 'lesson-plans' | 'audio-summary';
+type CFMStudyType = 'deep-dive' | 'lesson-plans' | 'audio-summary' | 'core-content';
 type DeepDiveLevel = 'basic' | 'intermediate' | 'advanced';
 type LessonPlanLevel = 'adult' | 'youth' | 'children';
 type AudioSummaryLevel = 'short' | 'medium' | 'long';
@@ -417,6 +417,17 @@ export default function ChatInterface({
                   }
                 : msg
             ));
+          } else if (cfmStudyType === 'core-content') {
+            const response = await generateCFMCoreContent({
+              week_number: weekNumber
+            });
+            
+            // Update the message with the organized core content
+            setMessages(prev => prev.map(msg => 
+              msg.id === assistantMessageId 
+                ? { ...msg, content: response.core_content, isStreaming: false }
+                : msg
+            ));
           }
           
           setStreamingMessageId(null);
@@ -649,7 +660,7 @@ export default function ChatInterface({
                     {/* Study Type Selection */}
                     <div className="space-y-2 md:space-y-3">
                       <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Study Type</label>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
                         <button
                           type="button"
                           onClick={() => setCfmStudyType('deep-dive')}
@@ -682,6 +693,17 @@ export default function ChatInterface({
                           }`}
                         >
                           Audio Summary
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCfmStudyType('core-content')}
+                          className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
+                            cfmStudyType === 'core-content'
+                              ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
+                              : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
+                          }`}
+                        >
+                          Core Content
                         </button>
                       </div>
                     </div>
@@ -770,6 +792,27 @@ export default function ChatInterface({
                           </div>
                         </>
                       )}
+
+                      {cfmStudyType === 'core-content' && (
+                        <>
+                          <div className="bg-neutral-700/30 p-3 md:p-4 rounded-lg text-center">
+                            <div className="text-sm text-neutral-300 space-y-2">
+                              <p className="font-medium">📖 Organized Study Materials</p>
+                              <p className="text-xs text-neutral-400">
+                                This will organize the week's content into clean sections:
+                              </p>
+                              <div className="text-xs text-neutral-400 space-y-1">
+                                <div>• Come Follow Me lesson content</div>
+                                <div>• Related scripture passages</div>
+                                <div>• Seminary materials</div>
+                              </div>
+                              <p className="text-xs text-neutral-500 mt-3">
+                                All formatting, verses, and quotes will be preserved
+                              </p>
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
 
@@ -786,6 +829,7 @@ export default function ChatInterface({
                           {cfmStudyType === 'deep-dive' && `Generating ${cfmStudyLevel.charAt(0).toUpperCase() + cfmStudyLevel.slice(1)} Study Guide...`}
                           {cfmStudyType === 'lesson-plans' && `Creating ${cfmLessonPlanLevel.charAt(0).toUpperCase() + cfmLessonPlanLevel.slice(1)} Lesson Plan...`}
                           {cfmStudyType === 'audio-summary' && `Generating ${cfmAudioSummaryLevel.charAt(0).toUpperCase() + cfmAudioSummaryLevel.slice(1)} Audio Summary...`}
+                          {cfmStudyType === 'core-content' && `Organizing Core Content...`}
                         </span>
                       </div>
                     ) : (
@@ -794,6 +838,7 @@ export default function ChatInterface({
                           {cfmStudyType === 'deep-dive' && `Generate ${cfmStudyLevel.charAt(0).toUpperCase() + cfmStudyLevel.slice(1)} Study Guide`}
                           {cfmStudyType === 'lesson-plans' && `Create ${cfmLessonPlanLevel.charAt(0).toUpperCase() + cfmLessonPlanLevel.slice(1)} Lesson Plan`}
                           {cfmStudyType === 'audio-summary' && `Generate ${cfmAudioSummaryLevel.charAt(0).toUpperCase() + cfmAudioSummaryLevel.slice(1)} Audio Summary`}
+                          {cfmStudyType === 'core-content' && `Organize Core Content`}
                         </span>
                       </>
                     )}

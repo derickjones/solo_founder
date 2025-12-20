@@ -101,6 +101,21 @@ export interface CFMAudioSummaryResponse {
   generation_time_ms: number;
 }
 
+// CFM Core Content interfaces
+export interface CFMCoreContentRequest {
+  week_number: number;
+}
+
+export interface CFMCoreContentResponse {
+  week_number: number;
+  week_title: string;
+  date_range: string;
+  core_content: string;
+  bundle_sources: number;
+  total_characters: number;
+  generation_time_ms: number;
+}
+
 // Map frontend modes to API modes
 const MODE_MAPPING: Record<string, string> = {
   'AI Q&A': 'default',
@@ -440,4 +455,30 @@ export const generateCFMAudioSummary = async (request: CFMAudioSummaryRequest): 
     console.error('🎵 Audio generation error:', error);
     throw error;
   }
+};
+
+export const generateCFMCoreContent = async (request: CFMCoreContentRequest): Promise<CFMCoreContentResponse> => {
+  console.log(`📖 Starting core content generation for week ${request.week_number}`);
+  
+  const startTime = Date.now();
+  const response = await fetch(`${API_BASE_URL}/cfm/core-content`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  });
+
+  const elapsed = Date.now() - startTime;
+  console.log(`📖 Core content request completed in ${elapsed}ms`);
+
+  if (!response.ok) {
+    console.error(`📖 Core content generation failed: ${response.status} ${response.statusText}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || `Failed to generate core content: ${response.statusText}`);
+  }
+
+  const result = await response.json();
+  console.log(`📖 Core content generation successful: ${result.bundle_sources} sources, ${result.total_characters} characters`);
+  return result;
 };
