@@ -86,7 +86,7 @@ export default function ChatInterface({
   const [currentTileIndex, setCurrentTileIndex] = useState(0);
   
   // Voice selection state for audio summaries
-  const [selectedVoice, setSelectedVoice] = useState<'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer'>('alloy');
+  const [selectedVoice, setSelectedVoice] = useState<'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer'>('echo');
 
   // Copy to clipboard handler
   const handleCopyToClipboard = async (content: string, messageId: number) => {
