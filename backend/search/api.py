@@ -1297,8 +1297,6 @@ async def generate_cfm_core_content(request: CFMCoreContentRequest):
 
 Please organize this content into the following structure:
 
-# Core Study Materials - Week {request.week_number}
-
 ## 📖 Come Follow Me Lesson
 
 [Organize the Come Follow Me content here, preserving all original formatting, headings, and structure]
