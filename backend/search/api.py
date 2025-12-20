@@ -989,23 +989,51 @@ def parse_dialogue_and_generate_audio(script_text: str, voice: str = "alloy") ->
     """
     Generate a single audio file from the summary talk script
     Returns base64 encoded audio file
+    Handles long scripts by chunking if they exceed OpenAI TTS character limits
     """
     try:
         logger.info(f"Generating engaging summary talk audio with voice: {voice}")
+        logger.info(f"Script length: {len(script_text)} characters")
         
         # Generate audio using OpenAI's text-to-speech API
         audio_files = {}
         
         if openai_client:
-            # Create audio from the complete summary talk
-            logger.info("Generating engaging summary talk audio...")
-            response = openai_client.audio.speech.create(
-                model="tts-1",
-                voice=voice,
-                input=script_text,
-                response_format="mp3"
-            )
-            audio_files['combined'] = base64.b64encode(response.content).decode()
+            # OpenAI TTS API has a ~4096 character limit
+            MAX_CHUNK_SIZE = 3500  # Leave some buffer
+            
+            if len(script_text) <= MAX_CHUNK_SIZE:
+                # Script is short enough - generate in one call
+                logger.info("Generating audio in single call...")
+                response = openai_client.audio.speech.create(
+                    model="tts-1",
+                    voice=voice,
+                    input=script_text,
+                    response_format="mp3"
+                )
+                audio_files['combined'] = base64.b64encode(response.content).decode()
+            else:
+                # Script is too long - need to chunk it
+                logger.info("Script exceeds TTS limit - chunking for multiple calls...")
+                audio_chunks = []
+                
+                # Split text into chunks at sentence boundaries
+                chunks = chunk_text_smartly(script_text, MAX_CHUNK_SIZE)
+                logger.info(f"Split into {len(chunks)} chunks")
+                
+                for i, chunk in enumerate(chunks):
+                    logger.info(f"Generating audio for chunk {i+1}/{len(chunks)} ({len(chunk)} chars)")
+                    response = openai_client.audio.speech.create(
+                        model="tts-1",
+                        voice=voice,
+                        input=chunk,
+                        response_format="mp3"
+                    )
+                    audio_chunks.append(response.content)
+                
+                # Combine all audio chunks
+                combined_audio = b''.join(audio_chunks)
+                audio_files['combined'] = base64.b64encode(combined_audio).decode()
         
         logger.info(f"Generated summary talk audio successfully")
         return audio_files
@@ -1014,6 +1042,50 @@ def parse_dialogue_and_generate_audio(script_text: str, voice: str = "alloy") ->
         logger.error(f"Audio generation error: {e}")
         # Return empty dict on error - endpoint will still return script
         return {}
+
+
+def chunk_text_smartly(text: str, max_chunk_size: int) -> List[str]:
+    """
+    Split text into chunks at sentence boundaries, respecting max size
+    """
+    chunks = []
+    current_chunk = ""
+    
+    # Split by sentences (periods, exclamation marks, question marks)
+    import re
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    
+    for sentence in sentences:
+        # If adding this sentence would exceed the limit
+        if len(current_chunk) + len(sentence) + 1 > max_chunk_size:
+            if current_chunk:
+                chunks.append(current_chunk.strip())
+                current_chunk = sentence
+            else:
+                # Single sentence is too long - force split at word boundaries
+                words = sentence.split()
+                temp_chunk = ""
+                for word in words:
+                    if len(temp_chunk) + len(word) + 1 > max_chunk_size:
+                        if temp_chunk:
+                            chunks.append(temp_chunk.strip())
+                            temp_chunk = word
+                        else:
+                            # Single word too long - just add it
+                            chunks.append(word)
+                            temp_chunk = ""
+                    else:
+                        temp_chunk += " " + word if temp_chunk else word
+                if temp_chunk:
+                    current_chunk = temp_chunk
+        else:
+            current_chunk += " " + sentence if current_chunk else sentence
+    
+    # Add the final chunk
+    if current_chunk:
+        chunks.append(current_chunk.strip())
+    
+    return chunks
 
 @app.post("/cfm/audio-summary", response_model=CFMAudioSummaryResponse)
 async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
