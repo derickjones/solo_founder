@@ -1013,16 +1013,19 @@ def parse_dialogue_and_generate_audio(script_text: str, voice: str = "alloy") ->
     except Exception as e:
         logger.error(f"Audio generation error: {e}")
         # Return empty dict on error - endpoint will still return script
-        return {}@app.post("/cfm/audio-summary", response_model=CFMAudioSummaryResponse)
+        return {}
+
+@app.post("/cfm/audio-summary", response_model=CFMAudioSummaryResponse)
 async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
     """
-    Generate a CFM 2026 Audio Summary Script using complete weekly bundles
+    Generate a CFM 2026 Audio Summary Talk using complete weekly bundles
     
     This endpoint:
     1. Loads the complete CFM 2026 Old Testament weekly bundle
     2. Uses the entire bundle as context for AI generation
-    3. Creates conversational audio scripts for 5min, 15min, or 30min durations
-    4. Structures content as natural dialogue between faithful hosts
+    3. Creates engaging single-speaker audio talks for 5min, 15min, or 30min durations
+    4. Adds historical context, interesting facts, and gentle humor
+    5. Generates audio using the selected voice
     """
     if not openai_client:
         raise HTTPException(
