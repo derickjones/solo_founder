@@ -359,28 +359,48 @@ export default function ChatInterface({
           
           let fullContent = '';
           
-          await generateCFMDeepDiveStream(
-            {
+          try {
+            console.log('Starting CFM Deep Dive streaming...');
+            await generateCFMDeepDiveStream(
+              {
+                week_number: weekNumber,
+                study_level: cfmStudyLevel
+              },
+              (chunk: CFMStreamChunk) => {
+                console.log('CFM Stream chunk received:', chunk);
+                if (chunk.type === 'content' && chunk.content) {
+                  fullContent += chunk.content;
+                  
+                  // Update streaming state immediately
+                  setStreamingContent(fullContent);
+                  
+                  // Update the message with streaming content
+                  setMessages(prev => prev.map(msg => 
+                    msg.id === assistantMessageId 
+                      ? { ...msg, content: fullContent, isStreaming: true }
+                      : msg
+                  ));
+                }
+              }
+            );
+            console.log('CFM Deep Dive streaming completed');
+          } catch (error) {
+            console.error('CFM Deep Dive streaming error:', error);
+            
+            // Fallback to non-streaming if streaming fails
+            console.log('Falling back to non-streaming Deep Dive...');
+            const response = await generateCFMDeepDive({
               week_number: weekNumber,
               study_level: cfmStudyLevel
-            },
-            (chunk: CFMStreamChunk) => {
-              console.log('CFM Stream chunk received:', chunk);
-              if (chunk.type === 'content' && chunk.content) {
-                fullContent += chunk.content;
-                
-                // Update streaming state immediately
-                setStreamingContent(fullContent);
-                
-                // Update the message with streaming content
-                setMessages(prev => prev.map(msg => 
-                  msg.id === assistantMessageId 
-                    ? { ...msg, content: fullContent, isStreaming: true }
-                    : msg
-                ));
-              }
-            }
-          );
+            });
+            
+            // Update the message with the study guide
+            setMessages(prev => prev.map(msg => 
+              msg.id === assistantMessageId 
+                ? { ...msg, content: response.study_guide, isStreaming: false }
+                : msg
+            ));
+          }
           
           // Finalize the message
           setMessages(prev => prev.map(msg => 

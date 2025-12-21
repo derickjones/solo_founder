@@ -408,14 +408,20 @@ export const generateCFMDeepDiveStream = async (
   request: CFMDeepDiveRequest,
   onChunk: (chunk: CFMStreamChunk) => void
 ): Promise<void> => {
+  console.log('Making streaming request to:', `${API_BASE_URL}/cfm/deep-dive/stream`);
+  console.log('Request payload:', request);
+  
   const response = await fetch(`${API_BASE_URL}/cfm/deep-dive/stream`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache',
     },
     body: JSON.stringify(request),
   });
 
+  console.log('Response status:', response.status, response.statusText);
+  
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.detail || `Failed to generate streaming study guide: ${response.statusText}`);
@@ -425,17 +431,23 @@ export const generateCFMDeepDiveStream = async (
     throw new Error('Response body is not available for streaming');
   }
 
+  console.log('Starting to read response stream...');
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let buffer = '';
 
   try {
+    let chunkCount = 0;
     while (true) {
       const { done, value } = await reader.read();
       
-      if (done) break;
+      if (done) {
+        console.log('Stream reading completed, total chunks:', chunkCount);
+        break;
+      }
       
       buffer += decoder.decode(value, { stream: true });
+      console.log('Raw buffer received:', buffer.length, 'characters');
       
       const messages = buffer.split('\n\n');
       buffer = messages.pop() || '';
@@ -448,6 +460,8 @@ export const generateCFMDeepDiveStream = async (
           if (line.startsWith('data: ')) {
             try {
               const data = JSON.parse(line.slice(6));
+              chunkCount++;
+              console.log(`Chunk ${chunkCount}:`, data);
               onChunk(data);
             } catch (e) {
               console.error('Failed to parse CFM SSE data:', e, 'Line:', line);
