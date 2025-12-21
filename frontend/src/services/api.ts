@@ -398,6 +398,69 @@ export const generateCFMDeepDive = async (request: CFMDeepDiveRequest): Promise<
   return response.json();
 };
 
+// CFM Deep Dive Stream API function
+export interface CFMStreamChunk {
+  type: 'content';
+  content: string;
+}
+
+export const generateCFMDeepDiveStream = async (
+  request: CFMDeepDiveRequest,
+  onChunk: (chunk: CFMStreamChunk) => void
+): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/cfm/deep-dive/stream`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || `Failed to generate streaming study guide: ${response.statusText}`);
+  }
+
+  if (!response.body) {
+    throw new Error('Response body is not available for streaming');
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      
+      if (done) break;
+      
+      buffer += decoder.decode(value, { stream: true });
+      
+      const messages = buffer.split('\n\n');
+      buffer = messages.pop() || '';
+      
+      for (const message of messages) {
+        if (!message.trim()) continue;
+        
+        const lines = message.split('\n');
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              onChunk(data);
+            } catch (e) {
+              console.error('Failed to parse CFM SSE data:', e, 'Line:', line);
+            }
+          }
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+};
+
 export const generateCFMLessonPlan = async (request: CFMLessonPlanRequest): Promise<CFMLessonPlanResponse> => {
   const response = await fetch(`${API_BASE_URL}/cfm/lesson-plans`, {
     method: 'POST',

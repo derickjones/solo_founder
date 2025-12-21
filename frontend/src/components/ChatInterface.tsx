@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ChevronDownIcon, PaperAirplaneIcon, Bars3Icon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon, ChevronRightIcon, UserCircleIcon } from '@heroicons/react/24/outline';
-import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMDeepDive, CFMDeepDiveRequest, generateCFMLessonPlan, CFMLessonPlanRequest, generateCFMAudioSummary, CFMAudioSummaryRequest, generateCFMCoreContent, CFMCoreContentRequest } from '@/services/api';
+import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMDeepDive, generateCFMDeepDiveStream, CFMStreamChunk, CFMDeepDiveRequest, generateCFMLessonPlan, CFMLessonPlanRequest, generateCFMAudioSummary, CFMAudioSummaryRequest, generateCFMCoreContent, CFMCoreContentRequest } from '@/services/api';
 import ReactMarkdown from 'react-markdown';
 import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
 import { CFM_AUDIENCES, CFM_2026_SCHEDULE, CFMWeek } from '@/utils/comeFollowMe';
@@ -351,21 +351,39 @@ export default function ChatInterface({
     try {
       if (mode === 'Come Follow Me') {
         if (cfmStudyType === 'deep-dive') {
-          // Handle CFM deep dive generation with study levels (existing functionality)
+          // Handle CFM deep dive generation with streaming
           
           // Get week number from CFM schedule
           const weekIndex = CFM_2026_SCHEDULE.findIndex((w: CFMWeek) => w.id === cfmWeek?.id);
           const weekNumber = weekIndex >= 0 ? weekIndex + 1 : 1;
           
-          const response = await generateCFMDeepDive({
-            week_number: weekNumber,
-            study_level: cfmStudyLevel
-          });
+          await generateCFMDeepDiveStream(
+            {
+              week_number: weekNumber,
+              study_level: cfmStudyLevel
+            },
+            (chunk: CFMStreamChunk) => {
+              if (chunk.type === 'content') {
+                setStreamingContent(prev => {
+                  const newContent = prev + chunk.content;
+                  
+                  // Update the message with streaming content
+                  setMessages(prevMessages => prevMessages.map(msg => 
+                    msg.id === assistantMessageId 
+                      ? { ...msg, content: newContent, isStreaming: true }
+                      : msg
+                  ));
+                  
+                  return newContent;
+                });
+              }
+            }
+          );
           
-          // Update the message with the study guide
+          // Finalize the message
           setMessages(prev => prev.map(msg => 
             msg.id === assistantMessageId 
-              ? { ...msg, content: response.study_guide, isStreaming: false }
+              ? { ...msg, isStreaming: false }
               : msg
           ));
           
