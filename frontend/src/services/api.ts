@@ -380,25 +380,7 @@ export const getHealth = async (): Promise<{ status: string, segments_loaded: nu
   };
 };
 
-// CFM Deep Dive API function
-export const generateCFMDeepDive = async (request: CFMDeepDiveRequest): Promise<CFMDeepDiveResponse> => {
-  const response = await fetch(`${API_BASE_URL}/cfm/deep-dive`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(request),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.detail || `Failed to generate study guide: ${response.statusText}`);
-  }
-
-  return response.json();
-};
-
-// CFM Deep Dive Stream API function
+// CFM Deep Dive Stream API function (now the only Deep Dive function)
 export interface CFMStreamChunk {
   type: 'content' | 'done';
   content?: string;
@@ -411,13 +393,15 @@ export const generateCFMDeepDiveStream = async (
   console.log('Making streaming request to:', `${API_BASE_URL}/cfm/deep-dive/stream`);
   console.log('Request payload:', request);
   
-  const response = await fetch(`${API_BASE_URL}/cfm/deep-dive/stream`, {
+  const response = await fetch(`${API_BASE_URL}/cfm/deep-dive`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Cache-Control': 'no-cache',
     },
     body: JSON.stringify(request),
+    // Set longer timeout for advanced study levels (2 minutes)
+    signal: AbortSignal.timeout(120000),
   });
 
   console.log('Response status:', response.status, response.statusText);

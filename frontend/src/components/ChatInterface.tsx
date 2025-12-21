@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ChevronDownIcon, PaperAirplaneIcon, Bars3Icon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon, ChevronRightIcon, UserCircleIcon } from '@heroicons/react/24/outline';
-import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMDeepDive, generateCFMDeepDiveStream, CFMStreamChunk, CFMDeepDiveRequest, generateCFMLessonPlan, CFMLessonPlanRequest, generateCFMAudioSummary, CFMAudioSummaryRequest, generateCFMCoreContent, CFMCoreContentRequest } from '@/services/api';
+import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMDeepDiveStream, CFMStreamChunk, CFMDeepDiveRequest, generateCFMLessonPlan, CFMLessonPlanRequest, generateCFMAudioSummary, CFMAudioSummaryRequest, generateCFMCoreContent, CFMCoreContentRequest } from '@/services/api';
 import ReactMarkdown from 'react-markdown';
 import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
 import { CFM_AUDIENCES, CFM_2026_SCHEDULE, CFMWeek } from '@/utils/comeFollowMe';
@@ -387,17 +387,10 @@ export default function ChatInterface({
           } catch (error) {
             console.error('CFM Deep Dive streaming error:', error);
             
-            // Fallback to non-streaming if streaming fails
-            console.log('Falling back to non-streaming Deep Dive...');
-            const response = await generateCFMDeepDive({
-              week_number: weekNumber,
-              study_level: cfmStudyLevel
-            });
-            
-            // Update the message with the study guide
+            // Update the message with error
             setMessages(prev => prev.map(msg => 
               msg.id === assistantMessageId 
-                ? { ...msg, content: response.study_guide, isStreaming: false }
+                ? { ...msg, content: `Sorry, I encountered an error generating the study guide: ${error}`, isStreaming: false }
                 : msg
             ));
           }

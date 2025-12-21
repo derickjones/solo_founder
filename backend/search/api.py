@@ -50,17 +50,20 @@ app.add_middleware(
 # Global search engine instance
 search_engine = None
 
-# Initialize OpenAI client
+# Initialize Grok API client (xAI)
 openai_client = None
 try:
-    openai_api_key = os.getenv("OPENAI_API_KEY")
-    if openai_api_key:
-        openai_client = openai.OpenAI(api_key=openai_api_key)
-        logger.info("OpenAI client initialized successfully")
+    xai_api_key = os.getenv("XAI_API_KEY")
+    if xai_api_key:
+        openai_client = openai.OpenAI(
+            api_key=xai_api_key,
+            base_url="https://api.x.ai/v1"
+        )
+        logger.info("Grok API client (xAI) initialized successfully")
     else:
-        logger.warning("OPENAI_API_KEY not found - AI responses will not be available")
+        logger.warning("XAI_API_KEY not found - AI responses will not be available")
 except Exception as e:
-    logger.error(f"Failed to initialize OpenAI client: {e}")
+    logger.error(f"Failed to initialize Grok API client: {e}")
     openai_client = None
 
 # Request/Response Models
@@ -130,16 +133,19 @@ async def startup_event():
             setup_cloud_storage()
             logger.info(f"📦 Cloud Storage setup completed in {time.time() - cloud_start:.2f}s")
         
-        # Check for OpenAI API key
-        api_key = os.getenv("OPENAI_API_KEY")
+        # Check for xAI API key
+        api_key = os.getenv("XAI_API_KEY")
         if not api_key:
-            logger.warning("⚠️  OPENAI_API_KEY environment variable not set - CFM Deep Dive will be disabled")
+            logger.warning("⚠️  XAI_API_KEY environment variable not set - CFM Deep Dive will be disabled")
             openai_client = None
         else:
-            # Initialize OpenAI client
-            logger.info("🤖 Initializing OpenAI client...")
-            openai_client = openai.OpenAI(api_key=api_key)
-            logger.info("✅ OpenAI client initialized")
+            # Initialize Grok API client (xAI)
+            logger.info("🤖 Initializing Grok API client...")
+            openai_client = openai.OpenAI(
+                api_key=api_key,
+                base_url="https://api.x.ai/v1"
+            )
+            logger.info("✅ Grok API client initialized")
         
         # Initialize search engine (optional - only if indexes exist)
         logger.info("🔍 Checking for search engine indexes...")
@@ -302,22 +308,6 @@ async def search(request: SearchRequest):
         logger.error(f"Search error: {e}")
         raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
 
-@app.get("/search", response_model=SearchResponse)
-async def search_get(
-    q: str = Query(..., description="Search query"),
-    mode: str = Query("default", description="Search mode"),
-    top_k: int = Query(10, description="Number of results"),
-    min_score: float = Query(0.0, description="Minimum similarity score")
-):
-    """GET endpoint for simple searches"""
-    request = SearchRequest(
-        query=q,
-        mode=mode,
-        top_k=top_k,
-        min_score=min_score
-    )
-    return await search(request)
-
 @app.post("/ask", response_model=AskResponse)
 async def ask_question(request: AskRequest):
     """
@@ -379,7 +369,7 @@ async def ask_question(request: AskRequest):
         ai_start_time = time.time()
         
         response = openai_client.chat.completions.create(
-            model="gpt-4o-mini",  # Using cost-efficient model for production
+            model="grok-4-1-fast-reasoning",  # Using cost-efficient model for production
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": context_prompt}
@@ -420,22 +410,6 @@ async def ask_question(request: AskRequest):
     except Exception as e:
         logger.error(f"Ask endpoint error: {e}")
         raise HTTPException(status_code=500, detail=f"Request failed: {str(e)}")
-
-@app.get("/ask", response_model=AskResponse)
-async def ask_question_get(
-    q: str = Query(..., description="Question to ask"),
-    mode: str = Query("default", description="Response mode"),
-    top_k: int = Query(10, description="Number of sources to use"),
-    min_score: float = Query(0.0, description="Minimum similarity score")
-):
-    """GET endpoint for AI Q&A"""
-    request = AskRequest(
-        query=q,
-        mode=mode,
-        top_k=top_k,
-        min_score=min_score
-    )
-    return await ask_question(request)
 
 @app.post("/ask/stream")
 async def ask_question_stream(request: AskRequest):
@@ -508,7 +482,7 @@ async def ask_question_stream(request: AskRequest):
             ai_start_time = time.time()
             
             stream = openai_client.chat.completions.create(
-                model="gpt-4o-mini",
+                model="grok-4-1-fast-reasoning",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": context_prompt}
@@ -569,22 +543,6 @@ async def ask_question_stream(request: AskRequest):
             "Access-Control-Allow-Headers": "*",
         }
     )
-
-@app.get("/ask/stream")
-async def ask_question_stream_get(
-    q: str = Query(..., description="Question to ask"),
-    mode: str = Query("default", description="Response mode"), 
-    top_k: int = Query(10, description="Number of sources to use"),
-    min_score: float = Query(0.0, description="Minimum similarity score")
-):
-    """GET endpoint for streaming AI Q&A"""
-    request = AskRequest(
-        query=q,
-        mode=mode,
-        top_k=top_k,
-        min_score=min_score
-    )
-    return await ask_question_stream(request)
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
@@ -779,21 +737,21 @@ def format_cfm_bundle_content(bundle: dict) -> str:
     
     return '\n'.join(content_parts)
 
-@app.post("/cfm/deep-dive", response_model=CFMDeepDiveResponse)
-async def create_cfm_deep_dive_study_guide(request: CFMDeepDiveRequest):
+@app.post("/cfm/deep-dive")
+async def create_cfm_deep_dive_study_guide_stream(request: CFMDeepDiveRequest):
     """
-    Generate a CFM 2026 Deep Dive study guide using complete weekly bundles
+    Generate a CFM 2026 Deep Dive study guide with streaming response using complete weekly bundles
     
     This endpoint:
     1. Loads the complete CFM 2026 Old Testament weekly bundle (scripture text, seminary materials, etc.)
     2. Uses the entire bundle as context for AI generation
     3. Creates study guides at basic, intermediate, or advanced sophistication levels
-    4. Follows the same faith-building approach as the Q&A API
+    4. Streams the response in real-time for better user experience
     """
     if not openai_client:
         raise HTTPException(
             status_code=503, 
-            detail="OpenAI API client not available. Please set the OPENAI_API_KEY environment variable."
+            detail="OpenAI API client not available. Please set the XAI_API_KEY environment variable."
         )
     
     # Validate week number
@@ -845,49 +803,52 @@ async def create_cfm_deep_dive_study_guide(request: CFMDeepDiveRequest):
         Please create a study guide that uses all the rich content provided above, following your instructions for {request.study_level} level sophistication. Ensure everything is based strictly on the bundle content provided.
         """
         
-        # Step 5: Generate the study guide using OpenAI
-        logger.info(f"Generating {request.study_level} study guide for week {request.week_number}")
-        ai_start = time.time()
+        # Step 5: Generate streaming response
+        async def generate_stream():
+            try:
+                logger.info(f"Starting streaming generation for {request.study_level} study guide for week {request.week_number}")
+                
+                # Use higher token limit for advanced study levels
+                max_tokens = 5000 if request.study_level == 'advanced' else 3000
+                
+                stream = openai_client.chat.completions.create(
+                    model="grok-4-1-fast-reasoning",
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    max_tokens=max_tokens,
+                    temperature=0.7,
+                    stream=True
+                )
+                
+                for chunk in stream:
+                    if chunk.choices[0].delta.content:
+                        content = chunk.choices[0].delta.content
+                        yield f"data: {json.dumps({'type': 'content', 'content': content})}\n\n"
+                
+                yield f"data: {json.dumps({'type': 'done'})}\n\n"
+                logger.info(f"Completed streaming generation for week {request.week_number}")
+                
+            except Exception as e:
+                logger.error(f"CFM Deep Dive streaming error: {e}")
+                yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
         
-        response = openai_client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            max_tokens=3000,  # Allow longer responses for advanced guides
-            temperature=0.7
-        )
-        
-        ai_time_ms = int((time.time() - ai_start) * 1000)
-        study_guide = response.choices[0].message.content
-        
-        # Step 6: Prepare response data
-        total_time_ms = int((time.time() - start_time) * 1000)
-        bundle_sources = len(bundle.get('content_sources', []))
-        total_characters = bundle.get('total_content_length', 0)
-        
-        logger.info(f"Generated {request.study_level} study guide for week {request.week_number} using {bundle_sources} sources ({total_characters:,} chars) in {total_time_ms}ms")
-        
-        # Clean title by removing leading semicolon if present
-        clean_title = bundle.get('title', 'Unknown').lstrip(';')
-        
-        return CFMDeepDiveResponse(
-            week_number=request.week_number,
-            week_title=clean_title,
-            date_range=bundle.get('date_range', 'Unknown'),
-            study_level=request.study_level,
-            study_guide=study_guide,
-            bundle_sources=bundle_sources,
-            total_characters=total_characters,
-            generation_time_ms=total_time_ms
+        return StreamingResponse(
+            generate_stream(),
+            media_type="text/plain",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "Content-Type": "text/plain"
+            }
         )
         
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"CFM Deep Dive generation error: {e}")
-        raise HTTPException(status_code=500, detail=f"Study guide generation failed: {str(e)}")
+        logger.error(f"CFM Deep Dive streaming setup error: {e}")
+        raise HTTPException(status_code=500, detail=f"Streaming setup failed: {str(e)}")
 
 @app.post("/cfm/lesson-plans", response_model=CFMLessonPlanResponse)
 async def create_cfm_lesson_plan(request: CFMLessonPlanRequest):
@@ -960,7 +921,7 @@ async def create_cfm_lesson_plan(request: CFMLessonPlanRequest):
         ai_start = time.time()
         
         response = openai_client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="grok-4-1-fast-reasoning",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
@@ -1180,7 +1141,7 @@ async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
         ai_start = time.time()
         
         response = openai_client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="grok-4-1-fast-reasoning",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
@@ -1330,7 +1291,7 @@ Content to organize:
         
         # Use GPT-4 for better formatting and organization
         completion = openai_client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="grok-4-1-fast-reasoning",
             messages=messages,
             max_tokens=4000,
             temperature=0.3  # Lower temperature for more consistent formatting
