@@ -357,25 +357,27 @@ export default function ChatInterface({
           const weekIndex = CFM_2026_SCHEDULE.findIndex((w: CFMWeek) => w.id === cfmWeek?.id);
           const weekNumber = weekIndex >= 0 ? weekIndex + 1 : 1;
           
+          let fullContent = '';
+          
           await generateCFMDeepDiveStream(
             {
               week_number: weekNumber,
               study_level: cfmStudyLevel
             },
             (chunk: CFMStreamChunk) => {
-              if (chunk.type === 'content') {
-                setStreamingContent(prev => {
-                  const newContent = prev + chunk.content;
-                  
-                  // Update the message with streaming content
-                  setMessages(prevMessages => prevMessages.map(msg => 
-                    msg.id === assistantMessageId 
-                      ? { ...msg, content: newContent, isStreaming: true }
-                      : msg
-                  ));
-                  
-                  return newContent;
-                });
+              console.log('CFM Stream chunk received:', chunk);
+              if (chunk.type === 'content' && chunk.content) {
+                fullContent += chunk.content;
+                
+                // Update streaming state immediately
+                setStreamingContent(fullContent);
+                
+                // Update the message with streaming content
+                setMessages(prev => prev.map(msg => 
+                  msg.id === assistantMessageId 
+                    ? { ...msg, content: fullContent, isStreaming: true }
+                    : msg
+                ));
               }
             }
           );

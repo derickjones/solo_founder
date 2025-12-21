@@ -400,8 +400,8 @@ export const generateCFMDeepDive = async (request: CFMDeepDiveRequest): Promise<
 
 // CFM Deep Dive Stream API function
 export interface CFMStreamChunk {
-  type: 'content';
-  content: string;
+  type: 'content' | 'done';
+  content?: string;
 }
 
 export const generateCFMDeepDiveStream = async (
