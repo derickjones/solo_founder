@@ -615,48 +615,55 @@ class CFMCoreContentResponse(BaseModel):
 
 # Helper functions for CFM 2026 Deep Dive
 def load_cfm_2026_bundle(week_number: int):
-    """Load a specific CFM 2026 Old Testament weekly bundle"""
+    """Load a specific CFM 2026 Old Testament weekly bundle from enhanced scraper"""
     try:
-        # Try production path first
-        bundle_dir = Path("/app/scripts/content/bundles/cfm_2026/old_testament_bundles")
-        logger.info(f"Trying production path: {bundle_dir} (exists: {bundle_dir.exists()})")
+        # Enhanced scraper bundle path (local development)
+        bundle_dir = Path("/Users/derickjones/Documents/VS-Code/solo_founder/backend/scripts/cfm_bundle_scraper/2026")
         
+        # For production deployment on Cloud Run
         if not bundle_dir.exists():
-            # Fallback for local development
+            bundle_dir = Path("/app/scripts/cfm_bundle_scraper/2026")
+        
+        # Final fallback for different deployment structures
+        if not bundle_dir.exists():
             current_file = Path(__file__)
-            bundle_dir = current_file.parent.parent / "scripts" / "content" / "bundles" / "cfm_2026" / "old_testament_bundles"
-            logger.info(f"Trying local path: {bundle_dir} (exists: {bundle_dir.exists()})")
+            bundle_dir = current_file.parent.parent / "scripts" / "cfm_bundle_scraper" / "2026"
         
         if not bundle_dir.exists():
-            logger.error(f"Bundle directory not found: {bundle_dir}")
+            logger.error(f"Enhanced CFM bundle directory not found in any location")
             return None
         
-        # List directory contents for debugging
-        if bundle_dir.exists():
-            files_in_dir = list(bundle_dir.iterdir())
-            logger.info(f"Files in bundle directory: {[f.name for f in files_in_dir[:10]]}")  # Show first 10 files
+        logger.info(f"Using enhanced CFM bundle directory: {bundle_dir}")
         
-        # Find the bundle file for this week - format is week_XX_Date_Scripture.json
-        bundle_files = list(bundle_dir.glob(f"week_{week_number:02d}_*.json"))
+        # Enhanced bundle format: cfm_2026_week_XX.json
+        bundle_path = bundle_dir / f"cfm_2026_week_{week_number:02d}.json"
         
-        if not bundle_files:
-            logger.error(f"No bundle file found for week {week_number} in {bundle_dir}")
+        if not bundle_path.exists():
+            logger.error(f"Enhanced bundle file not found: {bundle_path}")
             return None
-            
-        bundle_path = bundle_files[0]
-        logger.info(f"Loading CFM 2026 bundle from: {bundle_path}")
+        
+        logger.info(f"Loading enhanced CFM 2026 bundle from: {bundle_path}")
         
         with open(bundle_path, 'r', encoding='utf-8') as f:
             bundle = json.load(f)
-            logger.info(f"Loaded week {week_number} bundle: {bundle.get('title', 'Unknown')} with {len(bundle.get('content_sources', []))} sources")
-            return bundle
+            
+        # Count total content sources
+        cfm_content = bundle.get('cfm_lesson_content', {})
+        scripture_content = bundle.get('scripture_content', [])
+        total_sources = len(scripture_content) + (1 if cfm_content else 0)
+        
+        logger.info(f"Loaded enhanced week {week_number} bundle: {bundle.get('title', 'Unknown')}")
+        logger.info(f"Bundle contains {len(scripture_content)} scripture chapters and CFM lesson content")
+        logger.info(f"Total content sources: {total_sources}")
+        
+        return bundle
             
     except Exception as e:
-        logger.error(f"Failed to load CFM 2026 bundle for week {week_number}: {e}", exc_info=True)
+        logger.error(f"Failed to load enhanced CFM 2026 bundle for week {week_number}: {e}", exc_info=True)
         return None
 
 def format_cfm_bundle_content(bundle: dict) -> str:
-    """Format the CFM bundle content for AI processing"""
+    """Format the enhanced CFM bundle content for AI processing"""
     if not bundle:
         logger.error("format_cfm_bundle_content: bundle is None or empty")
         return ""
@@ -667,75 +674,82 @@ def format_cfm_bundle_content(bundle: dict) -> str:
     
     content_parts = []
     
-    # Add header info
+    # Add header info using new format
     content_parts.append(f"=== COME FOLLOW ME 2026 - WEEK {bundle.get('week_number', '?')} ===")
     content_parts.append(f"Title: {bundle.get('title', 'Unknown')}")
     content_parts.append(f"Date Range: {bundle.get('date_range', 'Unknown')}")
     
-    # Format primary scriptures
-    primary_scriptures = []
-    for scripture in bundle.get('primary_scriptures', []):
-        book = scripture.get('book', '')
-        chapters = scripture.get('chapters', [])
-        if book and chapters:
-            primary_scriptures.append(f"{book} {', '.join(chapters)}")
-    content_parts.append(f"Primary Scriptures: {'; '.join(primary_scriptures)}")
-    content_parts.append("")
-    
-    # Add all content sources
-    content_sources = bundle.get('content_sources', [])
-    for i, source in enumerate(content_sources, 1):
-        source_type = source.get('source_type', 'Unknown')
-        title = source.get('title', 'Untitled')
-        content = source.get('content', '')
+    # Format CFM lesson content
+    cfm_content = bundle.get('cfm_lesson_content', {})
+    if cfm_content:
+        content_parts.append("\n--- CFM LESSON CONTENT ---")
+        content_parts.append(f"Scripture References: {cfm_content.get('scripture_references', 'None')}")
         
-        content_parts.append(f"--- SOURCE {i}: {source_type.upper()} ---")
-        content_parts.append(f"Title: {title}")
-        content_parts.append(f"Content:\n{content}")
-        content_parts.append("")
-    
-    # Add any scripture content
-    if 'scripture_content' in bundle:
-        content_parts.append("--- SCRIPTURE TEXT ---")
-        scripture_content = bundle['scripture_content']
+        # Add introduction
+        if cfm_content.get('introduction'):
+            content_parts.append(f"\nIntroduction:\n{cfm_content['introduction']}")
         
-        for book, book_content in scripture_content.items():
-            for chapter, chapter_content in book_content.items():
-                verses = chapter_content.get('verses', {})
-                
-                content_parts.append(f"{book} {chapter}:")
-                for verse in verses.values():
+        # Add learning sections
+        learning_sections = cfm_content.get('learning_at_home_church', [])
+        if learning_sections:
+            content_parts.append(f"\n--- LEARNING AT HOME AND CHURCH ({len(learning_sections)} sections) ---")
+            for i, section in enumerate(learning_sections, 1):
+                title = section.get('title', f'Section {i}')
+                content = section.get('content', '')
+                content_parts.append(f"\n{i}. {title}")
+                content_parts.append(content)
+        
+        # Add teaching children sections  
+        teaching_sections = cfm_content.get('teaching_children', [])
+        if teaching_sections:
+            content_parts.append(f"\n--- TEACHING CHILDREN ({len(teaching_sections)} sections) ---")
+            for i, section in enumerate(teaching_sections, 1):
+                title = section.get('title', f'Section {i}')
+                content = section.get('content', '')
+                content_parts.append(f"\n{i}. {title}")
+                content_parts.append(content)
+    
+    # Format scripture content from enhanced bundles
+    scripture_content = bundle.get('scripture_content', [])
+    if scripture_content:
+        content_parts.append(f"\n--- SCRIPTURE TEXT ({len(scripture_content)} chapters) ---")
+        
+        for scripture in scripture_content:
+            reference = scripture.get('reference', 'Unknown')
+            verses = scripture.get('verses', [])
+            summary = scripture.get('summary', '')
+            
+            content_parts.append(f"\n{reference}:")
+            if summary:
+                content_parts.append(f"Summary: {summary}")
+            
+            # Add verse content (limit to avoid overwhelming context)
+            verses_to_include = verses[:50]  # First 50 verses per chapter
+            for i, verse in enumerate(verses_to_include, 1):
+                if isinstance(verse, str):
+                    # Enhanced format: verses are strings with verse number already included
+                    content_parts.append(verse)
+                else:
+                    # Legacy format: verses are dictionaries
                     verse_num = verse.get('verse', '')
                     verse_text = verse.get('text', '')
-                    content_parts.append(f"{verse_num}. {verse_text}")
-                content_parts.append("")
+                    if verse_num and verse_text:
+                        content_parts.append(f"{verse_num}. {verse_text}")
+            
+            if len(verses) > 50:
+                content_parts.append(f"... and {len(verses) - 50} more verses")
+            content_parts.append("")
     
-    # Add teaching ideas if available
-    if 'teaching_ideas' in bundle:
-        content_parts.append("--- TEACHING IDEAS ---")
-        for idea in bundle['teaching_ideas']:
-            content_parts.append(f"• {idea}")
-        content_parts.append("")
+    result = "\n".join(content_parts)
     
-    # Add discussion questions if available
-    if 'discussion_questions' in bundle:
-        content_parts.append("--- DISCUSSION QUESTIONS ---")
-        for question in bundle['discussion_questions']:
-            content_parts.append(f"• {question}")
-        content_parts.append("")
+    # Log content statistics
+    total_chars = len(result)
+    scripture_chapters = len(scripture_content)
+    cfm_sections = len(cfm_content.get('learning_at_home_church', [])) + len(cfm_content.get('teaching_children', []))
     
-    # Add themes and cross-references
-    if 'themes' in bundle:
-        content_parts.append(f"--- KEY THEMES ---")
-        content_parts.append(', '.join(bundle['themes']))
-        content_parts.append("")
+    logger.info(f"Formatted bundle content: {total_chars:,} characters, {scripture_chapters} scripture chapters, {cfm_sections} CFM sections")
     
-    if 'cross_references' in bundle:
-        content_parts.append("--- CROSS-REFERENCES ---")
-        content_parts.append(', '.join(bundle['cross_references']))
-        content_parts.append("")
-    
-    return '\n'.join(content_parts)
+    return result
 
 @app.post("/cfm/deep-dive")
 async def create_cfm_deep_dive_study_guide_stream(request: CFMDeepDiveRequest):
