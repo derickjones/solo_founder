@@ -83,7 +83,7 @@ export interface CFMLessonPlanResponse {
 // CFM Audio Summary interfaces
 export interface CFMAudioSummaryRequest {
   week_number: number;
-  duration: '5min' | '15min' | '30min';
+  study_level: 'basic' | 'intermediate' | 'advanced';
   voice?: 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
 }
 
@@ -91,7 +91,7 @@ export interface CFMAudioSummaryResponse {
   week_number: number;
   week_title: string;
   date_range: string;
-  duration: string;
+  study_level: string;
   audio_script: string;
   audio_files?: {
     combined?: string;
@@ -477,7 +477,7 @@ export const generateCFMLessonPlan = async (request: CFMLessonPlanRequest): Prom
 };
 
 export const generateCFMAudioSummary = async (request: CFMAudioSummaryRequest): Promise<CFMAudioSummaryResponse> => {
-  console.log(`🎵 Starting audio generation: ${request.duration} duration, week ${request.week_number}`);
+  console.log(`🎵 Starting audio generation: ${request.study_level} level, week ${request.week_number}`);
   
   // Create AbortController for longer timeout (5 minutes for audio generation)
   const controller = new AbortController();

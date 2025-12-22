@@ -12,14 +12,12 @@ import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
 type StudyLevel = 'basic' | 'intermediate' | 'advanced';
 type CFMTab = 'study-guide' | 'core-content' | 'lesson-plan' | 'audio-summary';
 type LessonAudience = 'adult' | 'youth' | 'children';
-type AudioDuration = '5min' | '15min' | '30min';
 
 export default function ComeFollowMePage() {
   const [currentWeek, setCurrentWeek] = useState<CFMWeek>(getCurrentCFMWeek());
   const [activeTab, setActiveTab] = useState<CFMTab>('study-guide');
   const [studyLevel, setStudyLevel] = useState<StudyLevel>('basic');
   const [lessonAudience, setLessonAudience] = useState<LessonAudience>('adult');
-  const [audioDuration, setAudioDuration] = useState<AudioDuration>('5min');
   
   // Study Guide states
   const [studyGuide, setStudyGuide] = useState<string | null>(null);
@@ -49,11 +47,11 @@ export default function ComeFollowMePage() {
     setGenerationTime(null);
   }, [studyLevel, currentWeek]);
 
-  // Reset audio script when week or duration changes
+  // Reset audio script when week or study level changes
   useEffect(() => {
     setAudioScript(null);
     setError(null);
-  }, [currentWeek, audioDuration]);
+  }, [currentWeek, studyLevel]);
 
   // Get week number from CFM schedule
   const getWeekNumber = (week: CFMWeek): number => {
@@ -142,7 +140,7 @@ export default function ComeFollowMePage() {
 
       const request: CFMAudioSummaryRequest = {
         week_number: weekNumber,
-        duration: audioDuration,
+        study_level: studyLevel,
         voice: 'alloy'
       };
 
@@ -257,26 +255,17 @@ export default function ComeFollowMePage() {
             <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
               <h2 className="text-lg font-semibold mb-4 text-white">🎵 Audio Summary</h2>
               
-              {/* Duration Selector */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Duration
-                </label>
-                <div className="flex space-x-2">
-                  {(['5min', '15min', '30min'] as AudioDuration[]).map((duration) => (
-                    <button
-                      key={duration}
-                      onClick={() => setAudioDuration(duration)}
-                      className={`px-3 py-1 text-sm rounded-lg transition-all ${
-                        audioDuration === duration
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                      }`}
-                    >
-                      {duration}
-                    </button>
-                  ))}
+              {/* Study Level Info */}
+              <div className="mb-4 p-3 bg-gray-900 rounded-lg border border-gray-600">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-300">Study Level:</span>
+                  <span className="text-sm font-medium text-blue-400">
+                    {studyLevel.charAt(0).toUpperCase() + studyLevel.slice(1)}
+                  </span>
                 </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Uses the same study level as your main study guide
+                </p>
               </div>
 
               {/* Generate Button */}
@@ -305,7 +294,7 @@ export default function ComeFollowMePage() {
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-sm font-medium text-gray-300">Audio Script</h3>
                     <span className="text-xs text-gray-500">
-                      {audioDuration} • {generationTime && `${Math.round(generationTime / 1000)}s`}
+                      {studyLevel} • {generationTime && `${Math.round(generationTime / 1000)}s`}
                     </span>
                   </div>
                   <div className="text-gray-300 text-sm leading-relaxed max-h-48 overflow-y-auto">

@@ -586,14 +586,14 @@ class CFMLessonPlanResponse(BaseModel):
 # CFM Audio Summary Models
 class CFMAudioSummaryRequest(BaseModel):
     week_number: int  # Week number 2-52 for CFM 2026
-    duration: str = "5min"  # 5min, 15min, 30min
+    study_level: str = "basic"  # basic, intermediate, advanced
     voice: str = "alloy"  # Voice: alloy, echo, fable, onyx, nova, shimmer
 
 class CFMAudioSummaryResponse(BaseModel):
     week_number: int
     week_title: str
     date_range: str
-    duration: str
+    study_level: str
     audio_script: str
     audio_files: Optional[Dict[str, str]] = None  # Base64 encoded audio file: {"combined": "base64..."}
     bundle_sources: int
@@ -1150,9 +1150,9 @@ async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
     if not (2 <= request.week_number <= 52):
         raise HTTPException(status_code=400, detail="Week number must be between 2 and 52 (CFM 2026 Old Testament schedule)")
     
-    # Validate duration
-    if request.duration not in CFM_AUDIO_SUMMARY_PROMPTS:
-        raise HTTPException(status_code=400, detail=f"Invalid duration. Must be one of: {list(CFM_AUDIO_SUMMARY_PROMPTS.keys())}")
+    # Validate study level
+    if request.study_level not in CFM_AUDIO_SUMMARY_PROMPTS:
+        raise HTTPException(status_code=400, detail=f"Invalid study level. Must be one of: {list(CFM_AUDIO_SUMMARY_PROMPTS.keys())}")
     
     try:
         start_time = time.time()
@@ -1179,13 +1179,13 @@ async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
                 detail=f"Failed to format content for week {request.week_number}"
             )
         
-        # Step 3: Get the appropriate duration prompt
-        logger.info(f"Getting prompt for duration: {request.duration}")
-        system_prompt = CFM_AUDIO_SUMMARY_PROMPTS[request.duration]
+        # Step 3: Get the appropriate study level prompt
+        logger.info(f"Getting prompt for study level: {request.study_level}")
+        system_prompt = CFM_AUDIO_SUMMARY_PROMPTS[request.study_level]
         
         # Step 4: Create the user prompt with the full bundle context
         user_prompt = f"""
-        Please create an engaging {request.duration} audio summary talk for this Come Follow Me 2026 Old Testament week.
+        Please create an engaging {request.study_level} level audio summary talk for this Come Follow Me 2026 Old Testament week.
         
         Create a single-speaker summary talk (not a dialogue) that combines the rich weekly bundle content with fascinating historical context, interesting facts, and gentle humor. Make it feel like listening to a knowledgeable, slightly witty gospel teacher who makes scripture study come alive.
         
@@ -1196,14 +1196,14 @@ async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
         1. Uses all the rich content provided above as the foundation
         2. Adds appropriate historical context and interesting facts that illuminate the scriptures
         3. Includes gentle humor and engaging storytelling
-        4. Follows your {request.duration} duration guidelines
+        4. Follows your {request.study_level} level complexity guidelines
         5. Maintains reverence while being entertaining and educational
         
         Base everything on the bundle content while enriching with historical context that enhances understanding and makes the lesson come alive.
         """
         
         # Step 5: Generate the audio script using OpenAI
-        logger.info(f"Generating {request.duration} audio script for week {request.week_number}")
+        logger.info(f"Generating {request.study_level} audio script for week {request.week_number}")
         ai_start = time.time()
         
         response = openai_client.chat.completions.create(
@@ -1224,14 +1224,7 @@ async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
         bundle_sources = len(bundle.get('content_sources', []))
         total_characters = bundle.get('total_content_length', 0)
         
-        logger.info(f"Generated {request.duration} audio script for week {request.week_number} using {bundle_sources} sources ({total_characters:,} chars) in {total_time_ms}ms")
-        
-        # Generate audio files from the script
-        logger.info("Generating audio files...")
-        logger.info(f"Audio script length: {len(audio_script)} characters")
-        logger.info(f"Selected voice: {request.voice}")
-        audio_files = parse_dialogue_and_generate_audio(audio_script, voice=request.voice)
-        logger.info(f"Audio files generated: {list(audio_files.keys()) if audio_files else 'None'}")
+        logger.info(f"Generated {request.study_level} audio script for week {request.week_number} using {bundle_sources} sources ({total_characters:,} chars) in {total_time_ms}ms")
         
         # Clean title by removing leading semicolon if present
         clean_title = bundle.get('title', 'Unknown').lstrip(';')
@@ -1240,9 +1233,9 @@ async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
             week_number=request.week_number,
             week_title=clean_title,
             date_range=bundle.get('date_range', 'Unknown'),
-            duration=request.duration,
+            study_level=request.study_level,
             audio_script=audio_script,
-            audio_files=audio_files if audio_files else None,
+            audio_files=None,  # No audio files generated - transcript only
             bundle_sources=bundle_sources,
             total_characters=total_characters,
             generation_time_ms=total_time_ms
