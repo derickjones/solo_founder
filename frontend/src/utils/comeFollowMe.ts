@@ -8,118 +8,78 @@ export interface CFMWeek {
   weekInfo?: any; // For full lesson data from backend
 }
 
-// 2026 Come Follow Me Schedule - Old Testament (from your backend bundle data)
+// 2026 Come Follow Me Schedule - Complete 52 weeks from enhanced bundles
 export const CFM_2026_SCHEDULE: CFMWeek[] = [
-  { id: 'ot-week-2', lesson: 'Introduction to the Old Testament', reference: 'Moses 1', dates: 'January 6–12, 2026' },
-  { id: 'ot-week-3', lesson: 'The Creation', reference: 'Genesis 1–2; Moses 2–3; Abraham 4–5', dates: 'January 13–19, 2026' },
-  { id: 'ot-week-4', lesson: 'The Fall', reference: 'Genesis 3–4; Moses 4–5', dates: 'January 20–26, 2026' },
-  { id: 'ot-week-5', lesson: 'Noah and the Flood', reference: 'Genesis 6–9; Moses 8', dates: 'January 27–February 2, 2026' },
-  { id: 'ot-week-6', lesson: 'The Abrahamic Covenant', reference: 'Genesis 12–17; Abraham 1–2', dates: 'February 3–9, 2026' },
-  { id: 'ot-week-7', lesson: 'Isaac and Rebekah', reference: 'Genesis 24–28', dates: 'February 10–16, 2026' },
-  { id: 'ot-week-8', lesson: 'Jacob and Esau', reference: 'Genesis 25–33', dates: 'February 17–23, 2026' },
-  { id: 'ot-week-9', lesson: 'Joseph in Egypt', reference: 'Genesis 37–50', dates: 'February 24–March 2, 2026' },
-  { id: 'ot-week-10', lesson: 'Moses and the Exodus', reference: 'Exodus 1–6', dates: 'March 3–9, 2026' },
-  { id: 'ot-week-11', lesson: 'The Passover and Exodus', reference: 'Exodus 7–13', dates: 'March 10–16, 2026' },
-  { id: 'ot-week-12', lesson: 'The Red Sea and Mount Sinai', reference: 'Exodus 14–20', dates: 'March 17–23, 2026' },
-  { id: 'ot-week-13', lesson: 'The Ten Commandments', reference: 'Exodus 19–20; 32–34', dates: 'March 24–30, 2026' },
-  { id: 'ot-week-14', lesson: 'The Tabernacle', reference: 'Exodus 25–30; 35–40', dates: 'March 31–April 6, 2026' },
-  { id: 'ot-week-15', lesson: 'The Law of Moses', reference: 'Leviticus 1; 16; 19; 26', dates: 'April 7–13, 2026' },
-  { id: 'ot-week-16', lesson: 'In the Wilderness', reference: 'Numbers 11–14; 21–24', dates: 'April 14–20, 2026' },
-  { id: 'ot-week-17', lesson: 'Deuteronomy', reference: 'Deuteronomy 6–8; 30–32', dates: 'April 21–27, 2026' },
-  { id: 'ot-week-18', lesson: 'The Promised Land', reference: 'Numbers 13–14; Deuteronomy 1; 8; 32–34', dates: 'April 28–May 4, 2026' },
-  { id: 'ot-week-19', lesson: 'Be Strong and of Good Courage', reference: 'Joshua 1–8; 23–24', dates: 'May 5–11, 2026' },
-  { id: 'ot-week-20', lesson: 'Choose You This Day', reference: 'Joshua 1–8', dates: 'May 12–18, 2026' },
-  { id: 'ot-week-21', lesson: 'The Lord Raised Up Judges', reference: 'Judges 2–4; 6–7; 13–16', dates: 'May 19–25, 2026' },
-  { id: 'ot-week-22', lesson: 'Ruth and Samuel', reference: 'Ruth; 1 Samuel 1–3', dates: 'May 26–June 1, 2026' },
-  { id: 'ot-week-23', lesson: 'We Will Have a King', reference: '1 Samuel 8–10; 13; 15–17', dates: 'June 2–8, 2026' },
-  { id: 'ot-week-24', lesson: 'David and Goliath', reference: '1 Samuel 16–20', dates: 'June 9–15, 2026' },
-  { id: 'ot-week-25', lesson: 'How Are the Mighty Fallen', reference: '2 Samuel 11–12; 1 Kings 1–2', dates: 'June 16–22, 2026' },
-  { id: 'ot-week-26', lesson: 'The Reign of Solomon', reference: '1 Kings 3; 5–11', dates: 'June 23–29, 2026' },
-  { id: 'ot-week-27', lesson: 'Elijah the Prophet', reference: '1 Kings 17–19', dates: 'June 30–July 6, 2026' },
-  { id: 'ot-week-28', lesson: 'Elisha the Prophet', reference: '2 Kings 2–7; 13', dates: 'July 7–13, 2026' },
-  { id: 'ot-week-29', lesson: 'The Fall of Israel and Judah', reference: '2 Kings 14–25', dates: 'July 14–20, 2026' },
-  { id: 'ot-week-30', lesson: 'Return from Captivity', reference: '1 Chronicles 17; 21–22; 28–29; 2 Chronicles 20; Ezra 1; 3; 6–7', dates: 'July 21–27, 2026' },
-  { id: 'ot-week-31', lesson: 'Ezra and Nehemiah', reference: 'Ezra 1; 3; 6–7; Nehemiah 1–2; 4; 6; 8', dates: 'July 28–August 3, 2026' },
-  { id: 'ot-week-32', lesson: 'Job', reference: 'Job 1–3; 13–14; 19; 27; 42', dates: 'August 4–10, 2026' },
-  { id: 'ot-week-33', lesson: 'The Lord Is My Shepherd', reference: 'Psalm 23', dates: 'August 11–17, 2026' },
-  { id: 'ot-week-34', lesson: 'Psalms', reference: 'Psalms 1; 2; 22; 23; 24', dates: 'August 18–24, 2026' },
-  { id: 'ot-week-35', lesson: 'Proverbs', reference: 'Proverbs 1; 15; 31', dates: 'August 25–31, 2026' },
-  { id: 'ot-week-36', lesson: 'Ecclesiastes', reference: 'Ecclesiastes 1–3; 12', dates: 'September 1–7, 2026' },
-  { id: 'ot-week-37', lesson: 'Isaiah Sees the Lord', reference: 'Isaiah 1–6', dates: 'September 8–14, 2026' },
-  { id: 'ot-week-38', lesson: 'A Virgin Shall Conceive', reference: 'Isaiah 7–11; 53', dates: 'September 15–21, 2026' },
-  { id: 'ot-week-39', lesson: 'Look unto Me and Be Ye Saved', reference: 'Isaiah 40–49', dates: 'September 22–28, 2026' },
-  { id: 'ot-week-40', lesson: 'Beside Me There Is No Savior', reference: 'Isaiah 50–66', dates: 'September 29–October 5, 2026' },
-  { id: 'ot-week-41', lesson: 'Mine Anger Is Not Forever', reference: 'Jeremiah 1–3; 7; 16–17; 20', dates: 'October 6–12, 2026' },
-  { id: 'ot-week-42', lesson: 'A New Heart and a New Covenant', reference: 'Jeremiah 31; 33; Lamentations 3; Ezekiel 18; 34; 36–37', dates: 'October 13–19, 2026' },
-  { id: 'ot-week-43', lesson: 'I Will Write It in Their Hearts', reference: 'Ezekiel 1–3; 18; 34; 36–37', dates: 'October 20–26, 2026' },
-  { id: 'ot-week-44', lesson: 'Visions and Dreams of Daniel', reference: 'Daniel 1–3; 6', dates: 'October 27–November 2, 2026' },
-  { id: 'ot-week-45', lesson: 'When the Lord Shall Return', reference: 'Daniel 2; 7–12', dates: 'November 3–9, 2026' },
-  { id: 'ot-week-46', lesson: 'I Will Heal Their Backsliding', reference: 'Hosea 1–3; 11; 13–14', dates: 'November 10–16, 2026' },
-  { id: 'ot-week-47', lesson: 'Prepare to Meet Thy God', reference: 'Joel; Amos; Obadiah', dates: 'November 17–23, 2026' },
-  { id: 'ot-week-48', lesson: 'Who Is a God Like unto Thee?', reference: 'Jonah; Micah', dates: 'November 24–30, 2026' },
-  { id: 'ot-week-49', lesson: 'The Lord Is in His Holy Temple', reference: 'Nahum; Habakkuk; Zephaniah', dates: 'December 1–7, 2026' },
-  { id: 'ot-week-50', lesson: 'Consider Your Ways', reference: 'Haggai; Zechariah 1–3; 12–14; Malachi', dates: 'December 8–14, 2026' },
-  { id: 'ot-week-51', lesson: 'Will a Man Rob God?', reference: 'Malachi', dates: 'December 15–21, 2026' },
-  { id: 'ot-week-52', lesson: 'The Coming of Elijah', reference: 'Malachi 3–4', dates: 'December 22–28, 2026' },
+  { id: 'cfm-2026-week-01', lesson: 'Week 1: December 29–January 4 - Introduction to the Old Testament', reference: '', dates: 'December 29–January 4' },
+  { id: 'cfm-2026-week-02', lesson: 'Week 2: January 5–11 - Moses 1; Abraham 3', reference: 'Moses 1; Abraham 3', dates: 'January 5–11' },
+  { id: 'cfm-2026-week-03', lesson: 'Week 3: January 12–18 - Genesis 1–2; Moses 2–3; Abraham 4–5', reference: 'Genesis 1–2; Moses 2–3; Abraham 4–5', dates: 'January 12–18' },
+  { id: 'cfm-2026-week-04', lesson: 'Week 4: January 19–25 - Genesis 3–4; Moses 4–5', reference: 'Genesis 3–4; Moses 4–5', dates: 'January 19–25' },
+  { id: 'cfm-2026-week-05', lesson: 'Week 5: January 26–February 1 - Genesis 5; Moses 6', reference: 'Genesis 5; Moses 6', dates: 'January 26–February 1' },
+  { id: 'cfm-2026-week-06', lesson: 'Week 6: February 2–8 - Moses 7', reference: 'Moses 7', dates: 'February 2–8' },
+  { id: 'cfm-2026-week-07', lesson: 'Week 7: February 9–15 - Genesis 6–11; Moses 8', reference: 'Genesis 6–11; Moses 8', dates: 'February 9–15' },
+  { id: 'cfm-2026-week-08', lesson: 'Week 8: February 16–22 - Genesis 12–17; Abraham 1–2', reference: 'Genesis 12–17; Abraham 1–2', dates: 'February 16–22' },
+  { id: 'cfm-2026-week-09', lesson: 'Week 9: February 23–March 1 - Genesis 18–23', reference: 'Genesis 18–23', dates: 'February 23–March 1' },
+  { id: 'cfm-2026-week-10', lesson: 'Week 10: March 2–8 - Genesis 24–33', reference: 'Genesis 24–33', dates: 'March 2–8' },
+  { id: 'cfm-2026-week-11', lesson: 'Week 11: March 9–15 - Genesis 37–41', reference: 'Genesis 37–41', dates: 'March 9–15' },
+  { id: 'cfm-2026-week-12', lesson: 'Week 12: March 16–22 - Genesis 42–50', reference: 'Genesis 42–50', dates: 'March 16–22' },
+  { id: 'cfm-2026-week-13', lesson: 'Week 13: March 23–29 - Exodus 1–6', reference: 'Exodus 1–6', dates: 'March 23–29' },
+  { id: 'cfm-2026-week-14', lesson: 'Week 14: March 30–April 5 - Easter', reference: '', dates: 'March 30–April 5' },
+  { id: 'cfm-2026-week-15', lesson: 'Week 15: April 6–12 - Exodus 7–13', reference: 'Exodus 7–13', dates: 'April 6–12' },
+  { id: 'cfm-2026-week-16', lesson: 'Week 16: April 13–19 - Exodus 14–18', reference: 'Exodus 14–18', dates: 'April 13–19' },
+  { id: 'cfm-2026-week-17', lesson: 'Week 17: April 20–26 - Exodus 19–20; 24; 31–34', reference: 'Exodus 19–20; 24; 31–34', dates: 'April 20–26' },
+  { id: 'cfm-2026-week-18', lesson: 'Week 18: April 27–May 3 - Exodus 35–40; Leviticus 1; 4; 16; 19', reference: 'Exodus 35–40; Leviticus 1; 4; 16; 19', dates: 'April 27–May 3' },
+  { id: 'cfm-2026-week-19', lesson: 'Week 19: May 4–10 - Numbers 11–14; 20–24; 27', reference: 'Numbers 11–14; 20–24; 27', dates: 'May 4–10' },
+  { id: 'cfm-2026-week-20', lesson: 'Week 20: May 11–17 - Deuteronomy 6–8; 15; 18; 29–30; 34', reference: 'Deuteronomy 6–8; 15; 18; 29–30; 34', dates: 'May 11–17' },
+  { id: 'cfm-2026-week-21', lesson: 'Week 21: May 18–24 - Joshua 1–8; 23–24', reference: 'Joshua 1–8; 23–24', dates: 'May 18–24' },
+  { id: 'cfm-2026-week-22', lesson: 'Week 22: May 25–31 - Judges 2–4; 6–8; 13–16', reference: 'Judges 2–4; 6–8; 13–16', dates: 'May 25–31' },
+  { id: 'cfm-2026-week-23', lesson: 'Week 23: June 1–7 - Ruth; 1 Samuel 1–7', reference: 'Ruth; 1 Samuel 1–7', dates: 'June 1–7' },
+  { id: 'cfm-2026-week-24', lesson: 'Week 24: June 8–14 - 1 Samuel 8–10; 13; 15–16', reference: '1 Samuel 8–10; 13; 15–16', dates: 'June 8–14' },
+  { id: 'cfm-2026-week-25', lesson: 'Week 25: June 15–21 - 1 Samuel 17–18; 24–26; 2 Samuel 5–7', reference: '1 Samuel 17–18; 24–26; 2 Samuel 5–7', dates: 'June 15–21' },
+  { id: 'cfm-2026-week-26', lesson: 'Week 26: June 22–28 - 2 Samuel 11–12; 1 Kings 3; 6–9; 11', reference: '2 Samuel 11–12; 1 Kings 3; 6–9; 11', dates: 'June 22–28' },
+  { id: 'cfm-2026-week-27', lesson: 'Week 27: June 29–July 5 - 1 Kings 12–13; 17–22', reference: '1 Kings 12–13; 17–22', dates: 'June 29–July 5' },
+  { id: 'cfm-2026-week-28', lesson: 'Week 28: July 6–12 - 2 Kings 2–7', reference: '2 Kings 2–7', dates: 'July 6–12' },
+  { id: 'cfm-2026-week-29', lesson: 'Week 29: July 13–19 - 2 Kings 16–25', reference: '2 Kings 16–25', dates: 'July 13–19' },
+  { id: 'cfm-2026-week-30', lesson: 'Week 30: July 20–26 - 2 Chronicles 14–20; 26; 30', reference: '2 Chronicles 14–20; 26; 30', dates: 'July 20–26' },
+  { id: 'cfm-2026-week-31', lesson: 'Week 31: July 27–August 2 - Ezra 1; 3–7; Nehemiah 2; 4–6; 8', reference: 'Ezra 1; 3–7; Nehemiah 2; 4–6; 8', dates: 'July 27–August 2' },
+  { id: 'cfm-2026-week-32', lesson: 'Week 32: August 3–9 - Esther', reference: 'Esther', dates: 'August 3–9' },
+  { id: 'cfm-2026-week-33', lesson: 'Week 33: August 10–16 - Job 1–3; 12–14; 19; 21–24; 38–40; 42', reference: 'Job 1–3; 12–14; 19; 21–24; 38–40; 42', dates: 'August 10–16' },
+  { id: 'cfm-2026-week-34', lesson: 'Week 34: August 17–23 - Psalms 1–2; 8; 19–33; 40; 46', reference: 'Psalms 1–2; 8; 19–33; 40; 46', dates: 'August 17–23' },
+  { id: 'cfm-2026-week-35', lesson: 'Week 35: August 24–30 - Psalms 49–51; 61–66; 69–72; 77–78; 85–86', reference: 'Psalms 49–51; 61–66; 69–72; 77–78; 85–86', dates: 'August 24–30' },
+  { id: 'cfm-2026-week-36', lesson: 'Week 36: August 31–September 6 - Psalms 102–103; 110; 116–119; 127–128; 135–139; 146–150', reference: 'Psalms 102–103; 110; 116–119; 127–128; 135–139; 146–150', dates: 'August 31–September 6' },
+  { id: 'cfm-2026-week-37', lesson: 'Week 37: September 7–13 - Proverbs 1–4; 15–16; 22; 31; Ecclesiastes 1–3; 11–12', reference: 'Proverbs 1–4; 15–16; 22; 31; Ecclesiastes 1–3; 11–12', dates: 'September 7–13' },
+  { id: 'cfm-2026-week-38', lesson: 'Week 38: September 14–20 - Isaiah 1–12', reference: 'Isaiah 1–12', dates: 'September 14–20' },
+  { id: 'cfm-2026-week-39', lesson: 'Week 39: September 21–27 - Isaiah 13–14; 22; 24–30; 35', reference: 'Isaiah 13–14; 22; 24–30; 35', dates: 'September 21–27' },
+  { id: 'cfm-2026-week-40', lesson: 'Week 40: September 28–October 4 - Isaiah 40–49', reference: 'Isaiah 40–49', dates: 'September 28–October 4' },
+  { id: 'cfm-2026-week-41', lesson: 'Week 41: October 5–11 - Isaiah 50–57', reference: 'Isaiah 50–57', dates: 'October 5–11' },
+  { id: 'cfm-2026-week-42', lesson: 'Week 42: October 12–18 - Isaiah 58–66', reference: 'Isaiah 58–66', dates: 'October 12–18' },
+  { id: 'cfm-2026-week-43', lesson: 'Week 43: October 19–25 - Jeremiah 1–3; 7; 16–18; 20', reference: 'Jeremiah 1–3; 7; 16–18; 20', dates: 'October 19–25' },
+  { id: 'cfm-2026-week-44', lesson: 'Week 44: October 26–November 1 - Jeremiah 31–33; 36–39; Lamentations 1; 3', reference: 'Jeremiah 31–33; 36–39; Lamentations 1; 3', dates: 'October 26–November 1' },
+  { id: 'cfm-2026-week-45', lesson: 'Week 45: November 2–8 - Ezekiel 1–3; 33–34; 36–37; 47', reference: 'Ezekiel 1–3; 33–34; 36–37; 47', dates: 'November 2–8' },
+  { id: 'cfm-2026-week-46', lesson: 'Week 46: November 9–15 - Daniel 1–7', reference: 'Daniel 1–7', dates: 'November 9–15' },
+  { id: 'cfm-2026-week-47', lesson: 'Week 47: November 16–22 - Hosea 1–6; 10–14; Joel', reference: 'Hosea 1–6; 10–14; Joel', dates: 'November 16–22' },
+  { id: 'cfm-2026-week-48', lesson: 'Week 48: November 23–29 - Amos; Obadiah; Jonah', reference: 'Amos; Obadiah; Jonah', dates: 'November 23–29' },
+  { id: 'cfm-2026-week-49', lesson: 'Week 49: November 30–December 6 - Micah; Nahum; Habakkuk; Zephaniah', reference: 'Micah; Nahum; Habakkuk; Zephaniah', dates: 'November 30–December 6' },
+  { id: 'cfm-2026-week-50', lesson: 'Week 50: December 7–13 - Haggai 1–2; Zechariah 1–4; 7–14', reference: 'Haggai 1–2; Zechariah 1–4; 7–14', dates: 'December 7–13' },
+  { id: 'cfm-2026-week-51', lesson: 'Week 51: December 14–20 - Malachi', reference: 'Malachi', dates: 'December 14–20' },
+  { id: 'cfm-2026-week-52', lesson: 'Week 52: December 21–27 - Christmas', reference: '', dates: 'December 21–27' },
 ];
 
 export function getCurrentCFMWeek(): CFMWeek {
   const today = new Date();
+  const currentDate = today.getDate();
+  const currentMonth = today.getMonth() + 1;
+  const currentYear = today.getFullYear();
   
-  // Parse dates and find the current week
-  for (const week of CFM_2026_SCHEDULE) {
-    if (isDateInWeek(today, week.dates)) {
-      return week;
-    }
+  // December 21, 2025 is currently Week 52 (Christmas week)
+  if (currentYear === 2025 && currentMonth === 12 && currentDate >= 21) {
+    return CFM_2026_SCHEDULE[51]; // Week 52
   }
   
-  // If no current week found, return the week for January 13-19 (current)
-  return CFM_2026_SCHEDULE.find(w => w.id === 'ot-week-3') || CFM_2026_SCHEDULE[0];
-}
-
-function isDateInWeek(date: Date, dateRange: string): boolean {
-  // Parse date ranges like "January 13–19, 2026" or "January 27–February 2, 2026"
-  const today = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
-  
-  // For now, return true for January 13-19, 2026 (Genesis 1-2 week) as current week
-  // This can be enhanced later with proper date parsing
-  if (dateRange === 'January 13–19, 2026') {
-    const currentMonth = date.getMonth(); // 0-11 (0 = January)
-    const currentDate = date.getDate();
-    if (currentMonth === 0 && currentDate >= 13 && currentDate <= 19) { // January 13-19
-      return true;
-    }
-  }
-  
-  return false;
+  return CFM_2026_SCHEDULE[51]; // Week 52 as default
 }
 
 export function formatCFMWeekDisplay(week: CFMWeek): string {
-  return `${week.dates}: ${week.lesson}`;
-}
-
-// Function to load CFM lessons from your backend API
-export async function loadCFMLessonsFromAPI(): Promise<CFMWeek[]> {
-  try {
-    // TODO: Replace with actual API call when you implement the CFM endpoints
-    // const response = await fetch('/api/cfm/lessons?year=2025');
-    // const data = await response.json();
-    // 
-    // Transform your backend data structure to CFMWeek interface:
-    // return data.map((lesson: any) => ({
-    //   id: lesson.lesson_title.toLowerCase().replace(/\s+/g, '-'),
-    //   lesson: lesson.lesson_title,
-    //   reference: lesson.lesson_title,
-    //   dates: lesson.week_info, // Extract dates from your week_info field
-    //   weekInfo: lesson // Store full lesson data
-    // }));
-    
-    // For now, return the static schedule
-    return CFM_2026_SCHEDULE;
-  } catch (error) {
-    console.error('Error loading CFM lessons:', error);
-    return CFM_2026_SCHEDULE; // Fallback to static data
-  }
+  return week.lesson;
 }
 
 export const CFM_AUDIENCES = [

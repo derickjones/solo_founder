@@ -3,19 +3,41 @@
 import { useState, useEffect } from 'react';
 import { getCurrentCFMWeek, CFMWeek, formatCFMWeekDisplay, CFM_2026_SCHEDULE } from '@/utils/comeFollowMe';
 import StudyLevelSlider from '@/components/StudyLevelSlider';
-import { generateCFMDeepDive, CFMDeepDiveRequest } from '@/services/api';
+import { generateCFMDeepDiveStream, CFMDeepDiveRequest, CFMStreamChunk, generateCFMCoreContent, generateCFMLessonPlan, generateCFMAudioSummary, CFMCoreContentRequest, CFMLessonPlanRequest, CFMAudioSummaryRequest } from '@/services/api';
 import { ChevronLeftIcon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
 
 type StudyLevel = 'basic' | 'intermediate' | 'advanced';
+type CFMTab = 'study-guide' | 'core-content' | 'lesson-plan' | 'audio-summary';
+type LessonAudience = 'adult' | 'youth' | 'children';
+type AudioDuration = '5min' | '15min' | '30min';
 
 export default function ComeFollowMePage() {
   const [currentWeek, setCurrentWeek] = useState<CFMWeek>(getCurrentCFMWeek());
+  const [activeTab, setActiveTab] = useState<CFMTab>('study-guide');
   const [studyLevel, setStudyLevel] = useState<StudyLevel>('basic');
+  const [lessonAudience, setLessonAudience] = useState<LessonAudience>('adult');
+  const [audioDuration, setAudioDuration] = useState<AudioDuration>('5min');
+  
+  // Study Guide states
   const [studyGuide, setStudyGuide] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  
+  // Core Content states
+  const [coreContent, setCoreContent] = useState<string | null>(null);
+  const [isLoadingCore, setIsLoadingCore] = useState(false);
+  
+  // Lesson Plan states
+  const [lessonPlan, setLessonPlan] = useState<string | null>(null);
+  const [isGeneratingLesson, setIsGeneratingLesson] = useState(false);
+  
+  // Audio Summary states
+  const [audioScript, setAudioScript] = useState<string | null>(null);
+  const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+  
+  // Common states
   const [error, setError] = useState<string | null>(null);
   const [generationTime, setGenerationTime] = useState<number | null>(null);
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
@@ -46,9 +68,18 @@ export default function ComeFollowMePage() {
         study_level: studyLevel,
       };
 
-      const response = await generateCFMDeepDive(request);
-      setStudyGuide(response.study_guide);
-      setGenerationTime(response.generation_time);
+      let accumulatedContent = '';
+      const startTime = Date.now();
+
+      await generateCFMDeepDiveStream(request, (chunk: CFMStreamChunk) => {
+        if (chunk.type === 'content' && chunk.content) {
+          accumulatedContent += chunk.content;
+          setStudyGuide(accumulatedContent);
+        }
+      });
+
+      const endTime = Date.now();
+      setGenerationTime((endTime - startTime) / 1000);
     } catch (err) {
       console.error('Error generating study guide:', err);
       setError(err instanceof Error ? err.message : 'Failed to generate study guide');

@@ -614,23 +614,75 @@ class CFMCoreContentResponse(BaseModel):
     generation_time_ms: int
 
 # Helper functions for CFM 2026 Deep Dive
+@app.get("/debug/paths")
+async def debug_paths():
+    """Debug endpoint to check available paths and files"""
+    import os
+    from pathlib import Path
+    
+    debug_info = {
+        "current_working_dir": os.getcwd(),
+        "app_directory_exists": Path("/app").exists(),
+        "search_paths": []
+    }
+    
+    # Check all possible bundle paths
+    paths_to_check = [
+        "/Users/derickjones/Documents/VS-Code/solo_founder/backend/scripts/cfm_bundle_scraper/2026",
+        "/app/scripts/cfm_bundle_scraper/2026",
+        "scripts/cfm_bundle_scraper/2026",
+        "./scripts/cfm_bundle_scraper/2026",
+        "backend/scripts/cfm_bundle_scraper/2026"
+    ]
+    
+    for path_str in paths_to_check:
+        path = Path(path_str)
+        path_info = {
+            "path": str(path),
+            "exists": path.exists(),
+            "is_dir": path.is_dir() if path.exists() else False
+        }
+        
+        if path.exists() and path.is_dir():
+            try:
+                files = list(path.glob("cfm_2026_week_*.json"))
+                path_info["json_files_count"] = len(files)
+                path_info["first_few_files"] = [f.name for f in files[:3]]
+            except Exception as e:
+                path_info["error"] = str(e)
+                
+        debug_info["search_paths"].append(path_info)
+    
+    # Check if we can find any bundle files anywhere
+    try:
+        current_path = Path(".")
+        all_json_files = list(current_path.glob("**/cfm_2026_week_*.json"))
+        debug_info["found_bundle_files"] = [str(f) for f in all_json_files[:5]]
+    except Exception as e:
+        debug_info["glob_error"] = str(e)
+    
+    return debug_info
+
 def load_cfm_2026_bundle(week_number: int):
     """Load a specific CFM 2026 Old Testament weekly bundle from enhanced scraper"""
     try:
-        # Enhanced scraper bundle path (local development)
-        bundle_dir = Path("/Users/derickjones/Documents/VS-Code/solo_founder/backend/scripts/cfm_bundle_scraper/2026")
+        # Define all possible paths upfront
+        possible_paths = [
+            Path("/Users/derickjones/Documents/VS-Code/solo_founder/backend/scripts/cfm_bundle_scraper/2026"),
+            Path("/app/scripts/cfm_bundle_scraper/2026"),
+            Path("scripts/cfm_bundle_scraper/2026"),
+            Path("./scripts/cfm_bundle_scraper/2026"),
+            Path("backend/scripts/cfm_bundle_scraper/2026")
+        ]
         
-        # For production deployment on Cloud Run
-        if not bundle_dir.exists():
-            bundle_dir = Path("/app/scripts/cfm_bundle_scraper/2026")
+        bundle_dir = None
+        for path in possible_paths:
+            if path.exists() and path.is_dir():
+                bundle_dir = path
+                break
         
-        # Final fallback for different deployment structures
-        if not bundle_dir.exists():
-            current_file = Path(__file__)
-            bundle_dir = current_file.parent.parent / "scripts" / "cfm_bundle_scraper" / "2026"
-        
-        if not bundle_dir.exists():
-            logger.error(f"Enhanced CFM bundle directory not found in any location")
+        if not bundle_dir:
+            logger.error(f"Enhanced CFM bundle directory not found in any location. Checked paths: {[str(p) for p in possible_paths]}")
             return None
         
         logger.info(f"Using enhanced CFM bundle directory: {bundle_dir}")
@@ -1216,50 +1268,72 @@ async def generate_cfm_core_content(request: CFMCoreContentRequest):
         # Load the CFM 2026 Old Testament bundle for the specific week
         bundle = load_cfm_2026_bundle(request.week_number)
         if not bundle:
-            raise HTTPException(status_code=404, detail=f"Week {request.week_number} bundle not found")
+            raise HTTPException(status_code=404, detail=f"No content sources found for week {request.week_number}")
         
-        # Build context from all content types in the bundle (same approach as other endpoints)
+        # Build context from enhanced bundle format
         context_parts = []
         bundle_sources = 0
         total_characters = 0
         
-        # Use the same content_sources structure as the other CFM endpoints
-        content_sources = bundle.get('content_sources', [])
-        if not content_sources:
-            raise HTTPException(status_code=404, detail=f"No content sources found for week {request.week_number}")
-        
-        # Group content by source type
-        cfm_content = []
-        scripture_content = []
-        seminary_content = []
-        
-        for source in content_sources:
-            source_type = source.get('source_type', '').lower()
-            content = source.get('content', '').strip()
-            
-            if content:
-                if source_type == 'cfm':
-                    cfm_content.append(content)
-                elif source_type == 'scripture':
-                    scripture_content.append(content)
-                elif source_type == 'seminary_teacher':
-                    seminary_content.append(content)
-                
-                bundle_sources += 1
-                total_characters += len(content)
-        
-        # Add organized content sections
+        # Get CFM lesson content
+        cfm_content = bundle.get('cfm_lesson_content', {})
+        cfm_content_text = ""
         if cfm_content:
-            context_parts.append("=== COME FOLLOW ME CONTENT ===")
-            context_parts.extend(cfm_content)
+            cfm_sections = []
+            if cfm_content.get('introduction'):
+                cfm_sections.append(f"Introduction: {cfm_content['introduction']}")
+            
+            learning_sections = cfm_content.get('learning_at_home_church', [])
+            for section in learning_sections:
+                title = section.get('title', '')
+                content = section.get('content', '')
+                if title and content:
+                    cfm_sections.append(f"{title}: {content}")
+            
+            if cfm_sections:
+                cfm_content_text = "\n\n".join(cfm_sections)
+                bundle_sources += 1
+                total_characters += len(cfm_content_text)
         
+        # Get scripture content
+        scripture_content = bundle.get('scripture_content', [])
+        scripture_content_text = ""
         if scripture_content:
-            context_parts.append("\n=== SCRIPTURE PASSAGES ===")
-            context_parts.extend(scripture_content)
+            scripture_sections = []
+            for scripture in scripture_content:
+                reference = scripture.get('reference', 'Unknown')
+                verses = scripture.get('verses', [])
+                if verses:
+                    # Format first 20 verses to avoid overwhelming content
+                    verse_texts = []
+                    for i, verse in enumerate(verses[:20], 1):
+                        if isinstance(verse, str):
+                            verse_texts.append(verse)
+                        else:
+                            verse_num = verse.get('verse', '')
+                            verse_text = verse.get('text', '')
+                            if verse_num and verse_text:
+                                verse_texts.append(f"{verse_num}. {verse_text}")
+                    
+                    if verse_texts:
+                        chapter_text = f"{reference}:\n" + "\n".join(verse_texts)
+                        if len(verses) > 20:
+                            chapter_text += f"\n... and {len(verses) - 20} more verses"
+                        scripture_sections.append(chapter_text)
+                        bundle_sources += 1
+            
+            if scripture_sections:
+                scripture_content_text = "\n\n".join(scripture_sections)
+                total_characters += len(scripture_content_text)
         
-        if seminary_content:
-            context_parts.append("\n=== SEMINARY MATERIALS ===")
-            context_parts.extend(seminary_content)
+        # Build context
+        if cfm_content_text:
+            context_parts.append("=== COME FOLLOW ME CONTENT ===")
+            context_parts.append(cfm_content_text)
+        
+        if scripture_content_text:
+            context_parts.append("=== SCRIPTURE PASSAGES ===")
+            context_parts.append(scripture_content_text)
         
         if not context_parts:
             raise HTTPException(status_code=404, detail=f"No content found for week {request.week_number}")
