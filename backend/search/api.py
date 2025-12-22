@@ -66,6 +66,19 @@ except Exception as e:
     logger.error(f"Failed to initialize Grok API client: {e}")
     openai_client = None
 
+# Initialize OpenAI TTS client (for audio generation)
+tts_client = None
+try:
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    if openai_api_key:
+        tts_client = openai.OpenAI(api_key=openai_api_key)
+        logger.info("OpenAI TTS client initialized successfully")
+    else:
+        logger.warning("OPENAI_API_KEY not found - TTS audio generation will not be available")
+except Exception as e:
+    logger.error(f"Failed to initialize OpenAI TTS client: {e}")
+    tts_client = None
+
 # Request/Response Models
 class SearchRequest(BaseModel):
     query: str
@@ -587,7 +600,7 @@ class CFMLessonPlanResponse(BaseModel):
 class CFMAudioSummaryRequest(BaseModel):
     week_number: int  # Week number 2-52 for CFM 2026
     study_level: str = "basic"  # basic, intermediate, advanced
-    voice: str = "alloy"  # Voice: alloy, echo, fable, onyx, nova, shimmer
+    voice: Optional[str] = None  # Optional voice: alloy, echo, fable, onyx, nova, shimmer
 
 class CFMAudioSummaryResponse(BaseModel):
     week_number: int
@@ -1219,7 +1232,59 @@ async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
         ai_time_ms = int((time.time() - ai_start) * 1000)
         audio_script = response.choices[0].message.content
         
-        # Step 6: Prepare response data
+        # Step 6: Generate audio using OpenAI TTS (if voice is requested and TTS client is available)
+        audio_files = None
+        if hasattr(request, 'voice') and request.voice and tts_client:
+            logger.info(f"Generating TTS audio with voice: {request.voice}")
+            tts_start = time.time()
+            
+            try:
+                # Split script into chunks if it's too long (OpenAI TTS has limits)
+                max_chars = 4000  # Conservative limit for TTS
+                audio_chunks = []
+                
+                if len(audio_script) <= max_chars:
+                    # Single audio file
+                    tts_response = tts_client.audio.speech.create(
+                        model="tts-1",  # or "tts-1-hd" for higher quality
+                        voice=request.voice,
+                        input=audio_script,
+                        response_format="mp3"
+                    )
+                    
+                    # Convert to base64 for JSON response
+                    audio_content = tts_response.content
+                    audio_base64 = base64.b64encode(audio_content).decode('utf-8')
+                    audio_files = {"combined": audio_base64}
+                    
+                else:
+                    # Split into chunks and create separate audio files
+                    script_chunks = chunk_text_smartly(audio_script, max_chars)
+                    audio_files = {}
+                    
+                    for i, chunk in enumerate(script_chunks):
+                        tts_response = tts_client.audio.speech.create(
+                            model="tts-1",
+                            voice=request.voice,
+                            input=chunk,
+                            response_format="mp3"
+                        )
+                        
+                        audio_content = tts_response.content
+                        audio_base64 = base64.b64encode(audio_content).decode('utf-8')
+                        audio_files[f"chunk_{i+1}"] = audio_base64
+                
+                tts_time_ms = int((time.time() - tts_start) * 1000)
+                logger.info(f"TTS generation completed in {tts_time_ms}ms")
+                
+            except Exception as tts_error:
+                logger.error(f"TTS generation failed: {tts_error}")
+                # Continue without audio files if TTS fails
+                audio_files = None
+        elif hasattr(request, 'voice') and request.voice and not tts_client:
+            logger.warning("TTS requested but OpenAI TTS client not available (OPENAI_API_KEY not set)")
+        
+        # Step 7: Prepare response data
         total_time_ms = int((time.time() - start_time) * 1000)
         bundle_sources = len(bundle.get('content_sources', []))
         total_characters = bundle.get('total_content_length', 0)
@@ -1235,7 +1300,7 @@ async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
             date_range=bundle.get('date_range', 'Unknown'),
             study_level=request.study_level,
             audio_script=audio_script,
-            audio_files=None,  # No audio files generated - transcript only
+            audio_files=audio_files,  # Now includes generated TTS audio
             bundle_sources=bundle_sources,
             total_characters=total_characters,
             generation_time_ms=total_time_ms
