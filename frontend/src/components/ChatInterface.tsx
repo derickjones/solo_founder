@@ -425,27 +425,26 @@ export default function ChatInterface({
                 : msg
             ));
           } else if (cfmStudyType === 'audio-summary') {
-            // Map our frontend types to backend duration
-            const durationMap = {
-              'short': '5min' as const,
-              'medium': '15min' as const,
-              'long': '30min' as const
+            // Map our frontend types to backend study level
+            const studyLevelMap = {
+              'short': 'basic' as const,
+              'medium': 'intermediate' as const,
+              'long': 'advanced' as const
             };
             
             const response = await generateCFMAudioSummary({
               week_number: weekNumber,
-              duration: durationMap[cfmAudioSummaryLevel],
-              voice: selectedVoice
+              study_level: studyLevelMap[cfmAudioSummaryLevel]
             });
             
-            // Update the message with the audio summary
+            // Update the message with the audio summary transcript
             setMessages(prev => prev.map(msg => 
               msg.id === assistantMessageId 
                 ? { 
                     ...msg, 
-                    content: '', // Don't show transcript for audio summaries
-                    audioFiles: response.audio_files,
-                    audioTitle: `${response.week_title} (${response.duration})`,
+                    content: response.audio_script, // Show the audio script text
+                    audioFiles: response.audio_files, // This will be null
+                    audioTitle: `Week ${response.week_number} Audio Summary (${studyLevelMap[cfmAudioSummaryLevel]})`,
                     isStreaming: false 
                   }
                 : msg
