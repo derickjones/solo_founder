@@ -12,7 +12,7 @@ import AudioPlayer from './AudioPlayer';
 
 // Add study type definition
 type CFMStudyType = 'deep-dive' | 'lesson-plans' | 'audio-summary' | 'core-content';
-type DeepDiveLevel = 'basic' | 'intermediate' | 'advanced';
+type StudyLevel = 'essential' | 'connected' | 'scholarly';
 type LessonPlanLevel = 'adult' | 'youth' | 'children';
 type AudioSummaryLevel = 'short' | 'medium' | 'long';
 
@@ -45,8 +45,8 @@ interface ChatInterfaceProps {
   cfmStudyType: CFMStudyType;
   setCfmStudyType: (type: CFMStudyType) => void;
   // Deep Dive Study levels
-  cfmStudyLevel: DeepDiveLevel;
-  setCfmStudyLevel: (level: DeepDiveLevel) => void;
+  cfmStudyLevel: StudyLevel;
+  setCfmStudyLevel: (level: StudyLevel) => void;
   // Lesson Plan levels  
   cfmLessonPlanLevel: LessonPlanLevel;
   setCfmLessonPlanLevel: (level: LessonPlanLevel) => void;
@@ -786,9 +786,9 @@ export default function ChatInterface({
                           <div className="bg-neutral-700/30 p-3 md:p-4 rounded-lg">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                               {[
-                                { level: 'short', label: 'Basic' },
-                                { level: 'medium', label: 'Intermediate' },
-                                { level: 'long', label: 'Advanced' }
+                                { level: 'short', label: 'Essential' },
+                                { level: 'medium', label: 'Connected' },
+                                { level: 'long', label: 'Scholarly' }
                               ].map(({ level, label }) => (
                                 <button
                                   key={level}
