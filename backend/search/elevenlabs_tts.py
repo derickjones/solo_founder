@@ -32,6 +32,7 @@ class ElevenLabsTTS:
             "paul": "5Q0t7uMcjvnagumLfvZi",   # Deep, resonant male
             "antoni": "ErXwobaYiN019PkySvjV",  # Smooth, engaging male
             "bella": "EXAVITQu4vr4xnSDxMaL",  # Gentle, nurturing female
+            "dj": "iVJjVhNtHZtpx5wfJTm6",     # DJ's custom voice
         }
         
         # Default voice for gospel content
@@ -199,12 +200,32 @@ class ElevenLabsTTS:
     def test_connection(self) -> bool:
         """Test ElevenLabs API connection"""
         try:
+            # Try to get voices list (requires voices_read permission)
             voices = self.client.voices.get_all()
             logger.info(f"ElevenLabs connection successful. Found {len(voices.voices)} voices.")
             return True
         except Exception as e:
-            logger.error(f"ElevenLabs connection failed: {e}")
-            return False
+            # If voices_read permission is missing, try a simple TTS test instead
+            if "missing_permissions" in str(e) and "voices_read" in str(e):
+                logger.warning("ElevenLabs voices_read permission missing, testing with direct TTS...")
+                try:
+                    # Test with a very short text to verify TTS access
+                    test_audio = self.client.text_to_speech.convert(
+                        voice_id="21m00Tcm4TlvDq8ikWAM",  # Rachel voice
+                        text="test",
+                        voice_settings=VoiceSettings(stability=0.75, similarity_boost=0.75),
+                        model_id="eleven_monolingual_v1"
+                    )
+                    # Just consume the generator to test access
+                    list(test_audio)
+                    logger.info("ElevenLabs TTS connection successful (without voices_read permission)")
+                    return True
+                except Exception as tts_error:
+                    logger.error(f"ElevenLabs TTS test failed: {tts_error}")
+                    return False
+            else:
+                logger.error(f"ElevenLabs connection failed: {e}")
+                return False
 
 # Factory function for easy initialization
 def create_elevenlabs_client(api_key: Optional[str] = None) -> Optional[ElevenLabsTTS]:
