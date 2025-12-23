@@ -114,27 +114,27 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+    <div className="bg-neutral-800 border border-neutral-700 rounded-xl shadow-lg overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-slate-200 px-6 py-4">
+      <div className="bg-neutral-900/50 border-b border-neutral-700 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center shadow-lg">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
               <span className="text-white text-lg">🎧</span>
             </div>
             <div>
-              <h3 className="font-semibold text-slate-900">Gospel Summary</h3>
-              <p className="text-sm text-slate-600">{title}</p>
+              <h3 className="font-semibold text-white">Gospel Summary</h3>
+              <p className="text-sm text-neutral-400">{title}</p>
             </div>
           </div>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-2 hover:bg-white/50 rounded-lg transition-colors"
+            className="p-2 hover:bg-neutral-700/50 rounded-lg transition-colors"
           >
             {isExpanded ? (
-              <ChevronUpIcon className="w-5 h-5 text-slate-500" />
+              <ChevronUpIcon className="w-5 h-5 text-neutral-400 hover:text-neutral-200" />
             ) : (
-              <ChevronDownIcon className="w-5 h-5 text-slate-500" />
+              <ChevronDownIcon className="w-5 h-5 text-neutral-400 hover:text-neutral-200" />
             )}
           </button>
         </div>
@@ -146,12 +146,12 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
           {!audioData ? (
             /* Loading State */
             <div className="flex items-center space-x-3">
-              <div className="w-14 h-14 bg-slate-200 rounded-full flex items-center justify-center animate-pulse">
-                <div className="w-7 h-7 bg-slate-300 rounded-full"></div>
+              <div className="w-14 h-14 bg-neutral-700 rounded-full flex items-center justify-center animate-pulse">
+                <div className="w-7 h-7 bg-neutral-600 rounded-full"></div>
               </div>
               <div className="flex-1">
-                <p className="text-slate-600 font-medium">Generating audio summary...</p>
-                <p className="text-sm text-slate-500">This may take a few moments</p>
+                <p className="text-neutral-200 font-medium">Generating audio summary...</p>
+                <p className="text-sm text-neutral-400">This may take a few moments</p>
               </div>
             </div>
           ) : (
@@ -160,7 +160,7 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
               <div className="flex items-center space-x-4">
                 <button
                   onClick={togglePlayPause}
-                  className="flex items-center justify-center w-14 h-14 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg"
+                  className="flex items-center justify-center w-14 h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg"
                 >
                   {isPlaying ? (
                     <PauseIcon className="w-7 h-7" />
@@ -170,7 +170,7 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
                 </button>
                 
                 <div className="flex-1 space-y-2">
-                  {/* Progress Bar */}
+                  {/* Single Progress Bar with Dot Scrubber */}
                   <div className="relative">
                     <input
                       type="range"
@@ -178,16 +178,12 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
                       max="100"
                       value={duration ? (currentTime / duration) * 100 : 0}
                       onChange={seek}
-                      className="w-full h-2 bg-slate-200 rounded-full appearance-none cursor-pointer progress-slider"
-                    />
-                    <div 
-                      className="absolute top-0 left-0 h-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full pointer-events-none transition-all duration-75"
-                      style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+                      className="w-full h-2 bg-neutral-600 rounded-full appearance-none cursor-pointer progress-slider"
                     />
                   </div>
                   
                   {/* Time Display */}
-                  <div className="flex justify-between text-sm text-slate-500 font-medium">
+                  <div className="flex justify-between text-sm text-neutral-400 font-medium">
                     <span>{formatTime(currentTime)}</span>
                     <span>{formatTime(duration)}</span>
                   </div>
@@ -195,7 +191,7 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
                 
                 {/* Volume Control */}
                 <div className="flex items-center space-x-3">
-                  <SpeakerWaveIcon className="w-5 h-5 text-slate-400" />
+                  <SpeakerWaveIcon className="w-5 h-5 text-neutral-400" />
                   <div className="relative w-20">
                     <input
                       type="range"
@@ -204,11 +200,7 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
                       step="0.05"
                       value={volume}
                       onChange={handleVolumeChange}
-                      className="w-full h-2 bg-slate-200 rounded-full appearance-none cursor-pointer volume-slider"
-                    />
-                    <div 
-                      className="absolute top-0 left-0 h-2 bg-gradient-to-r from-slate-400 to-slate-500 rounded-full pointer-events-none"
-                      style={{ width: `${volume * 100}%` }}
+                      className="w-full h-2 bg-neutral-600 rounded-full appearance-none cursor-pointer volume-slider"
                     />
                   </div>
                 </div>
@@ -216,15 +208,15 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
               
               {/* Playback Speed Controls */}
               <div className="flex items-center justify-center space-x-2">
-                <span className="text-sm text-slate-500 font-medium">Speed:</span>
+                <span className="text-sm text-neutral-400 font-medium">Speed:</span>
                 {[0.75, 1.0, 1.25, 1.5, 1.75, 2.0].map((rate) => (
                   <button
                     key={rate}
                     onClick={() => handlePlaybackRateChange(rate)}
                     className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${
                       playbackRate === rate
-                        ? 'bg-blue-500 text-white shadow-sm'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        ? 'bg-blue-600 text-white shadow-sm'
+                        : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
                     }`}
                   >
                     {rate === 1.0 ? '1×' : `${rate}×`}
@@ -244,16 +236,16 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
           height: 20px;
           width: 20px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #3b82f6, #6366f1);
+          background: linear-gradient(135deg, #2563eb, #4f46e5);
           cursor: pointer;
-          box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+          box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4), 0 0 0 2px #1f2937;
           transition: all 0.15s ease-in-out;
           position: relative;
           z-index: 10;
         }
         
         .progress-slider::-webkit-slider-thumb:hover {
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6);
+          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.6), 0 0 0 2px #1f2937;
           transform: scale(1.1);
         }
         
@@ -262,14 +254,14 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
           height: 16px;
           width: 16px;
           border-radius: 50%;
-          background: #64748b;
+          background: #6b7280;
           cursor: pointer;
-          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 0 1px #374151;
           transition: all 0.15s ease-in-out;
         }
         
         .volume-slider::-webkit-slider-thumb:hover {
-          background: #475569;
+          background: #9ca3af;
           transform: scale(1.1);
         }
         
@@ -278,10 +270,16 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
           height: 20px;
           width: 20px;
           border-radius: 50%;
-          background: #3b82f6;
+          background: #2563eb;
           cursor: pointer;
-          border: none;
-          box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+          border: 2px solid #1f2937;
+          box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+        }
+        
+        /* Hide the default track styling */
+        .progress-slider::-webkit-slider-track,
+        .volume-slider::-webkit-slider-track {
+          background: transparent;
         }
       `}</style>
     </div>
