@@ -922,7 +922,14 @@ export default function ChatInterface({
                         <div className="flex items-center justify-between mb-3">
                           <div>
                             <h2 className="text-xl font-bold text-neutral-200 mb-2">
-                              {cfmStudyLevel.charAt(0).toUpperCase() + cfmStudyLevel.slice(1)} Deep Dive
+                              {cfmStudyType === 'deep-dive' && `${cfmStudyLevel.charAt(0).toUpperCase() + cfmStudyLevel.slice(1)} Deep Dive`}
+                              {cfmStudyType === 'lesson-plans' && `${cfmLessonPlanLevel.charAt(0).toUpperCase() + cfmLessonPlanLevel.slice(1)} Lesson Plan`}
+                              {cfmStudyType === 'audio-summary' && `${
+                                cfmAudioSummaryLevel === 'short' ? 'Essential' :
+                                cfmAudioSummaryLevel === 'medium' ? 'Connected' :
+                                cfmAudioSummaryLevel === 'long' ? 'Scholarly' : 'Essential'
+                              } Audio Summary`}
+                              {cfmStudyType === 'core-content' && `Core Content`}
                             </h2>
                             <div className="text-sm text-neutral-300">
                               {cfmWeek?.lesson} • {cfmWeek?.dates}
