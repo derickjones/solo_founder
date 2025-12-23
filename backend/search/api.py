@@ -22,10 +22,11 @@ import uvicorn
 import openai
 import json
 
-# Import our search engine, cloud storage, and prompts
+# Import our search engine, cloud storage, prompts, and TTS
 from .scripture_search import ScriptureSearchEngine
 from .cloud_storage import setup_cloud_storage
 from .prompts import get_system_prompt, build_context_prompt, get_mode_source_filter, CFM_STUDY_GUIDE_PROMPTS, CFM_LESSON_PLAN_PROMPTS, CFM_AUDIO_SUMMARY_PROMPTS
+from .elevenlabs_tts import create_elevenlabs_client
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -66,18 +67,18 @@ except Exception as e:
     logger.error(f"Failed to initialize Grok API client: {e}")
     openai_client = None
 
-# Initialize OpenAI TTS client (for audio generation)
-tts_client = None
+# Initialize ElevenLabs TTS client (for audio generation)
+elevenlabs_client = None
 try:
-    openai_api_key = os.getenv("OPENAI_API_KEY")
-    if openai_api_key:
-        tts_client = openai.OpenAI(api_key=openai_api_key)
-        logger.info("OpenAI TTS client initialized successfully")
+    elevenlabs_client = create_elevenlabs_client()
+    if elevenlabs_client and elevenlabs_client.test_connection():
+        logger.info("ElevenLabs TTS client initialized successfully")
     else:
-        logger.warning("OPENAI_API_KEY not found - TTS audio generation will not be available")
+        logger.warning("ELEVENLABS_API_KEY not found - TTS audio generation will not be available")
+        elevenlabs_client = None
 except Exception as e:
-    logger.error(f"Failed to initialize OpenAI TTS client: {e}")
-    tts_client = None
+    logger.error(f"Failed to initialize ElevenLabs TTS client: {e}")
+    elevenlabs_client = None
 
 # Request/Response Models
 class SearchRequest(BaseModel):
@@ -236,7 +237,7 @@ async def get_config():
             "cfm_lesson_plan": search_engine is not None and openai_client is not None,
             "cfm_deep_dive": openai_client is not None,  # Only needs OpenAI, loads bundles directly
             "cfm_lesson_plans": openai_client is not None,  # New lesson plans API
-            "cfm_audio_summary": openai_client is not None,   # New audio summary API
+            "cfm_audio_summary": elevenlabs_client is not None,   # ElevenLabs audio summary API
             "cfm_core_content": openai_client is not None     # New core content API
         }
     }
@@ -1039,107 +1040,38 @@ async def create_cfm_lesson_plan(request: CFMLessonPlanRequest):
         logger.error(f"CFM Lesson Plan generation error: {e}")
         raise HTTPException(status_code=500, detail=f"Lesson plan generation failed: {str(e)}")
 
-def parse_dialogue_and_generate_audio(script_text: str, voice: str = "alloy") -> Dict[str, str]:
+def generate_audio_with_elevenlabs(script_text: str, voice: str = "rachel") -> Dict[str, str]:
     """
-    Generate a single audio file from the summary talk script
+    Generate audio file from script using ElevenLabs API
     Returns base64 encoded audio file
-    Handles long scripts by chunking if they exceed OpenAI TTS character limits
     """
     try:
-        logger.info(f"Generating engaging summary talk audio with voice: {voice}")
+        logger.info(f"Generating audio with ElevenLabs voice: {voice}")
         logger.info(f"Script length: {len(script_text)} characters")
         
-        # Generate audio using OpenAI's text-to-speech API
         audio_files = {}
         
-        if openai_client:
-            # OpenAI TTS API has a ~4096 character limit
-            MAX_CHUNK_SIZE = 3500  # Leave some buffer
+        if elevenlabs_client:
+            # Generate audio using ElevenLabs
+            audio_b64 = elevenlabs_client.generate_audio_base64(
+                text=script_text,
+                voice=voice
+            )
             
-            if len(script_text) <= MAX_CHUNK_SIZE:
-                # Script is short enough - generate in one call
-                logger.info("Generating audio in single call...")
-                response = openai_client.audio.speech.create(
-                    model="tts-1",
-                    voice=voice,
-                    input=script_text,
-                    response_format="mp3"
-                )
-                audio_files['combined'] = base64.b64encode(response.content).decode()
+            if audio_b64:
+                audio_files['combined'] = audio_b64
+                logger.info("Successfully generated audio with ElevenLabs")
             else:
-                # Script is too long - need to chunk it
-                logger.info("Script exceeds TTS limit - chunking for multiple calls...")
-                audio_chunks = []
-                
-                # Split text into chunks at sentence boundaries
-                chunks = chunk_text_smartly(script_text, MAX_CHUNK_SIZE)
-                logger.info(f"Split into {len(chunks)} chunks")
-                
-                for i, chunk in enumerate(chunks):
-                    logger.info(f"Generating audio for chunk {i+1}/{len(chunks)} ({len(chunk)} chars)")
-                    response = openai_client.audio.speech.create(
-                        model="tts-1",
-                        voice=voice,
-                        input=chunk,
-                        response_format="mp3"
-                    )
-                    audio_chunks.append(response.content)
-                
-                # Combine all audio chunks
-                combined_audio = b''.join(audio_chunks)
-                audio_files['combined'] = base64.b64encode(combined_audio).decode()
+                logger.error("ElevenLabs audio generation returned empty result")
+        else:
+            logger.warning("ElevenLabs client not available")
         
-        logger.info(f"Generated summary talk audio successfully")
         return audio_files
         
     except Exception as e:
-        logger.error(f"Audio generation error: {e}")
+        logger.error(f"ElevenLabs audio generation error: {e}")
         # Return empty dict on error - endpoint will still return script
         return {}
-
-
-def chunk_text_smartly(text: str, max_chunk_size: int) -> List[str]:
-    """
-    Split text into chunks at sentence boundaries, respecting max size
-    """
-    chunks = []
-    current_chunk = ""
-    
-    # Split by sentences (periods, exclamation marks, question marks)
-    import re
-    sentences = re.split(r'(?<=[.!?])\s+', text)
-    
-    for sentence in sentences:
-        # If adding this sentence would exceed the limit
-        if len(current_chunk) + len(sentence) + 1 > max_chunk_size:
-            if current_chunk:
-                chunks.append(current_chunk.strip())
-                current_chunk = sentence
-            else:
-                # Single sentence is too long - force split at word boundaries
-                words = sentence.split()
-                temp_chunk = ""
-                for word in words:
-                    if len(temp_chunk) + len(word) + 1 > max_chunk_size:
-                        if temp_chunk:
-                            chunks.append(temp_chunk.strip())
-                            temp_chunk = word
-                        else:
-                            # Single word too long - just add it
-                            chunks.append(word)
-                            temp_chunk = ""
-                    else:
-                        temp_chunk += " " + word if temp_chunk else word
-                if temp_chunk:
-                    current_chunk = temp_chunk
-        else:
-            current_chunk += " " + sentence if current_chunk else sentence
-    
-    # Add the final chunk
-    if current_chunk:
-        chunks.append(current_chunk.strip())
-    
-    return chunks
 
 @app.post("/cfm/audio-summary", response_model=CFMAudioSummaryResponse)
 async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
@@ -1232,57 +1164,33 @@ async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
         ai_time_ms = int((time.time() - ai_start) * 1000)
         audio_script = response.choices[0].message.content
         
-        # Step 6: Generate audio using OpenAI TTS (if voice is requested and TTS client is available)
+        # Step 6: Generate audio using ElevenLabs TTS (if voice is requested and ElevenLabs client is available)
         audio_files = None
-        if hasattr(request, 'voice') and request.voice and tts_client:
-            logger.info(f"Generating TTS audio with voice: {request.voice}")
+        if hasattr(request, 'voice') and request.voice and elevenlabs_client:
+            logger.info(f"Generating ElevenLabs audio with voice: {request.voice}")
             tts_start = time.time()
             
             try:
-                # Split script into chunks if it's too long (OpenAI TTS has limits)
-                max_chars = 4000  # Conservative limit for TTS
-                audio_chunks = []
+                # Use ElevenLabs TTS service (handles chunking internally)
+                audio_b64 = elevenlabs_client.generate_audio_base64(
+                    text=audio_script,
+                    voice=request.voice
+                )
                 
-                if len(audio_script) <= max_chars:
-                    # Single audio file
-                    tts_response = tts_client.audio.speech.create(
-                        model="tts-1",  # or "tts-1-hd" for higher quality
-                        voice=request.voice,
-                        input=audio_script,
-                        response_format="mp3"
-                    )
-                    
-                    # Convert to base64 for JSON response
-                    audio_content = tts_response.content
-                    audio_base64 = base64.b64encode(audio_content).decode('utf-8')
-                    audio_files = {"combined": audio_base64}
-                    
+                if audio_b64:
+                    audio_files = {"combined": audio_b64}
+                    tts_time_ms = int((time.time() - tts_start) * 1000)
+                    logger.info(f"ElevenLabs TTS generation completed in {tts_time_ms}ms")
                 else:
-                    # Split into chunks and create separate audio files
-                    script_chunks = chunk_text_smartly(audio_script, max_chars)
-                    audio_files = {}
-                    
-                    for i, chunk in enumerate(script_chunks):
-                        tts_response = tts_client.audio.speech.create(
-                            model="tts-1",
-                            voice=request.voice,
-                            input=chunk,
-                            response_format="mp3"
-                        )
-                        
-                        audio_content = tts_response.content
-                        audio_base64 = base64.b64encode(audio_content).decode('utf-8')
-                        audio_files[f"chunk_{i+1}"] = audio_base64
-                
-                tts_time_ms = int((time.time() - tts_start) * 1000)
-                logger.info(f"TTS generation completed in {tts_time_ms}ms")
+                    logger.error("ElevenLabs TTS generation returned empty result")
+                    audio_files = None
                 
             except Exception as tts_error:
-                logger.error(f"TTS generation failed: {tts_error}")
+                logger.error(f"ElevenLabs TTS generation failed: {tts_error}")
                 # Continue without audio files if TTS fails
                 audio_files = None
-        elif hasattr(request, 'voice') and request.voice and not tts_client:
-            logger.warning("TTS requested but OpenAI TTS client not available (OPENAI_API_KEY not set)")
+        elif hasattr(request, 'voice') and request.voice and not elevenlabs_client:
+            logger.warning("TTS requested but ElevenLabs client not available (ELEVENLABS_API_KEY not set)")
         
         # Step 7: Prepare response data
         total_time_ms = int((time.time() - start_time) * 1000)

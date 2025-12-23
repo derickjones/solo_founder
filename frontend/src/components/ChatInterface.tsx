@@ -434,7 +434,8 @@ export default function ChatInterface({
             
             const response = await generateCFMAudioSummary({
               week_number: weekNumber,
-              study_level: studyLevelMap[cfmAudioSummaryLevel]
+              study_level: studyLevelMap[cfmAudioSummaryLevel],
+              voice: 'rachel' // Default to Rachel voice for high-quality professional audio
             });
             
             // Update the message with the audio summary transcript
