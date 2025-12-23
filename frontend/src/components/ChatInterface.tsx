@@ -1033,10 +1033,10 @@ export default function ChatInterface({
                     )}
                     
                     {/* Audio Player for audio summaries */}
-                    {message.audioFiles && message.audioTitle && (
+                    {message.audioTitle && (
                       <div className="mt-6">
                         <AudioPlayer 
-                          audioFiles={message.audioFiles}
+                          audioFiles={message.audioFiles || {}}
                           title={message.audioTitle}
                         />
                       </div>
