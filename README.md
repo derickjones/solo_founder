@@ -8,20 +8,22 @@
 - **📚 Repository**: https://github.com/derickjones/solo_founder
 
 ## ✨ **Key Features**
-- **🧠 AI-Powered Study**: GPT-4o-mini with real-time streaming responses
-- **📖 Complete LDS Library**: 58,088 scripture segments with FAISS vector search
+- **🧠 AI-Powered Study**: Grok AI with real-time streaming responses
+- **📖 Complete LDS Library**: 58,088+ scripture segments with FAISS vector search
 - **📅 Come Follow Me 2026**: Complete Old Testament study system with enhanced scripture bundles
 - **🎯 Four CFM Study Types**: Deep Dive Study, Lesson Plans, Audio Summaries, Core Content
-- **🔐 Authentication**: Clerk integration with Google/Apple login
+- **� Three Study Levels**: Essential, Connected, Scholarly (user-friendly naming)
+- **�🔐 Authentication**: Clerk integration with Google/Apple login
 - **💳 Payment Processing**: Stripe subscription system ($4.99/month)
 - **🎨 Professional UI**: Dark theme with responsive design
 - **📱 Mobile Optimized**: Works perfectly on all devices
 
 ## 🎵 **Audio Generation System**
-- **📊 Three Duration Levels**: 5min, 15min, 30min with optimized prompts
+- **📊 Three Study Levels**: Essential, Connected, Scholarly with optimized prompts
 - **🎙️ Professional Voice**: OpenAI TTS with multiple voice options
 - **🧩 Smart Text Chunking**: Handles TTS character limits seamlessly
 - **🎛️ Modern Audio Player**: Speed controls, seeking, volume control, collapsible interface
+- **📝 Script-First Design**: Shows transcript by default, optional audio generation
 
 ## 💰 **Business Model**
 - **Free Tier**: Basic Q&A with daily limits
@@ -33,10 +35,12 @@
 ### ⚛️ **Frontend (Next.js 16)**
 - **TypeScript + Tailwind CSS**: Modern React with full type safety
 - **Streaming Interface**: Real-time AI responses with CFM study generation
+- **Study Level System**: Essential/Connected/Scholarly naming for better UX
 - **Authentication**: Clerk integration with social login
 - **Payment Integration**: Stripe Checkout with subscription management
 
 ### 🐍 **Backend (FastAPI)**
+- **Dual AI Integration**: Grok AI for content generation + OpenAI TTS for audio
 - **Streaming API**: Server-Sent Events for real-time responses
 - **Vector Search**: FAISS-powered semantic search
 - **Audio Generation**: OpenAI TTS with smart text chunking
@@ -85,13 +89,15 @@ npm run dev
 ### **Environment Variables**
 ```bash
 # Backend (.env)
-OPENAI_API_KEY=your_key
-CLERK_SECRET_KEY=your_key
-STRIPE_SECRET_KEY=your_key
+OPENAI_API_KEY=your_openai_key  # For TTS audio generation
+XAI_API_KEY=your_grok_key       # For content generation
+CLERK_SECRET_KEY=your_clerk_key
+STRIPE_SECRET_KEY=your_stripe_key
 
 # Frontend (.env.local)
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_key
-STRIPE_PUBLISHABLE_KEY=your_key
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_key
+STRIPE_PUBLISHABLE_KEY=your_stripe_key
+NEXT_PUBLIC_API_BASE_URL=https://gospel-guide-api-273320302933.us-central1.run.app
 ```
 
 ## 📚 **API Endpoints**
@@ -101,10 +107,16 @@ STRIPE_PUBLISHABLE_KEY=your_key
 - `POST /search/ask` - AI-powered Q&A with streaming responses
 
 ### **Come Follow Me System**
-- `POST /cfm/deep-dive` - Comprehensive study guides (3 levels)
-- `POST /cfm/lesson-plans` - Teaching materials (3 audiences)  
-- `POST /cfm/audio-summary` - Generated audio talks (3 durations)
-- `POST /cfm/core-content` - Raw CFM materials organized
+- `POST /cfm/deep-dive` - Comprehensive study guides (Essential/Connected/Scholarly)
+- `POST /cfm/lesson-plans` - Teaching materials (Adult/Youth/Children audiences)  
+- `POST /cfm/audio-summary` - Generated audio talk scripts (Essential/Connected/Scholarly)
+- `POST /cfm/core-content` - Raw CFM materials organized by sections
+
+### **Study Level System**
+All CFM endpoints use consistent study levels:
+- **Essential**: Foundational gospel principles and basic understanding
+- **Connected**: Deeper doctrinal connections and cross-references  
+- **Scholarly**: Advanced theological analysis and historical context
 
 ### **System Health**
 - `GET /health` - API status and version info
@@ -113,15 +125,20 @@ STRIPE_PUBLISHABLE_KEY=your_key
 ## 🧪 **Testing**
 
 ```bash
-# Run all CFM endpoints
-python test_bundle_loading.py
+# Test CFM endpoints with new study levels
+curl -X POST "https://gospel-guide-api-273320302933.us-central1.run.app/cfm/deep-dive" \
+  -H "Content-Type: application/json" \
+  -d '{"week_number": 2, "study_level": "essential"}'
+
+curl -X POST "https://gospel-guide-api-273320302933.us-central1.run.app/cfm/audio-summary" \
+  -H "Content-Type: application/json" \
+  -d '{"week_number": 2, "study_level": "connected"}'
 
 # Test specific week bundle
 curl -X GET "https://gospel-guide-api-273320302933.us-central1.run.app/debug/bundle/32"
 
-# Test audio generation
-curl -X POST "/cfm/audio-summary" -H "Content-Type: application/json" \
--d '{"week": 32, "duration": "medium", "voice": "alloy"}'
+# Health check
+curl -X GET "https://gospel-guide-api-273320302933.us-central1.run.app/health"
 ```
 
 ## 🚀 **Deployment**
@@ -129,41 +146,59 @@ curl -X POST "/cfm/audio-summary" -H "Content-Type: application/json" \
 ### **Docker Build & Deploy**
 ```bash
 # Build and push to Artifact Registry
-docker build -t us-central1-docker.pkg.dev/gospel-guide-api/gospel-guide-repo/backend .
-docker push us-central1-docker.pkg.dev/gospel-guide-api/gospel-guide-repo/backend
+cd backend
+gcloud builds submit --tag us-central1-docker.pkg.dev/gospel-study-474301/gospel-guide/gospel-guide-api .
 
 # Deploy to Cloud Run
-gcloud run deploy gospel-guide-api --image us-central1-docker.pkg.dev/gospel-guide-api/gospel-guide-repo/backend
+gcloud run deploy gospel-guide-api \
+  --image us-central1-docker.pkg.dev/gospel-study-474301/gospel-guide/gospel-guide-api \
+  --platform managed --region us-central1 --allow-unauthenticated \
+  --memory=2Gi --cpu=1
 ```
 
 ### **Frontend Deployment**
 ```bash
-# Deploy to Vercel
+# Automatic deployment via GitHub integration
+git push origin main  # Triggers Vercel deployment
+
+# Manual deployment
 vercel --prod
 ```
 
 ## 📈 **Performance**
 
 - **Scripture Search**: <200ms average response
-- **AI Q&A Streaming**: Real-time token streaming
-- **Audio Generation**: 23-107s depending on duration
-- **Vector Search**: 58,088 segments indexed with FAISS
+- **AI Content Generation**: Real-time streaming with Grok AI
+- **Audio Script Generation**: 5-30s depending on study level complexity
+- **Vector Search**: 58,088+ segments indexed with FAISS
 - **Mobile Performance**: Optimized for iOS/Android
+- **Study Level Consistency**: Unified Essential/Connected/Scholarly across all features
+
+## 🔧 **Recent Updates (December 2024)**
+
+- **✅ Study Level Rebranding**: Updated from Basic/Intermediate/Advanced to Essential/Connected/Scholarly for better user appeal
+- **✅ Dual AI Integration**: Added Grok AI for content generation, OpenAI TTS for audio
+- **✅ TypeScript Consistency**: Fixed all type definitions across frontend and backend
+- **✅ API Standardization**: All CFM endpoints now use unified study_level parameter
+- **✅ User Experience**: Improved naming scheme specifically for LDS audience engagement
 
 ## 🔧 **Troubleshooting**
 
-- **Audio Generation Timeout**: Frontend 5-minute limit with error handling
-- **Bundle Loading**: Debug endpoint at `/debug/bundle/{week}` 
+- **Study Level Errors**: Ensure using Essential/Connected/Scholarly (not old Basic/Intermediate/Advanced)
+- **Audio Generation**: Requires OPENAI_API_KEY environment variable in production
+- **Bundle Loading**: Debug endpoint at `/debug/bundle/{week}` for CFM content issues
 - **Authentication**: Check Clerk configuration in middleware.ts
 - **Payment Issues**: Verify Stripe webhook endpoints
 
 ## 🎯 **Future Enhancements**
 
-- **Advanced Audio Features**: Background music, multiple speakers
-- **Study Progress Tracking**: User progress analytics
-- **Offline Mode**: Service worker for scripture access
-- **Social Features**: Study group sharing and discussions
+- **🎵 Enhanced Audio**: Background music, multiple speakers, full TTS integration
+- **📊 Study Progress**: User analytics and progress tracking across study levels
+- **💾 Offline Mode**: Service worker for scripture access without internet
+- **👥 Social Features**: Study group sharing and collaborative discussions
+- **🔍 Advanced Search**: Cross-reference discovery and thematic study paths
+- **🎨 Customization**: Personalized study level preferences and content filtering
 
 ---
 
-> **Gospel Study Assistant** - Transforming scripture study with AI-powered insights and comprehensive Come Follow Me resources.
+> **Gospel Study Assistant** - Transforming scripture study with AI-powered insights, unified study levels (Essential/Connected/Scholarly), and comprehensive Come Follow Me resources tailored for the LDS community.

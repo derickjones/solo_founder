@@ -679,7 +679,7 @@ export default function ChatInterface({
                       >
                         {CFM_2026_SCHEDULE.map((week: CFMWeek, index: number) => (
                           <option key={week.id} value={week.id} className="bg-neutral-800">
-                            Week {index + 1}: {week.lesson}
+                            {week.lesson}
                           </option>
                         ))}
                       </select>

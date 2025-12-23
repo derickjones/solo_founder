@@ -207,7 +207,7 @@ export default function ComeFollowMePage() {
                 >
                   {CFM_2026_SCHEDULE.map((week: CFMWeek, index: number) => (
                     <option key={week.id} value={week.id}>
-                      Week {index + 1}: {week.lesson}
+                      {week.lesson}
                     </option>
                   ))}
                 </select>
