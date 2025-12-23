@@ -850,7 +850,11 @@ export default function ChatInterface({
                         <span className="text-lg">
                           {cfmStudyType === 'deep-dive' && `Generate Deep Dive`}
                           {cfmStudyType === 'lesson-plans' && `Create ${cfmLessonPlanLevel.charAt(0).toUpperCase() + cfmLessonPlanLevel.slice(1)} Lesson Plan`}
-                          {cfmStudyType === 'audio-summary' && `Generate ${cfmAudioSummaryLevel.charAt(0).toUpperCase() + cfmAudioSummaryLevel.slice(1)} Audio Summary`}
+                          {cfmStudyType === 'audio-summary' && `Generate ${
+                            cfmAudioSummaryLevel === 'short' ? 'Essential' :
+                            cfmAudioSummaryLevel === 'medium' ? 'Connected' :
+                            cfmAudioSummaryLevel === 'long' ? 'Scholarly' : 'Essential'
+                          } Audio Summary`}
                           {cfmStudyType === 'core-content' && `Organize Core Content`}
                         </span>
                       </>
