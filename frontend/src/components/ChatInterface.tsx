@@ -629,8 +629,7 @@ export default function ChatInterface({
         <div className="w-10"></div> {/* Spacer for centering */}
       </div>
 
-      {/* Header with logo - show when no messages, or in CFM audio-summary mode */}
-      {(messages.length === 0 || (mode === 'Come Follow Me' && cfmStudyType === 'audio-summary')) && (
+      {/* Header with logo - always visible */}
       <div className="relative flex items-center justify-center pt-6 lg:pt-12 pb-4 lg:pb-6 px-4">
         <div className="flex flex-col items-center space-y-4 lg:space-y-6">
           <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full overflow-hidden border-2 border-neutral-700">
@@ -651,7 +650,6 @@ export default function ChatInterface({
           </div>
         </div>
       </div>
-      )}
 
       {/* Input area below header */}
       <div className={`px-4 lg:px-8 pb-2 transition-transform duration-300 ${
