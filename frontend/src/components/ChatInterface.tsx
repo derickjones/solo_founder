@@ -86,7 +86,7 @@ export default function ChatInterface({
   const [currentTileIndex, setCurrentTileIndex] = useState(0);
   
   // Voice selection state for audio summaries
-  const [selectedVoice, setSelectedVoice] = useState<'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer'>('echo');
+  const [selectedVoice, setSelectedVoice] = useState<'rachel' | 'drew' | 'paul' | 'antoni' | 'bella'>('rachel');
   
   // Scroll behavior state
   const [isControlsVisible, setIsControlsVisible] = useState(true);
@@ -813,12 +813,11 @@ export default function ChatInterface({
                               onChange={(e) => setSelectedVoice(e.target.value as any)}
                               className="w-full p-2 rounded-md bg-neutral-600 border border-neutral-500 text-white text-sm focus:border-blue-500 focus:outline-none"
                             >
-                              <option value="alloy">Alloy (Warm, Clear)</option>
-                              <option value="echo">Echo (Authoritative, Deep)</option>
-                              <option value="fable">Fable (Expressive, Dynamic)</option>
-                              <option value="onyx">Onyx (Professional, Smooth)</option>
-                              <option value="nova">Nova (Friendly, Approachable)</option>
-                              <option value="shimmer">Shimmer (Soft, Pleasant)</option>
+                              <option value="rachel">Rachel (Clear, Professional Female)</option>
+                              <option value="drew">Drew (Warm, Authoritative Male)</option>
+                              <option value="paul">Paul (Deep, Resonant Male)</option>
+                              <option value="antoni">Antoni (Smooth, Engaging Male)</option>
+                              <option value="bella">Bella (Gentle, Nurturing Female)</option>
                             </select>
                           </div>
                         </>

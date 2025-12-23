@@ -141,7 +141,7 @@ export default function ComeFollowMePage() {
       const request: CFMAudioSummaryRequest = {
         week_number: weekNumber,
         study_level: studyLevel,
-        voice: 'alloy'
+        voice: 'rachel' // ElevenLabs professional voice for high-quality audio
       };
 
       const response = await generateCFMAudioSummary(request);
