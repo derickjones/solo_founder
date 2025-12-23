@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-type StudyLevel = 'basic' | 'intermediate' | 'advanced';
+type StudyLevel = 'essential' | 'connected' | 'scholarly';
 
 interface StudyLevelSliderProps {
   selectedLevel: StudyLevel;
@@ -21,8 +21,8 @@ interface LevelInfo {
 
 const STUDY_LEVELS: LevelInfo[] = [
   {
-    id: 'basic',
-    label: 'Basic',
+    id: 'essential',
+    label: 'Essential',
     color: 'text-green-400',
     bgColor: 'bg-green-900/20',
     borderColor: 'border-green-500',
@@ -30,8 +30,8 @@ const STUDY_LEVELS: LevelInfo[] = [
     duration: '10-15 min'
   },
   {
-    id: 'intermediate',
-    label: 'Intermediate',
+    id: 'connected',
+    label: 'Connected',
     color: 'text-yellow-400',
     bgColor: 'bg-yellow-900/20',
     borderColor: 'border-yellow-500',
@@ -39,8 +39,8 @@ const STUDY_LEVELS: LevelInfo[] = [
     duration: '15-20 min'
   },
   {
-    id: 'advanced',
-    label: 'Advanced',
+    id: 'scholarly',
+    label: 'Scholarly',
     color: 'text-red-400',
     bgColor: 'bg-red-900/20',
     borderColor: 'border-red-500',

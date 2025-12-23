@@ -427,9 +427,9 @@ export default function ChatInterface({
           } else if (cfmStudyType === 'audio-summary') {
             // Map our frontend types to backend study level
             const studyLevelMap = {
-              'short': 'basic' as const,
-              'medium': 'intermediate' as const,
-              'long': 'advanced' as const
+              'short': 'essential' as const,
+              'medium': 'connected' as const,
+              'long': 'scholarly' as const
             };
             
             const response = await generateCFMAudioSummary({

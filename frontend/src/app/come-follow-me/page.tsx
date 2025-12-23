@@ -9,14 +9,14 @@ import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
 
-type StudyLevel = 'basic' | 'intermediate' | 'advanced';
+type StudyLevel = 'essential' | 'connected' | 'scholarly';
 type CFMTab = 'study-guide' | 'core-content' | 'lesson-plan' | 'audio-summary';
 type LessonAudience = 'adult' | 'youth' | 'children';
 
 export default function ComeFollowMePage() {
   const [currentWeek, setCurrentWeek] = useState<CFMWeek>(getCurrentCFMWeek());
   const [activeTab, setActiveTab] = useState<CFMTab>('study-guide');
-  const [studyLevel, setStudyLevel] = useState<StudyLevel>('basic');
+  const [studyLevel, setStudyLevel] = useState<StudyLevel>('essential');
   const [lessonAudience, setLessonAudience] = useState<LessonAudience>('adult');
   
   // Study Guide states

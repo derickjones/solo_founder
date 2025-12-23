@@ -51,7 +51,7 @@ export interface AskResponse {
 // CFM Deep Dive interfaces (new optimized API)
 export interface CFMDeepDiveRequest {
   week_number: number;
-  study_level: 'basic' | 'intermediate' | 'advanced';
+  study_level: 'essential' | 'connected' | 'scholarly';
 }
 
 export interface CFMDeepDiveResponse {
@@ -83,7 +83,7 @@ export interface CFMLessonPlanResponse {
 // CFM Audio Summary interfaces
 export interface CFMAudioSummaryRequest {
   week_number: number;
-  study_level: 'basic' | 'intermediate' | 'advanced';
+  study_level: 'essential' | 'connected' | 'scholarly';
   voice?: 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
 }
 

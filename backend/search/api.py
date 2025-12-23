@@ -569,7 +569,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 # CFM Deep Dive Models
 class CFMDeepDiveRequest(BaseModel):
     week_number: int  # Week number 2-52 for CFM 2026
-    study_level: str = "intermediate"  # basic, intermediate, advanced
+    study_level: str = "connected"  # essential, connected, scholarly
 
 class CFMDeepDiveResponse(BaseModel):
     week_number: int
@@ -599,7 +599,7 @@ class CFMLessonPlanResponse(BaseModel):
 # CFM Audio Summary Models
 class CFMAudioSummaryRequest(BaseModel):
     week_number: int  # Week number 2-52 for CFM 2026
-    study_level: str = "basic"  # basic, intermediate, advanced
+    study_level: str = "essential"  # essential, connected, scholarly
     voice: Optional[str] = None  # Optional voice: alloy, echo, fable, onyx, nova, shimmer
 
 class CFMAudioSummaryResponse(BaseModel):

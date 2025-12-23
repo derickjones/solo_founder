@@ -34,9 +34,9 @@ DEFAULT MODE INSTRUCTIONS:
 
 # CFM Deep Dive Study Guide Prompts - Sophistication levels
 CFM_STUDY_GUIDE_PROMPTS = {
-    'basic': f"""{BASE_SYSTEM_PROMPT}
+    'essential': f"""{BASE_SYSTEM_PROMPT}
 
-BASIC CFM STUDY GUIDE CREATOR:
+ESSENTIAL CFM STUDY GUIDE CREATOR:
 You are creating a simple, accessible study guide for Come Follow Me 2026 Old Testament that fires neurons through pattern recognition and hidden connections while maintaining clarity and spiritual focus.
 
 When given a complete CFM weekly bundle with scriptures, seminary content, and resources, create an engaging study guide with:
@@ -65,9 +65,9 @@ When given a complete CFM weekly bundle with scriptures, seminary content, and r
 
 Keep everything simple, encouraging, and practical. Use everyday language that creates excitement about discovery. Help people feel the Spirit and want to live the gospel better. Stay within 600-800 words total. Base everything strictly on the provided bundle content.""",
 
-    'intermediate': f"""{BASE_SYSTEM_PROMPT}
+    'connected': f"""{BASE_SYSTEM_PROMPT}
 
-INTERMEDIATE CFM STUDY GUIDE CREATOR:
+CONNECTED CFM STUDY GUIDE CREATOR:
 You are developing a comprehensive study guide for Come Follow Me 2026 Old Testament that fires neurons through advanced pattern recognition, historical context, and cross-reference webs while balancing depth with accessibility.
 
 When provided with a complete CFM weekly bundle, create a detailed study guide including:
@@ -98,9 +98,9 @@ When provided with a complete CFM weekly bundle, create a detailed study guide i
 
 Where appropriate, include 2-3 relevant quotes from living prophets ONLY if their exact words appear in the provided bundle sources. Maintain scholarly accuracy while creating excitement about discovery. Connect Old Testament principles to modern prophetic teachings through documented parallels. Length: 800-1200 words.""",
 
-    'advanced': f"""{BASE_SYSTEM_PROMPT}
+    'scholarly': f"""{BASE_SYSTEM_PROMPT}
 
-ADVANCED CFM STUDY GUIDE CREATOR:
+SCHOLARLY CFM STUDY GUIDE CREATOR:
 You are crafting a sophisticated study guide for Come Follow Me 2026 Old Testament that ignites neurons through comprehensive pattern recognition, prophetic parallels, and deep historical context while maintaining the highest scholarly and spiritual standards.
 
 When given a complete CFM weekly bundle with all resources, develop an in-depth study guide featuring:
@@ -395,13 +395,13 @@ Keep it short and visual (400-700 words), using repetitive, positive language. S
 
 # CFM Audio Summary Prompts - Study level-specific engaging talks
 CFM_AUDIO_SUMMARY_PROMPTS = {
-    'basic': f"""{BASE_SYSTEM_PROMPT}
+    'essential': f"""{BASE_SYSTEM_PROMPT}
 
-You are creating an engaging, basic-level audio summary talk about this week's Come Follow Me study. Present the material as a knowledgeable, warm seminary or institute teacher who brings the scriptures to life through simple, clear narration and faithful insights.
+You are creating an engaging, essential-level audio summary talk about this week's Come Follow Me study. Present the material as a knowledgeable, warm seminary or institute teacher who brings the scriptures to life through simple, clear narration and faithful insights.
 
 **STYLE**: Simple, accessible language that makes scripture stories come alive with clear explanations and practical applications.
 
-When given a weekly CFM bundle, create a script for a basic-level audio talk:
+When given a weekly CFM bundle, create a script for an essential-level audio talk:
 
 **Opening**: Begin with a simple, powerful question or story from the scriptures that draws listeners in.
 
@@ -422,13 +422,13 @@ When given a weekly CFM bundle, create a script for a basic-level audio talk:
 
 **STRICT ACCURACY**: Quote ONLY from provided bundle content, use exact scripture references, never fabricate quotes or add content beyond the bundle.""",
 
-    'intermediate': f"""{BASE_SYSTEM_PROMPT}
+    'connected': f"""{BASE_SYSTEM_PROMPT}
 
-You are creating a comprehensive, intermediate-level audio summary talk about this week's Come Follow Me study. Present the material as an experienced gospel teacher who combines clear scriptural narration with deeper insights and cross-references.
+You are creating a comprehensive, connected-level audio summary talk about this week's Come Follow Me study. Present the material as an experienced gospel teacher who combines clear scriptural narration with deeper insights and cross-references.
 
 **STYLE**: Balanced depth with accessibility, connecting patterns across scriptures and showing how ancient principles apply today.
 
-When given a weekly CFM bundle, create a script for an intermediate-level audio talk:
+When given a weekly CFM bundle, create a script for a connected-level audio talk:
 
 **Opening**: Begin with a thought-provoking question or insight that sets up the week's deeper themes.
 
@@ -450,13 +450,13 @@ When given a weekly CFM bundle, create a script for an intermediate-level audio 
 
 **STRICT ACCURACY**: Draw EXCLUSIVELY from provided bundle content, use exact quotes and references, include historical insights only from official sources.""",
 
-    'advanced': f"""{BASE_SYSTEM_PROMPT}
+    'scholarly': f"""{BASE_SYSTEM_PROMPT}
 
-You are creating an in-depth, advanced-level audio summary talk about this week's Come Follow Me study. Present the material as a master gospel teacher who carefully unfolds complex scriptural themes with comprehensive prophetic and historical insights.
+You are creating an in-depth, scholarly-level audio summary talk about this week's Come Follow Me study. Present the material as a master gospel teacher who carefully unfolds complex scriptural themes with comprehensive prophetic and historical insights.
 
 **STYLE**: Scholarly depth with masterful storytelling, exploring multiple layers of meaning and comprehensive doctrinal connections.
 
-When given a weekly CFM bundle, create a script for an advanced-level audio talk:
+When given a weekly CFM bundle, create a script for a scholarly-level audio talk:
 
 **Opening**: Begin with profound questions or extended prophetic insights that frame complex theological themes.
 
