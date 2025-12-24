@@ -12,11 +12,12 @@
 - **📖 Complete LDS Library**: 58,088+ scripture segments with FAISS vector search
 - **📅 Come Follow Me 2026**: Complete Old Testament study system with enhanced scripture bundles
 - **🎯 Four CFM Study Types**: Deep Dive Study, Lesson Plans, Audio Summaries, Core Content
-- **� Three Study Levels**: Essential, Connected, Scholarly (user-friendly naming)
-- **�🔐 Authentication**: Clerk integration with Google/Apple login
+- **📊 Three Study Levels**: Essential, Connected, Scholarly (user-friendly naming)
+- **🔐 Authentication**: Clerk integration with Google/Apple login
 - **💳 Payment Processing**: Stripe subscription system ($4.99/month)
-- **🎨 Professional UI**: Dark theme with responsive design
-- **📱 Mobile Optimized**: Works perfectly on all devices
+- **🎨 Professional UI**: Dark theme with color-coded accent buttons
+- **📱 Mobile Optimized**: Responsive design with smart auto-collapse controls
+- **🎬 Full-Screen Content**: Controls auto-hide when content is generated, scroll up to reveal
 
 ## 🎵 **Audio Generation System**
 - **📊 Three Study Levels**: Essential, Connected, Scholarly with optimized prompts  
@@ -177,12 +178,15 @@ vercel --prod
 
 ## 🔧 **Recent Updates (December 2024)**
 
+- **✅ Auto-Collapse UX**: Controls auto-hide when content is generated, scroll up to reveal
+- **✅ Color-Coded Buttons**: Study types (blue/purple/green/amber) and levels (green/purple/amber)
+- **✅ Mobile Compact Grid**: 2x2 study type grid, 3-column study level buttons
+- **✅ Audio Player First**: Audio player now appears above text in audio summaries
 - **✅ Google Cloud TTS**: Switched from ElevenLabs to Google Cloud TTS with Chirp 3 HD voices (20x cost reduction)
-- **✅ Study Level Rebranding**: Updated from Basic/Intermediate/Advanced to Essential/Connected/Scholarly for better user appeal
+- **✅ Study Level Rebranding**: Updated from Basic/Intermediate/Advanced to Essential/Connected/Scholarly
 - **✅ AI Integration**: Grok AI for content generation, Google Cloud TTS for audio synthesis
 - **✅ TypeScript Consistency**: Fixed all type definitions across frontend and backend
 - **✅ API Standardization**: All CFM endpoints now use unified study_level parameter
-- **✅ User Experience**: Improved naming scheme specifically for LDS audience engagement
 - **✅ Cost Optimization**: Google Cloud TTS at ~$0.016/1K chars vs ElevenLabs $0.30/1K chars
 
 ## 🔧 **Troubleshooting**
