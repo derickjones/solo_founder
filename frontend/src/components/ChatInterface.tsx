@@ -7,7 +7,6 @@ import ReactMarkdown from 'react-markdown';
 import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
 import { CFM_AUDIENCES, CFM_2026_SCHEDULE, CFMWeek } from '@/utils/comeFollowMe';
 import Link from 'next/link';
-import StudyLevelSlider from './StudyLevelSlider';
 import AudioPlayer from './AudioPlayer';
 
 // Add study type definition
@@ -743,11 +742,27 @@ export default function ChatInterface({
                       {cfmStudyType === 'deep-dive' && (
                         <>
                           <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider text-center block">Study Level</label>
-                          <div className="bg-neutral-700/30 p-4 rounded-lg">
-                            <StudyLevelSlider 
-                              selectedLevel={cfmStudyLevel} 
-                              onLevelChange={setCfmStudyLevel}
-                            />
+                          <div className="bg-neutral-700/30 p-3 md:p-4 rounded-lg">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                              {[
+                                { level: 'essential', label: 'Essential' },
+                                { level: 'connected', label: 'Connected' },
+                                { level: 'scholarly', label: 'Scholarly' }
+                              ].map(({ level, label }) => (
+                                <button
+                                  key={level}
+                                  type="button"
+                                  onClick={() => setCfmStudyLevel(level as StudyLevel)}
+                                  className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
+                                    cfmStudyLevel === level
+                                      ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
+                                      : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
+                                  }`}
+                                >
+                                  {label}
+                                </button>
+                              ))}
+                            </div>
                           </div>
                         </>
                       )}
