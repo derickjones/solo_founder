@@ -138,27 +138,43 @@ class ElevenLabsTTS:
             for i, chunk in enumerate(chunks):
                 logger.info(f"Generating audio for chunk {i+1}/{len(chunks)} ({len(chunk)} chars)")
                 
-                try:
-                    # Generate audio for this chunk using the correct API
-                    audio = self.client.text_to_speech.convert(
-                        voice_id=voice_id,
-                        text=chunk,
-                        voice_settings=VoiceSettings(
-                            stability=voice_settings.get("stability", 0.75) if voice_settings else 0.75,
-                            similarity_boost=voice_settings.get("similarity_boost", 0.75) if voice_settings else 0.75,
-                            style=voice_settings.get("style", 0.0) if voice_settings else 0.0,
-                            use_speaker_boost=voice_settings.get("use_speaker_boost", True) if voice_settings else True
-                        ),
-                        model_id="eleven_monolingual_v1"  # High quality model
-                    )
-                    
-                    # Convert generator to bytes
-                    audio_bytes = b''.join(audio)
-                    audio_segments.append(audio_bytes)
-                    
-                except Exception as e:
-                    logger.error(f"Failed to generate audio for chunk {i+1}: {e}")
-                    return None
+                # Add delay between chunks to avoid rate limiting (skip for first chunk)
+                if i > 0:
+                    import time
+                    time.sleep(1)  # 1 second delay between API calls
+                
+                # Retry logic for rate limiting
+                max_retries = 3
+                for attempt in range(max_retries):
+                    try:
+                        # Generate audio for this chunk using the correct API
+                        audio = self.client.text_to_speech.convert(
+                            voice_id=voice_id,
+                            text=chunk,
+                            voice_settings=VoiceSettings(
+                                stability=voice_settings.get("stability", 0.75) if voice_settings else 0.75,
+                                similarity_boost=voice_settings.get("similarity_boost", 0.75) if voice_settings else 0.75,
+                                style=voice_settings.get("style", 0.0) if voice_settings else 0.0,
+                                use_speaker_boost=voice_settings.get("use_speaker_boost", True) if voice_settings else True
+                            ),
+                            model_id="eleven_monolingual_v1"  # High quality model
+                        )
+                        
+                        # Convert generator to bytes
+                        audio_bytes = b''.join(audio)
+                        audio_segments.append(audio_bytes)
+                        break  # Success, exit retry loop
+                        
+                    except Exception as e:
+                        logger.error(f"Attempt {attempt+1}/{max_retries} failed for chunk {i+1}: {e}")
+                        if attempt < max_retries - 1:
+                            import time
+                            wait_time = 2 ** attempt  # Exponential backoff: 1, 2, 4 seconds
+                            logger.info(f"Retrying in {wait_time} seconds...")
+                            time.sleep(wait_time)
+                        else:
+                            logger.error(f"All {max_retries} attempts failed for chunk {i+1}")
+                            return None
             
             # Combine audio segments
             if len(audio_segments) == 1:

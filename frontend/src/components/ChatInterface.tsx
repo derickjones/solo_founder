@@ -822,7 +822,11 @@ export default function ChatInterface({
                         <span>
                           {cfmStudyType === 'deep-dive' && `Generating Deep Dive...`}
                           {cfmStudyType === 'lesson-plans' && `Creating ${cfmLessonPlanLevel.charAt(0).toUpperCase() + cfmLessonPlanLevel.slice(1)} Lesson Plan...`}
-                          {cfmStudyType === 'audio-summary' && `Generating ${cfmAudioSummaryLevel.charAt(0).toUpperCase() + cfmAudioSummaryLevel.slice(1)} Audio Summary...`}
+                          {cfmStudyType === 'audio-summary' && `Generating ${
+                            cfmAudioSummaryLevel === 'short' ? 'Essential' :
+                            cfmAudioSummaryLevel === 'medium' ? 'Connected' :
+                            cfmAudioSummaryLevel === 'long' ? 'Scholarly' : 'Essential'
+                          } Audio Summary...`}
                           {cfmStudyType === 'core-content' && `Organizing Core Content...`}
                         </span>
                       </div>

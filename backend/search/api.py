@@ -30,7 +30,7 @@ import json
 from .scripture_search import ScriptureSearchEngine
 from .cloud_storage import setup_cloud_storage
 from .prompts import get_system_prompt, build_context_prompt, get_mode_source_filter, CFM_STUDY_GUIDE_PROMPTS, CFM_LESSON_PLAN_PROMPTS, CFM_AUDIO_SUMMARY_PROMPTS
-from .elevenlabs_tts import create_elevenlabs_client
+from .google_tts import create_google_tts_client
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -71,18 +71,17 @@ except Exception as e:
     logger.error(f"Failed to initialize Grok API client: {e}")
     openai_client = None
 
-# Initialize ElevenLabs TTS client (for audio generation)
-elevenlabs_client = None
+# Initialize Google Cloud TTS client (for audio generation)
+tts_client = None
 try:
-    elevenlabs_client = create_elevenlabs_client()
-    if elevenlabs_client and elevenlabs_client.test_connection():
-        logger.info("ElevenLabs TTS client initialized successfully")
+    tts_client = create_google_tts_client()
+    if tts_client:
+        logger.info("✅ Google Cloud TTS client initialized successfully")
     else:
-        logger.warning("ELEVENLABS_API_KEY not found - TTS audio generation will not be available")
-        elevenlabs_client = None
+        logger.warning("⚠️ Google Cloud TTS client not available - audio generation will be disabled")
 except Exception as e:
-    logger.error(f"Failed to initialize ElevenLabs TTS client: {e}")
-    elevenlabs_client = None
+    logger.error(f"Failed to initialize Google Cloud TTS client: {e}")
+    tts_client = None
 
 # Request/Response Models
 class SearchRequest(BaseModel):
@@ -241,7 +240,7 @@ async def get_config():
             "cfm_lesson_plan": search_engine is not None and openai_client is not None,
             "cfm_deep_dive": openai_client is not None,  # Only needs OpenAI, loads bundles directly
             "cfm_lesson_plans": openai_client is not None,  # New lesson plans API
-            "cfm_audio_summary": elevenlabs_client is not None,   # ElevenLabs audio summary API
+            "cfm_audio_summary": tts_client is not None,   # Google Cloud TTS audio summary API
             "cfm_core_content": openai_client is not None     # New core content API
         }
     }
@@ -1044,36 +1043,36 @@ async def create_cfm_lesson_plan(request: CFMLessonPlanRequest):
         logger.error(f"CFM Lesson Plan generation error: {e}")
         raise HTTPException(status_code=500, detail=f"Lesson plan generation failed: {str(e)}")
 
-def generate_audio_with_elevenlabs(script_text: str, voice: str = "rachel") -> Dict[str, str]:
+def generate_audio_with_tts(script_text: str, voice: str = "cfm_male") -> Dict[str, str]:
     """
-    Generate audio file from script using ElevenLabs API
+    Generate audio file from script using Google Cloud TTS
     Returns base64 encoded audio file
     """
     try:
-        logger.info(f"Generating audio with ElevenLabs voice: {voice}")
-        logger.info(f"Script length: {len(script_text)} characters")
+        logger.info(f"🔊 Generating audio with Google Cloud TTS voice: {voice}")
+        logger.info(f"📝 Script length: {len(script_text)} characters")
         
         audio_files = {}
         
-        if elevenlabs_client:
-            # Generate audio using ElevenLabs
-            audio_b64 = elevenlabs_client.generate_audio_base64(
+        if tts_client:
+            # Generate audio using Google Cloud TTS
+            audio_b64 = tts_client.generate_audio_base64(
                 text=script_text,
                 voice=voice
             )
             
             if audio_b64:
                 audio_files['combined'] = audio_b64
-                logger.info("Successfully generated audio with ElevenLabs")
+                logger.info("✅ Successfully generated audio with Google Cloud TTS")
             else:
-                logger.error("ElevenLabs audio generation returned empty result")
+                logger.error("❌ Google Cloud TTS audio generation returned empty result")
         else:
-            logger.warning("ElevenLabs client not available")
+            logger.warning("⚠️ Google Cloud TTS client not available")
         
         return audio_files
         
     except Exception as e:
-        logger.error(f"ElevenLabs audio generation error: {e}")
+        logger.error(f"❌ Google Cloud TTS audio generation error: {e}")
         # Return empty dict on error - endpoint will still return script
         return {}
 
@@ -1168,40 +1167,40 @@ async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
         ai_time_ms = int((time.time() - ai_start) * 1000)
         audio_script = response.choices[0].message.content
         
-        # Step 6: Generate audio using ElevenLabs TTS (if voice is requested and ElevenLabs client is available)
+        # Step 6: Generate audio using Google Cloud TTS (if voice is requested and TTS client is available)
         audio_files = None
-        if hasattr(request, 'voice') and request.voice and elevenlabs_client:
-            logger.info(f"🔊 Generating ElevenLabs audio with voice: {request.voice}")
-            logger.info(f"🔊 ElevenLabs client type: {type(elevenlabs_client)}")
+        if hasattr(request, 'voice') and request.voice and tts_client:
+            logger.info(f"🔊 Generating Google Cloud TTS audio with voice: {request.voice}")
+            logger.info(f"🔊 TTS client type: {type(tts_client)}")
             logger.info(f"🔊 Audio script length: {len(audio_script)} characters")
             tts_start = time.time()
             
             try:
-                # Use ElevenLabs TTS service (handles chunking internally)
-                logger.info("🔊 Calling elevenlabs_client.generate_audio_base64...")
-                audio_b64 = elevenlabs_client.generate_audio_base64(
+                # Use Google Cloud TTS service (handles chunking internally)
+                logger.info("🔊 Calling tts_client.generate_audio_base64...")
+                audio_b64 = tts_client.generate_audio_base64(
                     text=audio_script,
                     voice=request.voice
                 )
-                logger.info(f"🔊 ElevenLabs TTS returned: {type(audio_b64)}, length: {len(audio_b64) if audio_b64 else 0}")
+                logger.info(f"🔊 Google Cloud TTS returned: {type(audio_b64)}, length: {len(audio_b64) if audio_b64 else 0}")
                 
                 if audio_b64:
                     audio_files = {"combined": audio_b64}
                     tts_time_ms = int((time.time() - tts_start) * 1000)
-                    logger.info(f"✅ ElevenLabs TTS generation completed in {tts_time_ms}ms")
+                    logger.info(f"✅ Google Cloud TTS generation completed in {tts_time_ms}ms")
                 else:
-                    logger.error("❌ ElevenLabs TTS generation returned empty result")
+                    logger.error("❌ Google Cloud TTS generation returned empty result")
                     audio_files = None
                 
             except Exception as tts_error:
-                logger.error(f"💥 ElevenLabs TTS generation failed: {tts_error}")
+                logger.error(f"💥 Google Cloud TTS generation failed: {tts_error}")
                 logger.error(f"💥 Error type: {type(tts_error)}")
                 import traceback
                 logger.error(f"💥 Full traceback: {traceback.format_exc()}")
                 # Continue without audio files if TTS fails
                 audio_files = None
-        elif hasattr(request, 'voice') and request.voice and not elevenlabs_client:
-            logger.warning("⚠️  TTS requested but ElevenLabs client not available (ELEVENLABS_API_KEY not set)")
+        elif hasattr(request, 'voice') and request.voice and not tts_client:
+            logger.warning("⚠️  TTS requested but Google Cloud TTS client not available")
         
         # Step 7: Prepare response data
         total_time_ms = int((time.time() - start_time) * 1000)

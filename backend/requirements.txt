@@ -8,9 +8,11 @@ pydantic>=2.4.0
 
 # AI and Search
 openai>=1.3.0
-elevenlabs>=1.0.0
 faiss-cpu>=1.7.0
 numpy>=1.24.0
+
+# Text-to-Speech (Google Cloud TTS - cost-effective)
+google-cloud-texttospeech>=2.14.0
 
 # Web Scraping
 requests>=2.31.0
