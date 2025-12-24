@@ -144,14 +144,14 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
       {isExpanded && (
         <div className="p-6 space-y-4">
           {!audioData ? (
-            /* Loading State */
+            /* No Audio Available State */
             <div className="flex items-center space-x-3">
-              <div className="w-14 h-14 bg-neutral-700 rounded-full flex items-center justify-center animate-pulse">
-                <div className="w-7 h-7 bg-neutral-600 rounded-full"></div>
+              <div className="w-14 h-14 bg-neutral-700 rounded-full flex items-center justify-center">
+                <span className="text-neutral-400 text-xl">🎧</span>
               </div>
               <div className="flex-1">
-                <p className="text-neutral-200 font-medium">Generating audio summary...</p>
-                <p className="text-sm text-neutral-400">This may take a few moments</p>
+                <p className="text-neutral-200 font-medium">Audio not available</p>
+                <p className="text-sm text-neutral-400">The audio summary could not be generated at this time</p>
               </div>
             </div>
           ) : (

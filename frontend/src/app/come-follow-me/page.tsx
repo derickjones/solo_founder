@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { getCurrentCFMWeek, CFMWeek, formatCFMWeekDisplay, CFM_2026_SCHEDULE } from '@/utils/comeFollowMe';
 import StudyLevelSlider from '@/components/StudyLevelSlider';
+import AudioPlayer from '@/components/AudioPlayer';
 import { generateCFMDeepDiveStream, CFMDeepDiveRequest, CFMStreamChunk, generateCFMCoreContent, generateCFMLessonPlan, generateCFMAudioSummary, CFMCoreContentRequest, CFMLessonPlanRequest, CFMAudioSummaryRequest } from '@/services/api';
 import { ChevronLeftIcon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
@@ -33,6 +34,7 @@ export default function ComeFollowMePage() {
   
   // Audio Summary states
   const [audioScript, setAudioScript] = useState<string | null>(null);
+  const [audioFiles, setAudioFiles] = useState<{ combined?: string } | null>(null);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   
   // Common states
@@ -50,6 +52,7 @@ export default function ComeFollowMePage() {
   // Reset audio script when week or study level changes
   useEffect(() => {
     setAudioScript(null);
+    setAudioFiles(null);
     setError(null);
   }, [currentWeek, studyLevel]);
 
@@ -131,6 +134,7 @@ export default function ComeFollowMePage() {
 
     setIsGeneratingAudio(true);
     setError(null);
+    setAudioFiles(null);
     const startTime = Date.now();
 
     try {
@@ -141,11 +145,12 @@ export default function ComeFollowMePage() {
       const request: CFMAudioSummaryRequest = {
         week_number: weekNumber,
         study_level: studyLevel,
-        voice: 'rachel' // ElevenLabs professional voice for high-quality audio
+        voice: 'cfm_male' // CFM Male - custom ElevenLabs voice optimized for Come Follow Me content
       };
 
       const response = await generateCFMAudioSummary(request);
       setAudioScript(response.audio_script);
+      setAudioFiles(response.audio_files || null);
       setGenerationTime(Date.now() - startTime);
     } catch (error) {
       console.error('Error generating audio summary:', error);
@@ -290,15 +295,26 @@ export default function ComeFollowMePage() {
 
               {/* Audio Script Display */}
               {audioScript && (
-                <div className="mt-6 p-4 bg-gray-900 rounded-lg border border-gray-600">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-medium text-gray-300">Audio Script</h3>
-                    <span className="text-xs text-gray-500">
-                      {studyLevel} • {generationTime && `${Math.round(generationTime / 1000)}s`}
-                    </span>
-                  </div>
-                  <div className="text-gray-300 text-sm leading-relaxed max-h-48 overflow-y-auto">
-                    {audioScript}
+                <div className="mt-6 space-y-4">
+                  {/* Audio Player - Show when audio files are available */}
+                  {audioFiles && audioFiles.combined && (
+                    <AudioPlayer 
+                      audioFiles={audioFiles}
+                      title={`${studyLevel.charAt(0).toUpperCase() + studyLevel.slice(1)} Audio Summary`}
+                    />
+                  )}
+                  
+                  {/* Script Preview */}
+                  <div className="p-4 bg-gray-900 rounded-lg border border-gray-600">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-medium text-gray-300">📝 Audio Script</h3>
+                      <span className="text-xs text-gray-500">
+                        {studyLevel} • {generationTime && `${Math.round(generationTime / 1000)}s`}
+                      </span>
+                    </div>
+                    <div className="text-gray-300 text-sm leading-relaxed max-h-48 overflow-y-auto">
+                      {audioScript}
+                    </div>
                   </div>
                 </div>
               )}

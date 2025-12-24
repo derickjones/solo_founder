@@ -85,9 +85,6 @@ export default function ChatInterface({
   const [showProductTiles, setShowProductTiles] = useState(true);
   const [currentTileIndex, setCurrentTileIndex] = useState(0);
   
-  // Voice selection state for audio summaries
-  const [selectedVoice, setSelectedVoice] = useState<'rachel' | 'drew' | 'paul' | 'antoni' | 'bella'>('rachel');
-  
   // Scroll behavior state
   const [isControlsVisible, setIsControlsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -435,7 +432,7 @@ export default function ChatInterface({
             const response = await generateCFMAudioSummary({
               week_number: weekNumber,
               study_level: studyLevelMap[cfmAudioSummaryLevel],
-              voice: 'rachel' // Default to Rachel voice for high-quality professional audio
+              voice: 'cfm_male' // CFM Male - custom voice optimized for Come Follow Me content
             });
             
             // Update the message with the audio summary transcript
@@ -803,22 +800,6 @@ export default function ChatInterface({
                                 </button>
                               ))}
                             </div>
-                          </div>
-                          
-                          {/* Voice Selection */}
-                          <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider text-center block mt-4">Voice Selection</label>
-                          <div className="bg-neutral-700/30 p-3 md:p-4 rounded-lg">
-                            <select 
-                              value={selectedVoice}
-                              onChange={(e) => setSelectedVoice(e.target.value as any)}
-                              className="w-full p-2 rounded-md bg-neutral-600 border border-neutral-500 text-white text-sm focus:border-blue-500 focus:outline-none"
-                            >
-                              <option value="rachel">Rachel (Clear, Professional Female)</option>
-                              <option value="drew">Drew (Warm, Authoritative Male)</option>
-                              <option value="paul">Paul (Deep, Resonant Male)</option>
-                              <option value="antoni">Antoni (Smooth, Engaging Male)</option>
-                              <option value="bella">Bella (Gentle, Nurturing Female)</option>
-                            </select>
                           </div>
                         </>
                       )}
