@@ -702,9 +702,9 @@ export default function ChatInterface({
         </div>
       </div>
 
-      {/* Input area below header - collapses when content is shown */}
+      {/* Input area below header - collapses when content is shown or loading */}
       <div className={`px-4 lg:px-8 pb-2 transition-all duration-300 ease-in-out overflow-hidden shrink-0 ${
-        !isControlsVisible && messages.length > 0 ? 'max-h-0 opacity-0' : 'opacity-100'
+        (isLoading || (!isControlsVisible && messages.length > 0)) ? 'max-h-0 opacity-0' : 'opacity-100'
       }`}>
         <div className="max-w-6xl mx-auto">
           <form onSubmit={handleSubmit} className="relative">
