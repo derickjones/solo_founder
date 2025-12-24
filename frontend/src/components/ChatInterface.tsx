@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ChevronDownIcon, PaperAirplaneIcon, Bars3Icon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon, ChevronRightIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMDeepDiveStream, CFMStreamChunk, CFMDeepDiveRequest, generateCFMLessonPlan, CFMLessonPlanRequest, generateCFMAudioSummary, CFMAudioSummaryRequest, generateCFMCoreContent, CFMCoreContentRequest } from '@/services/api';
 import ReactMarkdown from 'react-markdown';
@@ -84,6 +84,9 @@ export default function ChatInterface({
   const [showProductTiles, setShowProductTiles] = useState(true);
   const [currentTileIndex, setCurrentTileIndex] = useState(0);
   
+  // Ref for scrolling to bottom of messages
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  
   // Scroll behavior state
   const [isControlsVisible, setIsControlsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -99,6 +102,19 @@ export default function ChatInterface({
       console.error('Failed to copy to clipboard:', error);
     }
   };
+
+  // Scroll to bottom of messages
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Auto-scroll when content is generated - scroll detection handles hiding controls
+  useEffect(() => {
+    if (messages.length > 0 && !isLoading) {
+      // Scroll to show the content - this will trigger the scroll handler to hide controls
+      setTimeout(scrollToBottom, 100);
+    }
+  }, [messages, isLoading]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -603,19 +619,10 @@ export default function ChatInterface({
         </div>
       </div>
 
-      {/* Floating controls toggle button for mobile - only show in CFM mode when controls are hidden */}
-      {!isControlsVisible && mode === 'Come Follow Me' && (
-        <button
-          onClick={() => setIsControlsVisible(true)}
-          className="md:hidden fixed bottom-4 right-4 z-30 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition-all duration-200"
-          title="Show controls"
-        >
-          <ChevronDownIcon className="w-6 h-6 transform rotate-180" />
-        </button>
-      )}
-
       {/* Mobile hamburger menu */}
-      <div className="lg:hidden flex items-center justify-between p-4 border-b border-neutral-700">
+      <div className={`lg:hidden flex items-center justify-between p-4 border-b border-neutral-700 transition-all duration-300 ease-in-out ${
+        !isControlsVisible && messages.length > 0 ? 'max-h-0 opacity-0 overflow-hidden py-0 border-b-0' : 'max-h-20 opacity-100'
+      }`}>
         <button
           onClick={() => setSidebarOpen(true)}
           className="text-neutral-400 hover:text-white p-2"
@@ -626,8 +633,10 @@ export default function ChatInterface({
         <div className="w-10"></div> {/* Spacer for centering */}
       </div>
 
-      {/* Header with logo - always visible */}
-      <div className="relative flex items-center justify-center pt-6 lg:pt-12 pb-4 lg:pb-6 px-4">
+      {/* Header with logo - collapses on mobile when scrolling down */}
+      <div className={`relative flex items-center justify-center pt-6 lg:pt-12 pb-4 lg:pb-6 px-4 transition-all duration-300 ease-in-out ${
+        !isControlsVisible && messages.length > 0 ? 'md:flex max-h-0 md:max-h-none opacity-0 md:opacity-100 overflow-hidden py-0 md:py-auto' : 'max-h-96 opacity-100'
+      }`}>
         <div className="flex flex-col items-center space-y-4 lg:space-y-6">
           <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full overflow-hidden border-2 border-neutral-700">
             <img 
@@ -648,9 +657,9 @@ export default function ChatInterface({
         </div>
       </div>
 
-      {/* Input area below header */}
-      <div className={`px-4 lg:px-8 pb-2 transition-transform duration-300 ${
-        isControlsVisible ? 'transform translate-y-0' : 'transform -translate-y-full md:translate-y-0'
+      {/* Input area below header - collapses on mobile when scrolling down */}
+      <div className={`px-4 lg:px-8 pb-2 transition-all duration-300 ease-in-out overflow-hidden ${
+        !isControlsVisible && messages.length > 0 ? 'max-h-0 md:max-h-none opacity-0 md:opacity-100' : 'max-h-[1000px] opacity-100'
       }`}>
         <div className="max-w-6xl mx-auto">
           <form onSubmit={handleSubmit} className="relative">
@@ -1152,6 +1161,9 @@ export default function ChatInterface({
                 <span className="ml-3 text-neutral-400">Searching scriptures...</span>
               </div>
             )}
+            
+            {/* Scroll anchor - this element is used to scroll to the bottom */}
+            <div ref={messagesEndRef} />
           </div>
         ) : (
           // Empty state with product explanation tiles
