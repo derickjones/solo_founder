@@ -703,7 +703,7 @@ export default function ChatInterface({
                           className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
                             cfmStudyType === 'deep-dive'
                               ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
-                              : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
+                              : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-blue-600/20 hover:border-blue-500/50'
                           }`}
                         >
                           Deep Dive Study
@@ -713,8 +713,8 @@ export default function ChatInterface({
                           onClick={() => setCfmStudyType('lesson-plans')}
                           className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
                             cfmStudyType === 'lesson-plans'
-                              ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
-                              : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
+                              ? 'bg-purple-600/80 border-purple-500 text-white shadow-lg shadow-purple-500/30'
+                              : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-purple-600/20 hover:border-purple-500/50'
                           }`}
                         >
                           Lesson Plans
@@ -724,8 +724,8 @@ export default function ChatInterface({
                           onClick={() => setCfmStudyType('audio-summary')}
                           className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
                             cfmStudyType === 'audio-summary'
-                              ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
-                              : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
+                              ? 'bg-emerald-600/80 border-emerald-500 text-white shadow-lg shadow-emerald-500/30'
+                              : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-emerald-600/20 hover:border-emerald-500/50'
                           }`}
                         >
                           Audio Summary
@@ -735,8 +735,8 @@ export default function ChatInterface({
                           onClick={() => setCfmStudyType('core-content')}
                           className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
                             cfmStudyType === 'core-content'
-                              ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
-                              : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
+                              ? 'bg-amber-600/80 border-amber-500 text-white shadow-lg shadow-amber-500/30'
+                              : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-amber-600/20 hover:border-amber-500/50'
                           }`}
                         >
                           Core Content
@@ -754,18 +754,26 @@ export default function ChatInterface({
                           <div className="bg-neutral-700/30 p-3 md:p-4 rounded-lg">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                               {[
-                                { level: 'essential', label: 'Essential' },
-                                { level: 'connected', label: 'Connected' },
-                                { level: 'scholarly', label: 'Scholarly' }
-                              ].map(({ level, label }) => (
+                                { level: 'essential', label: 'Essential', color: 'emerald' },
+                                { level: 'connected', label: 'Connected', color: 'purple' },
+                                { level: 'scholarly', label: 'Scholarly', color: 'amber' }
+                              ].map(({ level, label, color }) => (
                                 <button
                                   key={level}
                                   type="button"
                                   onClick={() => setCfmStudyLevel(level as StudyLevel)}
                                   className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
                                     cfmStudyLevel === level
-                                      ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
-                                      : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
+                                      ? color === 'emerald' 
+                                        ? 'bg-emerald-600/80 border-emerald-500 text-white shadow-lg shadow-emerald-500/30'
+                                        : color === 'purple'
+                                        ? 'bg-purple-600/80 border-purple-500 text-white shadow-lg shadow-purple-500/30'
+                                        : 'bg-amber-600/80 border-amber-500 text-white shadow-lg shadow-amber-500/30'
+                                      : color === 'emerald'
+                                        ? 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-emerald-600/20 hover:border-emerald-500/50'
+                                        : color === 'purple'
+                                        ? 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-purple-600/20 hover:border-purple-500/50'
+                                        : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-amber-600/20 hover:border-amber-500/50'
                                   }`}
                                 >
                                   {label}
@@ -781,15 +789,27 @@ export default function ChatInterface({
                           <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider text-center block">Audience</label>
                           <div className="bg-neutral-700/30 p-3 md:p-4 rounded-lg">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                              {['adult', 'youth', 'children'].map((level) => (
+                              {[
+                                { level: 'adult', color: 'purple' },
+                                { level: 'youth', color: 'blue' },
+                                { level: 'children', color: 'emerald' }
+                              ].map(({ level, color }) => (
                                 <button
                                   key={level}
                                   type="button"
                                   onClick={() => setCfmLessonPlanLevel(level as LessonPlanLevel)}
                                   className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border capitalize ${
                                     cfmLessonPlanLevel === level
-                                      ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
-                                      : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
+                                      ? color === 'purple'
+                                        ? 'bg-purple-600/80 border-purple-500 text-white shadow-lg shadow-purple-500/30'
+                                        : color === 'blue'
+                                        ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
+                                        : 'bg-emerald-600/80 border-emerald-500 text-white shadow-lg shadow-emerald-500/30'
+                                      : color === 'purple'
+                                        ? 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-purple-600/20 hover:border-purple-500/50'
+                                        : color === 'blue'
+                                        ? 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-blue-600/20 hover:border-blue-500/50'
+                                        : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-emerald-600/20 hover:border-emerald-500/50'
                                   }`}
                                 >
                                   {level}
@@ -806,18 +826,26 @@ export default function ChatInterface({
                           <div className="bg-neutral-700/30 p-3 md:p-4 rounded-lg">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                               {[
-                                { level: 'short', label: 'Essential' },
-                                { level: 'medium', label: 'Connected' },
-                                { level: 'long', label: 'Scholarly' }
-                              ].map(({ level, label }) => (
+                                { level: 'short', label: 'Essential', color: 'emerald' },
+                                { level: 'medium', label: 'Connected', color: 'purple' },
+                                { level: 'long', label: 'Scholarly', color: 'amber' }
+                              ].map(({ level, label, color }) => (
                                 <button
                                   key={level}
                                   type="button"
                                   onClick={() => setCfmAudioSummaryLevel(level as AudioSummaryLevel)}
                                   className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
                                     cfmAudioSummaryLevel === level
-                                      ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
-                                      : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-neutral-600/50 hover:border-neutral-500'
+                                      ? color === 'emerald' 
+                                        ? 'bg-emerald-600/80 border-emerald-500 text-white shadow-lg shadow-emerald-500/30'
+                                        : color === 'purple'
+                                        ? 'bg-purple-600/80 border-purple-500 text-white shadow-lg shadow-purple-500/30'
+                                        : 'bg-amber-600/80 border-amber-500 text-white shadow-lg shadow-amber-500/30'
+                                      : color === 'emerald'
+                                        ? 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-emerald-600/20 hover:border-emerald-500/50'
+                                        : color === 'purple'
+                                        ? 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-purple-600/20 hover:border-purple-500/50'
+                                        : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-amber-600/20 hover:border-amber-500/50'
                                   }`}
                                 >
                                   {label}
