@@ -33,10 +33,11 @@ class ElevenLabsTTS:
             "antoni": "ErXwobaYiN019PkySvjV",  # Smooth, engaging male
             "bella": "EXAVITQu4vr4xnSDxMaL",  # Gentle, nurturing female
             "dj": "iVJjVhNtHZtpx5wfJTm6",     # DJ's custom voice
+            "cfm_male": "dmD3jHmyT4TJHfjKXGI2",  # CFM Male - default voice
         }
         
         # Default voice for gospel content
-        self.default_voice = "rachel"
+        self.default_voice = "cfm_male"
     
     def get_available_voices(self) -> Dict[str, str]:
         """Get available voice options for gospel content"""

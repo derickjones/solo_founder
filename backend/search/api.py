@@ -13,6 +13,10 @@ import base64
 import io
 from typing import List, Dict, Any, Optional
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -1167,30 +1171,37 @@ async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
         # Step 6: Generate audio using ElevenLabs TTS (if voice is requested and ElevenLabs client is available)
         audio_files = None
         if hasattr(request, 'voice') and request.voice and elevenlabs_client:
-            logger.info(f"Generating ElevenLabs audio with voice: {request.voice}")
+            logger.info(f"🔊 Generating ElevenLabs audio with voice: {request.voice}")
+            logger.info(f"🔊 ElevenLabs client type: {type(elevenlabs_client)}")
+            logger.info(f"🔊 Audio script length: {len(audio_script)} characters")
             tts_start = time.time()
             
             try:
                 # Use ElevenLabs TTS service (handles chunking internally)
+                logger.info("🔊 Calling elevenlabs_client.generate_audio_base64...")
                 audio_b64 = elevenlabs_client.generate_audio_base64(
                     text=audio_script,
                     voice=request.voice
                 )
+                logger.info(f"🔊 ElevenLabs TTS returned: {type(audio_b64)}, length: {len(audio_b64) if audio_b64 else 0}")
                 
                 if audio_b64:
                     audio_files = {"combined": audio_b64}
                     tts_time_ms = int((time.time() - tts_start) * 1000)
-                    logger.info(f"ElevenLabs TTS generation completed in {tts_time_ms}ms")
+                    logger.info(f"✅ ElevenLabs TTS generation completed in {tts_time_ms}ms")
                 else:
-                    logger.error("ElevenLabs TTS generation returned empty result")
+                    logger.error("❌ ElevenLabs TTS generation returned empty result")
                     audio_files = None
                 
             except Exception as tts_error:
-                logger.error(f"ElevenLabs TTS generation failed: {tts_error}")
+                logger.error(f"💥 ElevenLabs TTS generation failed: {tts_error}")
+                logger.error(f"💥 Error type: {type(tts_error)}")
+                import traceback
+                logger.error(f"💥 Full traceback: {traceback.format_exc()}")
                 # Continue without audio files if TTS fails
                 audio_files = None
         elif hasattr(request, 'voice') and request.voice and not elevenlabs_client:
-            logger.warning("TTS requested but ElevenLabs client not available (ELEVENLABS_API_KEY not set)")
+            logger.warning("⚠️  TTS requested but ElevenLabs client not available (ELEVENLABS_API_KEY not set)")
         
         # Step 7: Prepare response data
         total_time_ms = int((time.time() - start_time) * 1000)
