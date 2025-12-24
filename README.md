@@ -20,7 +20,7 @@
 
 ## 🎵 **Audio Generation System**
 - **📊 Three Study Levels**: Essential, Connected, Scholarly with optimized prompts  
-- **🎙️ Professional Voice**: ElevenLabs TTS with 5 professional voices (Rachel, Drew, Paul, Antoni, Bella)
+- **🎙️ Professional Voice**: Google Cloud TTS with Chirp 3 HD voices (cost-effective, high-quality)
 - **🧩 Smart Text Chunking**: Handles TTS character limits seamlessly
 - **🎛️ Modern Audio Player**: Speed controls, seeking, volume control, collapsible interface
 - **📝 Script-First Design**: Shows transcript by default, optional audio generation
@@ -40,10 +40,10 @@
 - **Payment Integration**: Stripe Checkout with subscription management
 
 ### 🐍 **Backend (FastAPI)**
-- **Dual AI Integration**: Grok AI for content generation + ElevenLabs TTS for audio
+- **AI Integration**: Grok AI for content generation + Google Cloud TTS for audio
 - **Streaming API**: Server-Sent Events for real-time responses
 - **Vector Search**: FAISS-powered semantic search
-- **Audio Generation**: ElevenLabs TTS with professional voices and smart text chunking
+- **Audio Generation**: Google Cloud TTS with Chirp 3 HD voices and smart text chunking
 - **CFM Bundle System**: 52 enhanced weekly bundles with complete scripture content
 - **Authentication**: User session management and subscription validation
 
@@ -90,7 +90,7 @@ npm run dev
 ```bash
 # Backend (.env)
 XAI_API_KEY=your_grok_key           # For AI content generation (CFM Deep Dive, Lesson Plans, Audio Scripts)
-ELEVENLABS_API_KEY=your_elevenlabs_key  # For high-quality TTS audio generation
+GCS_BUCKET=gospel-guide-cfm-bundles # Google Cloud Storage bucket for CFM bundles
 OPENAI_API_KEY=your_openai_key      # Legacy - kept for potential fallback
 CLERK_SECRET_KEY=your_clerk_key
 STRIPE_SECRET_KEY=your_stripe_key
@@ -177,18 +177,18 @@ vercel --prod
 
 ## 🔧 **Recent Updates (December 2024)**
 
-- **✅ ElevenLabs TTS Integration**: Replaced OpenAI TTS with professional-grade ElevenLabs voices for superior audio quality
+- **✅ Google Cloud TTS**: Switched from ElevenLabs to Google Cloud TTS with Chirp 3 HD voices (20x cost reduction)
 - **✅ Study Level Rebranding**: Updated from Basic/Intermediate/Advanced to Essential/Connected/Scholarly for better user appeal
-- **✅ Dual AI Integration**: Grok AI for content generation, ElevenLabs for audio synthesis
+- **✅ AI Integration**: Grok AI for content generation, Google Cloud TTS for audio synthesis
 - **✅ TypeScript Consistency**: Fixed all type definitions across frontend and backend
 - **✅ API Standardization**: All CFM endpoints now use unified study_level parameter
 - **✅ User Experience**: Improved naming scheme specifically for LDS audience engagement
-- **✅ Professional Audio**: 5 voice options (Rachel, Drew, Paul, Antoni, Bella) with smart chunking
+- **✅ Cost Optimization**: Google Cloud TTS at ~$0.016/1K chars vs ElevenLabs $0.30/1K chars
 
 ## 🔧 **Troubleshooting**
 
 - **Study Level Errors**: Ensure using Essential/Connected/Scholarly (not old Basic/Intermediate/Advanced)
-- **Audio Generation**: Requires ELEVENLABS_API_KEY environment variable in production
+- **Audio Generation**: Google Cloud TTS uses service account authentication (automatic on Cloud Run)
 - **Content Generation**: Requires XAI_API_KEY for CFM study guides and lesson plans
 - **Bundle Loading**: Debug endpoint at `/debug/bundle/{week}` for CFM content issues
 - **Authentication**: Check Clerk configuration in middleware.ts
