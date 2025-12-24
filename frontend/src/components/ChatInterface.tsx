@@ -658,8 +658,8 @@ export default function ChatInterface({
       </div>
 
       {/* Input area below header - collapses on mobile when scrolling down */}
-      <div className={`px-4 lg:px-8 pb-2 transition-all duration-300 ease-in-out overflow-hidden ${
-        !isControlsVisible && messages.length > 0 ? 'max-h-0 md:max-h-none opacity-0 md:opacity-100' : 'max-h-[1000px] opacity-100'
+      <div className={`px-4 lg:px-8 pb-2 transition-all duration-300 ease-in-out overflow-hidden shrink-0 ${
+        !isControlsVisible && messages.length > 0 ? 'max-h-0 md:max-h-none opacity-0 md:opacity-100' : 'opacity-100'
       }`}>
         <div className="max-w-6xl mx-auto">
           <form onSubmit={handleSubmit} className="relative">
@@ -940,7 +940,7 @@ export default function ChatInterface({
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 px-4 lg:px-6 pb-2 lg:pb-4 overflow-y-auto">
+      <div className="flex-1 min-h-0 px-4 lg:px-6 pb-2 lg:pb-4 overflow-y-auto">
         {messages.length > 0 ? (
           <div className="max-w-6xl mx-auto space-y-6">
             {messages.map((message) => (
@@ -1296,7 +1296,7 @@ export default function ChatInterface({
       </div>
 
       {/* Footer */}
-      <div className="px-6 py-3 border-t border-neutral-700">
+      <div className="shrink-0 px-6 py-3 border-t border-neutral-700">
         <div className="max-w-6xl mx-auto text-sm text-neutral-400">
           <div className="flex justify-center items-center">
             <div className="flex space-x-8">
