@@ -696,22 +696,22 @@ export default function ChatInterface({
                     {/* Study Type Selection */}
                     <div className="space-y-2 md:space-y-3">
                       <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Study Type</label>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                         <button
                           type="button"
                           onClick={() => setCfmStudyType('deep-dive')}
-                          className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
+                          className={`p-2 md:p-3 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 border ${
                             cfmStudyType === 'deep-dive'
                               ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
                               : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-blue-600/20 hover:border-blue-500/50'
                           }`}
                         >
-                          Deep Dive Study
+                          Deep Dive
                         </button>
                         <button
                           type="button"
                           onClick={() => setCfmStudyType('lesson-plans')}
-                          className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
+                          className={`p-2 md:p-3 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 border ${
                             cfmStudyType === 'lesson-plans'
                               ? 'bg-purple-600/80 border-purple-500 text-white shadow-lg shadow-purple-500/30'
                               : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-purple-600/20 hover:border-purple-500/50'
@@ -722,24 +722,24 @@ export default function ChatInterface({
                         <button
                           type="button"
                           onClick={() => setCfmStudyType('audio-summary')}
-                          className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
+                          className={`p-2 md:p-3 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 border ${
                             cfmStudyType === 'audio-summary'
                               ? 'bg-emerald-600/80 border-emerald-500 text-white shadow-lg shadow-emerald-500/30'
                               : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-emerald-600/20 hover:border-emerald-500/50'
                           }`}
                         >
-                          Audio Summary
+                          Audio
                         </button>
                         <button
                           type="button"
                           onClick={() => setCfmStudyType('core-content')}
-                          className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
+                          className={`p-2 md:p-3 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 border ${
                             cfmStudyType === 'core-content'
                               ? 'bg-amber-600/80 border-amber-500 text-white shadow-lg shadow-amber-500/30'
                               : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-amber-600/20 hover:border-amber-500/50'
                           }`}
                         >
-                          Core Content
+                          Core
                         </button>
                       </div>
                     </div>
@@ -751,8 +751,8 @@ export default function ChatInterface({
                       {cfmStudyType === 'deep-dive' && (
                         <>
                           <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider text-center block">Study Level</label>
-                          <div className="bg-neutral-700/30 p-3 md:p-4 rounded-lg">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                          <div className="bg-neutral-700/30 p-2 md:p-4 rounded-lg">
+                            <div className="grid grid-cols-3 gap-2">
                               {[
                                 { level: 'essential', label: 'Essential', color: 'emerald' },
                                 { level: 'connected', label: 'Connected', color: 'purple' },
@@ -762,7 +762,7 @@ export default function ChatInterface({
                                   key={level}
                                   type="button"
                                   onClick={() => setCfmStudyLevel(level as StudyLevel)}
-                                  className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
+                                  className={`p-2 md:p-3 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 border ${
                                     cfmStudyLevel === level
                                       ? color === 'emerald' 
                                         ? 'bg-emerald-600/80 border-emerald-500 text-white shadow-lg shadow-emerald-500/30'
@@ -787,8 +787,8 @@ export default function ChatInterface({
                       {cfmStudyType === 'lesson-plans' && (
                         <>
                           <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider text-center block">Audience</label>
-                          <div className="bg-neutral-700/30 p-3 md:p-4 rounded-lg">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                          <div className="bg-neutral-700/30 p-2 md:p-4 rounded-lg">
+                            <div className="grid grid-cols-3 gap-2">
                               {[
                                 { level: 'adult', color: 'purple' },
                                 { level: 'youth', color: 'blue' },
@@ -798,7 +798,7 @@ export default function ChatInterface({
                                   key={level}
                                   type="button"
                                   onClick={() => setCfmLessonPlanLevel(level as LessonPlanLevel)}
-                                  className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border capitalize ${
+                                  className={`p-2 md:p-3 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 border capitalize ${
                                     cfmLessonPlanLevel === level
                                       ? color === 'purple'
                                         ? 'bg-purple-600/80 border-purple-500 text-white shadow-lg shadow-purple-500/30'
@@ -823,8 +823,8 @@ export default function ChatInterface({
                       {cfmStudyType === 'audio-summary' && (
                         <>
                           <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider text-center block">Study Level</label>
-                          <div className="bg-neutral-700/30 p-3 md:p-4 rounded-lg">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                          <div className="bg-neutral-700/30 p-2 md:p-4 rounded-lg">
+                            <div className="grid grid-cols-3 gap-2">
                               {[
                                 { level: 'short', label: 'Essential', color: 'emerald' },
                                 { level: 'medium', label: 'Connected', color: 'purple' },
@@ -834,7 +834,7 @@ export default function ChatInterface({
                                   key={level}
                                   type="button"
                                   onClick={() => setCfmAudioSummaryLevel(level as AudioSummaryLevel)}
-                                  className={`p-2 md:p-3 rounded-lg text-sm font-medium transition-all duration-200 border ${
+                                  className={`p-2 md:p-3 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 border ${
                                     cfmAudioSummaryLevel === level
                                       ? color === 'emerald' 
                                         ? 'bg-emerald-600/80 border-emerald-500 text-white shadow-lg shadow-emerald-500/30'
