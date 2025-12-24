@@ -543,3 +543,64 @@ export const generateCFMCoreContent = async (request: CFMCoreContentRequest): Pr
   console.log(`📖 Core content generation successful: ${result.bundle_sources} sources, ${result.total_characters} characters`);
   return result;
 };
+
+// TTS Generation Types
+export interface TTSGenerateRequest {
+  text: string;
+  voice?: string;
+  title?: string;
+}
+
+export interface TTSGenerateResponse {
+  audio_base64: string;
+  title: string;
+  character_count: number;
+  generation_time_ms: number;
+}
+
+// Generate TTS audio from text (for Listen button on Deep Dive, etc.)
+export const generateTTS = async (request: TTSGenerateRequest): Promise<TTSGenerateResponse> => {
+  console.log(`🎧 Starting TTS generation: ${request.text.length} characters`);
+  
+  // Set a 3-minute timeout for TTS generation
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 180000);
+  
+  try {
+    const startTime = Date.now();
+    const response = await fetch(`${API_BASE_URL}/tts/generate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        text: request.text,
+        voice: request.voice || 'cfm_male',
+        title: request.title || 'Audio'
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+    const elapsed = Date.now() - startTime;
+    console.log(`🎧 TTS request completed in ${elapsed}ms`);
+
+    if (!response.ok) {
+      console.error(`🎧 TTS generation failed: ${response.status} ${response.statusText}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Failed to generate audio: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log(`🎧 TTS generation successful: ${result.character_count} chars in ${result.generation_time_ms}ms`);
+    return result;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error('🎧 TTS generation timed out after 3 minutes');
+      throw new Error('Audio generation timed out. Please try again with shorter content.');
+    }
+    console.error('🎧 TTS generation error:', error);
+    throw error;
+  }
+};

@@ -630,6 +630,18 @@ class CFMCoreContentResponse(BaseModel):
     total_characters: int
     generation_time_ms: int
 
+# TTS Generation Models (for on-demand audio from any text)
+class TTSGenerateRequest(BaseModel):
+    text: str  # Text to convert to speech
+    voice: str = "cfm_male"  # Voice to use (default: cfm_male)
+    title: str = "Audio"  # Title for the audio player
+
+class TTSGenerateResponse(BaseModel):
+    audio_base64: str  # Base64 encoded MP3 audio
+    title: str
+    character_count: int
+    generation_time_ms: int
+
 # Helper functions for CFM 2026 Deep Dive
 @app.get("/debug/paths")
 async def debug_paths():
@@ -1387,6 +1399,55 @@ Content to organize:
     except Exception as e:
         logger.error(f"CFM Core Content generation error: {e}")
         raise HTTPException(status_code=500, detail=f"Core content generation failed: {str(e)}")
+
+
+@app.post("/tts/generate", response_model=TTSGenerateResponse)
+async def generate_tts(request: TTSGenerateRequest):
+    """
+    Generate audio from text using Google Cloud TTS.
+    Used for on-demand audio generation from Deep Dive or other content.
+    """
+    import time
+    start_time = time.time()
+    
+    logger.info(f"🎙️ TTS generation request: {len(request.text)} characters, voice={request.voice}")
+    
+    if not tts_client:
+        raise HTTPException(status_code=503, detail="TTS service not available")
+    
+    if not request.text or len(request.text.strip()) < 10:
+        raise HTTPException(status_code=400, detail="Text must be at least 10 characters")
+    
+    # Limit text length to prevent abuse (100k chars max)
+    if len(request.text) > 100000:
+        raise HTTPException(status_code=400, detail="Text too long. Maximum 100,000 characters.")
+    
+    try:
+        # Generate audio using Google Cloud TTS
+        audio_b64 = tts_client.generate_audio_base64(
+            text=request.text,
+            voice_name=request.voice
+        )
+        
+        if not audio_b64:
+            raise HTTPException(status_code=500, detail="Audio generation failed")
+        
+        total_time_ms = int((time.time() - start_time) * 1000)
+        logger.info(f"✅ TTS generated in {total_time_ms}ms for {len(request.text)} chars")
+        
+        return TTSGenerateResponse(
+            audio_base64=audio_b64,
+            title=request.title,
+            character_count=len(request.text),
+            generation_time_ms=total_time_ms
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"TTS generation error: {e}")
+        raise HTTPException(status_code=500, detail=f"TTS generation failed: {str(e)}")
+
 
 # For local development
 if __name__ == "__main__":

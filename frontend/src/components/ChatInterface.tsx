@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { ChevronDownIcon, PaperAirplaneIcon, Bars3Icon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon, ChevronRightIcon, UserCircleIcon } from '@heroicons/react/24/outline';
-import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMDeepDiveStream, CFMStreamChunk, CFMDeepDiveRequest, generateCFMLessonPlan, CFMLessonPlanRequest, generateCFMAudioSummary, CFMAudioSummaryRequest, generateCFMCoreContent, CFMCoreContentRequest } from '@/services/api';
+import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMDeepDiveStream, CFMStreamChunk, CFMDeepDiveRequest, generateCFMLessonPlan, CFMLessonPlanRequest, generateCFMAudioSummary, CFMAudioSummaryRequest, generateCFMCoreContent, CFMCoreContentRequest, generateTTS } from '@/services/api';
 import ReactMarkdown from 'react-markdown';
 import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
 import { CFM_AUDIENCES, CFM_2026_SCHEDULE, CFMWeek } from '@/utils/comeFollowMe';
@@ -83,6 +83,7 @@ export default function ChatInterface({
   const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null);
   const [showProductTiles, setShowProductTiles] = useState(true);
   const [currentTileIndex, setCurrentTileIndex] = useState(0);
+  const [generatingAudioForMessage, setGeneratingAudioForMessage] = useState<number | null>(null);
   
   // Ref for scrolling to bottom of messages
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -90,6 +91,34 @@ export default function ChatInterface({
   // Scroll behavior state
   const [isControlsVisible, setIsControlsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+
+  // Handle Listen button click - generate TTS for message content
+  const handleListenToContent = async (messageId: number, content: string) => {
+    setGeneratingAudioForMessage(messageId);
+    try {
+      const result = await generateTTS({
+        text: content,
+        voice: 'cfm_male',
+        title: 'Deep Dive Audio'
+      });
+      
+      // Update the message with audio data
+      setMessages(prev => prev.map(msg => 
+        msg.id === messageId 
+          ? { 
+              ...msg, 
+              audioFiles: { combined: result.audio_base64 },
+              audioTitle: result.title
+            }
+          : msg
+      ));
+    } catch (error) {
+      console.error('Failed to generate audio:', error);
+      alert('Failed to generate audio. Please try again.');
+    } finally {
+      setGeneratingAudioForMessage(null);
+    }
+  };
 
   // Copy to clipboard handler
   const handleCopyToClipboard = async (content: string, messageId: number) => {
@@ -1091,7 +1120,33 @@ export default function ChatInterface({
                 
                 {/* Action buttons for assistant messages */}
                 {message.type === 'assistant' && message.content && !message.isStreaming && (
-                  <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-neutral-700">
+                  <div className="flex flex-wrap justify-end gap-3 mt-6 pt-4 border-t border-neutral-700">
+                    {/* Listen button - for Deep Dive, Lesson Plans, Core Content (not Audio Summary which already has audio) */}
+                    {mode === 'Come Follow Me' && cfmStudyType !== 'audio-summary' && !message.audioTitle && (
+                      <button
+                        onClick={() => handleListenToContent(message.id, message.content)}
+                        disabled={generatingAudioForMessage === message.id}
+                        className="inline-flex items-center px-4 py-2 text-sm text-neutral-300 hover:text-white bg-emerald-700/80 hover:bg-emerald-600 disabled:bg-emerald-800/50 disabled:cursor-wait rounded-lg transition-all duration-200"
+                      >
+                        {generatingAudioForMessage === message.id ? (
+                          <>
+                            <svg className="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Generating Audio...
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                            </svg>
+                            🎧 Listen
+                          </>
+                        )}
+                      </button>
+                    )}
+                    
                     {/* Copy button */}
                     <button
                       onClick={() => handleCopyToClipboard(message.content, message.id)}
