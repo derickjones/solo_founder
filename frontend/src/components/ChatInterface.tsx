@@ -990,7 +990,8 @@ export default function ChatInterface({
           <div className="max-w-6xl mx-auto space-y-6">
             {messages.map((message) => (
               <div key={message.id} className="space-y-4">
-                {(message.type === 'user' || (message.type === 'assistant' && (message.content || message.audioFiles))) && (
+                {/* Show user messages, assistant messages with content, or assistant messages that are loading */}
+                {(message.type === 'user' || (message.type === 'assistant' && (message.content || message.audioFiles || message.isStreaming))) && (
                   <div
                     className={`${
                       message.type === 'user'
@@ -1118,6 +1119,23 @@ export default function ChatInterface({
                               {message.content}
                             </ReactMarkdown>
                           )}
+                        </div>
+                      ) : message.isStreaming ? (
+                        // Show loading indicator when streaming but no content yet
+                        <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                          <div className="relative">
+                            <div className="w-16 h-16 border-4 border-neutral-600 border-t-blue-500 rounded-full animate-spin"></div>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-lg font-medium text-neutral-200">
+                              {cfmStudyType === 'deep-dive' && 'Generating Deep Dive Study...'}
+                              {cfmStudyType === 'lesson-plans' && `Creating ${cfmLessonPlanLevel.charAt(0).toUpperCase() + cfmLessonPlanLevel.slice(1)} Lesson Plan...`}
+                              {cfmStudyType === 'audio-summary' && 'Generating Audio Summary...'}
+                              {cfmStudyType === 'core-content' && 'Organizing Core Content...'}
+                              {mode !== 'Come Follow Me' && 'Thinking...'}
+                            </p>
+                            <p className="text-sm text-neutral-400 mt-2">This may take a moment</p>
+                          </div>
                         </div>
                       ) : null
                     ) : (
