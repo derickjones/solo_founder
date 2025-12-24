@@ -1426,7 +1426,7 @@ async def generate_tts(request: TTSGenerateRequest):
         # Generate audio using Google Cloud TTS
         audio_b64 = tts_client.generate_audio_base64(
             text=request.text,
-            voice_name=request.voice
+            voice=request.voice
         )
         
         if not audio_b64:
