@@ -981,6 +981,16 @@ export default function ChatInterface({
                     {message.type === 'assistant' ? (
                       message.content ? (
                         <div className="space-y-6 leading-relaxed text-neutral-100 max-w-none">
+                          {/* Audio Player for audio summaries - shown first */}
+                          {message.audioTitle && (
+                            <div className="mb-6">
+                              <AudioPlayer 
+                                audioFiles={message.audioFiles || {}}
+                                title={message.audioTitle}
+                              />
+                            </div>
+                          )}
+                          
                           {message.isStreaming && message.id === streamingMessageId ? (
                             // During streaming, show the streaming content state
                             <div className="text-base leading-7 text-neutral-100 whitespace-pre-wrap">
@@ -1067,16 +1077,6 @@ export default function ChatInterface({
                       ) : null
                     ) : (
                       message.content
-                    )}
-                    
-                    {/* Audio Player for audio summaries */}
-                    {message.audioTitle && (
-                      <div className="mt-6">
-                        <AudioPlayer 
-                          audioFiles={message.audioFiles || {}}
-                          title={message.audioTitle}
-                        />
-                      </div>
                     )}
                   </div>
                 )}
