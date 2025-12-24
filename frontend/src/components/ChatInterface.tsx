@@ -670,26 +670,34 @@ export default function ChatInterface({
         <div className="w-10"></div> {/* Spacer for centering */}
       </div>
 
-      {/* Header with logo - collapses when content is shown */}
-      <div className={`relative flex items-center justify-center pt-6 lg:pt-12 pb-4 lg:pb-6 px-4 transition-all duration-300 ease-in-out ${
-        !isControlsVisible && messages.length > 0 ? 'max-h-0 opacity-0 overflow-hidden py-0' : 'max-h-96 opacity-100'
+      {/* Header with logo - always visible, compact when content is shown */}
+      <div className={`relative flex items-center justify-center px-4 transition-all duration-300 ease-in-out shrink-0 ${
+        messages.length > 0 ? 'pt-3 pb-2 lg:pt-4 lg:pb-3' : 'pt-6 lg:pt-12 pb-4 lg:pb-6'
       }`}>
-        <div className="flex flex-col items-center space-y-4 lg:space-y-6">
-          <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full overflow-hidden border-2 border-neutral-700">
+        <div className={`flex items-center transition-all duration-300 ${
+          messages.length > 0 ? 'flex-row space-x-3 lg:space-x-4' : 'flex-col space-y-4 lg:space-y-6'
+        }`}>
+          <div className={`rounded-full overflow-hidden border-2 border-neutral-700 transition-all duration-300 ${
+            messages.length > 0 ? 'w-10 h-10 lg:w-12 lg:h-12' : 'w-16 h-16 lg:w-24 lg:h-24'
+          }`}>
             <img 
               src="/christ.jpeg" 
               alt="Gospel Study Assistant Logo" 
               className="w-full h-full object-cover"
             />
           </div>
-          <div className="text-center">
+          <div className={messages.length > 0 ? '' : 'text-center'}>
             <button 
               onClick={resetChat}
-              className="text-2xl lg:text-4xl font-bold text-white mb-2 hover:text-blue-300 transition-colors cursor-pointer"
+              className={`font-bold text-white hover:text-blue-300 transition-colors cursor-pointer ${
+                messages.length > 0 ? 'text-lg lg:text-xl' : 'text-2xl lg:text-4xl mb-2'
+              }`}
             >
               Gospel Study Assistant
             </button>
-            <p className="text-sm lg:text-xl text-neutral-400 px-4">Ask questions. Find answers. Build faith.</p>
+            {messages.length === 0 && (
+              <p className="text-sm lg:text-xl text-neutral-400 px-4">Ask questions. Find answers. Build faith.</p>
+            )}
           </div>
         </div>
       </div>
