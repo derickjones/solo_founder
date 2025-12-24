@@ -137,16 +137,15 @@ export default function ChatInterface({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [sidebarOpen, setSidebarOpen, modeDropdownOpen]);
 
-  // Scroll behavior for hiding controls on mobile
+  // Scroll behavior for hiding/showing controls
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      const windowWidth = window.innerWidth;
       
-      // Only apply scroll behavior on mobile devices
-      if (windowWidth < 768) { // md breakpoint
+      // On all devices: scroll up reveals controls, scroll down hides them (when there's content)
+      if (messages.length > 0) {
         if (currentScrollY > lastScrollY && currentScrollY > 100) {
           // Scrolling down and past threshold - hide controls
           setIsControlsVisible(false);
@@ -154,9 +153,6 @@ export default function ChatInterface({
           // Scrolling up or near top - show controls
           setIsControlsVisible(true);
         }
-      } else {
-        // Always show controls on desktop
-        setIsControlsVisible(true);
       }
       
       setLastScrollY(currentScrollY);
@@ -168,7 +164,7 @@ export default function ChatInterface({
 
     window.addEventListener('scroll', throttledHandleScroll, { passive: true });
     return () => window.removeEventListener('scroll', throttledHandleScroll);
-  }, [lastScrollY]);
+  }, [lastScrollY, messages.length]);
 
   // Product tiles data
   const productTiles = [
@@ -414,6 +410,9 @@ export default function ChatInterface({
               : msg
           ));
           
+          // Auto-hide controls to give full screen to content
+          setIsControlsVisible(false);
+          
           setStreamingMessageId(null);
           setStreamingContent('');
           setIsLoading(false);
@@ -436,6 +435,9 @@ export default function ChatInterface({
                 ? { ...msg, content: response.lesson_plan, isStreaming: false }
                 : msg
             ));
+            
+            // Auto-hide controls to give full screen to content
+            setIsControlsVisible(false);
           } else if (cfmStudyType === 'audio-summary') {
             // Map our frontend types to backend study level
             const studyLevelMap = {
@@ -462,6 +464,9 @@ export default function ChatInterface({
                   }
                 : msg
             ));
+            
+            // Auto-hide controls to give full screen to content
+            setIsControlsVisible(false);
           } else if (cfmStudyType === 'core-content') {
             const response = await generateCFMCoreContent({
               week_number: weekNumber
@@ -473,6 +478,9 @@ export default function ChatInterface({
                 ? { ...msg, content: response.core_content, isStreaming: false }
                 : msg
             ));
+            
+            // Auto-hide controls to give full screen to content
+            setIsControlsVisible(false);
           }
           
           setStreamingMessageId(null);
@@ -633,9 +641,9 @@ export default function ChatInterface({
         <div className="w-10"></div> {/* Spacer for centering */}
       </div>
 
-      {/* Header with logo - collapses on mobile when scrolling down */}
+      {/* Header with logo - collapses when content is shown */}
       <div className={`relative flex items-center justify-center pt-6 lg:pt-12 pb-4 lg:pb-6 px-4 transition-all duration-300 ease-in-out ${
-        !isControlsVisible && messages.length > 0 ? 'md:flex max-h-0 md:max-h-none opacity-0 md:opacity-100 overflow-hidden py-0 md:py-auto' : 'max-h-96 opacity-100'
+        !isControlsVisible && messages.length > 0 ? 'max-h-0 opacity-0 overflow-hidden py-0' : 'max-h-96 opacity-100'
       }`}>
         <div className="flex flex-col items-center space-y-4 lg:space-y-6">
           <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full overflow-hidden border-2 border-neutral-700">
@@ -657,9 +665,9 @@ export default function ChatInterface({
         </div>
       </div>
 
-      {/* Input area below header - collapses on mobile when scrolling down */}
+      {/* Input area below header - collapses when content is shown */}
       <div className={`px-4 lg:px-8 pb-2 transition-all duration-300 ease-in-out overflow-hidden shrink-0 ${
-        !isControlsVisible && messages.length > 0 ? 'max-h-0 md:max-h-none opacity-0 md:opacity-100' : 'opacity-100'
+        !isControlsVisible && messages.length > 0 ? 'max-h-0 opacity-0' : 'opacity-100'
       }`}>
         <div className="max-w-6xl mx-auto">
           <form onSubmit={handleSubmit} className="relative">
