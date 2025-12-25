@@ -712,19 +712,19 @@ export default function ChatInterface({
               
               {mode === 'Come Follow Me' ? (
                 // CFM Mode: Enhanced Study Guide Interface
-                <div className="w-full space-y-4 md:space-y-6 max-h-[70vh] md:max-h-none overflow-y-auto md:overflow-visible">
+                <div className="w-full space-y-3 md:space-y-4 max-h-[70vh] md:max-h-none overflow-y-auto md:overflow-visible">
                   {/* Study Controls */}
-                  <div className="grid grid-cols-1 gap-4 md:gap-6">
+                  <div className="grid grid-cols-1 gap-3 md:gap-4">
                     {/* Week Selection */}
-                    <div className="space-y-2 md:space-y-3">
-                      <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Current Week</label>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider">Current Week</label>
                       <select
                         value={cfmWeek?.id || ''}
                         onChange={(e) => {
                           const selectedWeek = CFM_2026_SCHEDULE.find((w: CFMWeek) => w.id === e.target.value);
                           setCfmWeek(selectedWeek || CFM_2026_SCHEDULE[0]);
                         }}
-                        className="w-full p-2 md:p-3 bg-neutral-700/50 border border-neutral-600 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 appearance-none cursor-pointer"
+                        className="w-full p-2 bg-transparent border border-neutral-700 rounded-md text-white text-sm focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
                       >
                         {CFM_2026_SCHEDULE.map((week: CFMWeek, index: number) => (
                           <option key={week.id} value={week.id} className="bg-neutral-800">
@@ -732,23 +732,20 @@ export default function ChatInterface({
                           </option>
                         ))}
                       </select>
-                      <div className="text-xs text-neutral-500 space-y-1">
-                        <div>{cfmWeek?.dates}</div>
-                        <div className="font-medium text-neutral-400">{cfmWeek?.reference}</div>
-                      </div>
+                      <div className="text-[10px] text-neutral-500">{cfmWeek?.dates}</div>
                     </div>
 
                     {/* Study Type Selection */}
-                    <div className="space-y-2 md:space-y-3">
-                      <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider">Study Type</label>
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider">Study Type</label>
+                      <div className="grid grid-cols-4 gap-1.5">
                         <button
                           type="button"
                           onClick={() => setCfmStudyType('deep-dive')}
-                          className={`p-2 md:p-3 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 border ${
+                          className={`py-2 px-1 rounded-md text-xs font-medium transition-all duration-150 ${
                             cfmStudyType === 'deep-dive'
-                              ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
-                              : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-blue-600/20 hover:border-blue-500/50'
+                              ? 'bg-blue-600 text-white'
+                              : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50'
                           }`}
                         >
                           Deep Dive
@@ -756,10 +753,10 @@ export default function ChatInterface({
                         <button
                           type="button"
                           onClick={() => setCfmStudyType('lesson-plans')}
-                          className={`p-2 md:p-3 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 border ${
+                          className={`py-2 px-1 rounded-md text-xs font-medium transition-all duration-150 ${
                             cfmStudyType === 'lesson-plans'
-                              ? 'bg-purple-600/80 border-purple-500 text-white shadow-lg shadow-purple-500/30'
-                              : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-purple-600/20 hover:border-purple-500/50'
+                              ? 'bg-purple-600 text-white'
+                              : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50'
                           }`}
                         >
                           Lesson Plans
@@ -767,10 +764,10 @@ export default function ChatInterface({
                         <button
                           type="button"
                           onClick={() => setCfmStudyType('audio-summary')}
-                          className={`p-2 md:p-3 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 border ${
+                          className={`py-2 px-1 rounded-md text-xs font-medium transition-all duration-150 ${
                             cfmStudyType === 'audio-summary'
-                              ? 'bg-emerald-600/80 border-emerald-500 text-white shadow-lg shadow-emerald-500/30'
-                              : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-emerald-600/20 hover:border-emerald-500/50'
+                              ? 'bg-emerald-600 text-white'
+                              : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50'
                           }`}
                         >
                           Audio
@@ -778,10 +775,10 @@ export default function ChatInterface({
                         <button
                           type="button"
                           onClick={() => setCfmStudyType('core-content')}
-                          className={`p-2 md:p-3 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 border ${
+                          className={`py-2 px-1 rounded-md text-xs font-medium transition-all duration-150 ${
                             cfmStudyType === 'core-content'
-                              ? 'bg-amber-600/80 border-amber-500 text-white shadow-lg shadow-amber-500/30'
-                              : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-amber-600/20 hover:border-amber-500/50'
+                              ? 'bg-amber-600 text-white'
+                              : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50'
                           }`}
                         >
                           Core
@@ -792,111 +789,93 @@ export default function ChatInterface({
 
                   {/* Dynamic Level Selection Based on Study Type - Centered */}
                   <div className="max-w-2xl mx-auto">
-                    <div className="space-y-3">
+                    <div className="space-y-1.5">
                       {cfmStudyType === 'deep-dive' && (
                         <>
-                          <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider text-center block">Study Level</label>
-                          <div className="bg-neutral-700/30 p-2 md:p-4 rounded-lg">
-                            <div className="grid grid-cols-3 gap-2">
-                              {[
-                                { level: 'essential', label: 'Essential', color: 'emerald' },
-                                { level: 'connected', label: 'Connected', color: 'purple' },
-                                { level: 'scholarly', label: 'Scholarly', color: 'amber' }
-                              ].map(({ level, label, color }) => (
-                                <button
-                                  key={level}
-                                  type="button"
-                                  onClick={() => setCfmStudyLevel(level as StudyLevel)}
-                                  className={`p-2 md:p-3 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 border ${
-                                    cfmStudyLevel === level
-                                      ? color === 'emerald' 
-                                        ? 'bg-emerald-600/80 border-emerald-500 text-white shadow-lg shadow-emerald-500/30'
-                                        : color === 'purple'
-                                        ? 'bg-purple-600/80 border-purple-500 text-white shadow-lg shadow-purple-500/30'
-                                        : 'bg-amber-600/80 border-amber-500 text-white shadow-lg shadow-amber-500/30'
-                                      : color === 'emerald'
-                                        ? 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-emerald-600/20 hover:border-emerald-500/50'
-                                        : color === 'purple'
-                                        ? 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-purple-600/20 hover:border-purple-500/50'
-                                        : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-amber-600/20 hover:border-amber-500/50'
-                                  }`}
-                                >
-                                  {label}
-                                </button>
-                              ))}
-                            </div>
+                          <label className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider text-center block">Study Level</label>
+                          <div className="flex justify-center gap-1.5">
+                            {[
+                              { level: 'essential', label: 'Essential', color: 'emerald' },
+                              { level: 'connected', label: 'Connected', color: 'purple' },
+                              { level: 'scholarly', label: 'Scholarly', color: 'amber' }
+                            ].map(({ level, label, color }) => (
+                              <button
+                                key={level}
+                                type="button"
+                                onClick={() => setCfmStudyLevel(level as StudyLevel)}
+                                className={`py-1.5 px-4 rounded-md text-xs font-medium transition-all duration-150 ${
+                                  cfmStudyLevel === level
+                                    ? color === 'emerald' 
+                                      ? 'bg-emerald-600 text-white'
+                                      : color === 'purple'
+                                      ? 'bg-purple-600 text-white'
+                                      : 'bg-amber-600 text-white'
+                                    : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50'
+                                }`}
+                              >
+                                {label}
+                              </button>
+                            ))}
                           </div>
                         </>
                       )}
                       
                       {cfmStudyType === 'lesson-plans' && (
                         <>
-                          <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider text-center block">Audience</label>
-                          <div className="bg-neutral-700/30 p-2 md:p-4 rounded-lg">
-                            <div className="grid grid-cols-3 gap-2">
-                              {[
-                                { level: 'adult', color: 'purple' },
-                                { level: 'youth', color: 'blue' },
-                                { level: 'children', color: 'emerald' }
-                              ].map(({ level, color }) => (
-                                <button
-                                  key={level}
-                                  type="button"
-                                  onClick={() => setCfmLessonPlanLevel(level as LessonPlanLevel)}
-                                  className={`p-2 md:p-3 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 border capitalize ${
-                                    cfmLessonPlanLevel === level
-                                      ? color === 'purple'
-                                        ? 'bg-purple-600/80 border-purple-500 text-white shadow-lg shadow-purple-500/30'
-                                        : color === 'blue'
-                                        ? 'bg-blue-600/80 border-blue-500 text-white shadow-lg shadow-blue-500/30'
-                                        : 'bg-emerald-600/80 border-emerald-500 text-white shadow-lg shadow-emerald-500/30'
-                                      : color === 'purple'
-                                        ? 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-purple-600/20 hover:border-purple-500/50'
-                                        : color === 'blue'
-                                        ? 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-blue-600/20 hover:border-blue-500/50'
-                                        : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-emerald-600/20 hover:border-emerald-500/50'
-                                  }`}
-                                >
-                                  {level}
-                                </button>
-                              ))}
-                            </div>
+                          <label className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider text-center block">Audience</label>
+                          <div className="flex justify-center gap-1.5">
+                            {[
+                              { level: 'adult', color: 'purple' },
+                              { level: 'youth', color: 'blue' },
+                              { level: 'children', color: 'emerald' }
+                            ].map(({ level, color }) => (
+                              <button
+                                key={level}
+                                type="button"
+                                onClick={() => setCfmLessonPlanLevel(level as LessonPlanLevel)}
+                                className={`py-1.5 px-4 rounded-md text-xs font-medium transition-all duration-150 capitalize ${
+                                  cfmLessonPlanLevel === level
+                                    ? color === 'purple'
+                                      ? 'bg-purple-600 text-white'
+                                      : color === 'blue'
+                                      ? 'bg-blue-600 text-white'
+                                      : 'bg-emerald-600 text-white'
+                                    : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50'
+                                }`}
+                              >
+                                {level}
+                              </button>
+                            ))}
                           </div>
                         </>
                       )}
                       
                       {cfmStudyType === 'audio-summary' && (
                         <>
-                          <label className="text-xs font-medium text-neutral-400 uppercase tracking-wider text-center block">Study Level</label>
-                          <div className="bg-neutral-700/30 p-2 md:p-4 rounded-lg">
-                            <div className="grid grid-cols-3 gap-2">
-                              {[
-                                { level: 'short', label: 'Essential', color: 'emerald' },
-                                { level: 'medium', label: 'Connected', color: 'purple' },
-                                { level: 'long', label: 'Scholarly', color: 'amber' }
-                              ].map(({ level, label, color }) => (
-                                <button
-                                  key={level}
-                                  type="button"
-                                  onClick={() => setCfmAudioSummaryLevel(level as AudioSummaryLevel)}
-                                  className={`p-2 md:p-3 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 border ${
-                                    cfmAudioSummaryLevel === level
-                                      ? color === 'emerald' 
-                                        ? 'bg-emerald-600/80 border-emerald-500 text-white shadow-lg shadow-emerald-500/30'
-                                        : color === 'purple'
-                                        ? 'bg-purple-600/80 border-purple-500 text-white shadow-lg shadow-purple-500/30'
-                                        : 'bg-amber-600/80 border-amber-500 text-white shadow-lg shadow-amber-500/30'
-                                      : color === 'emerald'
-                                        ? 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-emerald-600/20 hover:border-emerald-500/50'
-                                        : color === 'purple'
-                                        ? 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-purple-600/20 hover:border-purple-500/50'
-                                        : 'bg-neutral-700/50 border-neutral-600 text-neutral-300 hover:bg-amber-600/20 hover:border-amber-500/50'
-                                  }`}
-                                >
-                                  {label}
-                                </button>
-                              ))}
-                            </div>
+                          <label className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider text-center block">Study Level</label>
+                          <div className="flex justify-center gap-1.5">
+                            {[
+                              { level: 'short', label: 'Essential', color: 'emerald' },
+                              { level: 'medium', label: 'Connected', color: 'purple' },
+                              { level: 'long', label: 'Scholarly', color: 'amber' }
+                            ].map(({ level, label, color }) => (
+                              <button
+                                key={level}
+                                type="button"
+                                onClick={() => setCfmAudioSummaryLevel(level as AudioSummaryLevel)}
+                                className={`py-1.5 px-4 rounded-md text-xs font-medium transition-all duration-150 ${
+                                  cfmAudioSummaryLevel === level
+                                    ? color === 'emerald' 
+                                      ? 'bg-emerald-600 text-white'
+                                      : color === 'purple'
+                                      ? 'bg-purple-600 text-white'
+                                      : 'bg-amber-600 text-white'
+                                    : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50'
+                                }`}
+                              >
+                                {label}
+                              </button>
+                            ))}
                           </div>
                         </>
                       )}
@@ -911,12 +890,12 @@ export default function ChatInterface({
                   <button
                     type="submit"
                     disabled={!cfmWeek || isLoading}
-                    className="w-full relative bg-blue-600/80 hover:bg-blue-600 disabled:bg-neutral-800/50 disabled:cursor-not-allowed px-6 py-4 rounded-xl transition-all duration-200 font-medium text-white hover:text-blue-50 disabled:text-neutral-500 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 border border-blue-500/50 hover:border-blue-400 disabled:border-neutral-700/30 disabled:shadow-none"
+                    className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-neutral-700 disabled:cursor-not-allowed px-4 py-3 rounded-lg transition-all duration-150 font-medium text-white disabled:text-neutral-500"
                   >
                     {isLoading ? (
                       <div className="flex items-center justify-center space-x-2">
-                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
-                        <span>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                        <span className="text-sm">
                           {cfmStudyType === 'deep-dive' && `Generating Deep Dive...`}
                           {cfmStudyType === 'lesson-plans' && `Creating ${cfmLessonPlanLevel.charAt(0).toUpperCase() + cfmLessonPlanLevel.slice(1)} Lesson Plan...`}
                           {cfmStudyType === 'audio-summary' && `Generating ${
@@ -928,18 +907,16 @@ export default function ChatInterface({
                         </span>
                       </div>
                     ) : (
-                      <>
-                        <span className="text-lg">
-                          {cfmStudyType === 'deep-dive' && `Generate Deep Dive`}
-                          {cfmStudyType === 'lesson-plans' && `Create ${cfmLessonPlanLevel.charAt(0).toUpperCase() + cfmLessonPlanLevel.slice(1)} Lesson Plan`}
-                          {cfmStudyType === 'audio-summary' && `Generate ${
-                            cfmAudioSummaryLevel === 'short' ? 'Essential' :
-                            cfmAudioSummaryLevel === 'medium' ? 'Connected' :
-                            cfmAudioSummaryLevel === 'long' ? 'Scholarly' : 'Essential'
-                          } Audio Summary`}
-                          {cfmStudyType === 'core-content' && `Organize Core Content`}
-                        </span>
-                      </>
+                      <span className="text-sm">
+                        {cfmStudyType === 'deep-dive' && `Generate Deep Dive`}
+                        {cfmStudyType === 'lesson-plans' && `Generate ${cfmLessonPlanLevel.charAt(0).toUpperCase() + cfmLessonPlanLevel.slice(1)} Lesson Plan`}
+                        {cfmStudyType === 'audio-summary' && `Generate ${
+                          cfmAudioSummaryLevel === 'short' ? 'Essential' :
+                          cfmAudioSummaryLevel === 'medium' ? 'Connected' :
+                          cfmAudioSummaryLevel === 'long' ? 'Scholarly' : 'Essential'
+                        } Audio Summary`}
+                        {cfmStudyType === 'core-content' && `Generate Core Content`}
+                      </span>
                     )}
                   </button>
 
