@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { getCurrentCFMWeek, CFMWeek, formatCFMWeekDisplay, CFM_2026_SCHEDULE } from '@/utils/comeFollowMe';
 import StudyLevelSlider from '@/components/StudyLevelSlider';
 import AudioPlayer from '@/components/AudioPlayer';
-import { generateCFMDeepDiveStream, CFMDeepDiveRequest, CFMStreamChunk, generateCFMCoreContent, generateCFMLessonPlan, generateCFMAudioSummary, CFMCoreContentRequest, CFMLessonPlanRequest, CFMAudioSummaryRequest } from '@/services/api';
+import { generateCFMDeepDiveStream, CFMDeepDiveRequest, CFMStreamChunk, generateCFMCoreContent, generateCFMLessonPlan, generateCFMAudioSummary, CFMCoreContentRequest, CFMLessonPlanRequest, CFMAudioSummaryRequest, generateTTS } from '@/services/api';
 import { ChevronLeftIcon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
@@ -36,6 +36,7 @@ export default function ComeFollowMePage() {
   const [audioScript, setAudioScript] = useState<string | null>(null);
   const [audioFiles, setAudioFiles] = useState<{ combined?: string } | null>(null);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+  const [isGeneratingTTS, setIsGeneratingTTS] = useState(false);
   
   // Common states
   const [error, setError] = useState<string | null>(null);
@@ -128,7 +129,7 @@ export default function ComeFollowMePage() {
     }
   };
 
-  // Audio summary generation handler
+  // Audio summary generation handler - generates script only (no audio)
   const handleGenerateAudioSummary = async () => {
     if (isGeneratingAudio) return;
 
@@ -144,19 +145,41 @@ export default function ComeFollowMePage() {
 
       const request: CFMAudioSummaryRequest = {
         week_number: weekNumber,
-        study_level: studyLevel,
-        voice: 'cfm_male' // CFM Male - custom ElevenLabs voice optimized for Come Follow Me content
+        study_level: studyLevel
+        // No voice parameter - just generate the script
       };
 
       const response = await generateCFMAudioSummary(request);
       setAudioScript(response.audio_script);
-      setAudioFiles(response.audio_files || null);
       setGenerationTime(Date.now() - startTime);
     } catch (error) {
       console.error('Error generating audio summary:', error);
       setError(error instanceof Error ? error.message : 'Failed to generate audio summary');
     } finally {
       setIsGeneratingAudio(false);
+    }
+  };
+
+  // Generate TTS audio when Listen button is clicked
+  const handleGenerateTTS = async () => {
+    if (isGeneratingTTS || !audioScript) return;
+
+    setIsGeneratingTTS(true);
+    setError(null);
+
+    try {
+      const response = await generateTTS({
+        text: audioScript,
+        voice: 'cfm_male',
+        title: `${studyLevel.charAt(0).toUpperCase() + studyLevel.slice(1)} Audio Summary`
+      });
+      
+      setAudioFiles({ combined: response.audio_base64 });
+    } catch (error) {
+      console.error('Error generating TTS audio:', error);
+      setError(error instanceof Error ? error.message : 'Failed to generate audio');
+    } finally {
+      setIsGeneratingTTS(false);
     }
   };
 
@@ -289,15 +312,35 @@ export default function ComeFollowMePage() {
                     <span>Generating Audio Script...</span>
                   </div>
                 ) : (
-                  '🎧 Generate Audio Summary'
+                  '📝 Generate Audio Script'
                 )}
               </button>
 
               {/* Audio Script Display */}
               {audioScript && (
                 <div className="mt-6 space-y-4">
-                  {/* Audio Player - Show when audio files are available */}
-                  {audioFiles && audioFiles.combined && (
+                  {/* Listen Button - Generate audio on demand */}
+                  {!audioFiles?.combined ? (
+                    <button
+                      onClick={handleGenerateTTS}
+                      disabled={isGeneratingTTS}
+                      className={`w-full py-3 px-4 rounded-lg font-medium transition-all ${
+                        isGeneratingTTS
+                          ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                          : 'bg-green-600 hover:bg-green-700 text-white'
+                      }`}
+                    >
+                      {isGeneratingTTS ? (
+                        <div className="flex items-center justify-center space-x-2">
+                          <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                          <span>Generating Audio...</span>
+                        </div>
+                      ) : (
+                        '🎧 Listen to Audio'
+                      )}
+                    </button>
+                  ) : (
+                    /* Audio Player - Show when audio files are available */
                     <AudioPlayer 
                       audioFiles={audioFiles}
                       title={`${studyLevel.charAt(0).toUpperCase() + studyLevel.slice(1)} Audio Summary`}

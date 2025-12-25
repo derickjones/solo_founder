@@ -477,8 +477,8 @@ export default function ChatInterface({
             
             const response = await generateCFMAudioSummary({
               week_number: weekNumber,
-              study_level: studyLevelMap[cfmAudioSummaryLevel],
-              voice: 'cfm_male' // CFM Male - custom voice optimized for Come Follow Me content
+              study_level: studyLevelMap[cfmAudioSummaryLevel]
+              // No voice parameter - just generate the script, audio generated on Listen click
             });
             
             // Update the message with the audio summary transcript
@@ -487,7 +487,7 @@ export default function ChatInterface({
                 ? { 
                     ...msg, 
                     content: response.audio_script, // Show the audio script text
-                    audioFiles: response.audio_files, // This will be null
+                    audioFiles: undefined, // Audio will be generated when Listen is clicked
                     audioTitle: `Week ${response.week_number} Audio Summary (${studyLevelMap[cfmAudioSummaryLevel]})`,
                     isStreaming: false 
                   }
@@ -1027,12 +1027,12 @@ export default function ChatInterface({
                     {message.type === 'assistant' ? (
                       message.content ? (
                         <div className="space-y-6 leading-relaxed text-neutral-100 max-w-none">
-                          {/* Audio Player for audio summaries - shown first */}
-                          {message.audioTitle && (
+                          {/* Audio Player - shown when audio has been generated */}
+                          {message.audioFiles?.combined && (
                             <div className="mb-6">
                               <AudioPlayer 
-                                audioFiles={message.audioFiles || {}}
-                                title={message.audioTitle}
+                                audioFiles={message.audioFiles}
+                                title={message.audioTitle || 'Audio'}
                               />
                             </div>
                           )}
@@ -1147,8 +1147,9 @@ export default function ChatInterface({
                 {/* Action buttons for assistant messages */}
                 {message.type === 'assistant' && message.content && !message.isStreaming && (
                   <div className="flex flex-wrap justify-end gap-3 mt-6 pt-4 border-t border-neutral-700">
-                    {/* Listen button - for Deep Dive, Lesson Plans, Core Content (not Audio Summary which already has audio) */}
-                    {mode === 'Come Follow Me' && cfmStudyType !== 'audio-summary' && !message.audioTitle && (
+                    {/* Listen button - for all CFM content types (Deep Dive, Lesson Plans, Audio Summary, Core Content) */}
+                    {/* Show when: CFM mode AND no audio files yet generated */}
+                    {mode === 'Come Follow Me' && !message.audioFiles?.combined && (
                       <button
                         onClick={() => handleListenToContent(message.id, message.content)}
                         disabled={generatingAudioForMessage === message.id}

@@ -92,37 +92,72 @@ This returns:
 cd backend
 gcloud run deploy gospel-guide-api \
   --source . \
-  --region=us-central1 \
-  --allow-unauthenticated \
-  --memory=2Gi \
-  --cpu=1 \
-  --timeout=300 \
-  --max-instances=10 \
-  --project=gospel-study-474301
+  --region us-central1 \
+  --cpu 4 \
+  --memory 4Gi \
+  --timeout 300 \
+  --concurrency 20 \
+  --min-instances 1 \
+  --set-env-vars "BUCKET_NAME=gospel-guide-content-gospel-study-474301,XAI_API_KEY=your-xai-key-here,OPENAI_API_KEY=your-openai-key-here"
+```
 
-# Set OpenAI API key (if not already set)
+### Current Production Settings (December 2025)
+
+| **Setting** | **Value** | **Purpose** |
+|-------------|-----------|-------------|
+| CPU | 4 cores | Handle concurrent AI generation |
+| Memory | 4 GB | Load FAISS index (340MB) + processing |
+| Timeout | 300s | Allow long audio generation requests |
+| Concurrency | 20 | Requests per instance |
+| Min Instances | 1 | Avoid cold starts |
+
+### Environment Variables
+
+| **Variable** | **Required For** | **Purpose** |
+|--------------|------------------|-------------|
+| `BUCKET_NAME` | All | GCS bucket with indexes: `gospel-guide-content-gospel-study-474301` |
+| `XAI_API_KEY` | CFM endpoints | Grok AI for content generation (get from https://console.x.ai) |
+| `OPENAI_API_KEY` | /ask endpoint | Embeddings for semantic search (get from https://platform.openai.com) |
+
+### Update Environment Variables Only
+
+```bash
+# Add or update env vars without redeploying code
 gcloud run services update gospel-guide-api \
-  --region=us-central1 \
-  --project=gospel-study-474301 \
-  --set-env-vars OPENAI_API_KEY=your-api-key-here
+  --region us-central1 \
+  --update-env-vars "XAI_API_KEY=your-new-key"
 ```
 
 ### Verify Deployment
 
 ```bash
 # Check service health
-curl https://gospel-guide-api-273320302933.us-central1.run.app/health
+curl https://gospel-guide-api-273320302933.us-central1.run.app/
 
-# Check configuration
-curl https://gospel-guide-api-273320302933.us-central1.run.app/config
-
-# Test search
-curl -X POST "https://gospel-guide-api-273320302933.us-central1.run.app/ask/stream" \
+# Test CFM Deep Dive (uses XAI)
+curl -X POST "https://gospel-guide-api-273320302933.us-central1.run.app/cfm/deep-dive" \
   -H "Content-Type: application/json" \
-  -d '{"query": "What is faith?", "mode": "default", "top_k": 3}'
+  -d '{"week_number": 1, "study_level": "essential"}'
+
+# Test Q&A Search (requires OPENAI_API_KEY for embeddings)
+curl -X POST "https://gospel-guide-api-273320302933.us-central1.run.app/ask" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "What is faith?", "mode": "default", "top_k": 5}'
 ```
 
-**Note**: The service uses graceful degradation - it will start successfully even without an OpenAI API key, but AI features will be disabled until the key is configured.
+### Available Endpoints
+
+| **Endpoint** | **Method** | **Requires** | **Purpose** |
+|--------------|------------|--------------|-------------|
+| `/` | GET | - | Health check |
+| `/ask` | POST | OPENAI_API_KEY | Q&A with semantic search |
+| `/ask/stream` | POST | OPENAI_API_KEY | Streaming Q&A |
+| `/cfm/deep-dive` | POST | XAI_API_KEY | Come Follow Me study guides |
+| `/cfm/lesson-plans` | POST | XAI_API_KEY | CFM lesson plans |
+| `/cfm/audio-summary` | POST | XAI_API_KEY | CFM audio summaries |
+| `/cfm/core-content` | POST | XAI_API_KEY | CFM core content |
+
+**Note**: The service uses graceful degradation - it will start successfully even without API keys, but specific features will be disabled until keys are configured.
 
 ## 🏗️ Tech Stack (DEPLOYED)
 
