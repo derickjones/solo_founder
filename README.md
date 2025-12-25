@@ -2,210 +2,360 @@
 
 > **Production-ready LDS AI Scripture Study App with complete Come Follow Me system**
 
-## 🚀 **Live Deployments**
+## 🚀 Live Deployments
 - **🌐 Frontend**: https://vercel.com/derick-jones-projects/solo-founder (Vercel)
 - **🔌 API**: https://gospel-guide-api-273320302933.us-central1.run.app (Google Cloud Run)
 - **📚 Repository**: https://github.com/derickjones/solo_founder
 
-## ✨ **Key Features**
+---
+
+## ✨ Key Features
+
+### Core Capabilities
 - **🧠 AI-Powered Study**: Grok AI with real-time streaming responses
 - **📖 Complete LDS Library**: 58,088+ scripture segments with FAISS vector search
 - **📅 Come Follow Me 2026**: Complete Old Testament study system with enhanced scripture bundles
-- **🎯 Four CFM Study Types**: Deep Dive Study, Lesson Plans, Audio Summaries, Core Content
-- **📊 Three Study Levels**: Essential, Connected, Scholarly (user-friendly naming)
 - **🔐 Authentication**: Clerk integration with Google/Apple login
 - **💳 Payment Processing**: Stripe subscription system ($4.99/month)
-- **🎨 Professional UI**: Dark theme with color-coded accent buttons
+
+### Come Follow Me Study System
+- **🎯 Four Study Types**: Deep Dive Study, Lesson Plans, Audio Summaries, Core Content
+- **📊 Three Study Levels**: Essential, Connected, Scholarly
+- **🎵 Audio Generation**: Google Cloud TTS with Chirp 3 HD voices
+
+### User Experience
+- **🎨 Professional UI**: Dark theme with minimalistic, color-coded buttons
 - **📱 Mobile Optimized**: Responsive design with smart auto-collapse controls
-- **🎬 Full-Screen Content**: Controls auto-hide when content is generated, scroll up to reveal
+- **🎬 Full-Screen Content**: Controls auto-hide when content is generated
 
-## 🎵 **Audio Generation System**
-- **📊 Three Study Levels**: Essential, Connected, Scholarly with optimized prompts  
-- **🎙️ Professional Voice**: Google Cloud TTS with Chirp 3 HD voices (cost-effective, high-quality)
-- **🧩 Smart Text Chunking**: Handles TTS character limits seamlessly
-- **🎛️ Modern Audio Player**: Speed controls, seeking, volume control, collapsible interface
-- **📝 Script-First Design**: Shows transcript by default, optional audio generation
+---
 
-## 💰 **Business Model**
-- **Free Tier**: Basic Q&A with daily limits
-- **Premium**: $4.99/month - Unlimited queries + CFM features
-- **Target Revenue**: $2,500/month with 500 subscribers
+## 💰 Business Model
 
-## 🏗️ **Technical Architecture**
+| Tier | Price | Features |
+|------|-------|----------|
+| **Free** | $0 | Basic Q&A with daily limits |
+| **Premium** | $4.99/month | Unlimited queries + CFM features |
 
-### ⚛️ **Frontend (Next.js 16)**
+**Target Revenue**: $2,500/month with 500 subscribers
+
+---
+
+## 🏗️ Technical Architecture
+
+### Project Structure
+\`\`\`
+solo_founder/
+├── backend/                    # FastAPI Python Backend
+│   ├── main.py                # API entry point
+│   ├── Dockerfile             # Container configuration
+│   ├── requirements.txt       # Python dependencies
+│   ├── search/                # Search engine & API
+│   │   ├── api.py            # FastAPI endpoints
+│   │   ├── prompts.py        # AI prompt templates
+│   │   ├── scripture_search.py
+│   │   ├── build_embeddings.py
+│   │   └── indexes/          # FAISS vector indexes
+│   └── scripts/              # Content pipeline
+│       ├── scrapers/         # Web scrapers
+│       └── cfm_bundle_scraper/  # CFM content
+├── frontend/                  # Next.js 16 Frontend
+│   ├── src/
+│   │   ├── app/              # Next.js app router
+│   │   ├── components/       # React components
+│   │   ├── services/         # API integration
+│   │   └── utils/            # Utilities
+│   └── public/               # Static assets
+└── README.md                 # This file
+\`\`\`
+
+### Frontend (Next.js 16)
 - **TypeScript + Tailwind CSS**: Modern React with full type safety
 - **Streaming Interface**: Real-time AI responses with CFM study generation
-- **Study Level System**: Essential/Connected/Scholarly naming for better UX
 - **Authentication**: Clerk integration with social login
 - **Payment Integration**: Stripe Checkout with subscription management
 
-### 🐍 **Backend (FastAPI)**
+### Backend (FastAPI)
 - **AI Integration**: Grok AI for content generation + Google Cloud TTS for audio
 - **Streaming API**: Server-Sent Events for real-time responses
-- **Vector Search**: FAISS-powered semantic search
-- **Audio Generation**: Google Cloud TTS with Chirp 3 HD voices and smart text chunking
+- **Vector Search**: FAISS-powered semantic search (58,088 segments)
 - **CFM Bundle System**: 52 enhanced weekly bundles with complete scripture content
-- **Authentication**: User session management and subscription validation
 
-### 🗄️ **Data Layer**
-- **Scripture Database**: 58,088 segments across all LDS standard works
-- **Vector Embeddings**: OpenAI text-embedding-3-small for semantic search
-- **CFM Content**: Complete 2026 Old Testament study materials with scripture text
-- **Enhanced Metadata**: Timestamps, audiences, study levels, content types
-
-### ☁️ **Infrastructure (Google Cloud)**
+### Infrastructure (Google Cloud)
 - **Google Cloud Run**: Auto-scaling serverless containers
 - **Artifact Registry**: Secure Docker image storage
 - **FAISS Index Storage**: Optimized vector search performance
 
-## 🛠️ **Getting Started**
+---
 
-### **Prerequisites**
-```bash
+## 📚 Content Library
+
+| Source | Size | Segments | Status |
+|--------|------|----------|--------|
+| Book of Mormon | 3.9MB | 6,604 | ✅ Complete |
+| Old Testament | 8.6MB | ~15,000 | ✅ Complete |
+| New Testament | 3.8MB | ~8,000 | ✅ Complete |
+| Doctrine & Covenants | 2.0MB | ~3,000 | ✅ Complete |
+| Pearl of Great Price | 381KB | ~700 | ✅ Complete |
+| General Conference | 20MB | 22,246 | ✅ Complete (2015-2025) |
+| Come Follow Me | 2.5MB | 384 | ✅ Complete (2026) |
+| **TOTAL** | **45MB** | **58,088** | **✅ READY** |
+
+---
+
+## 🛠️ Getting Started
+
+### Prerequisites
+\`\`\`bash
 # Required
 - Python 3.12+
 - Node.js 18+
 - Google Cloud CLI
-- OpenAI API Key
-- Clerk API Keys
-- Stripe API Keys
-```
+- API Keys: OpenAI, Clerk, Stripe, XAI (Grok)
+\`\`\`
 
-### **Quick Start**
-```bash
-# Backend Setup
+### Quick Start
+
+#### Backend Setup
+\`\`\`bash
 cd backend
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-uvicorn main:app --reload
 
-# Frontend Setup  
+# Local development
+uvicorn main:app --reload
+\`\`\`
+
+#### Frontend Setup
+\`\`\`bash
 cd frontend
 npm install
 npm run dev
-```
+\`\`\`
 
-### **Environment Variables**
-```bash
-# Backend (.env)
-XAI_API_KEY=your_grok_key           # For AI content generation (CFM Deep Dive, Lesson Plans, Audio Scripts)
-GCS_BUCKET=gospel-guide-cfm-bundles # Google Cloud Storage bucket for CFM bundles
-OPENAI_API_KEY=your_openai_key      # Legacy - kept for potential fallback
+### Environment Variables
+
+#### Backend (.env)
+\`\`\`bash
+XAI_API_KEY=your_grok_key           # AI content generation
+BUCKET_NAME=gospel-guide-content-gospel-study-474301
+OPENAI_API_KEY=your_openai_key      # Embeddings for semantic search
 CLERK_SECRET_KEY=your_clerk_key
 STRIPE_SECRET_KEY=your_stripe_key
+\`\`\`
 
-# Frontend (.env.local)
+#### Frontend (.env.local)
+\`\`\`bash
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_key
 STRIPE_PUBLISHABLE_KEY=your_stripe_key
 NEXT_PUBLIC_API_BASE_URL=https://gospel-guide-api-273320302933.us-central1.run.app
-```
+\`\`\`
 
-## 📚 **API Endpoints**
+---
 
-### **Core Scripture Search**
-- `GET /search` - Semantic scripture search with context
-- `POST /search/ask` - AI-powered Q&A with streaming responses
+## 📡 API Reference
 
-### **Come Follow Me System**
-- `POST /cfm/deep-dive` - Comprehensive study guides (Essential/Connected/Scholarly)
-- `POST /cfm/lesson-plans` - Teaching materials (Adult/Youth/Children audiences)  
-- `POST /cfm/audio-summary` - Generated audio talk scripts (Essential/Connected/Scholarly)
-- `POST /cfm/core-content` - Raw CFM materials organized by sections
+### Core Scripture Search
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| \`/search\` | GET | Semantic scripture search with context |
+| \`/ask\` | POST | AI-powered Q&A (requires OPENAI_API_KEY) |
+| \`/ask/stream\` | POST | Streaming AI Q&A |
 
-### **Study Level System**
+### Come Follow Me System
+| Endpoint | Method | Requires | Description |
+|----------|--------|----------|-------------|
+| \`/cfm/deep-dive\` | POST | XAI_API_KEY | Study guides (Essential/Connected/Scholarly) |
+| \`/cfm/lesson-plans\` | POST | XAI_API_KEY | Teaching materials (Adult/Youth/Children) |
+| \`/cfm/audio-summary\` | POST | XAI_API_KEY | Audio talk scripts |
+| \`/cfm/core-content\` | POST | XAI_API_KEY | Raw CFM materials |
+
+### System Health
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| \`/\` | GET | Health check |
+| \`/health\` | GET | API status and version |
+| \`/debug/bundle/{week}\` | GET | Bundle loading diagnostics |
+| \`/config\` | GET | Environment configuration status |
+
+### Study Level System
 All CFM endpoints use consistent study levels:
 - **Essential**: Foundational gospel principles and basic understanding
-- **Connected**: Deeper doctrinal connections and cross-references  
+- **Connected**: Deeper doctrinal connections and cross-references
 - **Scholarly**: Advanced theological analysis and historical context
 
-### **System Health**
-- `GET /health` - API status and version info
-- `GET /debug/bundle/{week}` - Bundle loading diagnostics
+---
 
-## 🧪 **Testing**
+## 🚀 Deployment
 
-```bash
-# Test CFM endpoints with new study levels
-curl -X POST "https://gospel-guide-api-273320302933.us-central1.run.app/cfm/deep-dive" \
-  -H "Content-Type: application/json" \
-  -d '{"week_number": 2, "study_level": "essential"}'
+### Backend - Google Cloud Run
 
-curl -X POST "https://gospel-guide-api-273320302933.us-central1.run.app/cfm/audio-summary" \
-  -H "Content-Type: application/json" \
-  -d '{"week_number": 2, "study_level": "connected"}'
-
-# Test specific week bundle
-curl -X GET "https://gospel-guide-api-273320302933.us-central1.run.app/debug/bundle/32"
-
-# Health check
-curl -X GET "https://gospel-guide-api-273320302933.us-central1.run.app/health"
-```
-
-## 🚀 **Deployment**
-
-### **Docker Build & Deploy**
-```bash
-# Build and push to Artifact Registry
+\`\`\`bash
 cd backend
-gcloud builds submit --tag us-central1-docker.pkg.dev/gospel-study-474301/gospel-guide/gospel-guide-api .
 
-# Deploy to Cloud Run
-gcloud run deploy gospel-guide-api \
-  --image us-central1-docker.pkg.dev/gospel-study-474301/gospel-guide/gospel-guide-api \
-  --platform managed --region us-central1 --allow-unauthenticated \
-  --memory=2Gi --cpu=1
-```
+# Deploy directly (recommended)
+gcloud run deploy gospel-guide-api \\
+  --source . \\
+  --region us-central1 \\
+  --cpu 4 \\
+  --memory 4Gi \\
+  --timeout 300 \\
+  --concurrency 20 \\
+  --min-instances 1 \\
+  --set-env-vars "BUCKET_NAME=gospel-guide-content-gospel-study-474301,XAI_API_KEY=your-key"
+\`\`\`
 
-### **Frontend Deployment**
-```bash
+#### Production Settings
+| Setting | Value | Purpose |
+|---------|-------|---------|
+| CPU | 4 cores | Handle concurrent AI generation |
+| Memory | 4 GB | Load FAISS index (340MB) + processing |
+| Timeout | 300s | Allow long audio generation requests |
+| Concurrency | 20 | Requests per instance |
+| Min Instances | 1 | Avoid cold starts |
+
+### Frontend - Vercel
+
+\`\`\`bash
 # Automatic deployment via GitHub integration
 git push origin main  # Triggers Vercel deployment
 
 # Manual deployment
 vercel --prod
-```
+\`\`\`
 
-## 📈 **Performance**
+---
 
-- **Scripture Search**: <200ms average response
-- **AI Content Generation**: Real-time streaming with Grok AI
-- **Audio Script Generation**: 5-30s depending on study level complexity
-- **Vector Search**: 58,088+ segments indexed with FAISS
-- **Mobile Performance**: Optimized for iOS/Android
-- **Study Level Consistency**: Unified Essential/Connected/Scholarly across all features
+## 🧪 Testing
 
-## 🔧 **Recent Updates (December 2024)**
+\`\`\`bash
+# Test CFM Deep Dive
+curl -X POST "https://gospel-guide-api-273320302933.us-central1.run.app/cfm/deep-dive" \\
+  -H "Content-Type: application/json" \\
+  -d '{"week_number": 2, "study_level": "essential"}'
 
-- **✅ Auto-Collapse UX**: Controls auto-hide when content is generated, scroll up to reveal
-- **✅ Color-Coded Buttons**: Study types (blue/purple/green/amber) and levels (green/purple/amber)
-- **✅ Mobile Compact Grid**: 2x2 study type grid, 3-column study level buttons
-- **✅ Audio Player First**: Audio player now appears above text in audio summaries
-- **✅ Google Cloud TTS**: Switched from ElevenLabs to Google Cloud TTS with Chirp 3 HD voices (20x cost reduction)
-- **✅ Study Level Rebranding**: Updated from Basic/Intermediate/Advanced to Essential/Connected/Scholarly
-- **✅ AI Integration**: Grok AI for content generation, Google Cloud TTS for audio synthesis
-- **✅ TypeScript Consistency**: Fixed all type definitions across frontend and backend
-- **✅ API Standardization**: All CFM endpoints now use unified study_level parameter
-- **✅ Cost Optimization**: Google Cloud TTS at ~$0.016/1K chars vs ElevenLabs $0.30/1K chars
+# Test Audio Summary
+curl -X POST "https://gospel-guide-api-273320302933.us-central1.run.app/cfm/audio-summary" \\
+  -H "Content-Type: application/json" \\
+  -d '{"week_number": 2, "study_level": "connected"}'
 
-## 🔧 **Troubleshooting**
+# Test Q&A Search
+curl -X POST "https://gospel-guide-api-273320302933.us-central1.run.app/ask" \\
+  -H "Content-Type: application/json" \\
+  -d '{"query": "What is faith?", "mode": "default", "top_k": 5}'
 
-- **Study Level Errors**: Ensure using Essential/Connected/Scholarly (not old Basic/Intermediate/Advanced)
-- **Audio Generation**: Google Cloud TTS uses service account authentication (automatic on Cloud Run)
-- **Content Generation**: Requires XAI_API_KEY for CFM study guides and lesson plans
-- **Bundle Loading**: Debug endpoint at `/debug/bundle/{week}` for CFM content issues
-- **Authentication**: Check Clerk configuration in middleware.ts
-- **Payment Issues**: Verify Stripe webhook endpoints
+# Health check
+curl -X GET "https://gospel-guide-api-273320302933.us-central1.run.app/health"
+\`\`\`
 
-## 🎯 **Future Enhancements**
+---
 
-- **🎵 Enhanced Audio**: Background music, multiple speakers, full TTS integration
-- **📊 Study Progress**: User analytics and progress tracking across study levels
-- **💾 Offline Mode**: Service worker for scripture access without internet
-- **👥 Social Features**: Study group sharing and collaborative discussions
-- **🔍 Advanced Search**: Cross-reference discovery and thematic study paths
-- **🎨 Customization**: Personalized study level preferences and content filtering
+## 📂 Scripts & Content Pipeline
+
+### Directory Structure
+\`\`\`
+backend/scripts/
+├── scrapers/                    # All content scrapers
+│   ├── master_scraper.py       # Scraper coordinator
+│   ├── scrape_book_of_mormon.py
+│   ├── scrape_old_testament.py
+│   ├── scrape_new_testament.py
+│   ├── scrape_doctrine_covenants.py
+│   ├── scrape_pearl_great_price.py
+│   ├── scrape_general_conference.py
+│   ├── scrape_cfm.py
+│   └── scrape_seminary.py
+├── cfm_bundle_scraper/         # CFM 2026 bundle generator
+│   ├── cfm_weekly_scraper.py
+│   └── 2026/                   # 52 weekly bundles
+└── content/sources/            # Raw scraped content
+\`\`\`
+
+### Running Scrapers
+\`\`\`bash
+cd backend/scripts/scrapers
+
+# Run specific scraper
+python master_scraper.py old_testament
+python master_scraper.py cfm
+python master_scraper.py seminary
+
+# Run all scrapers
+python master_scraper.py --all
+\`\`\`
+
+### Building Embeddings
+\`\`\`bash
+cd backend/search
+export OPENAI_API_KEY="your-key"
+python build_embeddings.py  # ~8 minutes for 58k segments
+\`\`\`
+
+---
+
+## 📈 Performance
+
+| Metric | Value |
+|--------|-------|
+| Scripture Search | <200ms average |
+| AI Content Generation | Real-time streaming |
+| Audio Script Generation | 5-30s (depending on level) |
+| Vector Search | 58,088+ segments indexed |
+| Mobile Performance | Optimized for iOS/Android |
+
+---
+
+## 🔧 Recent Updates (December 2024)
+
+- ✅ **Minimalistic UI**: Cleaner, more discrete CFM selection buttons
+- ✅ **Auto-Collapse UX**: Controls auto-hide when content is generated
+- ✅ **Google Cloud TTS**: 20x cost reduction vs ElevenLabs ($0.016 vs $0.30 per 1K chars)
+- ✅ **Study Level Rebranding**: Essential/Connected/Scholarly naming
+- ✅ **Audio Script-First**: Shows transcript by default, optional audio generation
+- ✅ **Podcast-Style Audio**: New immersive, warm prompts without greetings or testimony
+
+---
+
+## 🔧 Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| Study Level Errors | Use Essential/Connected/Scholarly (not Basic/Intermediate/Advanced) |
+| Audio Generation | Google Cloud TTS uses service account auth (automatic on Cloud Run) |
+| Content Generation | Requires XAI_API_KEY for CFM study guides |
+| Bundle Loading | Debug at \`/debug/bundle/{week}\` |
+| Authentication | Check Clerk configuration in middleware.ts |
+| Payment Issues | Verify Stripe webhook endpoints |
+
+---
+
+## 🎯 Future Enhancements
+
+- **🎵 Enhanced Audio**: Background music, multiple speakers
+- **📊 Study Progress**: User analytics and progress tracking
+- **💾 Offline Mode**: Service worker for scripture access
+- **👥 Social Features**: Study group sharing
+- **🔍 Advanced Search**: Cross-reference discovery
+- **�� Multi-language**: Spanish, Portuguese expansion
+
+---
+
+## 🎨 Specialized Study Modes
+
+| Mode | Personality | Scope |
+|------|-------------|-------|
+| **Book of Mormon Only** | Missionary-minded | Testimony-bearing, mission prep |
+| **General Conference Only** | Meticulous | First Presidency & Twelve, chronological |
+| **Come Follow Me** | Family companion | D&C/Church History, discussion ready |
+| **Youth Mode** | Seminary teacher | 14-year-old friendly, excited |
+| **Scholar Mode** | BYU religion PhD | Original languages, academic depth |
+
+---
+
+## 📝 License
+
+Private repository - All rights reserved.
 
 ---
 
