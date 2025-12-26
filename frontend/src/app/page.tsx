@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import ChatInterface from '@/components/ChatInterface';
-import { getCurrentCFMWeek, CFMWeek } from '@/utils/comeFollowMe';
+import { getCurrentCFMWeek, CFMWeek, CFM_2026_SCHEDULE } from '@/utils/comeFollowMe';
 import { MicrophoneIcon, AcademicCapIcon, ClipboardDocumentListIcon, BookOpenIcon, ChatBubbleLeftRightIcon, SunIcon } from '@heroicons/react/24/outline';
 
 // Feature tile type
@@ -263,9 +263,9 @@ export default function Home() {
                 }}
                 className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
               >
-                {Array.from({ length: 52 }, (_, i) => i + 1).map((week) => (
-                  <option key={week} value={week}>
-                    Week {week}
+                {CFM_2026_SCHEDULE.map((cfmWeek, index) => (
+                  <option key={index + 1} value={index + 1}>
+                    Week {index + 1}: {cfmWeek.dates}
                   </option>
                 ))}
               </select>
