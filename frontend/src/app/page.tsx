@@ -128,7 +128,7 @@ export default function Home() {
   // Landing page view
   if (showLandingPage) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white">
+      <div className="min-h-screen bg-neutral-900 text-white">
         {/* Header with logo */}
         <div className="flex flex-col items-center justify-center pt-12 lg:pt-20 pb-8 lg:pb-12 px-4">
           <div className="w-20 h-20 lg:w-28 lg:h-28 rounded-full overflow-hidden border-2 border-neutral-700 mb-6">
