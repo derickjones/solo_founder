@@ -52,6 +52,8 @@ interface ChatInterfaceProps {
   // Audio Summary levels
   cfmAudioSummaryLevel: AudioSummaryLevel;
   setCfmAudioSummaryLevel: (level: AudioSummaryLevel) => void;
+  // Back to landing page
+  onBackToLanding?: () => void;
 }
 
 export default function ChatInterface({ 
@@ -72,7 +74,8 @@ export default function ChatInterface({
   cfmLessonPlanLevel,
   setCfmLessonPlanLevel,
   cfmAudioSummaryLevel,
-  setCfmAudioSummaryLevel
+  setCfmAudioSummaryLevel,
+  onBackToLanding
 }: ChatInterfaceProps) {
   const [query, setQuery] = useState('');
   const [modeDropdownOpen, setModeDropdownOpen] = useState(false);
@@ -688,7 +691,10 @@ export default function ChatInterface({
           </div>
           <div className={messages.length > 0 ? '' : 'text-center'}>
             <button 
-              onClick={resetChat}
+              onClick={() => {
+                resetChat();
+                if (onBackToLanding) onBackToLanding();
+              }}
               className={`font-bold text-white hover:text-blue-300 transition-colors cursor-pointer ${
                 messages.length > 0 ? 'text-lg lg:text-xl' : 'text-2xl lg:text-4xl mb-2'
               }`}
