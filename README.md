@@ -19,7 +19,8 @@
 - **💳 Payment Processing**: Stripe subscription system ($4.99/month)
 
 ### Come Follow Me Study System
-- **🎯 Four Study Types**: Deep Dive Study, Lesson Plans, Audio Summaries, Core Content
+- **� Daily Thought**: Pre-generated daily spiritual insights for each day of the year (364 total)
+- **�🎯 Four Study Types**: Deep Dive Study, Lesson Plans, Audio Summaries, Core Content
 - **📊 Three Study Levels**: Essential, Connected, Scholarly
 - **🎵 Audio Generation**: Google Cloud TTS with Chirp 3 HD voices
 
@@ -59,6 +60,9 @@ solo_founder/
 │   └── scripts/              # Content pipeline
 │       ├── scrapers/         # Web scrapers
 │       └── cfm_bundle_scraper/  # CFM content
+│           ├── 2026/         # 52 weekly CFM bundles
+│           ├── 2026_daily_thoughts/  # Pre-generated daily thoughts
+│           └── generate_daily_thoughts.py  # Generation script
 ├── frontend/                  # Next.js 16 Frontend
 │   ├── src/
 │   │   ├── app/              # Next.js app router
@@ -66,6 +70,7 @@ solo_founder/
 │   │   ├── services/         # API integration
 │   │   └── utils/            # Utilities
 │   └── public/               # Static assets
+│       └── daily_thoughts/   # Pre-generated daily thought JSON files
 └── README.md                 # This file
 \`\`\`
 
@@ -99,7 +104,8 @@ solo_founder/
 | Pearl of Great Price | 381KB | ~700 | ✅ Complete |
 | General Conference | 20MB | 22,246 | ✅ Complete (2015-2025) |
 | Come Follow Me | 2.5MB | 384 | ✅ Complete (2026) |
-| **TOTAL** | **45MB** | **58,088** | **✅ READY** |
+| Daily Thoughts | 500KB | 364 | ✅ Pre-generated (52 weeks × 7 days) |
+| **TOTAL** | **46MB** | **58,452** | **✅ READY** |
 
 ---
 
@@ -185,6 +191,22 @@ All CFM endpoints use consistent study levels:
 - **Connected**: Deeper doctrinal connections and cross-references
 - **Scholarly**: Advanced theological analysis and historical context
 
+### Daily Thought System (Pre-Generated)
+Daily spiritual insights served as static JSON files for instant loading:
+
+| Field | Description |
+|-------|-------------|
+| `day_name` | Day of the week (Sunday-Saturday) |
+| `theme` | Daily focus (Overview, Identity, Promise, etc.) |
+| `title` | Engaging title for the thought |
+| `scripture` | Reference and text |
+| `thought` | 150-200 word reflection |
+| `application` | Practical suggestion |
+| `question` | Discussion prompt |
+| `historical_context` | Optional background (only when source material contains it) |
+
+**Generation**: Uses Grok AI with CFM bundles as source material to ensure doctrinal accuracy.
+
 ---
 
 ## 🚀 Deployment
@@ -268,7 +290,9 @@ backend/scripts/
 │   └── scrape_seminary.py
 ├── cfm_bundle_scraper/         # CFM 2026 bundle generator
 │   ├── cfm_weekly_scraper.py
-│   └── 2026/                   # 52 weekly bundles
+│   ├── generate_daily_thoughts.py  # Daily thought generator
+│   ├── 2026/                   # 52 weekly bundles
+│   └── 2026_daily_thoughts/    # Pre-generated daily thoughts
 └── content/sources/            # Raw scraped content
 \`\`\`
 
@@ -292,6 +316,20 @@ export OPENAI_API_KEY="your-key"
 python build_embeddings.py  # ~8 minutes for 58k segments
 \`\`\`
 
+### Generating Daily Thoughts
+\`\`\`bash
+cd backend/scripts/cfm_bundle_scraper
+
+# Generate single week
+XAI_API_KEY='your-key' python3 generate_daily_thoughts.py --week 1
+
+# Generate range of weeks
+XAI_API_KEY='your-key' python3 generate_daily_thoughts.py --start 1 --end 52
+
+# Copy to frontend for static serving
+cp 2026_daily_thoughts/*.json ../../../frontend/public/daily_thoughts/
+\`\`\`
+
 ---
 
 ## 📈 Performance
@@ -308,6 +346,8 @@ python build_embeddings.py  # ~8 minutes for 58k segments
 
 ## 🔧 Recent Updates (December 2024)
 
+- ✅ **Daily Thought Feature**: Pre-generated daily spiritual insights for every day of the year
+- ✅ **Pre-Generation System**: Static JSON files for instant loading (no API latency)
 - ✅ **Minimalistic UI**: Cleaner, more discrete CFM selection buttons
 - ✅ **Auto-Collapse UX**: Controls auto-hide when content is generated
 - ✅ **Google Cloud TTS**: 20x cost reduction vs ElevenLabs ($0.016 vs $0.30 per 1K chars)
