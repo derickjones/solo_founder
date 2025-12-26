@@ -699,8 +699,8 @@ export default function ChatInterface({
                         </div>
                       </div>
                     ) : (
-                      <div className="text-center">
-                        <h2 className={`text-lg font-semibold ${
+                      <div className="text-center py-4">
+                        <h2 className={`text-2xl lg:text-3xl font-bold ${
                           cfmStudyType === 'deep-dive' ? 'text-blue-400' :
                           cfmStudyType === 'lesson-plans' ? 'text-purple-400' :
                           cfmStudyType === 'audio-summary' ? 'text-emerald-400' :
@@ -717,11 +717,11 @@ export default function ChatInterface({
 
                   {/* Dynamic Level Selection Based on Study Type - Centered */}
                   <div className="max-w-2xl mx-auto">
-                    <div className="space-y-1.5">
+                    <div className="space-y-3">
                       {cfmStudyType === 'deep-dive' && (
                         <>
-                          <label className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider text-center block">Study Level</label>
-                          <div className="flex justify-center gap-1.5">
+                          <label className="text-sm font-medium text-neutral-400 uppercase tracking-wider text-center block">Study Level</label>
+                          <div className="flex justify-center gap-2">
                             {[
                               { level: 'essential', label: 'Essential', color: 'emerald' },
                               { level: 'connected', label: 'Connected', color: 'purple' },
@@ -731,7 +731,7 @@ export default function ChatInterface({
                                 key={level}
                                 type="button"
                                 onClick={() => setCfmStudyLevel(level as StudyLevel)}
-                                className={`py-1.5 px-4 rounded-md text-xs font-medium transition-all duration-150 ${
+                                className={`py-2.5 px-6 rounded-lg text-sm font-semibold transition-all duration-150 ${
                                   cfmStudyLevel === level
                                     ? color === 'emerald' 
                                       ? 'bg-emerald-600 text-white'
@@ -750,8 +750,8 @@ export default function ChatInterface({
                       
                       {cfmStudyType === 'lesson-plans' && (
                         <>
-                          <label className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider text-center block">Audience</label>
-                          <div className="flex justify-center gap-1.5">
+                          <label className="text-sm font-medium text-neutral-400 uppercase tracking-wider text-center block">Audience</label>
+                          <div className="flex justify-center gap-2">
                             {[
                               { level: 'adult', color: 'purple' },
                               { level: 'youth', color: 'blue' },
@@ -761,7 +761,7 @@ export default function ChatInterface({
                                 key={level}
                                 type="button"
                                 onClick={() => setCfmLessonPlanLevel(level as LessonPlanLevel)}
-                                className={`py-1.5 px-4 rounded-md text-xs font-medium transition-all duration-150 capitalize ${
+                                className={`py-2.5 px-6 rounded-lg text-sm font-semibold transition-all duration-150 capitalize ${
                                   cfmLessonPlanLevel === level
                                     ? color === 'purple'
                                       ? 'bg-purple-600 text-white'
@@ -780,8 +780,8 @@ export default function ChatInterface({
                       
                       {cfmStudyType === 'audio-summary' && (
                         <>
-                          <label className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider text-center block">Study Level</label>
-                          <div className="flex justify-center gap-1.5">
+                          <label className="text-sm font-medium text-neutral-400 uppercase tracking-wider text-center block">Study Level</label>
+                          <div className="flex justify-center gap-2">
                             {[
                               { level: 'short', label: 'Essential', color: 'emerald' },
                               { level: 'medium', label: 'Connected', color: 'purple' },
@@ -791,7 +791,7 @@ export default function ChatInterface({
                                 key={level}
                                 type="button"
                                 onClick={() => setCfmAudioSummaryLevel(level as AudioSummaryLevel)}
-                                className={`py-1.5 px-4 rounded-md text-xs font-medium transition-all duration-150 ${
+                                className={`py-2.5 px-6 rounded-lg text-sm font-semibold transition-all duration-150 ${
                                   cfmAudioSummaryLevel === level
                                     ? color === 'emerald' 
                                       ? 'bg-emerald-600 text-white'
