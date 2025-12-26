@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import ChatInterface from '@/components/ChatInterface';
 import { getCurrentCFMWeek, CFMWeek } from '@/utils/comeFollowMe';
-import { MicrophoneIcon, AcademicCapIcon, ClipboardDocumentListIcon, BookOpenIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
+import { MicrophoneIcon, AcademicCapIcon, ClipboardDocumentListIcon, BookOpenIcon, ChatBubbleLeftRightIcon, SunIcon } from '@heroicons/react/24/outline';
 
 // Feature tile type
 type FeatureTile = {
@@ -15,6 +15,7 @@ type FeatureTile = {
   color: string;
   mode: 'Q&A' | 'Come Follow Me';
   studyType?: 'deep-dive' | 'lesson-plans' | 'audio-summary' | 'core-content';
+  special?: 'daily-thought';
 };
 
 // Trigger redeploy - Dec 25, 2025 - Landing page redesign
@@ -60,6 +61,12 @@ export default function Home() {
   // Shared mode state - controlled by sidebar, used by chat
   const [mode, setMode] = useState('Q&A'); // 'Q&A' or 'Come Follow Me'
   
+  // Daily Thought state
+  const [showDailyThought, setShowDailyThought] = useState(false);
+  const [dailyThoughtData, setDailyThoughtData] = useState<any>(null);
+  const [selectedDay, setSelectedDay] = useState(new Date().getDay() || 7); // 1-7, Sunday=7
+  const [selectedWeek, setSelectedWeek] = useState(1);
+  
   // CFM state
   const [cfmAudience, setCfmAudience] = useState('Family');
   const [cfmWeek, setCfmWeek] = useState<CFMWeek>(getCurrentCFMWeek());
@@ -70,6 +77,15 @@ export default function Home() {
 
   // Feature tiles configuration
   const featureTiles: FeatureTile[] = [
+    {
+      id: 'daily-thought',
+      title: 'Daily Thought',
+      description: 'Start your day with a brief scripture insight and reflection question',
+      icon: <SunIcon className="w-8 h-8" />,
+      color: 'from-cyan-500 to-teal-600',
+      mode: 'Come Follow Me',
+      special: 'daily-thought'
+    },
     {
       id: 'podcast',
       title: 'Podcast',
@@ -116,8 +132,25 @@ export default function Home() {
     }
   ];
 
+  // Load daily thought data
+  const loadDailyThought = async (week: number) => {
+    try {
+      const response = await fetch(`/daily_thoughts/daily_thoughts_week_${week.toString().padStart(2, '0')}.json`);
+      const data = await response.json();
+      setDailyThoughtData(data);
+    } catch (error) {
+      console.error('Failed to load daily thought:', error);
+    }
+  };
+
   // Handle tile click
   const handleTileClick = (tile: FeatureTile) => {
+    if (tile.special === 'daily-thought') {
+      setShowDailyThought(true);
+      setShowLandingPage(false);
+      loadDailyThought(selectedWeek);
+      return;
+    }
     setMode(tile.mode);
     if (tile.studyType) {
       setCfmStudyType(tile.studyType);
@@ -183,6 +216,157 @@ export default function Home() {
             </p>
             <p className="text-neutral-600 text-xs mt-1">{cfmWeek?.dates}</p>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Daily Thought view
+  if (showDailyThought) {
+    const currentThought = dailyThoughtData?.days?.[selectedDay - 1];
+    
+    return (
+      <div className="min-h-screen bg-neutral-900 text-white">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-neutral-800">
+          <button
+            onClick={() => {
+              setShowDailyThought(false);
+              setShowLandingPage(true);
+            }}
+            className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+          </button>
+          <h1 className="text-xl font-bold flex items-center gap-2">
+            <SunIcon className="w-6 h-6 text-cyan-400" />
+            Daily Thought
+          </h1>
+          <div className="w-16" /> {/* Spacer for centering */}
+        </div>
+
+        {/* Week and Day Picker */}
+        <div className="max-w-2xl mx-auto px-4 py-6">
+          <div className="flex flex-col sm:flex-row gap-4 mb-8">
+            {/* Week Picker */}
+            <div className="flex-1">
+              <label className="block text-sm text-neutral-400 mb-2">Week</label>
+              <select
+                value={selectedWeek}
+                onChange={(e) => {
+                  const week = parseInt(e.target.value);
+                  setSelectedWeek(week);
+                  loadDailyThought(week);
+                }}
+                className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              >
+                {Array.from({ length: 52 }, (_, i) => i + 1).map((week) => (
+                  <option key={week} value={week}>
+                    Week {week}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Day Picker */}
+            <div className="flex-1">
+              <label className="block text-sm text-neutral-400 mb-2">Day</label>
+              <div className="flex gap-1">
+                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedDay(index + 1)}
+                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      selectedDay === index + 1
+                        ? 'bg-cyan-500 text-white'
+                        : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
+                    }`}
+                  >
+                    {day}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Daily Thought Content */}
+          {currentThought ? (
+            <div className="space-y-6 animate-fade-in">
+              {/* Theme Badge */}
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 bg-cyan-500/20 text-cyan-400 rounded-full text-sm">
+                  {currentThought.theme}
+                </span>
+                <span className="text-neutral-500 text-sm">
+                  {currentThought.day_name}
+                </span>
+              </div>
+
+              {/* Title */}
+              <h2 className="text-2xl lg:text-3xl font-bold text-white">
+                {currentThought.title}
+              </h2>
+
+              {/* Scripture */}
+              <div className="bg-neutral-800/50 border-l-4 border-cyan-500 p-4 rounded-r-lg">
+                <p className="text-lg text-white italic mb-2">
+                  &ldquo;{currentThought.scripture?.text}&rdquo;
+                </p>
+                <p className="text-cyan-400 text-sm font-medium">
+                  — {currentThought.scripture?.reference}
+                </p>
+              </div>
+
+              {/* Thought */}
+              <div>
+                <h3 className="text-sm font-semibold text-neutral-400 uppercase tracking-wider mb-2">
+                  Today&apos;s Thought
+                </h3>
+                <p className="text-neutral-200 leading-relaxed text-lg">
+                  {currentThought.thought}
+                </p>
+              </div>
+
+              {/* Historical Context (if present) */}
+              {currentThought.historical_context && (
+                <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
+                  <h3 className="text-sm font-semibold text-amber-400 uppercase tracking-wider mb-2">
+                    Historical Context
+                  </h3>
+                  <p className="text-neutral-300 leading-relaxed">
+                    {currentThought.historical_context}
+                  </p>
+                </div>
+              )}
+
+              {/* Application */}
+              <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-green-400 uppercase tracking-wider mb-2">
+                  Today&apos;s Application
+                </h3>
+                <p className="text-neutral-200 leading-relaxed">
+                  {currentThought.application}
+                </p>
+              </div>
+
+              {/* Reflection Question */}
+              <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-purple-400 uppercase tracking-wider mb-2">
+                  Reflection Question
+                </h3>
+                <p className="text-neutral-200 leading-relaxed text-lg">
+                  {currentThought.question}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-neutral-500">Loading...</div>
+            </div>
+          )}
         </div>
       </div>
     );
