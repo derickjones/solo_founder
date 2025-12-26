@@ -741,56 +741,72 @@ export default function ChatInterface({
                       <div className="text-[10px] text-neutral-500">{cfmWeek?.dates}</div>
                     </div>
 
-                    {/* Study Type Selection */}
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider">Study Type</label>
-                      <div className="grid grid-cols-4 gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => setCfmStudyType('deep-dive')}
-                          className={`py-2 px-1 rounded-md text-xs font-medium transition-all duration-150 ${
-                            cfmStudyType === 'deep-dive'
-                              ? 'bg-blue-600 text-white'
-                              : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50'
-                          }`}
-                        >
-                          Deep Dive
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setCfmStudyType('lesson-plans')}
-                          className={`py-2 px-1 rounded-md text-xs font-medium transition-all duration-150 ${
-                            cfmStudyType === 'lesson-plans'
-                              ? 'bg-purple-600 text-white'
-                              : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50'
-                          }`}
-                        >
-                          Lesson Plans
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setCfmStudyType('audio-summary')}
-                          className={`py-2 px-1 rounded-md text-xs font-medium transition-all duration-150 ${
-                            cfmStudyType === 'audio-summary'
-                              ? 'bg-emerald-600 text-white'
-                              : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50'
-                          }`}
-                        >
-                          Audio
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setCfmStudyType('core-content')}
-                          className={`py-2 px-1 rounded-md text-xs font-medium transition-all duration-150 ${
-                            cfmStudyType === 'core-content'
-                              ? 'bg-amber-600 text-white'
-                              : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50'
-                          }`}
-                        >
-                          Core
-                        </button>
+                    {/* Study Type Selection - only show if not from landing page */}
+                    {!onBackToLanding ? (
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider">Study Type</label>
+                        <div className="grid grid-cols-4 gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setCfmStudyType('deep-dive')}
+                            className={`py-2 px-1 rounded-md text-xs font-medium transition-all duration-150 ${
+                              cfmStudyType === 'deep-dive'
+                                ? 'bg-blue-600 text-white'
+                                : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50'
+                            }`}
+                          >
+                            Deep Dive
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setCfmStudyType('lesson-plans')}
+                            className={`py-2 px-1 rounded-md text-xs font-medium transition-all duration-150 ${
+                              cfmStudyType === 'lesson-plans'
+                                ? 'bg-purple-600 text-white'
+                                : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50'
+                            }`}
+                          >
+                            Lesson Plans
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setCfmStudyType('audio-summary')}
+                            className={`py-2 px-1 rounded-md text-xs font-medium transition-all duration-150 ${
+                              cfmStudyType === 'audio-summary'
+                                ? 'bg-emerald-600 text-white'
+                                : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50'
+                            }`}
+                          >
+                            Audio
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setCfmStudyType('core-content')}
+                            className={`py-2 px-1 rounded-md text-xs font-medium transition-all duration-150 ${
+                              cfmStudyType === 'core-content'
+                                ? 'bg-amber-600 text-white'
+                                : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50'
+                            }`}
+                          >
+                            Core
+                          </button>
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="text-center">
+                        <h2 className={`text-lg font-semibold ${
+                          cfmStudyType === 'deep-dive' ? 'text-blue-400' :
+                          cfmStudyType === 'lesson-plans' ? 'text-purple-400' :
+                          cfmStudyType === 'audio-summary' ? 'text-emerald-400' :
+                          'text-amber-400'
+                        }`}>
+                          {cfmStudyType === 'deep-dive' && 'Deep Dive Study'}
+                          {cfmStudyType === 'lesson-plans' && 'Lesson Plans'}
+                          {cfmStudyType === 'audio-summary' && 'Podcast'}
+                          {cfmStudyType === 'core-content' && 'Core Content'}
+                        </h2>
+                      </div>
+                    )}
                   </div>
 
                   {/* Dynamic Level Selection Based on Study Type - Centered */}
