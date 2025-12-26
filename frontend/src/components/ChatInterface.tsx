@@ -617,47 +617,24 @@ export default function ChatInterface({
         </button>
       )}
       
-      {/* Top-right mode selector */}
-      <div className="absolute top-4 right-4 lg:top-6 lg:right-8 z-10">
-        <div className="relative">
+      {/* Top-right home button */}
+      {onBackToLanding && (
+        <div className="absolute top-4 right-4 lg:top-6 lg:right-8 z-10">
           <button
             type="button"
-            onClick={() => setModeDropdownOpen(!modeDropdownOpen)}
-            className={`flex items-center justify-center space-x-2 backdrop-blur-sm px-3 py-2 rounded-lg transition-all duration-200 shadow-lg ${
-              mode === 'Come Follow Me'
-                ? 'bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/50 text-blue-300'
-                : 'bg-neutral-700/90 hover:bg-neutral-600/90 border border-neutral-600/50 text-white'
-            }`}
+            onClick={() => {
+              resetChat();
+              onBackToLanding();
+            }}
+            className="flex items-center justify-center backdrop-blur-sm p-2.5 rounded-lg transition-all duration-200 shadow-lg bg-neutral-700/90 hover:bg-neutral-600/90 border border-neutral-600/50 text-neutral-300 hover:text-white"
+            title="Back to Home"
           >
-            <span className="text-sm font-medium whitespace-nowrap">{mode}</span>
-            <ChevronDownIcon className={`w-4 h-4 flex-shrink-0 ${
-              mode === 'Come Follow Me' ? 'text-blue-400' : 'text-neutral-400'
-            }`} />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+            </svg>
           </button>
-          
-          {modeDropdownOpen && (
-            <div className="absolute top-full right-0 mt-2 bg-neutral-800/95 backdrop-blur-sm rounded-xl shadow-xl border border-neutral-700/50 py-2 min-w-40 z-50">
-              {modes.map((modeOption) => (
-                <button
-                  key={modeOption}
-                  type="button"
-                  onClick={() => {
-                    setMode(modeOption);
-                    setModeDropdownOpen(false);
-                  }}
-                  className={`relative block w-full px-4 py-2.5 text-left transition-all duration-200 text-sm whitespace-nowrap ${
-                    mode === modeOption
-                      ? 'bg-blue-500/20 text-blue-300 shadow-lg shadow-blue-500/20 border-l-2 border-blue-400'
-                      : 'text-neutral-300 hover:bg-neutral-700/50 hover:text-white/80'
-                  }`}
-                >
-                  {modeOption}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
-      </div>
+      )}
 
       {/* Mobile hamburger menu */}
       <div className={`lg:hidden flex items-center justify-between p-4 border-b border-neutral-700 transition-all duration-300 ease-in-out ${
