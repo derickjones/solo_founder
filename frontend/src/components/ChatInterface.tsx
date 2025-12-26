@@ -78,14 +78,11 @@ export default function ChatInterface({
   onBackToLanding
 }: ChatInterfaceProps) {
   const [query, setQuery] = useState('');
-  const [modeDropdownOpen, setModeDropdownOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState('');
   const [streamingMessageId, setStreamingMessageId] = useState<number | null>(null);
   const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null);
-  const [showProductTiles, setShowProductTiles] = useState(true);
-  const [currentTileIndex, setCurrentTileIndex] = useState(0);
   const [generatingAudioForMessage, setGeneratingAudioForMessage] = useState<number | null>(null);
   
   // Ref for scrolling to bottom of messages
@@ -156,18 +153,11 @@ export default function ChatInterface({
         e.preventDefault();
         setSidebarOpen(!sidebarOpen);
       }
-      
-      // Escape to close mode dropdown
-      if (e.key === 'Escape') {
-        if (modeDropdownOpen) {
-          setModeDropdownOpen(false);
-        }
-      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [sidebarOpen, setSidebarOpen, modeDropdownOpen]);
+  }, [sidebarOpen, setSidebarOpen]);
 
   // Scroll behavior for hiding/showing controls
   useEffect(() => {
@@ -197,67 +187,6 @@ export default function ChatInterface({
     window.addEventListener('scroll', throttledHandleScroll, { passive: true });
     return () => window.removeEventListener('scroll', throttledHandleScroll);
   }, [lastScrollY, messages.length]);
-
-  // Product tiles data
-  const productTiles = [
-    {
-      title: "Reliable Gospel Study",
-      content: [
-        "Q&A mode for instant answers to gospel questions",
-        "Come Follow Me mode for lesson planning", 
-        "Search Standard Works, General Conference, and CFM curriculum",
-        "All answers include exact citations for verification"
-      ],
-      action: "Try Q&A"
-    },
-    {
-      title: "Customize Your Study",
-      content: [
-        "Select specific Come Follow Me weeks from sidebar",
-        "Choose target audience: adults, families, youth, or children",
-        "Switch seamlessly between Q&A and lesson planning modes",
-        "Tailor content to your teaching needs"
-      ],
-      action: "Explore Sidebar"
-    },
-    {
-      title: "Unlimited Study Power",
-      content: [
-        "Free: Basic Q&A with daily question limits",
-        "Premium ($4.99/month): Unlimited questions and lesson plans",
-        "Generate PDF exports for offline use",
-        "Save hours of preparation time each week"
-      ],
-      action: "Start Free Trial"
-    }
-  ];
-
-  // Auto-hide product tiles after 30 seconds and auto-scroll
-  useEffect(() => {
-    if (!showProductTiles) return;
-
-    // Auto-scroll tiles every 4 seconds
-    const scrollInterval = setInterval(() => {
-      setCurrentTileIndex((prev) => (prev + 1) % productTiles.length);
-    }, 4000);
-
-    // Hide tiles after 30 seconds
-    const hideTimer = setTimeout(() => {
-      setShowProductTiles(false);
-    }, 30000);
-
-    return () => {
-      clearInterval(scrollInterval);
-      clearTimeout(hideTimer);
-    };
-  }, [showProductTiles, productTiles.length]);
-
-  // Hide tiles when user starts interacting (typing or sending messages)
-  useEffect(() => {
-    if (messages.length > 0 || query.length > 0) {
-      setShowProductTiles(false);
-    }
-  }, [messages.length, query.length]);
 
   // PDF download handler
   const handleDownloadPDF = async (messageContent: string) => {
@@ -962,7 +891,7 @@ export default function ChatInterface({
 
       {/* Messages area */}
       <div className="flex-1 min-h-0 px-4 lg:px-6 pb-2 lg:pb-4 overflow-y-auto">
-        {messages.length > 0 ? (
+        {messages.length > 0 && (
           <div className="max-w-6xl mx-auto space-y-6">
             {messages.map((message) => (
               <div key={message.id} className="space-y-4">
@@ -1258,105 +1187,6 @@ export default function ChatInterface({
             
             {/* Scroll anchor - this element is used to scroll to the bottom */}
             <div ref={messagesEndRef} />
-          </div>
-        ) : (
-          // Empty state with product explanation tiles
-          <div className="flex-1 flex items-center justify-center px-4">
-            {showProductTiles && (
-              <div className="max-w-6xl mx-auto">
-                {/* Desktop: 3-column grid */}
-                <div className="hidden lg:grid lg:grid-cols-3 gap-6">
-                  {productTiles.map((tile, index) => {
-                    const tileColors = [
-                      { bg: "bg-blue-900/20", border: "border-blue-700/30", hover: "hover:bg-blue-800/30", hoverBorder: "hover:border-blue-500/50", accent: "text-blue-400", hoverAccent: "text-blue-300" },
-                      { bg: "bg-purple-900/20", border: "border-purple-700/30", hover: "hover:bg-purple-800/30", hoverBorder: "hover:border-purple-500/50", accent: "text-purple-400", hoverAccent: "text-purple-300" },
-                      { bg: "bg-emerald-900/20", border: "border-emerald-700/30", hover: "hover:bg-emerald-800/30", hoverBorder: "hover:border-emerald-500/50", accent: "text-emerald-400", hoverAccent: "text-emerald-300" }
-                    ];
-                    const colors = tileColors[index];
-                    
-                    return (
-                      <div
-                        key={index}
-                        className={`${colors.bg} border ${colors.border} rounded-xl p-6 ${colors.hover} transition-all duration-300 ${colors.hoverBorder} group`}
-                      >
-                        <h3 className={`text-lg font-semibold text-white mb-4 group-hover:${colors.hoverAccent} transition-colors`}>
-                          {tile.title}
-                        </h3>
-                        <ul className="text-neutral-400 text-sm leading-relaxed mb-6 space-y-2 group-hover:text-neutral-300 transition-colors">
-                          {tile.content.map((item, i) => (
-                            <li key={i} className="flex items-start">
-                              <span className={`${colors.accent} mr-2 mt-1`}>•</span>
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                        <button className={`${colors.accent} hover:${colors.hoverAccent} text-sm font-medium transition-colors`}>
-                          {tile.action} →
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Mobile: Scrolling carousel */}
-                <div className="lg:hidden">
-                  <div className="relative">
-                    {(() => {
-                      const tileColors = [
-                        { bg: "bg-blue-900/20", border: "border-blue-700/30", accent: "text-blue-400", hoverAccent: "text-blue-300" },
-                        { bg: "bg-purple-900/20", border: "border-purple-700/30", accent: "text-purple-400", hoverAccent: "text-purple-300" },
-                        { bg: "bg-emerald-900/20", border: "border-emerald-700/30", accent: "text-emerald-400", hoverAccent: "text-emerald-300" }
-                      ];
-                      const colors = tileColors[currentTileIndex];
-                      
-                      return (
-                        <div className={`${colors.bg} border ${colors.border} rounded-xl p-6 min-h-[320px] flex flex-col`}>
-                          <h3 className={`text-lg font-semibold text-white mb-4 ${colors.hoverAccent}`}>
-                            {productTiles[currentTileIndex].title}
-                          </h3>
-                          <ul className="text-neutral-400 text-sm leading-relaxed mb-6 space-y-2 flex-grow">
-                            {productTiles[currentTileIndex].content.map((item, i) => (
-                              <li key={i} className="flex items-start">
-                                <span className={`${colors.accent} mr-2 mt-1`}>•</span>
-                                <span>{item}</span>
-                              </li>
-                            ))}
-                          </ul>
-                          <button className={`${colors.accent} hover:${colors.hoverAccent} text-sm font-medium transition-colors self-start`}>
-                            {productTiles[currentTileIndex].action} →
-                          </button>
-                        </div>
-                      );
-                    })()}
-
-                    {/* Navigation dots */}
-                    <div className="flex justify-center space-x-2 mt-4">
-                      {productTiles.map((_, index) => (
-                        <button
-                          key={index}
-                          onClick={() => setCurrentTileIndex(index)}
-                          className={`w-2 h-2 rounded-full transition-colors ${
-                            index === currentTileIndex
-                              ? 'bg-blue-400'
-                              : 'bg-neutral-600 hover:bg-neutral-500'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Dismiss button */}
-                <div className="flex justify-center mt-6">
-                  <button
-                    onClick={() => setShowProductTiles(false)}
-                    className="text-neutral-500 hover:text-neutral-400 text-xs transition-colors"
-                  >
-                    Hide this introduction
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         )}
       </div>
