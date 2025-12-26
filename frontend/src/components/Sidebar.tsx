@@ -249,32 +249,19 @@ export default function Sidebar({
         </div>
       </div>
 
-      {/* Come Follow Me section */}
+      {/* User Preferences section */}
       {mode === 'Come Follow Me' && (
         <div className="px-6 pb-6 space-y-6 overflow-y-auto flex-1">
-          {/* Week Selector */}
+          {/* User Preferences */}
           <div className="space-y-3">
-            <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Lesson</span>
-            <select
-              value={cfmWeek?.id || ''}
-              onChange={(e) => {
-                const selectedWeek = CFM_2026_SCHEDULE.find((w: CFMWeek) => w.id === e.target.value);
-                setCfmWeek(selectedWeek || CFM_2026_SCHEDULE[0]);
-              }}
-              className="w-full p-3 bg-neutral-800/50 border-0 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-white/20 appearance-none cursor-pointer"
-            >
-              {CFM_2026_SCHEDULE.map((week: CFMWeek) => (
-                <option key={week.id} value={week.id} className="bg-neutral-800">
-                  {week.dates}: {week.lesson}
-                </option>
-              ))}
-            </select>
-            <div className="p-3 bg-neutral-800/30 rounded-xl border border-neutral-700/30">
-              <div className="text-white text-sm font-medium">{cfmWeek?.lesson || 'Select a lesson'}</div>
-              <div className="text-neutral-400 text-xs">{cfmWeek?.reference || 'Doctrine & Covenants'}</div>
-              {cfmWeek?.dates && (
-                <div className="text-neutral-500 text-xs mt-1">{cfmWeek.dates}</div>
-              )}
+            <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">User Preferences</span>
+            <div className="p-4 bg-neutral-800/30 rounded-xl border border-neutral-700/30 space-y-3">
+              <div className="text-neutral-400 text-sm">
+                Customize your study experience with preferences and saved settings.
+              </div>
+              <div className="text-neutral-500 text-xs">
+                Coming soon: Dark mode, font size, audio preferences, and more.
+              </div>
             </div>
           </div>
         </div>
