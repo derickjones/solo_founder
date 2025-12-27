@@ -505,14 +505,14 @@ export const generateTTS = async (request: TTSGenerateRequest): Promise<TTSGener
   
   try {
     const startTime = Date.now();
-    const response = await fetch(`${API_BASE_URL}/tts/generate`, {
+    const response = await fetch(`${API_BASE_URL}/tts/podcast`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         text: request.text,
-        voice: request.voice || 'cfm_male',
+        voice: request.voice || 'alnilam',
         title: request.title || 'Audio'
       }),
       signal: controller.signal
