@@ -23,19 +23,17 @@ class GoogleCloudTTS:
     # Chirp 3 HD voice options - high quality voices
     # Format: voice_name -> (language_code, voice_name)
     VOICE_OPTIONS = {
-        # Male voices
-        "algieba": ("en-US", "en-US-Chirp3-HD-Algieba"),
-        "charon": ("en-US", "en-US-Chirp3-HD-Charon"),
-        "fenrir": ("en-US", "en-US-Chirp3-HD-Fenrir"),
-        "orus": ("en-US", "en-US-Chirp3-HD-Orus"),
-        "puck": ("en-US", "en-US-Chirp3-HD-Puck"),
-        # Female voices
+        # Male voices (top picks)
+        "alnilam": ("en-US", "en-US-Chirp3-HD-Alnilam"),
+        "achird": ("en-US", "en-US-Chirp3-HD-Achird"),
+        "enceladus": ("en-US", "en-US-Chirp3-HD-Enceladus"),
+        # Female voices (top picks)
         "aoede": ("en-US", "en-US-Chirp3-HD-Aoede"),
-        "kore": ("en-US", "en-US-Chirp3-HD-Kore"),
-        "leda": ("en-US", "en-US-Chirp3-HD-Leda"),
-        "zephyr": ("en-US", "en-US-Chirp3-HD-Zephyr"),
-        # Default for CFM - warm, authoritative male voice
-        "cfm_male": ("en-US", "en-US-Chirp3-HD-Algieba"),
+        "autonoe": ("en-US", "en-US-Chirp3-HD-Autonoe"),
+        "erinome": ("en-US", "en-US-Chirp3-HD-Erinome"),
+        # Defaults for CFM
+        "cfm_male": ("en-US", "en-US-Chirp3-HD-Alnilam"),
+        "cfm_female": ("en-US", "en-US-Chirp3-HD-Aoede"),
     }
     
     def __init__(self):
