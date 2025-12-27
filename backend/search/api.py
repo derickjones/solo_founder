@@ -630,8 +630,8 @@ class TTSPodcastRequest(BaseModel):
     text: str  # Text to convert to speech
     voice: str = "alnilam"  # Voice to use (default: alnilam male)
     title: str = "Podcast Audio"  # Title for the audio player
-    intro_duration_sec: float = 13.0  # How long to play intro music (default 13 seconds)
-    outro_duration_sec: float = 18.0  # How long to play outro music (default 18 seconds)
+    intro_duration_sec: float = 15.0  # How long to play intro music (default 15 seconds)
+    outro_duration_sec: float = 20.0  # How long to play outro music (default 20 seconds)
 
 class TTSPodcastResponse(BaseModel):
     audio_base64: str  # Base64 encoded MP3 audio
@@ -1297,9 +1297,9 @@ async def generate_tts(request: TTSGenerateRequest):
 async def generate_podcast_tts(request: TTSPodcastRequest):
     """
     Generate podcast-style audio with intro music, TTS voice, and outro music.
-    - Intro music plays for ~12-15 seconds, fading out over last 3 seconds
+    - Intro music plays for 15 seconds with a 15-second fade-in
     - Voice content plays in the middle
-    - Outro music fades in and plays for ~15-20 seconds
+    - Outro music plays for 20 seconds with a 10-second fade-in
     """
     import time
     from pydub import AudioSegment
@@ -1363,23 +1363,21 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
         # Calculate durations (in milliseconds)
         intro_duration_ms = int(request.intro_duration_sec * 1000)
         outro_duration_ms = int(request.outro_duration_sec * 1000)
-        fade_duration_ms = 3000  # 3 second fade
+        intro_fade_duration_ms = intro_duration_ms  # 15 second fade-in for intro
+        outro_fade_duration_ms = 10000  # 10 second fade-in for outro
         
         # Ensure music is long enough (loop if needed)
-        total_music_needed = max(intro_duration_ms, outro_duration_ms) + fade_duration_ms
+        total_music_needed = max(intro_duration_ms, outro_duration_ms) + max(intro_fade_duration_ms, outro_fade_duration_ms)
         while len(music) < total_music_needed:
             music = music + music
         
-        # Create intro: full music for (intro_duration - fade), then fade out
-        intro_full_duration = intro_duration_ms - fade_duration_ms
-        intro_segment = music[:intro_full_duration]
-        intro_fade = music[intro_full_duration:intro_duration_ms].fade_out(fade_duration_ms)
-        intro = intro_segment + intro_fade
+        # Create intro: 15-second fade-in of music
+        intro = music[:intro_duration_ms].fade_in(intro_fade_duration_ms)
         
-        # Create outro: fade in, then full music
-        outro_fade = music[:fade_duration_ms].fade_in(fade_duration_ms)
-        outro_full_duration = outro_duration_ms - fade_duration_ms
-        outro_segment = music[fade_duration_ms:outro_duration_ms]
+        # Create outro: 10-second fade-in, then full music for remaining 10 seconds
+        outro_fade = music[:outro_fade_duration_ms].fade_in(outro_fade_duration_ms)
+        outro_full_duration = outro_duration_ms - outro_fade_duration_ms
+        outro_segment = music[outro_fade_duration_ms:outro_duration_ms]
         outro = outro_fade + outro_segment
         
         # Add a small gap/silence between sections (500ms)
