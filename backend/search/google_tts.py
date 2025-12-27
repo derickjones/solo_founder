@@ -12,7 +12,7 @@ import os
 import logging
 import base64
 from typing import Optional, Dict
-from google.cloud import texttospeech_v1 as texttospeech
+from google.cloud import texttospeech
 
 logger = logging.getLogger(__name__)
 
