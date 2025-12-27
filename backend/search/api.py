@@ -1296,10 +1296,10 @@ async def generate_tts(request: TTSGenerateRequest):
 @app.post("/tts/podcast", response_model=TTSPodcastResponse)
 async def generate_podcast_tts(request: TTSPodcastRequest):
     """
-    Generate podcast-style audio with intro music, TTS voice, and outro music.
-    - Intro music plays for 15 seconds with a 15-second fade-in
-    - Voice content plays in the middle
-    - Outro music plays for 20 seconds with a 10-second fade-in
+    Generate podcast-style audio with continuous music bed under voice.
+    - Intro: 15 seconds of music fading in
+    - Voice starts at 12s (3s crossfade), music continues quietly underneath (-15dB)
+    - Outro: Music returns to full volume for 20 seconds, fading out at end
     """
     import time
     from pydub import AudioSegment
@@ -1360,31 +1360,41 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
         voice_audio_bytes = base64.b64decode(voice_audio_b64)
         voice = AudioSegment.from_mp3(io.BytesIO(voice_audio_bytes))
         
-        # Calculate durations (in milliseconds)
-        intro_duration_ms = int(request.intro_duration_sec * 1000)
-        outro_duration_ms = int(request.outro_duration_sec * 1000)
-        intro_fade_duration_ms = intro_duration_ms  # 15 second fade-in for intro
-        outro_fade_duration_ms = 10000  # 10 second fade-in for outro
+        # Configuration for mixing
+        intro_duration_ms = int(request.intro_duration_sec * 1000)  # 15 seconds
+        outro_duration_ms = int(request.outro_duration_sec * 1000)  # 20 seconds
+        crossfade_ms = 3000  # 3 second crossfade between music and voice
+        music_under_voice_db = -15  # Lower music volume under voice by 15dB
         
-        # Ensure music is long enough (loop if needed)
-        total_music_needed = max(intro_duration_ms, outro_duration_ms) + max(intro_fade_duration_ms, outro_fade_duration_ms)
-        while len(music) < total_music_needed:
+        # Ensure music is long enough for the entire podcast
+        total_duration_needed = intro_duration_ms + len(voice) + outro_duration_ms
+        while len(music) < total_duration_needed:
             music = music + music
         
-        # Create intro: 15-second fade-in of music
-        intro = music[:intro_duration_ms].fade_in(intro_fade_duration_ms)
+        # Create the full music bed (intro fade-in + continuous + outro)
+        # Intro: 15 second fade-in
+        intro_music = music[:intro_duration_ms].fade_in(intro_duration_ms)
         
-        # Create outro: 10-second fade-in, then full music for remaining 10 seconds
-        outro_fade = music[:outro_fade_duration_ms].fade_in(outro_fade_duration_ms)
-        outro_full_duration = outro_duration_ms - outro_fade_duration_ms
-        outro_segment = music[outro_fade_duration_ms:outro_duration_ms]
-        outro = outro_fade + outro_segment
+        # Music under voice: lowered volume
+        voice_duration_ms = len(voice)
+        music_under_voice = music[intro_duration_ms:intro_duration_ms + voice_duration_ms] - abs(music_under_voice_db)
         
-        # Add a small gap/silence between sections (500ms)
-        gap = AudioSegment.silent(duration=500)
+        # Outro: full volume music with fade-out at the end
+        outro_start = intro_duration_ms + voice_duration_ms
+        outro_music = music[outro_start:outro_start + outro_duration_ms].fade_out(5000)  # 5 second fade-out at end
         
-        # Combine: intro + gap + voice + gap + outro
-        final_audio = intro + gap + voice + gap + outro
+        # Build the complete music bed
+        full_music_bed = intro_music + music_under_voice + outro_music
+        
+        # Create silence padding to position the voice correctly
+        voice_with_padding = AudioSegment.silent(duration=intro_duration_ms - crossfade_ms) + voice
+        
+        # Pad voice to match full music bed length
+        if len(voice_with_padding) < len(full_music_bed):
+            voice_with_padding = voice_with_padding + AudioSegment.silent(duration=len(full_music_bed) - len(voice_with_padding))
+        
+        # Overlay voice on top of music bed
+        final_audio = full_music_bed.overlay(voice_with_padding)
         
         # Export to MP3 bytes
         output_buffer = io.BytesIO()
