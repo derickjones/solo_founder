@@ -67,15 +67,31 @@ export const CFM_2026_SCHEDULE: CFMWeek[] = [
 export function getCurrentCFMWeek(): CFMWeek {
   const today = new Date();
   const currentDate = today.getDate();
-  const currentMonth = today.getMonth() + 1;
+  const currentMonth = today.getMonth() + 1; // 1-12
   const currentYear = today.getFullYear();
   
-  // December 21, 2025 is currently Week 52 (Christmas week)
-  if (currentYear === 2025 && currentMonth === 12 && currentDate >= 21) {
-    return CFM_2026_SCHEDULE[51]; // Week 52
+  // CFM 2026 starts Dec 29, 2025 (Week 1) and runs through Dec 27, 2026 (Week 52)
+  // Each week starts on Sunday
+  
+  // Week 1: Dec 29, 2025 - Jan 4, 2026
+  const week1Start = new Date(2025, 11, 29); // Dec 29, 2025
+  
+  // Calculate days since Week 1 started
+  const diffTime = today.getTime() - week1Start.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  
+  // Calculate week number (0-indexed, then add 1)
+  let weekNumber = Math.floor(diffDays / 7) + 1;
+  
+  // Clamp to valid range (1-52)
+  weekNumber = Math.max(1, Math.min(52, weekNumber));
+  
+  // If we're before Week 1 starts (before Dec 29, 2025), show Week 1
+  if (diffDays < 0) {
+    weekNumber = 1;
   }
   
-  return CFM_2026_SCHEDULE[51]; // Week 52 as default
+  return CFM_2026_SCHEDULE[weekNumber - 1];
 }
 
 export function formatCFMWeekDisplay(week: CFMWeek): string {

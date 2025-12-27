@@ -68,11 +68,14 @@ export default function Home() {
   const [showDailyThought, setShowDailyThought] = useState(false);
   const [dailyThoughtData, setDailyThoughtData] = useState<any>(null);
   const [selectedDay, setSelectedDay] = useState(new Date().getDay() || 7); // 1-7, Sunday=7
-  const [selectedWeek, setSelectedWeek] = useState(1);
   
-  // CFM state
+  // CFM state - get current week based on today's date
+  const currentCfmWeek = getCurrentCFMWeek();
+  const currentWeekNumber = parseInt(currentCfmWeek.id.replace('cfm-2026-week-', ''));
+  const [selectedWeek, setSelectedWeek] = useState(currentWeekNumber);
+  
   const [cfmAudience, setCfmAudience] = useState('Family');
-  const [cfmWeek, setCfmWeek] = useState<CFMWeek>(getCurrentCFMWeek());
+  const [cfmWeek, setCfmWeek] = useState<CFMWeek>(currentCfmWeek);
   const [cfmStudyType, setCfmStudyType] = useState<'deep-dive' | 'lesson-plans' | 'audio-summary' | 'core-content'>('deep-dive');
   const [cfmStudyLevel, setCfmStudyLevel] = useState<'essential' | 'connected' | 'scholarly'>('essential');
   const [cfmLessonPlanLevel, setCfmLessonPlanLevel] = useState<'adult' | 'youth' | 'children'>('adult');
