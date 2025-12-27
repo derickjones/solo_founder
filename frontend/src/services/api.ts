@@ -84,7 +84,7 @@ export interface CFMLessonPlanResponse {
 export interface CFMAudioSummaryRequest {
   week_number: number;
   study_level: 'essential' | 'connected' | 'scholarly';
-  voice?: 'cfm_male' | 'rachel' | 'drew' | 'paul' | 'antoni' | 'bella';
+  voice?: 'alnilam' | 'achird' | 'enceladus' | 'aoede' | 'autonoe' | 'erinome' | 'cfm_male' | 'cfm_female';
 }
 
 export interface CFMAudioSummaryResponse {
