@@ -20,7 +20,8 @@ client = OpenAI(
 # Paths
 SCRIPT_DIR = Path(__file__).parent
 CFM_2026_DIR = SCRIPT_DIR / "2026"
-OUTPUT_DIR = SCRIPT_DIR / "2026_daily_thoughts"
+# Output directly to frontend/public/daily_thoughts for instant loading (no copying needed)
+OUTPUT_DIR = SCRIPT_DIR.parent.parent.parent / "frontend" / "public" / "daily_thoughts"
 
 
 def get_generation_prompt(week_number: int, title: str, date_range: str, 

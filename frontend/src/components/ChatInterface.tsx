@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { ChevronDownIcon, PaperAirplaneIcon, Bars3Icon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon, ChevronRightIcon, UserCircleIcon } from '@heroicons/react/24/outline';
-import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMDeepDiveStream, CFMStreamChunk, CFMDeepDiveRequest, generateCFMLessonPlan, CFMLessonPlanRequest, generateCFMAudioSummary, CFMAudioSummaryRequest, generateCFMCoreContent, CFMCoreContentRequest, generateTTS } from '@/services/api';
+import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMDeepDiveStream, CFMStreamChunk, CFMDeepDiveRequest, generateCFMLessonPlan, CFMLessonPlanRequest, generateCFMCoreContent, CFMCoreContentRequest, generateTTS } from '@/services/api';
 import ReactMarkdown from 'react-markdown';
 import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
 import { CFM_AUDIENCES, CFM_2026_SCHEDULE, CFMWeek } from '@/utils/comeFollowMe';
@@ -423,20 +423,24 @@ export default function ChatInterface({
               'long': 'scholarly' as const
             };
             
-            const response = await generateCFMAudioSummary({
-              week_number: weekNumber,
-              study_level: studyLevelMap[cfmAudioSummaryLevel]
-              // No voice parameter - just generate the script, audio generated on Listen click
-            });
+            // Load from static JSON file (instant loading, no API call)
+            const studyLevel = studyLevelMap[cfmAudioSummaryLevel];
+            const response = await fetch(`/podcasts/podcast_week_${weekNumber.toString().padStart(2, '0')}_${studyLevel}.json`);
+            
+            if (!response.ok) {
+              throw new Error(`Podcast script not available yet for Week ${weekNumber} (${studyLevel})`);
+            }
+            
+            const data = await response.json();
             
             // Update the message with the audio summary transcript
             setMessages(prev => prev.map(msg => 
               msg.id === assistantMessageId 
                 ? { 
                     ...msg, 
-                    content: response.audio_script, // Show the audio script text
+                    content: data.script, // Show the audio script text from static JSON
                     audioFiles: undefined, // Audio will be generated when Listen is clicked
-                    audioTitle: `Week ${response.week_number} Audio Summary (${studyLevelMap[cfmAudioSummaryLevel]})`,
+                    audioTitle: `Week ${weekNumber} Audio Summary (${studyLevel})`,
                     isStreaming: false 
                   }
                 : msg
