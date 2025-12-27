@@ -6,6 +6,9 @@ import ChatInterface from '@/components/ChatInterface';
 import { getCurrentCFMWeek, CFMWeek, CFM_2026_SCHEDULE } from '@/utils/comeFollowMe';
 import { MicrophoneIcon, AcademicCapIcon, ClipboardDocumentListIcon, BookOpenIcon, ChatBubbleLeftRightIcon, SunIcon } from '@heroicons/react/24/outline';
 
+// Voice type
+type VoiceOption = 'alnilam' | 'achird' | 'enceladus' | 'aoede' | 'autonoe' | 'erinome';
+
 // Feature tile type
 type FeatureTile = {
   id: string;
@@ -74,6 +77,7 @@ export default function Home() {
   const [cfmStudyLevel, setCfmStudyLevel] = useState<'essential' | 'connected' | 'scholarly'>('essential');
   const [cfmLessonPlanLevel, setCfmLessonPlanLevel] = useState<'adult' | 'youth' | 'children'>('adult');
   const [cfmAudioSummaryLevel, setCfmAudioSummaryLevel] = useState<'short' | 'medium' | 'long'>('medium');
+  const [selectedVoice, setSelectedVoice] = useState<VoiceOption>('alnilam');
 
   // Feature tiles configuration
   const featureTiles: FeatureTile[] = [
@@ -394,6 +398,8 @@ export default function Home() {
         setMode={setMode}
         cfmWeek={cfmWeek}
         setCfmWeek={setCfmWeek}
+        selectedVoice={selectedVoice}
+        setSelectedVoice={setSelectedVoice}
       />
       <ChatInterface 
         selectedSources={selectedSources}
@@ -414,6 +420,7 @@ export default function Home() {
         setCfmLessonPlanLevel={setCfmLessonPlanLevel}
         cfmAudioSummaryLevel={cfmAudioSummaryLevel}
         setCfmAudioSummaryLevel={setCfmAudioSummaryLevel}
+        selectedVoice={selectedVoice}
         onBackToLanding={() => setShowLandingPage(true)}
       />
     </div>

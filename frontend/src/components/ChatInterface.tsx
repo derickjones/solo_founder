@@ -16,20 +16,6 @@ type LessonPlanLevel = 'adult' | 'youth' | 'children';
 type AudioSummaryLevel = 'short' | 'medium' | 'long';
 type VoiceOption = 'alnilam' | 'achird' | 'enceladus' | 'aoede' | 'autonoe' | 'erinome';
 
-// Voice options for TTS
-const VOICE_OPTIONS = {
-  male: [
-    { id: 'alnilam', name: 'Alnilam', desc: 'Default Male' },
-    { id: 'achird', name: 'Achird', desc: 'Male' },
-    { id: 'enceladus', name: 'Enceladus', desc: 'Male' },
-  ],
-  female: [
-    { id: 'aoede', name: 'Aoede', desc: 'Default Female' },
-    { id: 'autonoe', name: 'Autonoe', desc: 'Female' },
-    { id: 'erinome', name: 'Erinome', desc: 'Female' },
-  ]
-};
-
 interface Message {
   id: number;
   type: 'user' | 'assistant';
@@ -67,6 +53,8 @@ interface ChatInterfaceProps {
   // Audio Summary levels
   cfmAudioSummaryLevel: AudioSummaryLevel;
   setCfmAudioSummaryLevel: (level: AudioSummaryLevel) => void;
+  // Voice selection (from sidebar)
+  selectedVoice: VoiceOption;
   // Back to landing page
   onBackToLanding?: () => void;
 }
@@ -90,6 +78,7 @@ export default function ChatInterface({
   setCfmLessonPlanLevel,
   cfmAudioSummaryLevel,
   setCfmAudioSummaryLevel,
+  selectedVoice,
   onBackToLanding
 }: ChatInterfaceProps) {
   const [query, setQuery] = useState('');
@@ -99,7 +88,6 @@ export default function ChatInterface({
   const [streamingMessageId, setStreamingMessageId] = useState<number | null>(null);
   const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null);
   const [generatingAudioForMessage, setGeneratingAudioForMessage] = useState<number | null>(null);
-  const [selectedVoice, setSelectedVoice] = useState<VoiceOption>('alnilam');
   
   // Ref for scrolling to bottom of messages
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -860,26 +848,6 @@ export default function ChatInterface({
                               >
                                 <span>{label}</span>
                                 <span className={`text-xs mt-1 ${cfmAudioSummaryLevel === level ? 'text-white/70' : 'text-neutral-500'}`}>{desc}</span>
-                              </button>
-                            ))}
-                          </div>
-                          
-                          {/* Voice Selector */}
-                          <label className="text-sm font-medium text-neutral-400 uppercase tracking-wider text-center block mt-4">Voice</label>
-                          <div className="flex justify-center gap-2 flex-wrap">
-                            {[...VOICE_OPTIONS.male, ...VOICE_OPTIONS.female].map((voice) => (
-                              <button
-                                key={voice.id}
-                                type="button"
-                                onClick={() => setSelectedVoice(voice.id as VoiceOption)}
-                                className={`py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
-                                  selectedVoice === voice.id
-                                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/25'
-                                    : 'bg-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-700'
-                                }`}
-                              >
-                                {voice.name}
-                                <span className="text-xs ml-1 opacity-60">({voice.desc.includes('Male') ? 'M' : 'F'})</span>
                               </button>
                             ))}
                           </div>

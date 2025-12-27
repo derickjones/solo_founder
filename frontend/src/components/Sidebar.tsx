@@ -6,6 +6,22 @@ import { useUser, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
 import { getCurrentCFMWeek, CFM_2026_SCHEDULE, formatCFMWeekDisplay, CFMWeek } from '@/utils/comeFollowMe';
 
+// Voice type and options
+type VoiceOption = 'alnilam' | 'achird' | 'enceladus' | 'aoede' | 'autonoe' | 'erinome';
+
+const VOICE_OPTIONS = {
+  male: [
+    { id: 'alnilam', name: 'Alnilam', desc: 'Male' },
+    { id: 'achird', name: 'Achird', desc: 'Male' },
+    { id: 'enceladus', name: 'Enceladus', desc: 'Male' },
+  ],
+  female: [
+    { id: 'aoede', name: 'Aoede', desc: 'Female' },
+    { id: 'autonoe', name: 'Autonoe', desc: 'Female' },
+    { id: 'erinome', name: 'Erinome', desc: 'Female' },
+  ]
+};
+
 interface SidebarProps {
   selectedSources: string[];
   setSelectedSources: (sources: string[]) => void;
@@ -17,6 +33,8 @@ interface SidebarProps {
   setMode: (mode: string) => void;
   cfmWeek: CFMWeek;
   setCfmWeek: (week: CFMWeek) => void;
+  selectedVoice: VoiceOption;
+  setSelectedVoice: (voice: VoiceOption) => void;
 }
 
 export default function Sidebar({
@@ -30,6 +48,8 @@ export default function Sidebar({
   setMode,
   cfmWeek,
   setCfmWeek,
+  selectedVoice,
+  setSelectedVoice,
 }: SidebarProps) {
   const { isSignedIn, user } = useUser();
   const [generalConferenceOpen, setGeneralConferenceOpen] = useState(false); // Collapsed by default
@@ -252,17 +272,29 @@ export default function Sidebar({
       {/* User Preferences section */}
       {mode === 'Come Follow Me' && (
         <div className="px-6 pb-6 space-y-6 overflow-y-auto flex-1">
-          {/* User Preferences */}
+          {/* Voice Preference */}
           <div className="space-y-3">
-            <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">User Preferences</span>
-            <div className="p-4 bg-neutral-800/30 rounded-xl border border-neutral-700/30 space-y-3">
-              <div className="text-neutral-400 text-sm">
-                Customize your study experience with preferences and saved settings.
-              </div>
-              <div className="text-neutral-500 text-xs">
-                Coming soon: Dark mode, font size, audio preferences, and more.
-              </div>
-            </div>
+            <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Podcast Voice</span>
+            <select
+              value={selectedVoice}
+              onChange={(e) => setSelectedVoice(e.target.value as VoiceOption)}
+              className="w-full bg-neutral-800/50 border border-neutral-700/30 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 cursor-pointer"
+            >
+              <optgroup label="Male Voices">
+                {VOICE_OPTIONS.male.map((voice) => (
+                  <option key={voice.id} value={voice.id}>
+                    {voice.name}
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="Female Voices">
+                {VOICE_OPTIONS.female.map((voice) => (
+                  <option key={voice.id} value={voice.id}>
+                    {voice.name}
+                  </option>
+                ))}
+              </optgroup>
+            </select>
           </div>
         </div>
       )}
