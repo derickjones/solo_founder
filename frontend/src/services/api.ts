@@ -80,27 +80,6 @@ export interface CFMLessonPlanResponse {
   generation_time_ms: number;
 }
 
-// CFM Audio Summary interfaces
-export interface CFMAudioSummaryRequest {
-  week_number: number;
-  study_level: 'essential' | 'connected' | 'scholarly';
-  voice?: 'alnilam' | 'achird' | 'enceladus' | 'aoede' | 'autonoe' | 'erinome' | 'cfm_male' | 'cfm_female';
-}
-
-export interface CFMAudioSummaryResponse {
-  week_number: number;
-  week_title: string;
-  date_range: string;
-  study_level: string;
-  audio_script: string;
-  audio_files?: {
-    combined?: string;
-  };
-  bundle_sources: number;
-  total_characters: number;
-  generation_time_ms: number;
-}
-
 // CFM Core Content interfaces
 export interface CFMCoreContentRequest {
   week_number: number;
@@ -474,48 +453,6 @@ export const generateCFMLessonPlan = async (request: CFMLessonPlanRequest): Prom
   }
 
   return response.json();
-};
-
-export const generateCFMAudioSummary = async (request: CFMAudioSummaryRequest): Promise<CFMAudioSummaryResponse> => {
-  console.log(`🎵 Starting audio generation: ${request.study_level} level, week ${request.week_number}`);
-  
-  // Create AbortController for longer timeout (5 minutes for audio generation)
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minutes
-
-  try {
-    const startTime = Date.now();
-    const response = await fetch(`${API_BASE_URL}/cfm/audio-summary`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(request),
-      signal: controller.signal,
-    });
-
-    const elapsed = Date.now() - startTime;
-    console.log(`🎵 Audio request completed in ${elapsed}ms`);
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      console.error(`🎵 Audio generation failed: ${response.status} ${response.statusText}`);
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || `Failed to generate audio summary: ${response.statusText}`);
-    }
-
-    const result = await response.json();
-    console.log(`🎵 Audio generation successful: ${result.audio_files ? 'Audio included' : 'No audio'}`);
-    return result;
-  } catch (error) {
-    clearTimeout(timeoutId);
-    if (error instanceof Error && error.name === 'AbortError') {
-      console.error('🎵 Audio generation timed out after 5 minutes');
-      throw new Error('Audio generation timed out. Please try a shorter duration or try again later.');
-    }
-    console.error('🎵 Audio generation error:', error);
-    throw error;
-  }
 };
 
 export const generateCFMCoreContent = async (request: CFMCoreContentRequest): Promise<CFMCoreContentResponse> => {

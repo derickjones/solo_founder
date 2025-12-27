@@ -29,7 +29,7 @@ import json
 # Import our search engine, cloud storage, prompts, and TTS
 from .scripture_search import ScriptureSearchEngine
 from .cloud_storage import setup_cloud_storage
-from .prompts import get_system_prompt, build_context_prompt, get_mode_source_filter, CFM_STUDY_GUIDE_PROMPTS, CFM_LESSON_PLAN_PROMPTS, CFM_AUDIO_SUMMARY_PROMPTS
+from .prompts import get_system_prompt, build_context_prompt, get_mode_source_filter, CFM_STUDY_GUIDE_PROMPTS, CFM_LESSON_PLAN_PROMPTS
 from .google_tts import create_google_tts_client
 
 # Set up logging
@@ -600,23 +600,6 @@ class CFMLessonPlanResponse(BaseModel):
     total_characters: int
     generation_time_ms: int
 
-# CFM Audio Summary Models
-class CFMAudioSummaryRequest(BaseModel):
-    week_number: int  # Week number 2-52 for CFM 2026
-    study_level: str = "essential"  # essential, connected, scholarly
-    voice: Optional[str] = None  # Optional voice: alloy, echo, fable, onyx, nova, shimmer
-
-class CFMAudioSummaryResponse(BaseModel):
-    week_number: int
-    week_title: str
-    date_range: str
-    study_level: str
-    audio_script: str
-    audio_files: Optional[Dict[str, str]] = None  # Base64 encoded audio file: {"combined": "base64..."}
-    bundle_sources: int
-    total_characters: int
-    generation_time_ms: int
-
 # CFM Core Content Models
 class CFMCoreContentRequest(BaseModel):
     week_number: int  # Week number 2-52 for CFM 2026
@@ -1087,160 +1070,6 @@ def generate_audio_with_tts(script_text: str, voice: str = "cfm_male") -> Dict[s
         logger.error(f"❌ Google Cloud TTS audio generation error: {e}")
         # Return empty dict on error - endpoint will still return script
         return {}
-
-@app.post("/cfm/audio-summary", response_model=CFMAudioSummaryResponse)
-async def create_cfm_audio_summary(request: CFMAudioSummaryRequest):
-    """
-    Generate a CFM 2026 Audio Summary Talk using complete weekly bundles
-    
-    This endpoint:
-    1. Loads the complete CFM 2026 Old Testament weekly bundle
-    2. Uses the entire bundle as context for AI generation
-    3. Creates engaging single-speaker audio talks for 5min, 15min, or 30min durations
-    4. Adds historical context, interesting facts, and gentle humor
-    5. Generates audio using the selected voice
-    """
-    if not openai_client:
-        raise HTTPException(
-            status_code=503, 
-            detail="OpenAI API client not available. Please set the OPENAI_API_KEY environment variable."
-        )
-    
-    # Validate week number
-    if not (2 <= request.week_number <= 52):
-        raise HTTPException(status_code=400, detail="Week number must be between 2 and 52 (CFM 2026 Old Testament schedule)")
-    
-    # Validate study level
-    if request.study_level not in CFM_AUDIO_SUMMARY_PROMPTS:
-        raise HTTPException(status_code=400, detail=f"Invalid study level. Must be one of: {list(CFM_AUDIO_SUMMARY_PROMPTS.keys())}")
-    
-    try:
-        start_time = time.time()
-        
-        # Step 1: Load the complete CFM 2026 bundle for this week
-        logger.info(f"Loading CFM 2026 bundle for week {request.week_number}")
-        bundle = load_cfm_2026_bundle(request.week_number)
-        logger.info(f"Bundle loaded: {type(bundle)}, keys: {list(bundle.keys()) if isinstance(bundle, dict) else 'Not a dict'}")
-        
-        if not bundle:
-            raise HTTPException(
-                status_code=404, 
-                detail=f"CFM 2026 bundle not found for week {request.week_number}. Please ensure the bundle files are available."
-            )
-        
-        # Step 2: Format the entire bundle as context
-        logger.info("Formatting bundle content...")
-        bundle_content = format_cfm_bundle_content(bundle)
-        logger.info(f"Bundle content formatted: {len(bundle_content)} characters")
-        
-        if not bundle_content:
-            raise HTTPException(
-                status_code=500, 
-                detail=f"Failed to format content for week {request.week_number}"
-            )
-        
-        # Step 3: Get the appropriate study level prompt
-        logger.info(f"Getting prompt for study level: {request.study_level}")
-        system_prompt = CFM_AUDIO_SUMMARY_PROMPTS[request.study_level]
-        
-        # Step 4: Create the user prompt with the full bundle context
-        user_prompt = f"""
-        Please create an engaging {request.study_level} level audio summary talk for this Come Follow Me 2026 Old Testament week.
-        
-        Create a single-speaker summary talk (not a dialogue) that combines the rich weekly bundle content with fascinating historical context, interesting facts, and gentle humor. Make it feel like listening to a knowledgeable, slightly witty gospel teacher who makes scripture study come alive.
-        
-        COMPLETE WEEKLY BUNDLE CONTENT:
-        {bundle_content}
-        
-        Please create an engaging summary talk that:
-        1. Uses all the rich content provided above as the foundation
-        2. Adds appropriate historical context and interesting facts that illuminate the scriptures
-        3. Includes gentle humor and engaging storytelling
-        4. Follows your {request.study_level} level complexity guidelines
-        5. Maintains reverence while being entertaining and educational
-        
-        Base everything on the bundle content while enriching with historical context that enhances understanding and makes the lesson come alive.
-        """
-        
-        # Step 5: Generate the audio script using OpenAI
-        logger.info(f"Generating {request.study_level} audio script for week {request.week_number}")
-        ai_start = time.time()
-        
-        response = openai_client.chat.completions.create(
-            model="grok-4-1-fast-reasoning",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            max_tokens=3000,  # Allow longer responses for detailed scripts
-            temperature=0.7
-        )
-        
-        ai_time_ms = int((time.time() - ai_start) * 1000)
-        audio_script = response.choices[0].message.content
-        
-        # Step 6: Generate audio using Google Cloud TTS (if voice is requested and TTS client is available)
-        audio_files = None
-        if hasattr(request, 'voice') and request.voice and tts_client:
-            logger.info(f"🔊 Generating Google Cloud TTS audio with voice: {request.voice}")
-            logger.info(f"🔊 TTS client type: {type(tts_client)}")
-            logger.info(f"🔊 Audio script length: {len(audio_script)} characters")
-            tts_start = time.time()
-            
-            try:
-                # Use Google Cloud TTS service (handles chunking internally)
-                logger.info("🔊 Calling tts_client.generate_audio_base64...")
-                audio_b64 = tts_client.generate_audio_base64(
-                    text=audio_script,
-                    voice=request.voice
-                )
-                logger.info(f"🔊 Google Cloud TTS returned: {type(audio_b64)}, length: {len(audio_b64) if audio_b64 else 0}")
-                
-                if audio_b64:
-                    audio_files = {"combined": audio_b64}
-                    tts_time_ms = int((time.time() - tts_start) * 1000)
-                    logger.info(f"✅ Google Cloud TTS generation completed in {tts_time_ms}ms")
-                else:
-                    logger.error("❌ Google Cloud TTS generation returned empty result")
-                    audio_files = None
-                
-            except Exception as tts_error:
-                logger.error(f"💥 Google Cloud TTS generation failed: {tts_error}")
-                logger.error(f"💥 Error type: {type(tts_error)}")
-                import traceback
-                logger.error(f"💥 Full traceback: {traceback.format_exc()}")
-                # Continue without audio files if TTS fails
-                audio_files = None
-        elif hasattr(request, 'voice') and request.voice and not tts_client:
-            logger.warning("⚠️  TTS requested but Google Cloud TTS client not available")
-        
-        # Step 7: Prepare response data
-        total_time_ms = int((time.time() - start_time) * 1000)
-        bundle_sources = len(bundle.get('content_sources', []))
-        total_characters = bundle.get('total_content_length', 0)
-        
-        logger.info(f"Generated {request.study_level} audio script for week {request.week_number} using {bundle_sources} sources ({total_characters:,} chars) in {total_time_ms}ms")
-        
-        # Clean title by removing leading semicolon if present
-        clean_title = bundle.get('title', 'Unknown').lstrip(';')
-        
-        return CFMAudioSummaryResponse(
-            week_number=request.week_number,
-            week_title=clean_title,
-            date_range=bundle.get('date_range', 'Unknown'),
-            study_level=request.study_level,
-            audio_script=audio_script,
-            audio_files=audio_files,  # Now includes generated TTS audio
-            bundle_sources=bundle_sources,
-            total_characters=total_characters,
-            generation_time_ms=total_time_ms
-        )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"CFM Audio Summary generation error: {e}")
-        raise HTTPException(status_code=500, detail=f"Audio summary generation failed: {str(e)}")
 
 @app.post("/cfm/core-content", response_model=CFMCoreContentResponse)
 async def generate_cfm_core_content(request: CFMCoreContentRequest):
