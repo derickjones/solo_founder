@@ -1,4 +1,17 @@
-# Gospel Study Assistant - LDS AI Study Platform
+# Gospel Study Assistant - LDS AI Study Pl### Come Follow Me Study System
+- **💭 Daily Thought**: Pre-generated daily spiritual insights for each day of the year (364 total)
+- **🎙️ Podcast Scripts**: P### Come Follow Me System
+| Endpoint | Method | Requires | Description |
+|----------|--------|----------|-------------|
+| `/cfm/deep-dive` | POST | XAI_API_KEY | Study guides (Essential/Connected/Scholarly) |
+| `/cfm/lesson-plans` | POST | XAI_API_KEY | Teaching materials (Adult/Youth/Children) |
+| `/cfm/core-content` | POST | XAI_API_KEY | Raw CFM materials |
+| `/tts/generate` | POST | GCP Auth | Basic text-to-speech |
+| `/tts/podcast` | POST | GCP Auth | TTS with intro/outro music (15s/20s) |rated podcast episodes for all weeks and study levels (instant loading)
+- **🎯 Three Study Types**: Deep Dive Study, Lesson Plans, Core Content
+- **📊 Three Study Levels**: Essential, Connected, Scholarly
+- **🎵 Audio Generation**: Google Cloud TTS with 6 Chirp 3 HD voices + intro/outro music
+- **🎶 Podcast Audio**: 15s intro (fade-in) + voice content + 20s outro (10s fade-in)
 
 > **Production-ready LDS AI Scripture Study App with complete Come Follow Me system**
 
@@ -282,10 +295,10 @@ curl -X POST "https://gospel-guide-api-273320302933.us-central1.run.app/cfm/deep
   -H "Content-Type: application/json" \\
   -d '{"week_number": 2, "study_level": "essential"}'
 
-# Test Audio Summary
-curl -X POST "https://gospel-guide-api-273320302933.us-central1.run.app/cfm/audio-summary" \\
+# Test Podcast TTS with Intro/Outro Music
+curl -X POST "https://gospel-guide-api-273320302933.us-central1.run.app/tts/podcast" \\
   -H "Content-Type: application/json" \\
-  -d '{"week_number": 2, "study_level": "connected"}'
+  -d '{"text": "Your podcast content here", "voice": "alnilam", "title": "My Podcast"}'
 
 # Test Q&A Search
 curl -X POST "https://gospel-guide-api-273320302933.us-central1.run.app/ask" \\
@@ -388,8 +401,9 @@ XAI_API_KEY='your-key' python3 generate_podcast_scripts.py --start 1 --end 8 --f
 
 ## 🔧 Recent Updates (December 2024)
 
+- ✅ **Podcast TTS with Music**: `/tts/podcast` endpoint with 15s intro (fade-in) + voice + 20s outro (10s fade-in)
+- ✅ **Voice Selector**: 6 Google Chirp 3 HD voices (3 male: alnilam, achird, enceladus / 3 female: aoede, autonoe, erinome)
 - ✅ **Podcast Pre-Generation**: Static JSON podcast scripts for instant loading (no API latency)
-- ✅ **Voice Selector**: 6 Google TTS voices (3 male: Orus, Puck, Kore / 3 female: Aoede, Charon, Fenrir)
 - ✅ **Improved Podcast Prompts**: No "fresh insight", "aha moment", or week references
 - ✅ **Daily Thought Feature**: Pre-generated daily spiritual insights for every day of the year
 - ✅ **Minimalistic UI**: Cleaner, more discrete CFM selection buttons
@@ -415,12 +429,11 @@ XAI_API_KEY='your-key' python3 generate_podcast_scripts.py --start 1 --end 8 --f
 
 ## 🎯 Future Enhancements
 
-- **🎵 Enhanced Audio**: Background music, multiple speakers
 - **📊 Study Progress**: User analytics and progress tracking
 - **💾 Offline Mode**: Service worker for scripture access
 - **👥 Social Features**: Study group sharing
 - **🔍 Advanced Search**: Cross-reference discovery
-- **�� Multi-language**: Spanish, Portuguese expansion
+- **🌍 Multi-language**: Spanish, Portuguese expansion
 
 ---
 
