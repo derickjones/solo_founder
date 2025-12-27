@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { getCurrentCFMWeek, CFMWeek, formatCFMWeekDisplay, CFM_2026_SCHEDULE } from '@/utils/comeFollowMe';
 import StudyLevelSlider from '@/components/StudyLevelSlider';
 import AudioPlayer from '@/components/AudioPlayer';
-import { generateCFMDeepDiveStream, CFMDeepDiveRequest, CFMStreamChunk, generateCFMCoreContent, generateCFMLessonPlan, generateCFMAudioSummary, CFMCoreContentRequest, CFMLessonPlanRequest, CFMAudioSummaryRequest, generateTTS } from '@/services/api';
+import { generateCFMDeepDiveStream, CFMDeepDiveRequest, CFMStreamChunk, generateCFMCoreContent, generateCFMLessonPlan, CFMCoreContentRequest, CFMLessonPlanRequest, generateTTS } from '@/services/api';
 import { ChevronLeftIcon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
@@ -129,7 +129,7 @@ export default function ComeFollowMePage() {
     }
   };
 
-  // Audio summary generation handler - generates script only (no audio)
+  // Load podcast script from static JSON (like daily_thoughts pattern)
   const handleGenerateAudioSummary = async () => {
     if (isGeneratingAudio) return;
 
@@ -143,18 +143,19 @@ export default function ComeFollowMePage() {
       const weekMatch = currentWeek.lesson.match(/Week (\d+):/);
       const weekNumber = weekMatch ? parseInt(weekMatch[1]) : 1;
 
-      const request: CFMAudioSummaryRequest = {
-        week_number: weekNumber,
-        study_level: studyLevel
-        // No voice parameter - just generate the script
-      };
-
-      const response = await generateCFMAudioSummary(request);
-      setAudioScript(response.audio_script);
+      // Load from static JSON file (instant loading, no API call)
+      const response = await fetch(`/podcasts/podcast_week_${weekNumber.toString().padStart(2, '0')}_${studyLevel}.json`);
+      
+      if (!response.ok) {
+        throw new Error(`Podcast script not available yet for Week ${weekNumber} (${studyLevel})`);
+      }
+      
+      const data = await response.json();
+      setAudioScript(data.script);
       setGenerationTime(Date.now() - startTime);
     } catch (error) {
-      console.error('Error generating audio summary:', error);
-      setError(error instanceof Error ? error.message : 'Failed to generate audio summary');
+      console.error('Error loading podcast script:', error);
+      setError(error instanceof Error ? error.message : 'Failed to load podcast script');
     } finally {
       setIsGeneratingAudio(false);
     }
@@ -309,10 +310,10 @@ export default function ComeFollowMePage() {
                 {isGeneratingAudio ? (
                   <div className="flex items-center justify-center space-x-2">
                     <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-                    <span>Generating Audio Script...</span>
+                    <span>Loading Script...</span>
                   </div>
                 ) : (
-                  '📝 Generate Audio Script'
+                  '📝 Load Podcast Script'
                 )}
               </button>
 
