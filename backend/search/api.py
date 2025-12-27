@@ -625,6 +625,21 @@ class TTSGenerateResponse(BaseModel):
     character_count: int
     generation_time_ms: int
 
+# Podcast TTS with Intro/Outro Music
+class TTSPodcastRequest(BaseModel):
+    text: str  # Text to convert to speech
+    voice: str = "alnilam"  # Voice to use (default: alnilam male)
+    title: str = "Podcast Audio"  # Title for the audio player
+    intro_duration_sec: float = 13.0  # How long to play intro music (default 13 seconds)
+    outro_duration_sec: float = 18.0  # How long to play outro music (default 18 seconds)
+
+class TTSPodcastResponse(BaseModel):
+    audio_base64: str  # Base64 encoded MP3 audio
+    title: str
+    character_count: int
+    total_duration_sec: float
+    generation_time_ms: int
+
 # Helper functions for CFM 2026 Deep Dive
 @app.get("/debug/paths")
 async def debug_paths():
@@ -1276,6 +1291,127 @@ async def generate_tts(request: TTSGenerateRequest):
     except Exception as e:
         logger.error(f"TTS generation error: {e}")
         raise HTTPException(status_code=500, detail=f"TTS generation failed: {str(e)}")
+
+
+@app.post("/tts/podcast", response_model=TTSPodcastResponse)
+async def generate_podcast_tts(request: TTSPodcastRequest):
+    """
+    Generate podcast-style audio with intro music, TTS voice, and outro music.
+    - Intro music plays for ~12-15 seconds, fading out over last 3 seconds
+    - Voice content plays in the middle
+    - Outro music fades in and plays for ~15-20 seconds
+    """
+    import time
+    from pydub import AudioSegment
+    start_time = time.time()
+    
+    logger.info(f"🎙️ Podcast TTS request: {len(request.text)} characters, voice={request.voice}")
+    
+    if not tts_client:
+        raise HTTPException(status_code=503, detail="TTS service not available")
+    
+    if not request.text or len(request.text.strip()) < 10:
+        raise HTTPException(status_code=400, detail="Text must be at least 10 characters")
+    
+    # Limit text length to prevent abuse (100k chars max)
+    if len(request.text) > 100000:
+        raise HTTPException(status_code=400, detail="Text too long. Maximum 100,000 characters.")
+    
+    try:
+        # Find the intro/outro music file
+        music_paths = [
+            Path(__file__).parent.parent / "assets" / "intro_mp3s" / "motivated-14108.mp3",
+            Path("/app/assets/intro_mp3s/motivated-14108.mp3"),
+        ]
+        
+        music_file = None
+        for path in music_paths:
+            if path.exists():
+                music_file = path
+                break
+        
+        if not music_file:
+            logger.warning("⚠️ Intro music file not found, falling back to standard TTS")
+            # Fall back to standard TTS without music
+            audio_b64 = tts_client.generate_audio_base64(
+                text=request.text,
+                voice=request.voice
+            )
+            total_time_ms = int((time.time() - start_time) * 1000)
+            return TTSPodcastResponse(
+                audio_base64=audio_b64,
+                title=request.title,
+                character_count=len(request.text),
+                total_duration_sec=0.0,
+                generation_time_ms=total_time_ms
+            )
+        
+        # Generate voice audio using Google Cloud TTS
+        voice_audio_b64 = tts_client.generate_audio_base64(
+            text=request.text,
+            voice=request.voice
+        )
+        
+        if not voice_audio_b64:
+            raise HTTPException(status_code=500, detail="Voice audio generation failed")
+        
+        # Load music and voice audio
+        music = AudioSegment.from_mp3(str(music_file))
+        voice_audio_bytes = base64.b64decode(voice_audio_b64)
+        voice = AudioSegment.from_mp3(io.BytesIO(voice_audio_bytes))
+        
+        # Calculate durations (in milliseconds)
+        intro_duration_ms = int(request.intro_duration_sec * 1000)
+        outro_duration_ms = int(request.outro_duration_sec * 1000)
+        fade_duration_ms = 3000  # 3 second fade
+        
+        # Ensure music is long enough (loop if needed)
+        total_music_needed = max(intro_duration_ms, outro_duration_ms) + fade_duration_ms
+        while len(music) < total_music_needed:
+            music = music + music
+        
+        # Create intro: full music for (intro_duration - fade), then fade out
+        intro_full_duration = intro_duration_ms - fade_duration_ms
+        intro_segment = music[:intro_full_duration]
+        intro_fade = music[intro_full_duration:intro_duration_ms].fade_out(fade_duration_ms)
+        intro = intro_segment + intro_fade
+        
+        # Create outro: fade in, then full music
+        outro_fade = music[:fade_duration_ms].fade_in(fade_duration_ms)
+        outro_full_duration = outro_duration_ms - fade_duration_ms
+        outro_segment = music[fade_duration_ms:outro_duration_ms]
+        outro = outro_fade + outro_segment
+        
+        # Add a small gap/silence between sections (500ms)
+        gap = AudioSegment.silent(duration=500)
+        
+        # Combine: intro + gap + voice + gap + outro
+        final_audio = intro + gap + voice + gap + outro
+        
+        # Export to MP3 bytes
+        output_buffer = io.BytesIO()
+        final_audio.export(output_buffer, format="mp3", bitrate="128k")
+        output_buffer.seek(0)
+        final_audio_b64 = base64.b64encode(output_buffer.read()).decode('utf-8')
+        
+        total_duration_sec = len(final_audio) / 1000.0
+        total_time_ms = int((time.time() - start_time) * 1000)
+        
+        logger.info(f"✅ Podcast TTS generated in {total_time_ms}ms, duration: {total_duration_sec:.1f}s")
+        
+        return TTSPodcastResponse(
+            audio_base64=final_audio_b64,
+            title=request.title,
+            character_count=len(request.text),
+            total_duration_sec=total_duration_sec,
+            generation_time_ms=total_time_ms
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Podcast TTS generation error: {e}")
+        raise HTTPException(status_code=500, detail=f"Podcast TTS generation failed: {str(e)}")
 
 
 # For local development

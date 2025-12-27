@@ -22,5 +22,8 @@ lxml>=4.9.0
 # Cloud Infrastructure
 google-cloud-storage>=2.10.0
 
+# Audio Processing
+pydub>=0.25.0
+
 # Utilities
 tqdm>=4.66.0
