@@ -3,7 +3,29 @@
 > **Production-ready LDS AI Scripture Study App with complete Come Follow Me system**
 
 ## 🚀 Live Deployments
-- **🌐 Frontend**: https://vercel.com/derick-jones-projects/solo-founder (Vercel)
+- **🌐 Fronte### Come Follow Me System
+| Endpoint | Method | Requires | Description |
+|----------|--------|-# Test CFM Deep Dive
+curl -X POST "https://gospel-guide-api-273320302933.us-central1.run.app/cfm/deep-dive" \
+  -H "Content-Type: application/json" \
+  -d '{"week_number": 2, "study_level": "essential"}'
+
+# Test TTS with Voice Selection
+curl -X POST "https://gospel-guide-api-273320302933.us-central1.run.app/tts" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Hello world", "voice": "Kore"}'
+
+# Test Q&A Search------------|
+| `/cfm/deep-dive` | POST | XAI_API_KEY | Study guides (Essential/Connected/Scholarly) |
+| `/cfm/lesson-plans` | POST | XAI_API_KEY | Teaching materials (Adult/Youth/Children) |
+| `/cfm/core-content` | POST | XAI_API_KEY | Raw CFM materials |
+| `/tts` | POST | GCP Auth | Text-to-speech with voice selection |
+
+### Static Content (Pre-Generated)
+| Path | Description |
+|------|-------------|
+| `/podcasts/podcast_week_XX_level.json` | Pre-generated podcast scripts |
+| `/daily_thoughts/week_XX_day_Y.json` | Pre-generated daily thoughts |ttps://vercel.com/derick-jones-projects/solo-founder (Vercel)
 - **🔌 API**: https://gospel-guide-api-273320302933.us-central1.run.app (Google Cloud Run)
 - **📚 Repository**: https://github.com/derickjones/solo_founder
 
@@ -19,10 +41,11 @@
 - **💳 Payment Processing**: Stripe subscription system ($4.99/month)
 
 ### Come Follow Me Study System
-- **� Daily Thought**: Pre-generated daily spiritual insights for each day of the year (364 total)
-- **�🎯 Four Study Types**: Deep Dive Study, Lesson Plans, Audio Summaries, Core Content
+- **💭 Daily Thought**: Pre-generated daily spiritual insights for each day of the year (364 total)
+- **�️ Podcast Scripts**: Pre-generated podcast episodes for all weeks and study levels (instant loading)
+- **🎯 Three Study Types**: Deep Dive Study, Lesson Plans, Core Content
 - **📊 Three Study Levels**: Essential, Connected, Scholarly
-- **🎵 Audio Generation**: Google Cloud TTS with Chirp 3 HD voices
+- **🎵 Audio Generation**: Google Cloud TTS with 6 Chirp 3 HD voices (3 male, 3 female)
 
 ### User Experience
 - **🎨 Professional UI**: Dark theme with minimalistic, color-coded buttons
@@ -70,7 +93,8 @@ solo_founder/
 │   │   ├── services/         # API integration
 │   │   └── utils/            # Utilities
 │   └── public/               # Static assets
-│       └── daily_thoughts/   # Pre-generated daily thought JSON files
+│       ├── daily_thoughts/   # Pre-generated daily thought JSON files
+│       └── podcasts/         # Pre-generated podcast script JSON files
 └── README.md                 # This file
 \`\`\`
 
@@ -105,7 +129,8 @@ solo_founder/
 | General Conference | 20MB | 22,246 | ✅ Complete (2015-2025) |
 | Come Follow Me | 2.5MB | 384 | ✅ Complete (2026) |
 | Daily Thoughts | 500KB | 364 | ✅ Pre-generated (52 weeks × 7 days) |
-| **TOTAL** | **46MB** | **58,452** | **✅ READY** |
+| Podcast Scripts | 1.5MB | 156 | ✅ Pre-generated (52 weeks × 3 levels) |
+| **TOTAL** | **48MB** | **58,608** | **✅ READY** |
 
 ---
 
@@ -291,6 +316,7 @@ backend/scripts/
 ├── cfm_bundle_scraper/         # CFM 2026 bundle generator
 │   ├── cfm_weekly_scraper.py
 │   ├── generate_daily_thoughts.py  # Daily thought generator
+│   ├── generate_podcast_scripts.py # Podcast script generator
 │   ├── 2026/                   # 52 weekly bundles
 │   └── 2026_daily_thoughts/    # Pre-generated daily thoughts
 └── content/sources/            # Raw scraped content
@@ -325,10 +351,26 @@ XAI_API_KEY='your-key' python3 generate_daily_thoughts.py --week 1
 
 # Generate range of weeks
 XAI_API_KEY='your-key' python3 generate_daily_thoughts.py --start 1 --end 52
-
-# Copy to frontend for static serving
-cp 2026_daily_thoughts/*.json ../../../frontend/public/daily_thoughts/
 \`\`\`
+
+### Generating Podcast Scripts
+\`\`\`bash
+cd backend/scripts/cfm_bundle_scraper
+
+# Generate single week (all 3 levels)
+XAI_API_KEY='your-key' python3 generate_podcast_scripts.py --week 1
+
+# Generate specific level
+XAI_API_KEY='your-key' python3 generate_podcast_scripts.py --week 1 --level essential
+
+# Generate range of weeks
+XAI_API_KEY='your-key' python3 generate_podcast_scripts.py --start 1 --end 8
+
+# Force regenerate existing files
+XAI_API_KEY='your-key' python3 generate_podcast_scripts.py --start 1 --end 8 --force
+\`\`\`
+
+**Output**: Scripts are saved directly to \`frontend/public/podcasts/\` for instant static serving.
 
 ---
 
@@ -346,14 +388,15 @@ cp 2026_daily_thoughts/*.json ../../../frontend/public/daily_thoughts/
 
 ## 🔧 Recent Updates (December 2024)
 
+- ✅ **Podcast Pre-Generation**: Static JSON podcast scripts for instant loading (no API latency)
+- ✅ **Voice Selector**: 6 Google TTS voices (3 male: Orus, Puck, Kore / 3 female: Aoede, Charon, Fenrir)
+- ✅ **Improved Podcast Prompts**: No "fresh insight", "aha moment", or week references
 - ✅ **Daily Thought Feature**: Pre-generated daily spiritual insights for every day of the year
-- ✅ **Pre-Generation System**: Static JSON files for instant loading (no API latency)
 - ✅ **Minimalistic UI**: Cleaner, more discrete CFM selection buttons
 - ✅ **Auto-Collapse UX**: Controls auto-hide when content is generated
 - ✅ **Google Cloud TTS**: 20x cost reduction vs ElevenLabs ($0.016 vs $0.30 per 1K chars)
 - ✅ **Study Level Rebranding**: Essential/Connected/Scholarly naming
 - ✅ **Audio Script-First**: Shows transcript by default, optional audio generation
-- ✅ **Podcast-Style Audio**: New immersive, warm prompts without greetings or testimony
 
 ---
 
