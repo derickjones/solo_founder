@@ -584,11 +584,17 @@ class TTSGenerateResponse(BaseModel):
 
 # Podcast TTS with Intro/Outro Music
 class TTSPodcastRequest(BaseModel):
-    text: str  # Text to convert to speech
-    voice: str = "alnilam"  # Voice to use (default: alnilam male)
+    # Multi-speaker conversation format (Option A - new format)
+    script: Optional[List[Dict[str, str]]] = None  # [{"speaker": "host", "text": "..."}]
+    voices: Optional[Dict[str, str]] = None  # {"host": "aoede", "guest": "alnilam"}
+    
+    # Single speaker format (Option B - backward compatible)
+    text: Optional[str] = None
+    voice: str = "aoede"  # Default voice
+    
     title: str = "Podcast Audio"  # Title for the audio player
-    intro_duration_sec: float = 15.0  # How long to play intro music (default 15 seconds)
-    outro_duration_sec: float = 20.0  # How long to play outro music (default 20 seconds)
+    pause_between_speakers_ms: int = 500  # Pause between different speakers
+    speaker_overlap_ms: int = 0  # Optional overlap for natural conversation (0 = no overlap)
 
 class TTSPodcastResponse(BaseModel):
     audio_base64: str  # Base64 encoded MP3 audio
@@ -915,32 +921,84 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
         if not music_file:
             logger.warning("⚠️ Intro music file not found, falling back to standard TTS")
             # Fall back to standard TTS without music
+            fallback_text = request.text if request.text else ""
             audio_b64 = tts_client.generate_audio_base64(
-                text=request.text,
+                text=fallback_text,
                 voice=request.voice
             )
             total_time_ms = int((time.time() - start_time) * 1000)
             return TTSPodcastResponse(
                 audio_base64=audio_b64,
                 title=request.title,
-                character_count=len(request.text),
+                character_count=len(fallback_text),
                 total_duration_sec=0.0,
                 generation_time_ms=total_time_ms
             )
         
-        # Generate voice audio using Google Cloud TTS
-        voice_audio_b64 = tts_client.generate_audio_base64(
-            text=request.text,
-            voice=request.voice
-        )
+        # ========== DETERMINE FORMAT: CONVERSATION OR SINGLE SPEAKER ==========
+        if request.script and request.voices:
+            # Multi-speaker conversation format
+            logger.info(f"🎭 Generating conversation with {len(request.script)} segments")
+            
+            voice_segments = []
+            total_chars = 0
+            
+            for idx, line in enumerate(request.script):
+                speaker = line.get('speaker', 'host')
+                text = line.get('text', '')
+                voice_name = request.voices.get(speaker, 'aoede')
+                
+                if not text.strip():
+                    continue
+                
+                total_chars += len(text)
+                
+                # Generate this speaker's audio segment
+                logger.info(f"  Generating segment {idx + 1}/{len(request.script)}: {speaker} ({voice_name})")
+                segment_b64 = tts_client.generate_audio_base64(text, voice_name)
+                
+                if not segment_b64:
+                    logger.warning(f"  Failed to generate segment {idx + 1}, skipping")
+                    continue
+                
+                segment_bytes = base64.b64decode(segment_b64)
+                audio_seg = AudioSegment.from_mp3(io.BytesIO(segment_bytes))
+                
+                voice_segments.append(audio_seg)
+                
+                # Add pause between speakers (except after last segment)
+                if idx < len(request.script) - 1:
+                    pause_duration = request.pause_between_speakers_ms
+                    voice_segments.append(AudioSegment.silent(duration=pause_duration))
+            
+            # Concatenate all voice segments into one track
+            if voice_segments:
+                voice = sum(voice_segments)
+            else:
+                raise HTTPException(status_code=500, detail="No voice segments generated")
+            
+            character_count = total_chars
+            
+        else:
+            # Single speaker format (backward compatible)
+            if not request.text:
+                raise HTTPException(status_code=400, detail="Either 'text' or 'script' must be provided")
+            
+            logger.info(f"🎙️ Generating single-speaker audio")
+            voice_audio_b64 = tts_client.generate_audio_base64(
+                text=request.text,
+                voice=request.voice
+            )
+            
+            if not voice_audio_b64:
+                raise HTTPException(status_code=500, detail="Voice audio generation failed")
+            
+            voice_audio_bytes = base64.b64decode(voice_audio_b64)
+            voice = AudioSegment.from_mp3(io.BytesIO(voice_audio_bytes))
+            character_count = len(request.text)
         
-        if not voice_audio_b64:
-            raise HTTPException(status_code=500, detail="Voice audio generation failed")
-        
-        # Load music and voice audio
+        # Load music for intro/outro
         music = AudioSegment.from_mp3(str(music_file))
-        voice_audio_bytes = base64.b64decode(voice_audio_b64)
-        voice = AudioSegment.from_mp3(io.BytesIO(voice_audio_bytes))
         
         # ========== TIMING CONFIGURATION ==========
         intro_duration_ms = 13000          # 13s intro at full volume
@@ -1029,7 +1087,7 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
         return TTSPodcastResponse(
             audio_base64=final_audio_b64,
             title=request.title,
-            character_count=len(request.text),
+            character_count=character_count,
             total_duration_sec=total_duration_sec,
             generation_time_ms=total_time_ms
         )

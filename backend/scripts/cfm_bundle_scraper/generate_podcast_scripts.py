@@ -27,65 +27,88 @@ CFM_2026_DIR = SCRIPT_DIR / "2026"
 OUTPUT_DIR = SCRIPT_DIR.parent.parent.parent / "frontend" / "public" / "podcasts"
 
 # ============================================================================
-# NEW PODCAST PROMPT STRUCTURE
+# CONVERSATION PODCAST PROMPT STRUCTURE
 # ============================================================================
 
 TAGLINE = "Welcome to the Come Follow Me Podcast by Gospel Study App."
 
-BASE_PODCAST_PROMPT = """You are a warm, experienced Latter-day Saint gospel teacher delivering a captivating solo monologue podcast episode, like an engaging seminary class, institute lesson, or BYU religion lecture. Your goal is to draw listeners into the scriptures through vivid storytelling, thoughtful questions, and seamless doctrinal connections that spark spiritual insight and leave them eager for more.
+# Speaker configuration
+HOST_NAME = "Sarah"  # Female voice (aoede)
+GUEST_NAME = "David"  # Male voice (alnilam)
 
-**MANDATORY OPENING**: Begin every script EXACTLY with: "{tagline}" followed immediately by a vivid hook — no additional greetings or preamble.
+BASE_PODCAST_PROMPT = """You are creating a natural, engaging conversation between two Latter-day Saint scripture teachers discussing Come Follow Me content. This is a dialogue podcast with a warm, conversational tone - like two institute teachers having an insightful discussion.
 
-**STYLE AND FLOW**:
-- Speak conversationally and reverently, directly to the listener ("you", "your").
-- Build a cohesive narrative arc: start with an immersive scene or question, develop themes inductively, connect scriptures organically, and close reflectively.
-- Use smooth transitions ("This truth leads us to...", "Building on that vision...", "Notice how this pattern continues in...").
-- Weave in bundle content naturally — quote scriptures verbatim with references, but integrate them into the flow.
-- Reveal insights organically through questions and connections — NEVER use phrases like "fresh insight", "aha moment", "here's something interesting", "here's a fresh insight".
-- Vary pause phrasing naturally (e.g., "Pause to let that resonate.", "Take a quiet moment.", "Let that truth settle in your heart.", "Reflect on that for a second.").
-- End with a reflective summary and specific invitations to act/ponder.
+**SPEAKERS**:
+- Sarah (host): Warm, experienced female teacher - guides the conversation with thoughtful questions
+- David (guest): Insightful male teacher - brings deep understanding and fresh perspectives
+
+**MANDATORY OPENING**: Begin EXACTLY with Sarah saying: "{tagline} I'm Sarah." Then David responds: "And I'm {guest_name}." Then they naturally transition into the topic.
+
+**CONVERSATION STYLE**:
+- Natural back-and-forth dialogue with 2-4 sentences per speaking turn
+- Sarah asks questions, guides topics, makes connections
+- David shares insights, explains doctrines, provides examples
+- Both speakers should sound authentic, not scripted
+- Use natural transitions: "That reminds me of...", "Building on that...", "Here's what strikes me..."
+- Include brief moments of agreement: "Exactly!", "That's beautiful", "I love that"
+- Vary speaking turn length - some short exchanges, some longer explanations
 
 **MANDATES**:
-- Output ONLY the pure spoken script — continuous prose, ready for text-to-speech.
-- No meta commentary, no headings, no bullet points, no JSON, no word counts.
-- No personal testimony ("I testify", "I know", "I bear witness").
-- No references to previous weeks or next week — focus only on this week's content.
-- Stay strictly within the provided bundle content and official Church sources.
+- Output ONLY a JSON array of dialogue segments ready for multi-voice TTS
+- Each segment: {{"speaker": "Sarah" or "David", "text": "what they say"}}
+- The tagline opening MUST be the first segment from Sarah
+- No meta commentary, no stage directions, no [pause] markers
+- No personal testimony ("I testify", "I bear witness")
+- No references to previous/next weeks - focus only on this week's content
+- Stay strictly within provided bundle content and official Church sources
+- Quote scriptures verbatim with references when discussed
 
-**STRUCTURE** (unified story arc):
-1. Tagline + vivid opening hook (scene, question, or restored context from Joseph Smith).
-2. Develop core themes with seamless scripture integration and connections.
-3. Deepen understanding through cross-references and applications.
-4. Close with reflection and invitations to apply what was learned.
-""".format(tagline=TAGLINE)
+**DIALOGUE STRUCTURE**:
+1. Opening: Sarah introduces with tagline, David greets, they set up the topic
+2. Exploration: Natural Q&A, building understanding through conversation
+3. Deep dive: Discuss key scriptures, cross-references, and insights
+4. Application: How this applies to modern life
+5. Closing: Summary reflection and invitation to study
+
+**RETURN FORMAT**: Pure JSON array, no markdown, no code fences:
+[
+  {{"speaker": "Sarah", "text": "{tagline} I'm Sarah."}},
+  {{"speaker": "David", "text": "And I'm {guest_name}. Great to be here!"}},
+  {{"speaker": "Sarah", "text": "David, this week we're exploring..."}}
+]
+""".format(tagline=TAGLINE, guest_name=GUEST_NAME)
 
 # Level-specific prompt additions
 CFM_PODCAST_PROMPTS = {
     'essential': BASE_PODCAST_PROMPT + """
 
-**ESSENTIAL LEVEL**: Simple, clear, inspiring — like a warm seminary teacher.
-- Focus on foundational principles, relatable stories, and personal/family application.
-- Use gentle language and shorter sentences.
-- One main invitation at the end.
-- Target: ~800-1,200 words (~5-8 minutes).
+**ESSENTIAL LEVEL**: Simple, warm conversation — like two caring teachers helping beginners.
+- Focus on foundational principles and relatable examples
+- Sarah asks simple questions, David gives clear answers
+- Use gentle language and shorter exchanges
+- Close with one main invitation
+- Target: 15-25 dialogue segments (~5-8 minutes total)
 """,
 
     'connected': BASE_PODCAST_PROMPT + """
 
-**CONNECTED LEVEL**: Balanced depth with beautiful scriptural patterns — like an experienced institute teacher.
-- Emphasize cross-references across standard works and modern prophetic teachings.
-- Build excitement through pattern recognition and connections.
-- Use 2-3 specific invitations (individual, family, journaling).
-- Target: ~1,200-1,800 words (~8-12 minutes).
+**CONNECTED LEVEL**: Deeper dialogue with cross-scriptural connections — like experienced institute teachers.
+- Sarah guides to patterns across scriptures, David reveals connections
+- Build excitement through discovery and "aha" moments in dialogue
+- Natural back-and-forth exploring cross-references and modern prophets
+- Close with 2-3 specific invitations
+- Target: 25-40 dialogue segments (~8-12 minutes total)
 """,
 
     'scholarly': BASE_PODCAST_PROMPT + """
 
-**SCHOLARLY LEVEL**: Layered doctrinal and historical depth — like a revered BYU religion professor.
-- Include typology, linguistic notes (only if in bundle), JST context, and prophetic patterns.
-- Use elevated but accessible language.
-- Multiple invitations (personal study, prayer, family discussion, temple reflection).
-- Target: ~1,800-2,500 words (~12-17 minutes).
+**SCHOLARLY LEVEL**: Rich, layered discussion — like two BYU religion professors in dialogue.
+- Sarah poses deep questions, David provides scholarly insights
+- Discuss typology, JST context, Hebrew/Greek meanings, prophetic patterns
+- Longer exchanges with substantive explanations
+- Both speakers contribute advanced observations
+- Close with multiple invitations (personal study, prayer, temple reflection)
+- Target: 40-60 dialogue segments (~12-17 minutes total)
 """
 }
 
@@ -158,46 +181,70 @@ SCRIPTURES:
 
 **ACCURACY**: Quote ONLY from bundle content with exact references. Never add or fabricate.
 
-**RETURN ONLY THE SPOKEN SCRIPT TEXT** — beginning with the tagline: "{TAGLINE}"
+**RETURN ONLY A JSON ARRAY** of dialogue segments in this exact format:
+[
+  {{"speaker": "Sarah", "text": "{TAGLINE} I'm Sarah."}},
+  {{"speaker": "David", "text": "And I'm {GUEST_NAME}. Happy to be here!"}}
+]
 """
     
     return prompt
 
 
-def clean_script_text(script_text: str) -> tuple[str, list]:
+def clean_script_text(script_text: str) -> tuple:
     """
-    Post-process the generated script:
+    Post-process the generated conversation script:
     - Strip markdown/code fences
-    - Ensure starts with tagline
+    - Parse JSON array
+    - Validate structure
     - Check for forbidden phrases
     
-    Returns: (cleaned_text, list_of_warnings)
+    Returns: (parsed_script_array, list_of_warnings)
     """
     warnings = []
     
     # Strip any accidental markdown or code fences
-    script_text = re.sub(r'^```(?:text)?\n?', '', script_text)
+    script_text = re.sub(r'^```(?:json|text)?\n?', '', script_text)
     script_text = re.sub(r'\n?```$', '', script_text)
     script_text = script_text.strip()
     
-    # Check if script starts with tagline
-    if not script_text.startswith(TAGLINE):
-        # Try to find and fix if tagline is close to the start
-        if TAGLINE in script_text[:200]:
-            idx = script_text.index(TAGLINE)
-            script_text = script_text[idx:]
-            warnings.append(f"⚠️  Fixed: Removed {idx} chars before tagline")
+    # Try to parse as JSON
+    try:
+        script_array = json.loads(script_text)
+    except json.JSONDecodeError as e:
+        warnings.append(f"⚠️  JSON parse error: {e}")
+        # Try to find JSON array in the text
+        json_match = re.search(r'\[.*\]', script_text, re.DOTALL)
+        if json_match:
+            try:
+                script_array = json.loads(json_match.group(0))
+                warnings.append("⚠️  Fixed: Extracted JSON from surrounding text")
+            except:
+                raise ValueError(f"Could not parse conversation script as JSON: {e}")
         else:
-            # Prepend tagline if missing entirely
-            script_text = TAGLINE + " " + script_text
-            warnings.append("⚠️  Fixed: Prepended missing tagline")
+            raise ValueError(f"No JSON array found in response: {script_text[:200]}")
     
-    # Check for forbidden phrases
+    # Validate structure
+    if not isinstance(script_array, list):
+        raise ValueError("Script must be a JSON array")
+    
+    if len(script_array) == 0:
+        raise ValueError("Script array is empty")
+    
+    # Check first segment has tagline
+    first_segment = script_array[0]
+    if not isinstance(first_segment, dict) or 'speaker' not in first_segment or 'text' not in first_segment:
+        warnings.append("⚠️  Warning: First segment missing speaker/text fields")
+    elif TAGLINE not in first_segment.get('text', ''):
+        warnings.append(f"⚠️  Warning: First segment missing tagline: {first_segment.get('text', '')[:50]}")
+    
+    # Check for forbidden phrases in all dialogue
+    full_text = " ".join(seg.get('text', '') for seg in script_array)
     for phrase in FORBIDDEN_PHRASES:
-        if phrase.lower() in script_text.lower():
+        if phrase.lower() in full_text.lower():
             warnings.append(f"⚠️  Warning: Found forbidden phrase '{phrase}'")
     
-    return script_text, warnings
+    return script_array, warnings
 
 
 def generate_podcast_script(week_number: int, study_level: str) -> dict:
@@ -238,7 +285,7 @@ def generate_podcast_script(week_number: int, study_level: str) -> dict:
             messages=[
                 {
                     "role": "system",
-                    "content": f"You are an engaging scripture study podcast host. Begin every response with exactly: \"{TAGLINE}\" then immediately continue with your content. Return only the spoken script text, ready for text-to-speech. No formatting, no JSON, no meta commentary."
+                    "content": f"You are creating natural podcast conversations between Sarah (host) and David (guest). Return ONLY a pure JSON array of dialogue segments. Each segment: {{\"speaker\": \"Sarah\" or \"David\", \"text\": \"what they say\"}}. First segment MUST be Sarah saying: \"{TAGLINE} I'm Sarah.\" No markdown, no code fences, just the JSON array."
                 },
                 {
                     "role": "user",
@@ -246,23 +293,25 @@ def generate_podcast_script(week_number: int, study_level: str) -> dict:
                 }
             ],
             temperature=0.7,
-            max_tokens=6000
+            max_tokens=8000
         )
         
         raw_script = completion.choices[0].message.content.strip()
         
-        # Post-process: clean and validate the script
-        script_text, warnings = clean_script_text(raw_script)
+        # Post-process: parse and validate the conversation script
+        script_array, warnings = clean_script_text(raw_script)
         
         # Print any warnings
         for warning in warnings:
             print(f"   {warning}")
         
-        # Calculate character count and estimate duration
-        char_count = len(script_text)
-        word_count = len(script_text.split())
+        # Calculate stats
+        total_chars = sum(len(seg.get('text', '')) for seg in script_array)
+        total_words = sum(len(seg.get('text', '').split()) for seg in script_array)
+        segment_count = len(script_array)
+        
         # Average speaking rate: ~150 words per minute
-        estimated_minutes = round(word_count / 150, 1)
+        estimated_minutes = round(total_words / 150, 1)
         
         # Create result object
         result = {
@@ -271,14 +320,19 @@ def generate_podcast_script(week_number: int, study_level: str) -> dict:
             "date_range": date_range,
             "study_level": study_level,
             "duration_estimate": f"~{estimated_minutes} minutes",
-            "word_count": word_count,
-            "character_count": char_count,
-            "script": script_text,
+            "word_count": total_words,
+            "character_count": total_chars,
+            "segment_count": segment_count,
+            "script": script_array,  # Array of {"speaker": "...", "text": "..."}
+            "voices": {
+                "Sarah": "aoede",  # Female host
+                "David": "alnilam"  # Male guest
+            },
             "generated_timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
             "source_week_file": str(week_file.name)
         }
         
-        print(f"✅ Generated {study_level} script: {word_count} words, ~{estimated_minutes} min")
+        print(f"✅ Generated {study_level} conversation: {segment_count} segments, {total_words} words, ~{estimated_minutes} min")
         return result
         
     except Exception as e:
@@ -324,8 +378,10 @@ def main():
     else:
         levels = [args.level]
     
-    print(f"\n🎙️ Podcast Script Generator (v2 - Improved Prompts)")
+    print(f"\n🎙️ Podcast Script Generator (v3 - Conversation Format)")
     print(f"=" * 60)
+    print(f"Format: Two-speaker conversation (Sarah + David)")
+    print(f"Voices: Sarah (aoede/female), David (alnilam/male)")
     print(f"Weeks: {weeks[0]} - {weeks[-1]} ({len(weeks)} weeks)")
     print(f"Levels: {', '.join(levels)}")
     print(f"Total scripts to generate: {len(weeks) * len(levels)}")
