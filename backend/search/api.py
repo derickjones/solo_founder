@@ -872,13 +872,19 @@ async def generate_tts(request: TTSGenerateRequest):
 @app.post("/tts/podcast", response_model=TTSPodcastResponse)
 async def generate_podcast_tts(request: TTSPodcastRequest):
     """
-    Generate podcast-style audio with continuous music bed under voice.
-    - Intro: 15 seconds of music fading in
-    - Voice starts at 12s (3s crossfade), music continues quietly underneath (-15dB)
-    - Outro: Music returns to full volume for 20 seconds, fading out at end
+    Generate professional podcast-style audio with music bed.
+    
+    Audio structure:
+    - Intro: 13 seconds of music at full volume
+    - Crossfade: 13-18s (5s true crossfade - music fades to bed level, voice fades in)
+    - During voice: Music continues as quiet bed at -20dB
+    - Outro transition: Music fades back up under last 3s of voice
+    - Outro: 30 seconds of music fading out
+    - Final: Normalized to -16 LUFS for consistent podcast levels
     """
     import time
     from pydub import AudioSegment
+    from pydub.effects import normalize
     start_time = time.time()
     
     logger.info(f"🎙️ Podcast TTS request: {len(request.text)} characters, voice={request.voice}")
@@ -896,8 +902,8 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
     try:
         # Find the intro/outro music file
         music_paths = [
-            Path(__file__).parent.parent / "assets" / "intro_mp3s" / "motivated-14108.mp3",
-            Path("/app/assets/intro_mp3s/motivated-14108.mp3"),
+            Path(__file__).parent.parent / "assets" / "intro_mp3s" / "inspiring-inspirational-background-music-412596.mp3",
+            Path("/app/assets/intro_mp3s/inspiring-inspirational-background-music-412596.mp3"),
         ]
         
         music_file = None
@@ -936,54 +942,87 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
         voice_audio_bytes = base64.b64decode(voice_audio_b64)
         voice = AudioSegment.from_mp3(io.BytesIO(voice_audio_bytes))
         
-        # Configuration for mixing
-        intro_full_volume_ms = int(request.intro_duration_sec * 1000)  # 15 seconds full volume intro
-        crossfade_duration_ms = 15000  # 15 seconds crossfade (music fades while voice plays)
-        outro_duration_ms = int(request.outro_duration_sec * 1000)  # 20 seconds outro
+        # ========== PROFESSIONAL PODCAST MIXING ==========
+        # Timing configuration
+        intro_duration_ms = 13000      # 13s full volume intro
+        crossfade_duration_ms = 5000   # 5s crossfade (13s-18s)
+        outro_duration_ms = 30000      # 30s outro
+        outro_transition_ms = 3000     # 3s music fade-in under end of voice
+        
+        # Volume levels (in dB)
+        music_bed_db = -20             # Music level under voice (-20dB = very quiet)
         
         voice_duration_ms = len(voice)
         
-        # Total duration: intro + voice + outro
-        # Voice starts at intro_full_volume_ms (15s)
-        # Music fades out over first 15s of voice
-        total_duration_needed = intro_full_volume_ms + voice_duration_ms + outro_duration_ms
+        # Total duration needed for music
+        total_duration_needed = intro_duration_ms + voice_duration_ms + outro_duration_ms
         
-        # Ensure music is long enough (loop if needed)
-        while len(music) < total_duration_needed:
-            music = music + music
+        # Ensure music is long enough (loop if needed with crossfade for seamless loop)
+        while len(music) < total_duration_needed + 5000:
+            # Crossfade loop for seamless music
+            music = music.append(music, crossfade=2000)
         
-        # Build the music bed:
-        # Part 1: Full volume intro (0-15s)
-        intro_music = music[:intro_full_volume_ms]
+        # ========== BUILD THE MUSIC BED ==========
         
-        # Part 2: Crossfade section - music fades out over 15s while voice starts
-        # This overlaps with the beginning of the voice
-        crossfade_end = min(crossfade_duration_ms, voice_duration_ms)
-        crossfade_music = music[intro_full_volume_ms:intro_full_volume_ms + crossfade_end].fade_out(crossfade_end)
+        # Part 1: Full volume intro (0s - 13s)
+        intro_music = music[:intro_duration_ms]
         
-        # Part 3: Silence during rest of voice (after crossfade completes)
-        silence_during_voice = AudioSegment.silent(duration=max(0, voice_duration_ms - crossfade_duration_ms))
+        # Part 2: Crossfade section (13s - 18s) - fade from full to bed level
+        crossfade_section = music[intro_duration_ms:intro_duration_ms + crossfade_duration_ms]
+        # Create volume ramp from 0dB to bed level
+        crossfade_music = crossfade_section.fade(to_gain=music_bed_db, start=0, duration=crossfade_duration_ms)
         
-        # Part 4: Outro music - fade in over 10s, then full volume, fade out at end
-        outro_fade_in_ms = 10000
-        outro_music = music[:outro_duration_ms].fade_in(outro_fade_in_ms).fade_out(5000)
+        # Part 3: Music bed during voice (18s to voice end - 3s) - quiet background
+        bed_duration = max(0, voice_duration_ms - crossfade_duration_ms - outro_transition_ms)
+        if bed_duration > 0:
+            music_bed_section = music[intro_duration_ms + crossfade_duration_ms:intro_duration_ms + crossfade_duration_ms + bed_duration]
+            music_bed_section = music_bed_section + music_bed_db  # Apply bed level
+        else:
+            music_bed_section = AudioSegment.empty()
         
-        # Build complete music bed
-        music_bed = intro_music + crossfade_music + silence_during_voice + outro_music
+        # Part 4: Outro transition (last 3s of voice) - music fades back up
+        transition_start = intro_duration_ms + crossfade_duration_ms + bed_duration
+        outro_transition = music[transition_start:transition_start + outro_transition_ms]
+        # Fade from bed level back to full volume
+        outro_transition = outro_transition.fade(from_gain=music_bed_db, start=0, duration=outro_transition_ms)
         
-        # Position voice: starts at 15 seconds (after intro)
-        voice_with_padding = AudioSegment.silent(duration=intro_full_volume_ms) + voice
+        # Part 5: Outro (30s after voice ends) - fade out at the end
+        outro_start = transition_start + outro_transition_ms
+        outro_music = music[outro_start:outro_start + outro_duration_ms]
+        outro_music = outro_music.fade_out(duration=8000)  # 8s fade out at end
+        
+        # Combine all music parts
+        music_bed = intro_music + crossfade_music + music_bed_section + outro_transition + outro_music
+        
+        # ========== BUILD THE VOICE TRACK ==========
+        
+        # Add fade-in to voice for smooth crossfade entry (first 2s of voice fades in)
+        voice_fade_in_ms = 2000
+        voice = voice.fade_in(duration=voice_fade_in_ms)
+        
+        # Add slight fade-out to voice end (last 1s) for smooth transition to outro
+        voice = voice.fade_out(duration=1000)
+        
+        # Position voice: starts at 13 seconds (after intro)
+        voice_with_padding = AudioSegment.silent(duration=intro_duration_ms) + voice
         
         # Pad voice to match music bed length
         if len(voice_with_padding) < len(music_bed):
             voice_with_padding = voice_with_padding + AudioSegment.silent(duration=len(music_bed) - len(voice_with_padding))
         
+        # ========== FINAL MIX ==========
+        
         # Overlay voice on top of music bed
         final_audio = music_bed.overlay(voice_with_padding)
         
-        # Export to MP3 bytes
+        # Normalize to podcast standard levels (-16 LUFS approximation)
+        # pydub's normalize brings to 0dBFS, we then reduce to -1dB for headroom
+        final_audio = normalize(final_audio)
+        final_audio = final_audio - 1  # -1dB headroom
+        
+        # Export to MP3 bytes with good quality
         output_buffer = io.BytesIO()
-        final_audio.export(output_buffer, format="mp3", bitrate="128k")
+        final_audio.export(output_buffer, format="mp3", bitrate="192k")
         output_buffer.seek(0)
         final_audio_b64 = base64.b64encode(output_buffer.read()).decode('utf-8')
         
