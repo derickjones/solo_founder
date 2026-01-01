@@ -627,9 +627,9 @@ export default function ChatInterface({
         </button>
       )}
       
-      {/* Top-left back button */}
+      {/* Top-left back button - positioned to the right of sidebar */}
       {onBackToLanding && (
-        <div className="absolute top-4 left-4 lg:top-6 lg:left-8 z-10">
+        <div className="hidden lg:block fixed top-6 left-72 z-20">
           <button
             type="button"
             onClick={() => {
