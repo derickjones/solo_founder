@@ -70,6 +70,22 @@ except Exception as e:
     logger.error(f"Failed to initialize OpenAI API client: {e}")
     openai_client = None
 
+# Initialize Grok/XAI API client for CFM content generation
+grok_client = None
+try:
+    xai_api_key = os.getenv("XAI_API_KEY")
+    if xai_api_key:
+        grok_client = openai.OpenAI(
+            api_key=xai_api_key,
+            base_url="https://api.x.ai/v1"
+        )
+        logger.info("Grok API client (xAI) initialized successfully for CFM content")
+    else:
+        logger.warning("XAI_API_KEY not found - CFM content generation will not be available")
+except Exception as e:
+    logger.error(f"Failed to initialize Grok API client: {e}")
+    grok_client = None
+
 # Initialize Google Cloud TTS client (for audio generation)
 tts_client = None
 try:
@@ -137,7 +153,7 @@ MODE_FILTERS = {
 @app.on_event("startup")
 async def startup_event():
     """Initialize search engine on startup"""
-    global search_engine, openai_client
+    global search_engine
     try:
         logger.info("🚀 Initializing Gospel Guide search engine...")
         startup_time = time.time()
@@ -149,19 +165,11 @@ async def startup_event():
             setup_cloud_storage()
             logger.info(f"📦 Cloud Storage setup completed in {time.time() - cloud_start:.2f}s")
         
-        # Check for xAI API key
-        api_key = os.getenv("XAI_API_KEY")
-        if not api_key:
-            logger.warning("⚠️  XAI_API_KEY environment variable not set - CFM Deep Dive will be disabled")
-            openai_client = None
+        # Log API client status
+        if not grok_client:
+            logger.warning("⚠️  Grok client not available - CFM Deep Dive will be disabled")
         else:
-            # Initialize Grok API client (xAI)
-            logger.info("🤖 Initializing Grok API client...")
-            openai_client = openai.OpenAI(
-                api_key=api_key,
-                base_url="https://api.x.ai/v1"
-            )
-            logger.info("✅ Grok API client initialized")
+            logger.info("✅ Grok API client ready for CFM content generation")
         
         # Initialize search engine (optional - only if indexes exist)
         logger.info("🔍 Checking for search engine indexes...")
@@ -232,17 +240,22 @@ async def get_config():
         },
         "openai_client": {
             "available": openai_client is not None,
-            "features_enabled": ["lesson_planner"] if openai_client else [],
+            "features_enabled": ["q&a"] if openai_client else [],
             "setup_instructions": "Set OPENAI_API_KEY environment variable in Cloud Run service configuration" if not openai_client else "Configured"
+        },
+        "grok_client": {
+            "available": grok_client is not None,
+            "features_enabled": ["cfm_deep_dive", "lesson_plans", "audio_summary", "core_content"] if grok_client else [],
+            "setup_instructions": "Set XAI_API_KEY environment variable in Cloud Run service configuration" if not grok_client else "Configured"
         },
         "available_endpoints": {
             "search": True,  # Always available with search engine
-            "stream_response": search_engine is not None,
-            "cfm_lesson_plan": search_engine is not None and openai_client is not None,
-            "cfm_deep_dive": openai_client is not None,  # Only needs OpenAI, loads bundles directly
-            "cfm_lesson_plans": openai_client is not None,  # New lesson plans API
+            "stream_response": search_engine is not None and openai_client is not None,
+            "cfm_lesson_plan": search_engine is not None and grok_client is not None,
+            "cfm_deep_dive": grok_client is not None,  # Only needs Grok, loads bundles directly
+            "cfm_lesson_plans": grok_client is not None,  # New lesson plans API
             "cfm_audio_summary": tts_client is not None,   # Google Cloud TTS audio summary API
-            "cfm_core_content": openai_client is not None     # New core content API
+            "cfm_core_content": grok_client is not None     # New core content API
         }
     }
     
