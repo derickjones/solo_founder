@@ -8,7 +8,7 @@ export default function Page() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-          <p className="text-neutral-400">Sign in to Gospel Study Assistant</p>
+          <p className="text-neutral-400">Sign in to Gospel Study App</p>
         </div>
         
         <div className="flex justify-center">

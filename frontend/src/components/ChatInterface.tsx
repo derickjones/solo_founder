@@ -673,7 +673,7 @@ export default function ChatInterface({
           }`}>
             <img 
               src="/christ.jpeg" 
-              alt="Gospel Study Assistant Logo" 
+              alt="Gospel Study App Logo" 
               className="w-full h-full object-cover"
             />
           </div>
@@ -687,7 +687,7 @@ export default function ChatInterface({
                 messages.length > 0 ? 'text-lg lg:text-xl' : 'text-2xl lg:text-4xl mb-2'
               }`}
             >
-              Gospel Study Assistant
+              Gospel Study App
             </button>
             {messages.length === 0 && (
               <p className="text-sm lg:text-xl text-neutral-400 px-4">Ask questions. Find answers. Build faith.</p>

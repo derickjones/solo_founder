@@ -73,7 +73,7 @@ export default function PricingPage() {
             href="/" 
             className="inline-flex items-center text-blue-400 hover:text-blue-300 mb-8"
           >
-            ← Back to Gospel Study Assistant
+            ← Back to Gospel Study App
           </Link>
           <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4">
             Choose Your Plan

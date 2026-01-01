@@ -174,12 +174,12 @@ export default function Home() {
           <div className="w-20 h-20 lg:w-28 lg:h-28 rounded-full overflow-hidden border-2 border-neutral-700 mb-6">
             <img 
               src="/christ.jpeg" 
-              alt="Gospel Study Assistant Logo" 
+              alt="Gospel Study App Logo" 
               className="w-full h-full object-cover"
             />
           </div>
           <h1 className="text-3xl lg:text-5xl font-bold text-white mb-3 text-center">
-            Gospel Study Assistant
+            Gospel Study App
           </h1>
           <p className="text-lg lg:text-2xl text-neutral-400 text-center">
             Ask questions. Find answers. Build faith.

@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Gospel Study Assistant",
+  title: "Gospel Study App",
   description: "AI-powered gospel study tools for The Church of Jesus Christ of Latter-day Saints",
 };
 

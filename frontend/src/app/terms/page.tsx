@@ -12,7 +12,7 @@ export default function TermsOfUse() {
             href="/" 
             className="inline-flex items-center text-blue-400 hover:text-blue-300 mb-4"
           >
-            ← Back to Gospel Study Assistant
+            ← Back to Gospel Study App
           </Link>
           <h1 className="text-3xl font-bold text-white">Terms of Use</h1>
           <p className="text-neutral-400 mt-2">Effective Date: December 3, 2025</p>
@@ -22,14 +22,14 @@ export default function TermsOfUse() {
           <section className="mb-8">
             <h2 className="text-xl font-semibold text-white mb-4">1. Acceptance of Terms</h2>
             <p className="text-neutral-300 mb-4">
-              By accessing and using the Gospel Study Assistant ("Service"), you accept and agree to be bound by the terms and provision of this agreement.
+              By accessing and using the Gospel Study App ("Service"), you accept and agree to be bound by the terms and provision of this agreement.
             </p>
           </section>
 
           <section className="mb-8">
             <h2 className="text-xl font-semibold text-white mb-4">2. Purpose and Scope</h2>
             <p className="text-neutral-300 mb-4">
-              The Gospel Study Assistant is designed to help users study and explore the scriptures and teachings of The Church of Jesus Christ of Latter-day Saints. This service provides AI-powered search and question-answering capabilities for educational and spiritual study purposes.
+              The Gospel Study App is designed to help users study and explore the scriptures and teachings of The Church of Jesus Christ of Latter-day Saints. This service provides AI-powered search and question-answering capabilities for educational and spiritual study purposes.
             </p>
           </section>
 
@@ -152,14 +152,14 @@ export default function TermsOfUse() {
           <section className="mb-8">
             <h2 className="text-xl font-semibold text-white mb-4">12. Copyright Notice</h2>
             <div className="text-neutral-300 mb-4 space-y-3">
-              <p className="font-medium">© 2025 Gospel Study Assistant • AI-powered gospel study</p>
+              <p className="font-medium">© 2025 Gospel Study App • AI-powered gospel study</p>
               <p className="text-sm">
                 This service provides AI-powered search and study tools. Content from The Church of Jesus Christ 
                 of Latter-day Saints remains their property and is referenced under fair use principles for 
                 educational and spiritual study purposes.
               </p>
               <p className="text-sm text-neutral-400">
-                The Gospel Study Assistant is an independent service and is not affiliated with, 
+                The Gospel Study App is an independent service and is not affiliated with, 
                 endorsed by, or sponsored by The Church of Jesus Christ of Latter-day Saints.
               </p>
             </div>

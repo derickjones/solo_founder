@@ -1,4 +1,4 @@
-# Gospel Study Assistant - LDS AI Scripture Study App
+# Gospel Study App - LDS AI Scripture Study App
 
 > **Production-ready LDS AI Scripture Study App with pre-generated Come Follow Me content and live AI Q&A**
 
