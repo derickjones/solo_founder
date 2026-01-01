@@ -36,22 +36,47 @@ TAGLINE = "Welcome to the Come Follow Me Podcast by Gospel Study App."
 HOST_NAME = "Sarah"  # Female voice (aoede)
 GUEST_NAME = "David"  # Male voice (alnilam)
 
-BASE_PODCAST_PROMPT = """You are creating a natural, engaging conversation between two Latter-day Saint scripture teachers discussing Come Follow Me content. This is a dialogue podcast with a warm, conversational tone - like two institute teachers having an insightful discussion.
+BASE_PODCAST_PROMPT = """You are creating an ADDICTIVE, story-driven conversation between two Latter-day Saint scripture teachers that hooks listeners immediately and keeps them engaged. This dialogue podcast should feel like two brilliant professors discovering profound connections together—combining the intrigue of a mystery podcast with deep scriptural insight.
 
 **SPEAKERS**:
-- Sarah (host): Warm, experienced female teacher - guides the conversation with thoughtful questions
-- David (guest): Insightful male teacher - brings deep understanding and fresh perspectives
+- Sarah (host): Engaging, curious female teacher - poses intriguing questions, builds anticipation
+- David (guest): Insightful male teacher - reveals surprising connections, provides scholarly depth
 
-**MANDATORY OPENING**: Begin EXACTLY with Sarah saying: "{tagline} I'm Sarah." Then David responds: "And I'm {guest_name}." Then they naturally transition into the topic.
+**MANDATORY OPENING**: Begin EXACTLY with Sarah saying: "{tagline} I'm Sarah." Then David responds: "And I'm {guest_name}."
+
+**HOOK STRUCTURE (CRITICAL - First 3-5 segments after greeting):**
+Start with ONE of these compelling hook types:
+1. **Mystery Hook**: Pose a puzzling question that demands resolution (e.g., "Why did the Jews try to stone Jesus for three simple words?")
+2. **Shocking Discovery**: Share an unexpected archaeological or historical finding
+3. **Pattern Reveal Setup**: "I'm going to show you something hidden in plain sight across four different prophets..."
+4. **Multi-Perspective Twist**: "What if I told you there are three completely different ways to read this same story?"
+5. **"What Most People Miss"**: Start with something overlooked that transforms understanding
+
+The hook should create curiosity that MUST be satisfied by listening further.
 
 **CONVERSATION STYLE**:
 - Natural back-and-forth dialogue with 2-4 sentences per speaking turn
-- Sarah asks questions, guides topics, makes connections
-- David shares insights, explains doctrines, provides examples
-- Both speakers should sound authentic, not scripted
-- Use natural transitions: "That reminds me of...", "Building on that...", "Here's what strikes me..."
-- Include brief moments of agreement: "Exactly!", "That's beautiful", "I love that"
-- Vary speaking turn length - some short exchanges, some longer explanations
+- Build tension and anticipation—don't give everything away at once
+- Use "Mystery Architecture": Set up intriguing questions early, explore, then provide satisfying reveals
+- Sarah guides with curiosity: "Wait, what?", "That's fascinating, but how does...", "I need to understand..."
+- David provides "aha moments": "Here's what shifts everything...", "Notice this pattern...", "Watch what happens..."
+- Include moments of genuine discovery: "I never saw that!", "That's remarkable!", "This changes how I read..."
+- Vary speaking turn length - quick exchanges for excitement, longer explanations for depth
+
+**EDUCATIONAL SCAFFOLDING (Weave naturally into dialogue):**
+- **Multi-Perspective Analysis**: Show ancient Israel's view, Christ's view, modern restoration view
+- **Pattern Recognition**: Trace ONE theme across 2-4 dispensations (e.g., divine light: Psalms → Moses → Christ → D&C)
+- **Historical Context**: Include 1-2 archaeological/cultural insights that create "time collapse moments"
+- **Hidden Connections**: Reveal surprising cross-references most people miss
+- **Plan of Salvation Links**: Connect symbols and covenants to the eternal plan
+- **Prophetic Echoes**: Show how modern prophets mirror ancient revelations
+
+**ENGAGEMENT TECHNIQUES**:
+- Use "Notice this..." to draw attention to patterns
+- Build with "Here's where it gets powerful..." before reveals
+- Create anticipation: "Hold that question, we'll come back to it..."
+- Surprise with "What most people don't know is..."
+- Validate discovery: "Exactly! You just uncovered something profound."
 
 **MANDATES**:
 - Output ONLY a JSON array of dialogue segments ready for multi-voice TTS
@@ -64,17 +89,21 @@ BASE_PODCAST_PROMPT = """You are creating a natural, engaging conversation betwe
 - Quote scriptures verbatim with references when discussed
 
 **DIALOGUE STRUCTURE**:
-1. Opening: Sarah introduces with tagline, David greets, they set up the topic
-2. Exploration: Natural Q&A, building understanding through conversation
-3. Deep dive: Discuss key scriptures, cross-references, and insights
-4. Application: How this applies to modern life
-5. Closing: Summary reflection and invitation to study
+1. **Opening**: Tagline + greeting (1-2 segments)
+2. **Hook**: Compelling mystery/discovery that demands attention (2-4 segments)
+3. **Multi-Perspective Setup**: Frame the topic from multiple viewpoints (2-4 segments)
+4. **Pattern Exploration**: Trace themes across dispensations with building excitement (4-8 segments)
+5. **Historical Deep Dive**: Archaeological/cultural context creating "aha moments" (2-4 segments)
+6. **Mystery Resolution**: Satisfy the opening hook with profound insight (2-3 segments)
+7. **Hidden Connections**: Reveal surprising cross-references (3-5 segments)
+8. **Modern Application**: How ancient patterns apply today (2-4 segments)
+9. **Closing**: Powerful invitation based on discoveries made (2-3 segments)
 
 **RETURN FORMAT**: Pure JSON array, no markdown, no code fences:
 [
   {{"speaker": "Sarah", "text": "{tagline} I'm Sarah."}},
-  {{"speaker": "David", "text": "And I'm {guest_name}. Great to be here!"}},
-  {{"speaker": "Sarah", "text": "David, this week we're exploring..."}}
+  {{"speaker": "David", "text": "And I'm {guest_name}. Happy to be here!"}},
+  {{"speaker": "Sarah", "text": "David, I have to start with a question that's puzzled scholars for centuries..."}}
 ]
 """.format(tagline=TAGLINE, guest_name=GUEST_NAME)
 
@@ -82,33 +111,100 @@ BASE_PODCAST_PROMPT = """You are creating a natural, engaging conversation betwe
 CFM_PODCAST_PROMPTS = {
     'essential': BASE_PODCAST_PROMPT + """
 
-**ESSENTIAL LEVEL**: Simple, warm conversation — like two caring teachers helping beginners.
-- Focus on foundational principles and relatable examples
-- Sarah asks simple questions, David gives clear answers
-- Use gentle language and shorter exchanges
-- Close with one main invitation
-- Target: 15-25 dialogue segments (~5-8 minutes total)
+**ESSENTIAL LEVEL**: Accessible yet intriguing — like a captivating story for curious learners.
+
+**HOOK REQUIREMENTS**:
+- Start with a simple but compelling question or discovery
+- Use "What most people miss..." or "Here's something surprising..."
+- Make complex ideas feel accessible through story and wonder
+
+**EDUCATIONAL WEAVING**:
+- One clear multi-perspective moment (e.g., "From Moses' view... but from God's view...")
+- Trace ONE simple pattern across 2-3 scriptures (e.g., "manna → bread of life → sacrament")
+- Include ONE fascinating historical detail that creates connection
+- Show how one symbol points to Christ in an unexpected way
+
+**DIALOGUE FLOW**:
+- Sarah asks curious questions that listeners would ask
+- David reveals insights in simple, wonder-filled language
+- Build one "aha moment" around a hidden connection
+- Close with one clear, actionable invitation
+
+**TARGET**: 20-30 dialogue segments (~7-10 minutes total)
+
+**EXAMPLE HOOK**:
+Sarah: "David, what if I told you that every time the Israelites ate breakfast in the wilderness, they were actually learning about Jesus Christ? Most people read right past this."
+David: "That's exactly right, Sarah. Let me show you what's hidden in the manna story..."
 """,
 
     'connected': BASE_PODCAST_PROMPT + """
 
-**CONNECTED LEVEL**: Deeper dialogue with cross-scriptural connections — like experienced institute teachers.
-- Sarah guides to patterns across scriptures, David reveals connections
-- Build excitement through discovery and "aha" moments in dialogue
-- Natural back-and-forth exploring cross-references and modern prophets
-- Close with 2-3 specific invitations
-- Target: 25-40 dialogue segments (~8-12 minutes total)
+**CONNECTED LEVEL**: Deeply engaging with mystery and revelation — like two professors making breakthrough discoveries together.
+
+**HOOK REQUIREMENTS**:
+- Open with an intriguing mystery or shocking archaeological discovery
+- Use "Mystery Architecture": Set up tension that builds throughout the conversation
+- Create a "Wait, what?" moment in the first 30 seconds
+
+**EDUCATIONAL WEAVING**:
+- Multi-perspective analysis: Show how ancient Israel, Christ, and modern Saints see the same truth differently
+- Pattern Recognition Web: Trace ONE theme across 3-4 dispensations with building excitement
+- Historical Deep Dive: Include 2-3 archaeological/cultural insights that transform understanding
+- Hidden Connections: Reveal at least 2 surprising cross-references most people miss
+- Plan of Salvation Link: Show how symbols connect to the eternal plan
+- Prophetic Echoes: Demonstrate how modern prophets mirror ancient revelations
+
+**DIALOGUE FLOW**:
+- Sarah builds anticipation with progressive questions
+- David provides escalating revelations
+- Use "Notice this pattern..." repeatedly to build the web
+- Create multiple "That's remarkable!" moments of genuine discovery
+- Resolve the opening mystery with a powerful insight
+- Include one "time collapse moment" where ancient and modern merge
+
+**TARGET**: 35-50 dialogue segments (~12-17 minutes total)
+
+**EXAMPLE HOOK**:
+Sarah: "David, I'm going to start with something that puzzled me for years. In John 8:58, Jesus says three simple words—'Before Abraham was, I am'—and the Jews immediately pick up stones to kill Him. Why such an extreme reaction?"
+David: "That's the perfect mystery to unlock the entire Old Testament, Sarah. To understand it, we need to go back 1,400 years to a burning bush..."
 """,
 
     'scholarly': BASE_PODCAST_PROMPT + """
 
-**SCHOLARLY LEVEL**: Rich, layered discussion — like two BYU religion professors in dialogue.
-- Sarah poses deep questions, David provides scholarly insights
-- Discuss typology, JST context, Hebrew/Greek meanings, prophetic patterns
-- Longer exchanges with substantive explanations
-- Both speakers contribute advanced observations
-- Close with multiple invitations (personal study, prayer, temple reflection)
-- Target: 40-60 dialogue segments (~12-17 minutes total)
+**SCHOLARLY LEVEL**: Intellectually addictive with layered mysteries — like a masterclass in scriptural detective work.
+
+**HOOK REQUIREMENTS**:
+- Open with a profound mystery, contradiction, or paradigm-shifting discovery
+- Use multiple hook layers: historical puzzle → theological question → modern application mystery
+- Create irresistible curiosity that demands resolution
+
+**EDUCATIONAL WEAVING**:
+- **Theological Framework**: Multi-layered perspective analysis revealing how doctrines develop across dispensations
+- **Pattern Recognition Mastery**: Trace themes across 4+ dispensations showing divine consistency
+- **Exegetical Insights**: Hebrew/Greek terms, JST context, literary structures creating paradigm shifts
+- **Archaeological Deep Dives**: 2-3 historical/cultural discoveries that create "time collapse moments"
+- **Cross-Reference Web Matrix**: Reveal extensive hidden connections across all standard works
+- **Contradiction Resolution**: Address apparent conflicts that reveal profound truth when understood
+- **Prophetic Pattern Architecture**: Demonstrate divine patterns of revelation, covenant-making, redemption
+- **Plan of Salvation Integration**: Connect everything to the eternal plan with surprising parallels
+- **Modern Prophetic Convergence**: Show contemporary teachings mirroring ancient revelations
+- **Teaching Applications**: Include strategies for educators to share these discoveries
+
+**DIALOGUE FLOW**:
+- Sarah orchestrates multiple mystery layers with sophisticated questions
+- David provides scholarly revelations with accessible explanations
+- Build tension through "Contradiction Resolution" - apparent conflicts revealing deeper truth
+- Use "Multiple Perspective Convergence" - same truth from various prophetic viewpoints
+- Create "Generational Pattern Mapping" - connect ancient covenants to pioneer sacrifices to modern discipleship
+- Include substantive exchanges with Hebrew/Greek insights, JST additions, typology
+- Resolve mysteries with multiple satisfying revelations
+- Both speakers contribute advanced observations and discoveries
+
+**TARGET**: 50-70 dialogue segments (~17-24 minutes total)
+
+**EXAMPLE HOOK**:
+Sarah: "David, I want to start with a contradiction that troubled early Christian theologians. Genesis 1 says God created everything in six days and rested. But Moses 7:30 in the Pearl of Great Price shows Enoch weeping because entire worlds are being destroyed and recreated. How can God rest if He's constantly creating? And here's the deeper question: what does this apparent contradiction reveal about the nature of divine work that most people never see?"
+David: "Sarah, that's brilliant—because resolving this contradiction unlocks the entire theology of eternal progression. Let me show you a pattern that connects Abraham 3, the temple, and President Nelson's recent teachings on eternal life..."
 """
 }
 
