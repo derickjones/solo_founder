@@ -483,9 +483,16 @@ export const generateCFMCoreContent = async (request: CFMCoreContentRequest): Pr
 
 // TTS Generation Types
 export interface TTSGenerateRequest {
-  text: string;
+  // Single-speaker format (backward compatible)
+  text?: string;
   voice?: string;
+  
+  // Multi-speaker conversation format
+  script?: Array<{ speaker: string; text: string }>;
+  voices?: Record<string, string>;
+  
   title?: string;
+  pause_between_speakers_ms?: number;
 }
 
 export interface TTSGenerateResponse {
@@ -497,7 +504,8 @@ export interface TTSGenerateResponse {
 
 // Generate TTS audio from text (for Listen button on Deep Dive, etc.)
 export const generateTTS = async (request: TTSGenerateRequest): Promise<TTSGenerateResponse> => {
-  console.log(`🎧 Starting TTS generation: ${request.text.length} characters`);
+  const charCount = request.text?.length || (request.script?.reduce((sum, seg) => sum + seg.text.length, 0) || 0);
+  console.log(`🎧 Starting TTS generation: ${charCount} characters${request.script ? ` (${request.script.length} segments)` : ''}`);
   
   // Set a 3-minute timeout for TTS generation
   const controller = new AbortController();
@@ -505,16 +513,31 @@ export const generateTTS = async (request: TTSGenerateRequest): Promise<TTSGener
   
   try {
     const startTime = Date.now();
+    
+    // Build request body
+    const body: any = {
+      title: request.title || 'Audio'
+    };
+    
+    if (request.script && request.voices) {
+      // Conversation format
+      body.script = request.script;
+      body.voices = request.voices;
+      if (request.pause_between_speakers_ms) {
+        body.pause_between_speakers_ms = request.pause_between_speakers_ms;
+      }
+    } else {
+      // Single-speaker format
+      body.text = request.text || '';
+      body.voice = request.voice || 'aoede';
+    }
+    
     const response = await fetch(`${API_BASE_URL}/tts/podcast`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        text: request.text,
-        voice: request.voice || 'alnilam',
-        title: request.title || 'Audio'
-      }),
+      body: JSON.stringify(body),
       signal: controller.signal
     });
 

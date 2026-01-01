@@ -33,7 +33,8 @@ export default function ComeFollowMePage() {
   const [isGeneratingLesson, setIsGeneratingLesson] = useState(false);
   
   // Audio Summary states
-  const [audioScript, setAudioScript] = useState<string | null>(null);
+  const [audioScript, setAudioScript] = useState<any>(null); // Can be string or conversation array
+  const [audioVoices, setAudioVoices] = useState<Record<string, string> | null>(null);
   const [audioFiles, setAudioFiles] = useState<{ combined?: string } | null>(null);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [isGeneratingTTS, setIsGeneratingTTS] = useState(false);
@@ -149,6 +150,7 @@ export default function ComeFollowMePage() {
       
       const data = await response.json();
       setAudioScript(data.script);
+      setAudioVoices(data.voices || null); // Store voices mapping if present
       setGenerationTime(Date.now() - startTime);
     } catch (error) {
       console.error('Error loading podcast script:', error);
@@ -166,11 +168,24 @@ export default function ComeFollowMePage() {
     setError(null);
 
     try {
-      const response = await generateTTS({
-        text: audioScript,
-        voice: 'cfm_male',
+      // Check if we have conversation format (array) or old format (string)
+      const isConversation = Array.isArray(audioScript);
+      
+      const requestBody: any = {
         title: `${studyLevel.charAt(0).toUpperCase() + studyLevel.slice(1)} Audio Summary`
-      });
+      };
+
+      if (isConversation && audioVoices) {
+        // New conversation format
+        requestBody.script = audioScript;
+        requestBody.voices = audioVoices;
+      } else {
+        // Old single-speaker format (fallback)
+        requestBody.text = typeof audioScript === 'string' ? audioScript : JSON.stringify(audioScript);
+        requestBody.voice = 'aoede';
+      }
+
+      const response = await generateTTS(requestBody);
       
       setAudioFiles({ combined: response.audio_base64 });
     } catch (error) {
