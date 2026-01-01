@@ -629,14 +629,14 @@ export default function ChatInterface({
       
       {/* Top-left back button - positioned to the right of sidebar */}
       {onBackToLanding && (
-        <div className="hidden lg:block fixed top-6 left-72 z-20">
+        <div className="fixed top-6 left-72 z-20">
           <button
             type="button"
             onClick={() => {
               resetChat();
               onBackToLanding();
             }}
-            className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors duration-200"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral-800/90 hover:bg-neutral-700/90 border border-neutral-600/50 text-neutral-300 hover:text-white transition-all duration-200 backdrop-blur-sm shadow-lg"
             title="Back"
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
@@ -1202,22 +1202,6 @@ export default function ChatInterface({
                 {/* Action buttons for assistant messages */}
                 {message.type === 'assistant' && message.content && !message.isStreaming && (
                   <div className="flex flex-wrap justify-end gap-3 mt-6 pt-4 border-t border-neutral-700">
-                    {/* Back button - only show for Come Follow Me mode */}
-                    {mode === 'Come Follow Me' && onBackToLanding && (
-                      <button
-                        onClick={() => {
-                          resetChat();
-                          onBackToLanding();
-                        }}
-                        className="inline-flex items-center px-4 py-2 text-sm text-neutral-300 hover:text-white bg-neutral-700 hover:bg-neutral-600 rounded-lg transition-all duration-200"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 mr-2">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-                        </svg>
-                        Back
-                      </button>
-                    )}
-                    
                     {/* Copy button */}
                     <button
                       onClick={() => handleCopyToClipboard(message.content, message.id)}
