@@ -29,7 +29,7 @@ import json
 # Import our search engine, cloud storage, prompts, and TTS
 from .scripture_search import ScriptureSearchEngine
 from .cloud_storage import setup_cloud_storage
-from .prompts import get_system_prompt, build_context_prompt, get_mode_source_filter, CFM_STUDY_GUIDE_PROMPTS, CFM_LESSON_PLAN_PROMPTS
+from .prompts import get_system_prompt, build_context_prompt, get_mode_source_filter
 from .google_tts import create_google_tts_client
 
 # Set up logging
@@ -570,49 +570,6 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={"detail": f"Internal server error: {str(exc)}"}
     )
 
-# CFM Deep Dive Models
-class CFMDeepDiveRequest(BaseModel):
-    week_number: int  # Week number 2-52 for CFM 2026
-    study_level: str = "connected"  # essential, connected, scholarly
-
-class CFMDeepDiveResponse(BaseModel):
-    week_number: int
-    week_title: str
-    date_range: str
-    study_level: str
-    study_guide: str
-    bundle_sources: int
-    total_characters: int
-    generation_time_ms: int
-
-# CFM Lesson Plans Models
-class CFMLessonPlanRequest(BaseModel):
-    week_number: int  # Week number 2-52 for CFM 2026
-    audience: str = "adult"  # adult, youth, children
-
-class CFMLessonPlanResponse(BaseModel):
-    week_number: int
-    week_title: str
-    date_range: str
-    audience: str
-    lesson_plan: str
-    bundle_sources: int
-    total_characters: int
-    generation_time_ms: int
-
-# CFM Core Content Models
-class CFMCoreContentRequest(BaseModel):
-    week_number: int  # Week number 2-52 for CFM 2026
-
-class CFMCoreContentResponse(BaseModel):
-    week_number: int
-    week_title: str
-    date_range: str
-    core_content: str
-    bundle_sources: int
-    total_characters: int
-    generation_time_ms: int
-
 # TTS Generation Models (for on-demand audio from any text)
 class TTSGenerateRequest(BaseModel):
     text: str  # Text to convert to speech
@@ -830,229 +787,6 @@ def format_cfm_bundle_content(bundle: dict) -> str:
     
     return result
 
-@app.post("/cfm/deep-dive")
-async def create_cfm_deep_dive_study_guide_stream(request: CFMDeepDiveRequest):
-    """
-    Generate a CFM 2026 Deep Dive study guide with streaming response using complete weekly bundles
-    
-    This endpoint:
-    1. Loads the complete CFM 2026 Old Testament weekly bundle (scripture text, seminary materials, etc.)
-    2. Uses the entire bundle as context for AI generation
-    3. Creates study guides at basic, intermediate, or advanced sophistication levels
-    4. Streams the response in real-time for better user experience
-    """
-    if not openai_client:
-        raise HTTPException(
-            status_code=503, 
-            detail="OpenAI API client not available. Please set the XAI_API_KEY environment variable."
-        )
-    
-    # Validate week number
-    if not (2 <= request.week_number <= 52):
-        raise HTTPException(status_code=400, detail="Week number must be between 2 and 52 (CFM 2026 Old Testament schedule)")
-    
-    # Validate study level
-    if request.study_level not in CFM_STUDY_GUIDE_PROMPTS:
-        raise HTTPException(status_code=400, detail=f"Invalid study level. Must be one of: {list(CFM_STUDY_GUIDE_PROMPTS.keys())}")
-    
-    try:
-        start_time = time.time()
-        
-        # Step 1: Load the complete CFM 2026 bundle for this week
-        logger.info(f"Loading CFM 2026 bundle for week {request.week_number}")
-        bundle = load_cfm_2026_bundle(request.week_number)
-        logger.info(f"Bundle loaded: {type(bundle)}, keys: {list(bundle.keys()) if isinstance(bundle, dict) else 'Not a dict'}")
-        
-        if not bundle:
-            raise HTTPException(
-                status_code=404, 
-                detail=f"CFM 2026 bundle not found for week {request.week_number}. Please ensure the bundle files are available."
-            )
-        
-        # Step 2: Format the entire bundle as context
-        logger.info("Formatting bundle content...")
-        bundle_content = format_cfm_bundle_content(bundle)
-        logger.info(f"Bundle content formatted: {len(bundle_content)} characters")
-        
-        if not bundle_content:
-            raise HTTPException(
-                status_code=500, 
-                detail=f"Failed to format content for week {request.week_number}"
-            )
-        
-        # Step 3: Get the appropriate study level prompt
-        logger.info(f"Getting prompt for study level: {request.study_level}")
-        system_prompt = CFM_STUDY_GUIDE_PROMPTS[request.study_level]
-        
-        # Step 4: Create the user prompt with the full bundle context
-        user_prompt = f"""
-        Please create a {request.study_level} level study guide for this Come Follow Me 2026 Old Testament week.
-        
-        Use the complete weekly bundle content provided below to create a comprehensive study guide that follows the same faith-building experience as Gospel Guide's Q&A system - helping people build testimony, find answers in scripture, and draw closer to Christ.
-        
-        COMPLETE WEEKLY BUNDLE CONTENT:
-        {bundle_content}
-        
-        Please create a study guide that uses all the rich content provided above, following your instructions for {request.study_level} level sophistication. Ensure everything is based strictly on the bundle content provided.
-        """
-        
-        # Step 5: Generate streaming response
-        async def generate_stream():
-            try:
-                logger.info(f"Starting streaming generation for {request.study_level} study guide for week {request.week_number}")
-                
-                # Use higher token limit for advanced study levels
-                max_tokens = 5000 if request.study_level == 'advanced' else 3000
-                
-                stream = openai_client.chat.completions.create(
-                    model="grok-4-1-fast-reasoning",
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt}
-                    ],
-                    max_tokens=max_tokens,
-                    temperature=0.7,
-                    stream=True
-                )
-                
-                for chunk in stream:
-                    if chunk.choices[0].delta.content:
-                        content = chunk.choices[0].delta.content
-                        yield f"data: {json.dumps({'type': 'content', 'content': content})}\n\n"
-                
-                yield f"data: {json.dumps({'type': 'done'})}\n\n"
-                logger.info(f"Completed streaming generation for week {request.week_number}")
-                
-            except Exception as e:
-                logger.error(f"CFM Deep Dive streaming error: {e}")
-                yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
-        
-        return StreamingResponse(
-            generate_stream(),
-            media_type="text/plain",
-            headers={
-                "Cache-Control": "no-cache",
-                "Connection": "keep-alive",
-                "Content-Type": "text/plain"
-            }
-        )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"CFM Deep Dive streaming setup error: {e}")
-        raise HTTPException(status_code=500, detail=f"Streaming setup failed: {str(e)}")
-
-@app.post("/cfm/lesson-plans", response_model=CFMLessonPlanResponse)
-async def create_cfm_lesson_plan(request: CFMLessonPlanRequest):
-    """
-    Generate a CFM 2026 Lesson Plan using complete weekly bundles
-    
-    This endpoint:
-    1. Loads the complete CFM 2026 Old Testament weekly bundle
-    2. Uses the entire bundle as context for AI generation
-    3. Creates lesson plans for adult, youth, or children audiences
-    4. Follows audience-appropriate teaching methods and activities
-    """
-    if not openai_client:
-        raise HTTPException(
-            status_code=503, 
-            detail="OpenAI API client not available. Please set the OPENAI_API_KEY environment variable."
-        )
-    
-    # Validate week number
-    if not (2 <= request.week_number <= 52):
-        raise HTTPException(status_code=400, detail="Week number must be between 2 and 52 (CFM 2026 Old Testament schedule)")
-    
-    # Validate audience
-    if request.audience not in CFM_LESSON_PLAN_PROMPTS:
-        raise HTTPException(status_code=400, detail=f"Invalid audience. Must be one of: {list(CFM_LESSON_PLAN_PROMPTS.keys())}")
-    
-    try:
-        start_time = time.time()
-        
-        # Step 1: Load the complete CFM 2026 bundle for this week
-        logger.info(f"Loading CFM 2026 bundle for week {request.week_number}")
-        bundle = load_cfm_2026_bundle(request.week_number)
-        logger.info(f"Bundle loaded: {type(bundle)}, keys: {list(bundle.keys()) if isinstance(bundle, dict) else 'Not a dict'}")
-        
-        if not bundle:
-            raise HTTPException(
-                status_code=404, 
-                detail=f"CFM 2026 bundle not found for week {request.week_number}. Please ensure the bundle files are available."
-            )
-        
-        # Step 2: Format the entire bundle as context
-        logger.info("Formatting bundle content...")
-        bundle_content = format_cfm_bundle_content(bundle)
-        logger.info(f"Bundle content formatted: {len(bundle_content)} characters")
-        
-        if not bundle_content:
-            raise HTTPException(
-                status_code=500, 
-                detail=f"Failed to format content for week {request.week_number}"
-            )
-        
-        # Step 3: Get the appropriate audience prompt
-        logger.info(f"Getting prompt for audience: {request.audience}")
-        system_prompt = CFM_LESSON_PLAN_PROMPTS[request.audience]
-        
-        # Step 4: Create the user prompt with the full bundle context
-        user_prompt = f"""
-        Please create a {request.audience} lesson plan for this Come Follow Me 2026 Old Testament week.
-        
-        Use the complete weekly bundle content provided below to create a comprehensive lesson plan that follows the same faith-building experience as Gospel Guide's study system - helping people build testimony, find answers in scripture, and draw closer to Christ.
-        
-        COMPLETE WEEKLY BUNDLE CONTENT:
-        {bundle_content}
-        
-        Please create a lesson plan that uses all the rich content provided above, following your instructions for {request.audience} audience. Ensure everything is based strictly on the bundle content provided.
-        """
-        
-        # Step 5: Generate the lesson plan using OpenAI
-        logger.info(f"Generating {request.audience} lesson plan for week {request.week_number}")
-        ai_start = time.time()
-        
-        response = openai_client.chat.completions.create(
-            model="grok-4-1-fast-reasoning",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            max_tokens=3000,  # Allow longer responses for detailed lesson plans
-            temperature=0.7
-        )
-        
-        ai_time_ms = int((time.time() - ai_start) * 1000)
-        lesson_plan = response.choices[0].message.content
-        
-        # Step 6: Prepare response data
-        total_time_ms = int((time.time() - start_time) * 1000)
-        bundle_sources = len(bundle.get('content_sources', []))
-        total_characters = bundle.get('total_content_length', 0)
-        
-        logger.info(f"Generated {request.audience} lesson plan for week {request.week_number} using {bundle_sources} sources ({total_characters:,} chars) in {total_time_ms}ms")
-        
-        # Clean title by removing leading semicolon if present
-        clean_title = bundle.get('title', 'Unknown').lstrip(';')
-        
-        return CFMLessonPlanResponse(
-            week_number=request.week_number,
-            week_title=clean_title,
-            date_range=bundle.get('date_range', 'Unknown'),
-            audience=request.audience,
-            lesson_plan=lesson_plan,
-            bundle_sources=bundle_sources,
-            total_characters=total_characters,
-            generation_time_ms=total_time_ms
-        )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"CFM Lesson Plan generation error: {e}")
-        raise HTTPException(status_code=500, detail=f"Lesson plan generation failed: {str(e)}")
-
 def generate_audio_with_tts(script_text: str, voice: str = "cfm_male") -> Dict[str, str]:
     """
     Generate audio file from script using Google Cloud TTS
@@ -1085,164 +819,6 @@ def generate_audio_with_tts(script_text: str, voice: str = "cfm_male") -> Dict[s
         logger.error(f"❌ Google Cloud TTS audio generation error: {e}")
         # Return empty dict on error - endpoint will still return script
         return {}
-
-@app.post("/cfm/core-content", response_model=CFMCoreContentResponse)
-async def generate_cfm_core_content(request: CFMCoreContentRequest):
-    """Generate organized core content for a specific CFM week - raw materials organized by section"""
-    try:
-        # Check if OpenAI client is available
-        if not openai_client:
-            raise HTTPException(status_code=503, detail="AI service unavailable - OpenAI API key not configured")
-        
-        start_time = time.time()
-        logger.info(f"Generating CFM core content for week {request.week_number}")
-        
-        # Load the CFM 2026 Old Testament bundle for the specific week
-        bundle = load_cfm_2026_bundle(request.week_number)
-        if not bundle:
-            raise HTTPException(status_code=404, detail=f"No content sources found for week {request.week_number}")
-        
-        # Build context from enhanced bundle format
-        context_parts = []
-        bundle_sources = 0
-        total_characters = 0
-        
-        # Get CFM lesson content
-        cfm_content = bundle.get('cfm_lesson_content', {})
-        cfm_content_text = ""
-        if cfm_content:
-            cfm_sections = []
-            if cfm_content.get('introduction'):
-                cfm_sections.append(f"Introduction: {cfm_content['introduction']}")
-            
-            learning_sections = cfm_content.get('learning_at_home_church', [])
-            for section in learning_sections:
-                title = section.get('title', '')
-                content = section.get('content', '')
-                if title and content:
-                    cfm_sections.append(f"{title}: {content}")
-            
-            if cfm_sections:
-                cfm_content_text = "\n\n".join(cfm_sections)
-                bundle_sources += 1
-                total_characters += len(cfm_content_text)
-        
-        # Get scripture content
-        scripture_content = bundle.get('scripture_content', [])
-        scripture_content_text = ""
-        if scripture_content:
-            scripture_sections = []
-            for scripture in scripture_content:
-                reference = scripture.get('reference', 'Unknown')
-                verses = scripture.get('verses', [])
-                if verses:
-                    # Format first 20 verses to avoid overwhelming content
-                    verse_texts = []
-                    for i, verse in enumerate(verses[:20], 1):
-                        if isinstance(verse, str):
-                            verse_texts.append(verse)
-                        else:
-                            verse_num = verse.get('verse', '')
-                            verse_text = verse.get('text', '')
-                            if verse_num and verse_text:
-                                verse_texts.append(f"{verse_num}. {verse_text}")
-                    
-                    if verse_texts:
-                        chapter_text = f"{reference}:\n" + "\n".join(verse_texts)
-                        if len(verses) > 20:
-                            chapter_text += f"\n... and {len(verses) - 20} more verses"
-                        scripture_sections.append(chapter_text)
-                        bundle_sources += 1
-            
-            if scripture_sections:
-                scripture_content_text = "\n\n".join(scripture_sections)
-                total_characters += len(scripture_content_text)
-        
-        # Build context
-        if cfm_content_text:
-            context_parts.append("=== COME FOLLOW ME CONTENT ===")
-            context_parts.append(cfm_content_text)
-        
-        if scripture_content_text:
-            context_parts.append("=== SCRIPTURE PASSAGES ===")
-            context_parts.append(scripture_content_text)
-        
-        if not context_parts:
-            raise HTTPException(status_code=404, detail=f"No content found for week {request.week_number}")
-        
-        context_text = "\n\n".join(context_parts)
-        logger.info(f"Built context with {bundle_sources} sources, {total_characters:,} characters")
-        
-        # Create the core content organization prompt
-        core_content_prompt = f"""You are an expert at organizing LDS study materials. Your task is to take the provided Come Follow Me content and organize it into clean, well-structured sections while preserving all original formatting, verse references, and quotes.
-
-Please organize this content into the following structure:
-
-## 📖 Come Follow Me Lesson
-
-[Organize the Come Follow Me content here, preserving all original formatting, headings, and structure]
-
-## 📜 Scripture Passages  
-
-[Present the scripture content here, maintaining verse structure and references exactly as provided]
-
-## 🎓 Seminary Materials
-
-[Include seminary materials here, keeping all formatting and structure intact]
-
-IMPORTANT GUIDELINES:
-- Preserve ALL original formatting, including headings, bullet points, verse numbers
-- Keep all scripture references exactly as they appear
-- Maintain all quotes and citations in their original form
-- Do not summarize or paraphrase - present the content as organized sections
-- Use clean markdown formatting for readability
-- Keep verse structure intact (e.g., "1 Nephi 3:7" should stay exactly as formatted)
-
-Content to organize:
-
-{context_text}"""
-
-        # Generate the organized content using OpenAI
-        messages = [
-            {"role": "user", "content": core_content_prompt}
-        ]
-        
-        logger.info("Calling OpenAI API for core content organization...")
-        
-        # Use GPT-4 for better formatting and organization
-        completion = openai_client.chat.completions.create(
-            model="grok-4-1-fast-reasoning",
-            messages=messages,
-            max_tokens=4000,
-            temperature=0.3  # Lower temperature for more consistent formatting
-        )
-        
-        core_content = completion.choices[0].message.content.strip()
-        
-        end_time = time.time()
-        total_time_ms = int((end_time - start_time) * 1000)
-        
-        logger.info(f"Generated core content in {total_time_ms}ms")
-        logger.info(f"Core content length: {len(core_content)} characters")
-        
-        # Clean title by removing leading semicolon if present
-        clean_title = bundle.get('title', 'Unknown').lstrip(';')
-        
-        return CFMCoreContentResponse(
-            week_number=request.week_number,
-            week_title=clean_title,
-            date_range=bundle.get('date_range', 'Unknown'),
-            core_content=core_content,
-            bundle_sources=bundle_sources,
-            total_characters=total_characters,
-            generation_time_ms=total_time_ms
-        )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"CFM Core Content generation error: {e}")
-        raise HTTPException(status_code=500, detail=f"Core content generation failed: {str(e)}")
 
 
 @app.post("/tts/generate", response_model=TTSGenerateResponse)
@@ -1361,40 +937,49 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
         voice = AudioSegment.from_mp3(io.BytesIO(voice_audio_bytes))
         
         # Configuration for mixing
-        intro_duration_ms = int(request.intro_duration_sec * 1000)  # 15 seconds
-        outro_duration_ms = int(request.outro_duration_sec * 1000)  # 20 seconds
-        crossfade_ms = 3000  # 3 second crossfade between music and voice
-        music_under_voice_db = -15  # Lower music volume under voice by 15dB
+        intro_full_volume_ms = int(request.intro_duration_sec * 1000)  # 15 seconds full volume intro
+        crossfade_duration_ms = 15000  # 15 seconds crossfade (music fades while voice plays)
+        outro_duration_ms = int(request.outro_duration_sec * 1000)  # 20 seconds outro
         
-        # Ensure music is long enough for the entire podcast
-        total_duration_needed = intro_duration_ms + len(voice) + outro_duration_ms
+        voice_duration_ms = len(voice)
+        
+        # Total duration: intro + voice + outro
+        # Voice starts at intro_full_volume_ms (15s)
+        # Music fades out over first 15s of voice
+        total_duration_needed = intro_full_volume_ms + voice_duration_ms + outro_duration_ms
+        
+        # Ensure music is long enough (loop if needed)
         while len(music) < total_duration_needed:
             music = music + music
         
-        # Create the full music bed (intro fade-in + continuous + outro)
-        # Intro: 15 second fade-in
-        intro_music = music[:intro_duration_ms].fade_in(intro_duration_ms)
+        # Build the music bed:
+        # Part 1: Full volume intro (0-15s)
+        intro_music = music[:intro_full_volume_ms]
         
-        # Music under voice: lowered volume
-        voice_duration_ms = len(voice)
-        music_under_voice = music[intro_duration_ms:intro_duration_ms + voice_duration_ms] - abs(music_under_voice_db)
+        # Part 2: Crossfade section - music fades out over 15s while voice starts
+        # This overlaps with the beginning of the voice
+        crossfade_end = min(crossfade_duration_ms, voice_duration_ms)
+        crossfade_music = music[intro_full_volume_ms:intro_full_volume_ms + crossfade_end].fade_out(crossfade_end)
         
-        # Outro: full volume music with fade-out at the end
-        outro_start = intro_duration_ms + voice_duration_ms
-        outro_music = music[outro_start:outro_start + outro_duration_ms].fade_out(5000)  # 5 second fade-out at end
+        # Part 3: Silence during rest of voice (after crossfade completes)
+        silence_during_voice = AudioSegment.silent(duration=max(0, voice_duration_ms - crossfade_duration_ms))
         
-        # Build the complete music bed
-        full_music_bed = intro_music + music_under_voice + outro_music
+        # Part 4: Outro music - fade in over 10s, then full volume, fade out at end
+        outro_fade_in_ms = 10000
+        outro_music = music[:outro_duration_ms].fade_in(outro_fade_in_ms).fade_out(5000)
         
-        # Create silence padding to position the voice correctly
-        voice_with_padding = AudioSegment.silent(duration=intro_duration_ms - crossfade_ms) + voice
+        # Build complete music bed
+        music_bed = intro_music + crossfade_music + silence_during_voice + outro_music
         
-        # Pad voice to match full music bed length
-        if len(voice_with_padding) < len(full_music_bed):
-            voice_with_padding = voice_with_padding + AudioSegment.silent(duration=len(full_music_bed) - len(voice_with_padding))
+        # Position voice: starts at 15 seconds (after intro)
+        voice_with_padding = AudioSegment.silent(duration=intro_full_volume_ms) + voice
+        
+        # Pad voice to match music bed length
+        if len(voice_with_padding) < len(music_bed):
+            voice_with_padding = voice_with_padding + AudioSegment.silent(duration=len(music_bed) - len(voice_with_padding))
         
         # Overlay voice on top of music bed
-        final_audio = full_music_bed.overlay(voice_with_padding)
+        final_audio = music_bed.overlay(voice_with_padding)
         
         # Export to MP3 bytes
         output_buffer = io.BytesIO()
