@@ -1175,8 +1175,8 @@ export default function ChatInterface({
                             </ReactMarkdown>
                           )}
                         </div>
-                      ) : message.isStreaming ? (
-                        // Show loading indicator when streaming but no content yet
+                      ) : message.isStreaming && mode === 'Come Follow Me' ? (
+                        // Show loading indicator when streaming but no content yet (CFM mode only)
                         <div className="flex flex-col items-center justify-center py-12 space-y-4">
                           <div className="relative">
                             <div className="w-16 h-16 border-4 border-neutral-600 border-t-blue-500 rounded-full animate-spin"></div>
@@ -1187,7 +1187,6 @@ export default function ChatInterface({
                               {cfmStudyType === 'lesson-plans' && `Creating ${cfmLessonPlanLevel.charAt(0).toUpperCase() + cfmLessonPlanLevel.slice(1)} Lesson Plan...`}
                               {cfmStudyType === 'audio-summary' && 'Generating Audio Summary...'}
                               {cfmStudyType === 'core-content' && 'Organizing Core Content...'}
-                              {mode !== 'Come Follow Me' && 'Thinking...'}
                             </p>
                             <p className="text-sm text-neutral-400 mt-2">This may take a moment</p>
                           </div>
