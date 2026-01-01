@@ -627,22 +627,22 @@ export default function ChatInterface({
         </button>
       )}
       
-      {/* Top-left back button - positioned to the right of sidebar */}
+      {/* Top-left back button - responsive positioning */}
       {onBackToLanding && (
-        <div className="fixed top-6 left-72 z-20">
+        <div className="fixed top-4 left-4 lg:top-6 lg:left-72 z-30">
           <button
             type="button"
             onClick={() => {
               resetChat();
               onBackToLanding();
             }}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral-800/90 hover:bg-neutral-700/90 border border-neutral-600/50 text-neutral-300 hover:text-white transition-all duration-200 backdrop-blur-sm shadow-lg"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral-800/95 hover:bg-neutral-700/95 border border-neutral-600/60 text-neutral-200 hover:text-white transition-all duration-200 backdrop-blur-md shadow-xl"
             title="Back"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
             </svg>
-            <span className="text-base font-medium">Back</span>
+            <span className="text-sm lg:text-base font-semibold">Back</span>
           </button>
         </div>
       )}
