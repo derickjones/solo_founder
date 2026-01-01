@@ -872,15 +872,15 @@ async def generate_tts(request: TTSGenerateRequest):
 @app.post("/tts/podcast", response_model=TTSPodcastResponse)
 async def generate_podcast_tts(request: TTSPodcastRequest):
     """
-    Generate professional podcast-style audio with music bed.
+    Generate podcast audio with clean voice and music intro/outro.
     
     Audio structure:
     - Intro: 13 seconds of music at full volume
-    - Crossfade: 13-18s (5s true crossfade - music fades to bed level, voice fades in)
-    - During voice: Music continues as quiet bed at -20dB
-    - Outro transition: Music fades back up under last 3s of voice
-    - Outro: 30 seconds of music fading out
-    - Final: Normalized to -16 LUFS for consistent podcast levels
+    - Music fade-out: 5 seconds (13s-18s) music fades to silence
+    - Voice: Full volume, no fade-in, no background music
+    - Outro fade-in: Music fades in 10 seconds before voice ends
+    - Outro: 30 seconds of music after voice ends (with 8s fade-out)
+    - Final: Normalized with -1dB headroom
     """
     import time
     from pydub import AudioSegment
@@ -942,81 +942,76 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
         voice_audio_bytes = base64.b64decode(voice_audio_b64)
         voice = AudioSegment.from_mp3(io.BytesIO(voice_audio_bytes))
         
-        # ========== PROFESSIONAL PODCAST MIXING ==========
-        # Timing configuration
-        intro_duration_ms = 13000      # 13s full volume intro
-        crossfade_duration_ms = 5000   # 5s crossfade (13s-18s)
-        outro_duration_ms = 30000      # 30s outro
-        outro_transition_ms = 3000     # 3s music fade-in under end of voice
-        
-        # Volume levels (in dB)
-        music_bed_db = -20             # Music level under voice (-20dB = very quiet)
+        # ========== TIMING CONFIGURATION ==========
+        intro_duration_ms = 13000          # 13s intro at full volume
+        music_fadeout_ms = 5000            # 5s fade out (13s-18s)
+        outro_fadein_ms = 10000            # 10s fade in before voice ends
+        outro_duration_ms = 30000          # 30s outro after voice
+        outro_final_fadeout_ms = 8000      # 8s fade out at very end
         
         voice_duration_ms = len(voice)
         
         # Total duration needed for music
-        total_duration_needed = intro_duration_ms + voice_duration_ms + outro_duration_ms
+        total_duration_needed = intro_duration_ms + music_fadeout_ms + outro_fadein_ms + outro_duration_ms
         
         # Ensure music is long enough (loop if needed with crossfade for seamless loop)
         while len(music) < total_duration_needed + 5000:
-            # Crossfade loop for seamless music
             music = music.append(music, crossfade=2000)
         
-        # ========== BUILD THE MUSIC BED ==========
-        
-        # Part 1: Full volume intro (0s - 13s)
+        # ========== BUILD INTRO + FADE OUT ==========
+        # Intro: 0-13s at full volume
         intro_music = music[:intro_duration_ms]
         
-        # Part 2: Crossfade section (13s - 18s) - fade from full to bed level
-        crossfade_section = music[intro_duration_ms:intro_duration_ms + crossfade_duration_ms]
-        # Create volume ramp from 0dB to bed level
-        crossfade_music = crossfade_section.fade(to_gain=music_bed_db, start=0, duration=crossfade_duration_ms)
+        # Fade out: 13s-18s
+        fadeout_section = music[intro_duration_ms:intro_duration_ms + music_fadeout_ms]
+        fadeout_section = fadeout_section.fade_out(duration=music_fadeout_ms)
         
-        # Part 3: Music bed during voice (18s to voice end - 3s) - quiet background
-        bed_duration = max(0, voice_duration_ms - crossfade_duration_ms - outro_transition_ms)
-        if bed_duration > 0:
-            music_bed_section = music[intro_duration_ms + crossfade_duration_ms:intro_duration_ms + crossfade_duration_ms + bed_duration]
-            music_bed_section = music_bed_section + music_bed_db  # Apply bed level
-        else:
-            music_bed_section = AudioSegment.empty()
+        intro_with_fadeout = intro_music + fadeout_section
         
-        # Part 4: Outro transition (last 3s of voice) - music fades back up
-        transition_start = intro_duration_ms + crossfade_duration_ms + bed_duration
-        outro_transition = music[transition_start:transition_start + outro_transition_ms]
-        # Fade from bed level back to full volume
-        outro_transition = outro_transition.fade(from_gain=music_bed_db, start=0, duration=outro_transition_ms)
-        
-        # Part 5: Outro (30s after voice ends) - fade out at the end
-        outro_start = transition_start + outro_transition_ms
-        outro_music = music[outro_start:outro_start + outro_duration_ms]
-        outro_music = outro_music.fade_out(duration=8000)  # 8s fade out at end
-        
-        # Combine all music parts
-        music_bed = intro_music + crossfade_music + music_bed_section + outro_transition + outro_music
-        
-        # ========== BUILD THE VOICE TRACK ==========
-        
-        # Add fade-in to voice for smooth crossfade entry (first 2s of voice fades in)
-        voice_fade_in_ms = 2000
-        voice = voice.fade_in(duration=voice_fade_in_ms)
-        
-        # Add slight fade-out to voice end (last 1s) for smooth transition to outro
-        voice = voice.fade_out(duration=1000)
-        
-        # Position voice: starts at 13 seconds (after intro)
+        # ========== VOICE TRACK (NO FADE-IN, FULL VOLUME) ==========
+        # Voice starts at 13 seconds at FULL volume (no fade-in)
         voice_with_padding = AudioSegment.silent(duration=intro_duration_ms) + voice
         
-        # Pad voice to match music bed length
-        if len(voice_with_padding) < len(music_bed):
-            voice_with_padding = voice_with_padding + AudioSegment.silent(duration=len(music_bed) - len(voice_with_padding))
+        # ========== BUILD OUTRO (FADE IN UNDER LAST 10s OF VOICE) ==========
+        # Calculate when outro should start fading in (10s before voice ends)
+        outro_start_position = intro_duration_ms + voice_duration_ms - outro_fadein_ms
+        
+        # Get music section for outro (fade-in + full outro)
+        outro_music_start = intro_duration_ms + music_fadeout_ms
+        outro_total_length = outro_fadein_ms + outro_duration_ms
+        outro_music = music[outro_music_start:outro_music_start + outro_total_length]
+        
+        # First 10s: fade in from silence
+        outro_fadein = outro_music[:outro_fadein_ms].fade_in(duration=outro_fadein_ms)
+        
+        # Next 30s: full volume with fade out at end
+        outro_full = outro_music[outro_fadein_ms:outro_fadein_ms + outro_duration_ms]
+        outro_full = outro_full.fade_out(duration=outro_final_fadeout_ms)
+        
+        complete_outro = outro_fadein + outro_full
         
         # ========== FINAL MIX ==========
+        # Calculate silence duration between intro fadeout and outro fadein
+        silence_duration = max(0, voice_duration_ms - music_fadeout_ms - outro_fadein_ms)
         
-        # Overlay voice on top of music bed
-        final_audio = music_bed.overlay(voice_with_padding)
+        # Build base music track: intro + fadeout + silence + outro
+        base_track = intro_with_fadeout + AudioSegment.silent(duration=silence_duration)
         
-        # Normalize to podcast standard levels (-16 LUFS approximation)
-        # pydub's normalize brings to 0dBFS, we then reduce to -1dB for headroom
+        # Pad base track to match where outro should start
+        if len(base_track) < outro_start_position:
+            base_track = base_track + AudioSegment.silent(duration=outro_start_position - len(base_track))
+        
+        # Add outro music (this will overlay on last 10s of voice + 30s after)
+        base_track = base_track[:outro_start_position] + complete_outro
+        
+        # Ensure voice track is padded to match base track length
+        if len(voice_with_padding) < len(base_track):
+            voice_with_padding = voice_with_padding + AudioSegment.silent(duration=len(base_track) - len(voice_with_padding))
+        
+        # Overlay voice on top of music track
+        final_audio = base_track.overlay(voice_with_padding)
+        
+        # Normalize to consistent levels
         final_audio = normalize(final_audio)
         final_audio = final_audio - 1  # -1dB headroom
         
