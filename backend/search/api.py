@@ -165,13 +165,15 @@ async def startup_event():
         
         # Initialize search engine (optional - only if indexes exist)
         logger.info("🔍 Checking for search engine indexes...")
-        index_dir = os.getenv("INDEX_DIR", "indexes")
+        index_dir = os.getenv("INDEX_DIR", "search/indexes")
         config_path = os.path.join(index_dir, "config.json")
         
         if os.path.exists(config_path):
             logger.info("📚 Index files found, loading search engine...")
             search_start = time.time()
-            search_engine = ScriptureSearchEngine(index_dir=index_dir, openai_api_key=api_key)
+            # Use OPENAI_API_KEY for embeddings in search engine
+            openai_api_key = os.getenv("OPENAI_API_KEY")
+            search_engine = ScriptureSearchEngine(index_dir=index_dir, openai_api_key=openai_api_key)
             search_time = time.time() - search_start
             logger.info(f"✅ Search engine loaded with {search_engine.index.ntotal:,} segments in {search_time:.2f}s")
         else:
