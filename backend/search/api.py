@@ -387,7 +387,7 @@ async def ask_question(request: AskRequest):
         ai_start_time = time.time()
         
         response = openai_client.chat.completions.create(
-            model="gpt-4o",  # Using GPT-4o for high-quality answers
+            model="gpt-4o",  # Using GPT-4o for high-quality gospel Q&A
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": context_prompt}
