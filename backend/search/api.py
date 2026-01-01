@@ -55,20 +55,19 @@ app.add_middleware(
 # Global search engine instance
 search_engine = None
 
-# Initialize Grok API client (xAI)
+# Initialize OpenAI API client for Q&A
 openai_client = None
 try:
-    xai_api_key = os.getenv("XAI_API_KEY")
-    if xai_api_key:
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    if openai_api_key:
         openai_client = openai.OpenAI(
-            api_key=xai_api_key,
-            base_url="https://api.x.ai/v1"
+            api_key=openai_api_key
         )
-        logger.info("Grok API client (xAI) initialized successfully")
+        logger.info("OpenAI API client initialized successfully for Q&A")
     else:
-        logger.warning("XAI_API_KEY not found - AI responses will not be available")
+        logger.warning("OPENAI_API_KEY not found - AI responses will not be available")
 except Exception as e:
-    logger.error(f"Failed to initialize Grok API client: {e}")
+    logger.error(f"Failed to initialize OpenAI API client: {e}")
     openai_client = None
 
 # Initialize Google Cloud TTS client (for audio generation)
@@ -386,7 +385,7 @@ async def ask_question(request: AskRequest):
         ai_start_time = time.time()
         
         response = openai_client.chat.completions.create(
-            model="grok-4-1-fast-reasoning",  # Using cost-efficient model for production
+            model="gpt-4o-mini",  # Using cost-efficient model for production
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": context_prompt}
@@ -499,7 +498,7 @@ async def ask_question_stream(request: AskRequest):
             ai_start_time = time.time()
             
             stream = openai_client.chat.completions.create(
-                model="grok-4-1-fast-reasoning",
+                model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": context_prompt}
