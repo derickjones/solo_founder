@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { ChevronDownIcon, PaperAirplaneIcon, Bars3Icon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon, ChevronRightIcon, UserCircleIcon } from '@heroicons/react/24/outline';
-import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateCFMDeepDiveStream, CFMStreamChunk, CFMDeepDiveRequest, generateCFMLessonPlan, CFMLessonPlanRequest, generateCFMCoreContent, CFMCoreContentRequest, generateTTS } from '@/services/api';
+import { searchScriptures, SearchResult, askQuestionStream, StreamChunk, generateTTS } from '@/services/api';
 import ReactMarkdown from 'react-markdown';
 import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
 import { CFM_AUDIENCES, CFM_2026_SCHEDULE, CFMWeek } from '@/utils/comeFollowMe';
@@ -324,41 +324,34 @@ export default function ChatInterface({
     try {
       if (mode === 'Come Follow Me') {
         if (cfmStudyType === 'deep-dive') {
-          // Handle CFM deep dive generation with streaming
+          // Handle CFM deep dive generation - load from static JSON file
           
           // Get week number from CFM schedule
           const weekIndex = CFM_2026_SCHEDULE.findIndex((w: CFMWeek) => w.id === cfmWeek?.id);
           const weekNumber = weekIndex >= 0 ? weekIndex + 1 : 1;
           
-          let fullContent = '';
-          
           try {
-            console.log('Starting CFM Deep Dive streaming...');
-            await generateCFMDeepDiveStream(
-              {
-                week_number: weekNumber,
-                study_level: cfmStudyLevel
-              },
-              (chunk: CFMStreamChunk) => {
-                console.log('CFM Stream chunk received:', chunk);
-                if (chunk.type === 'content' && chunk.content) {
-                  fullContent += chunk.content;
-                  
-                  // Update streaming state immediately
-                  setStreamingContent(fullContent);
-                  
-                  // Update the message with streaming content
-                  setMessages(prev => prev.map(msg => 
-                    msg.id === assistantMessageId 
-                      ? { ...msg, content: fullContent, isStreaming: true }
-                      : msg
-                  ));
-                }
-              }
-            );
-            console.log('CFM Deep Dive streaming completed');
+            console.log('Loading CFM Study Guide from static file...');
+            
+            // Load from static JSON file (instant loading, no API call)
+            const response = await fetch(`/study_guides/study_guide_week_${weekNumber.toString().padStart(2, '0')}_${cfmStudyLevel}.json`);
+            
+            if (!response.ok) {
+              throw new Error(`Study guide not available yet for Week ${weekNumber} (${cfmStudyLevel})`);
+            }
+            
+            const data = await response.json();
+            
+            // Update the message with the study guide content
+            setMessages(prev => prev.map(msg => 
+              msg.id === assistantMessageId 
+                ? { ...msg, content: data.content, isStreaming: false }
+                : msg
+            ));
+            
+            console.log('CFM Study Guide loaded successfully');
           } catch (error) {
-            console.error('CFM Deep Dive streaming error:', error);
+            console.error('CFM Study Guide loading error:', error);
             
             // Update the message with error
             setMessages(prev => prev.map(msg => 
@@ -389,15 +382,19 @@ export default function ChatInterface({
           const weekNumber = weekIndex >= 0 ? weekIndex + 1 : 1;
           
           if (cfmStudyType === 'lesson-plans') {
-            const response = await generateCFMLessonPlan({
-              week_number: weekNumber,
-              audience: cfmLessonPlanLevel
-            });
+            // Load from static JSON file (instant loading, no API call)
+            const response = await fetch(`/lesson_plans/lesson_plan_week_${weekNumber.toString().padStart(2, '0')}_${cfmLessonPlanLevel}.json`);
+            
+            if (!response.ok) {
+              throw new Error(`Lesson plan not available yet for Week ${weekNumber} (${cfmLessonPlanLevel})`);
+            }
+            
+            const data = await response.json();
             
             // Update the message with the lesson plan
             setMessages(prev => prev.map(msg => 
               msg.id === assistantMessageId 
-                ? { ...msg, content: response.lesson_plan, isStreaming: false }
+                ? { ...msg, content: data.content, isStreaming: false }
                 : msg
             ));
             
@@ -437,14 +434,41 @@ export default function ChatInterface({
             // Auto-hide controls to give full screen to content
             setIsControlsVisible(false);
           } else if (cfmStudyType === 'core-content') {
-            const response = await generateCFMCoreContent({
-              week_number: weekNumber
-            });
+            // Load from static JSON file (instant loading, no API call)
+            const response = await fetch(`/core_content/core_content_week_${weekNumber.toString().padStart(2, '0')}.json`);
+            
+            if (!response.ok) {
+              throw new Error(`Core content not available yet for Week ${weekNumber}`);
+            }
+            
+            const data = await response.json();
+            
+            // Format the core content for display
+            let formattedContent = `# ${data.title}\n\n`;
+            formattedContent += `**${data.date_range}**\n\n`;
+            
+            if (data.introduction) {
+              formattedContent += `## Introduction\n\n${data.introduction}\n\n`;
+            }
+            
+            if (data.learning_at_home_church && data.learning_at_home_church.length > 0) {
+              formattedContent += `## Ideas for Learning at Home and Church\n\n`;
+              for (const section of data.learning_at_home_church) {
+                formattedContent += `### ${section.title}\n\n${section.content}\n\n`;
+              }
+            }
+            
+            if (data.teaching_children && data.teaching_children.length > 0) {
+              formattedContent += `## Ideas for Teaching Children\n\n`;
+              for (const section of data.teaching_children) {
+                formattedContent += `### ${section.title}\n\n${section.content}\n\n`;
+              }
+            }
             
             // Update the message with the organized core content
             setMessages(prev => prev.map(msg => 
               msg.id === assistantMessageId 
-                ? { ...msg, content: response.core_content, isStreaming: false }
+                ? { ...msg, content: formattedContent, isStreaming: false }
                 : msg
             ));
             

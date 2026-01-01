@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { getCurrentCFMWeek, CFMWeek, formatCFMWeekDisplay, CFM_2026_SCHEDULE } from '@/utils/comeFollowMe';
 import StudyLevelSlider from '@/components/StudyLevelSlider';
 import AudioPlayer from '@/components/AudioPlayer';
-import { generateCFMDeepDiveStream, CFMDeepDiveRequest, CFMStreamChunk, generateCFMCoreContent, generateCFMLessonPlan, CFMCoreContentRequest, CFMLessonPlanRequest, generateTTS } from '@/services/api';
+import { generateTTS } from '@/services/api';
 import { ChevronLeftIcon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
@@ -71,26 +71,23 @@ export default function ComeFollowMePage() {
       setGenerationTime(null);
 
       const weekNumber = getWeekNumber(currentWeek);
-      const request: CFMDeepDiveRequest = {
-        week_number: weekNumber,
-        study_level: studyLevel,
-      };
-
-      let accumulatedContent = '';
       const startTime = Date.now();
 
-      await generateCFMDeepDiveStream(request, (chunk: CFMStreamChunk) => {
-        if (chunk.type === 'content' && chunk.content) {
-          accumulatedContent += chunk.content;
-          setStudyGuide(accumulatedContent);
-        }
-      });
+      // Load from static JSON file (instant loading, no API call)
+      const response = await fetch(`/study_guides/study_guide_week_${weekNumber.toString().padStart(2, '0')}_${studyLevel}.json`);
+      
+      if (!response.ok) {
+        throw new Error(`Study guide not available yet for Week ${weekNumber} (${studyLevel})`);
+      }
+      
+      const data = await response.json();
+      setStudyGuide(data.content);
 
       const endTime = Date.now();
       setGenerationTime((endTime - startTime) / 1000);
     } catch (err) {
-      console.error('Error generating study guide:', err);
-      setError(err instanceof Error ? err.message : 'Failed to generate study guide');
+      console.error('Error loading study guide:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load study guide');
     } finally {
       setIsGenerating(false);
     }
