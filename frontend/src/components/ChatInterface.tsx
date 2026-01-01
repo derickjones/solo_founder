@@ -955,14 +955,10 @@ export default function ChatInterface({
                       </div>
                     ) : (
                       <span className="text-sm">
-                        {cfmStudyType === 'deep-dive' && `Generate Deep Dive`}
-                        {cfmStudyType === 'lesson-plans' && `Generate ${cfmLessonPlanLevel.charAt(0).toUpperCase() + cfmLessonPlanLevel.slice(1)} Lesson Plan`}
-                        {cfmStudyType === 'audio-summary' && `Generate ${
-                          cfmAudioSummaryLevel === 'short' ? 'Essential' :
-                          cfmAudioSummaryLevel === 'medium' ? 'Connected' :
-                          cfmAudioSummaryLevel === 'long' ? 'Scholarly' : 'Essential'
-                        } Audio Summary`}
-                        {cfmStudyType === 'core-content' && `Generate Core Content`}
+                        {cfmStudyType === 'deep-dive' && `Generate`}
+                        {cfmStudyType === 'lesson-plans' && `Generate`}
+                        {cfmStudyType === 'audio-summary' && `Generate`}
+                        {cfmStudyType === 'core-content' && `Generate`}
                       </span>
                     )}
                   </button>
