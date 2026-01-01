@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://gospel-guide-api-273320302933.us-central1.run.app';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://gospel-study-backend-273320302933.us-central1.run.app';
 
 export interface SearchRequest {
   query: string;
