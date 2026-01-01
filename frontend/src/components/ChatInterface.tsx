@@ -29,6 +29,8 @@ interface Message {
     guest_only?: string;
   };
   audioTitle?: string;
+  audioScript?: any; // Original script for TTS (can be string or conversation array)
+  audioVoices?: Record<string, string>; // Voice mappings for conversation format
 }
 
 interface ChatInterfaceProps {
@@ -118,6 +120,39 @@ export default function ChatInterface({
       ));
     } catch (error) {
       console.error('Failed to generate audio:', error);
+      alert('Failed to generate audio. Please try again.');
+    } finally {
+      setGeneratingAudioForMessage(null);
+    }
+  };
+
+  // Listen handler for conversation podcasts (multi-speaker)
+  const handleListenToConversation = async (
+    messageId: number, 
+    script: Array<{ speaker: string; text: string }>, 
+    voices: Record<string, string>,
+    title: string
+  ) => {
+    setGeneratingAudioForMessage(messageId);
+    try {
+      const result = await generateTTS({
+        script: script,
+        voices: voices,
+        title: title
+      });
+      
+      // Update the message with audio data
+      setMessages(prev => prev.map(msg => 
+        msg.id === messageId 
+          ? { 
+              ...msg, 
+              audioFiles: { combined: result.audio_base64 },
+              audioTitle: result.title
+            }
+          : msg
+      ));
+    } catch (error) {
+      console.error('Failed to generate conversation audio:', error);
       alert('Failed to generate audio. Please try again.');
     } finally {
       setGeneratingAudioForMessage(null);
@@ -418,14 +453,28 @@ export default function ChatInterface({
             
             const data = await response.json();
             
+            // Format conversation script for display
+            let displayContent: string;
+            if (Array.isArray(data.script)) {
+              // Conversation format - format as readable dialogue
+              displayContent = data.script.map((segment: any) => 
+                `**${segment.speaker}:** ${segment.text}`
+              ).join('\n\n');
+            } else {
+              // Old single-speaker format
+              displayContent = data.script;
+            }
+            
             // Update the message with the audio summary transcript
             setMessages(prev => prev.map(msg => 
               msg.id === assistantMessageId 
                 ? { 
                     ...msg, 
-                    content: data.script, // Show the audio script text from static JSON
+                    content: displayContent, // Show formatted dialogue
                     audioFiles: undefined, // Audio will be generated when Listen is clicked
                     audioTitle: `Week ${weekNumber} Audio Summary (${studyLevel})`,
+                    audioScript: data.script, // Store original script for TTS generation
+                    audioVoices: data.voices, // Store voice mappings
                     isStreaming: false 
                   }
                 : msg
@@ -1014,7 +1063,14 @@ export default function ChatInterface({
                               ) : (
                                 /* Listen button - shown before audio is generated */
                                 <button
-                                  onClick={() => handleListenToContent(message.id, message.content)}
+                                  onClick={() => {
+                                    // Use conversation format if available, otherwise fallback to content
+                                    if (message.audioScript && message.audioVoices) {
+                                      handleListenToConversation(message.id, message.audioScript, message.audioVoices, message.audioTitle || 'Audio');
+                                    } else {
+                                      handleListenToContent(message.id, message.content);
+                                    }
+                                  }}
                                   disabled={generatingAudioForMessage === message.id}
                                   className="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800/50 disabled:cursor-wait rounded-lg transition-all duration-200 shadow-lg"
                                 >
