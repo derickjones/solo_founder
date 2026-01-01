@@ -893,17 +893,28 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
     from pydub.effects import normalize
     start_time = time.time()
     
-    logger.info(f"🎙️ Podcast TTS request: {len(request.text)} characters, voice={request.voice}")
+    # Determine if this is conversation or single-speaker format
+    is_conversation = bool(request.script and request.voices)
+    
+    if is_conversation:
+        logger.info(f"🎙️ Podcast TTS request: conversation format with {len(request.script)} segments")
+    else:
+        logger.info(f"🎙️ Podcast TTS request: {len(request.text) if request.text else 0} characters, voice={request.voice}")
     
     if not tts_client:
         raise HTTPException(status_code=503, detail="TTS service not available")
     
-    if not request.text or len(request.text.strip()) < 10:
-        raise HTTPException(status_code=400, detail="Text must be at least 10 characters")
-    
-    # Limit text length to prevent abuse (100k chars max)
-    if len(request.text) > 100000:
-        raise HTTPException(status_code=400, detail="Text too long. Maximum 100,000 characters.")
+    # Validate request
+    if not is_conversation:
+        if not request.text or len(request.text.strip()) < 10:
+            raise HTTPException(status_code=400, detail="Text must be at least 10 characters")
+        
+        # Limit text length to prevent abuse (100k chars max)
+        if len(request.text) > 100000:
+            raise HTTPException(status_code=400, detail="Text too long. Maximum 100,000 characters.")
+    else:
+        if not request.script or len(request.script) == 0:
+            raise HTTPException(status_code=400, detail="Script array cannot be empty")
     
     try:
         # Find the intro/outro music file
