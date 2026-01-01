@@ -387,7 +387,7 @@ async def ask_question(request: AskRequest):
         ai_start_time = time.time()
         
         response = openai_client.chat.completions.create(
-            model="gpt-4o-mini",  # Using cost-efficient model for production
+            model="gpt-4o",  # Using GPT-4o for high-quality answers
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": context_prompt}
@@ -500,7 +500,7 @@ async def ask_question_stream(request: AskRequest):
             ai_start_time = time.time()
             
             stream = openai_client.chat.completions.create(
-                model="gpt-4o-mini",
+                model="gpt-4o",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": context_prompt}
