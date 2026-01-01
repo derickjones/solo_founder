@@ -1202,6 +1202,22 @@ export default function ChatInterface({
                 {/* Action buttons for assistant messages */}
                 {message.type === 'assistant' && message.content && !message.isStreaming && (
                   <div className="flex flex-wrap justify-end gap-3 mt-6 pt-4 border-t border-neutral-700">
+                    {/* Back button - only show for Come Follow Me mode */}
+                    {mode === 'Come Follow Me' && onBackToLanding && (
+                      <button
+                        onClick={() => {
+                          resetChat();
+                          onBackToLanding();
+                        }}
+                        className="inline-flex items-center px-4 py-2 text-sm text-neutral-300 hover:text-white bg-neutral-700 hover:bg-neutral-600 rounded-lg transition-all duration-200"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 mr-2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                        </svg>
+                        Back
+                      </button>
+                    )}
+                    
                     {/* Copy button */}
                     <button
                       onClick={() => handleCopyToClipboard(message.content, message.id)}
