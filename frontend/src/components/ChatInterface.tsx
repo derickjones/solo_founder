@@ -198,13 +198,13 @@ export default function ChatInterface({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Auto-scroll when content is generated - scroll detection handles hiding controls
+  // Auto-scroll when content is generated - only for regular chat, not CFM content
   useEffect(() => {
-    if (messages.length > 0 && !isLoading) {
+    if (messages.length > 0 && !isLoading && mode !== 'Come Follow Me') {
       // Scroll to show the content - this will trigger the scroll handler to hide controls
       setTimeout(scrollToBottom, 100);
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, mode]);
 
   // Keyboard shortcuts
   useEffect(() => {
