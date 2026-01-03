@@ -372,19 +372,8 @@ export default function ComeFollowMePage() {
                 )}
               </button>
 
-              {/* Listen Button - Show when script exists but audio hasn't been generated */}
-              {audioScript && !audioFiles?.combined && !isGeneratingTTS && (
-                <button
-                  onClick={handleGenerateTTS}
-                  className="w-full mt-4 py-3 px-4 rounded-lg font-medium bg-green-600 hover:bg-green-700 text-white transition-all flex items-center justify-center gap-2"
-                >
-                  <SpeakerWaveIcon className="w-5 h-5" />
-                  Listen to This Content
-                </button>
-              )}
-
               {/* Audio Player - Show when audio is ready */}
-              {audioFiles?.combined && (
+              {audioFiles?.combined ? (
                 <div className="mt-6">
                   <AudioPlayer 
                     audioFiles={audioFiles}
@@ -393,7 +382,14 @@ export default function ComeFollowMePage() {
                     onPlayStart={() => setShouldAutoPlay(false)}
                   />
                 </div>
-              )}
+              ) : audioScript && isGeneratingTTS ? (
+                <div className="mt-6 p-4 bg-gray-900 rounded-lg border border-gray-600 flex items-center justify-center">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-gray-300">Generating Audio...</span>
+                  </div>
+                </div>
+              ) : null}
 
               {/* Audio Script Display */}
               {audioScript && (
