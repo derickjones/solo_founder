@@ -21,13 +21,13 @@ export default function VideoLogo({ className = '', size = 'medium' }: VideoLogo
   };
 
   return (
-    <div className={`${sizeClasses[size]} ${className} rounded-xl overflow-hidden ring-2 ring-neutral-700/50`}>
+    <div className={`${sizeClasses[size]} ${className} rounded-xl overflow-hidden ring-2 ring-neutral-700/50 bg-transparent flex items-center justify-center`}>
       <Image
         src="/gospel_study_app_logo.png"
         alt="Gospel Study App Logo"
         width={sizePixels[size]}
         height={sizePixels[size]}
-        className="w-full h-full object-cover"
+        className="w-[70%] h-[70%] object-contain"
         priority
       />
     </div>
