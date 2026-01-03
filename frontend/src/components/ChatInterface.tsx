@@ -671,9 +671,11 @@ export default function ChatInterface({
           <div className={`rounded-full overflow-hidden border-2 border-neutral-700 transition-all duration-300 ${
             messages.length > 0 ? 'w-10 h-10 lg:w-12 lg:h-12' : 'w-16 h-16 lg:w-24 lg:h-24'
           }`}>
-            <img 
-              src="/christ.jpeg" 
-              alt="Gospel Study App Logo" 
+            <video 
+              src="/gospel_app_video.mp4" 
+              autoPlay 
+              muted 
+              playsInline
               className="w-full h-full object-cover"
             />
           </div>

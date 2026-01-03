@@ -216,9 +216,11 @@ export default function Sidebar({
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-neutral-700/50">
-              <img 
-                src="/christ.jpeg" 
-                alt="Gospel Study Logo" 
+              <video 
+                src="/gospel_app_video.mp4" 
+                autoPlay 
+                muted 
+                playsInline
                 className="w-full h-full object-cover"
               />
             </div>

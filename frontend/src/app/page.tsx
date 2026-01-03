@@ -172,9 +172,11 @@ export default function Home() {
         {/* Header with logo */}
         <div className="flex flex-col items-center justify-center pt-12 lg:pt-20 pb-8 lg:pb-12 px-4">
           <div className="w-20 h-20 lg:w-28 lg:h-28 rounded-full overflow-hidden border-2 border-neutral-700 mb-6">
-            <img 
-              src="/christ.jpeg" 
-              alt="Gospel Study App Logo" 
+            <video 
+              src="/gospel_app_video.mp4" 
+              autoPlay 
+              muted 
+              playsInline
               className="w-full h-full object-cover"
             />
           </div>
