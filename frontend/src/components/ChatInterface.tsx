@@ -673,7 +673,7 @@ export default function ChatInterface({
           }`}>
             <video 
               key="chat-logo"
-              src="/gospel_app_video.mp4" 
+              src="/gospel_study_app_logo.mp4" 
               autoPlay 
               loop
               muted 

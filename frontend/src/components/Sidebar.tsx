@@ -218,7 +218,7 @@ export default function Sidebar({
             <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-neutral-700/50">
               <video 
                 key="sidebar-logo"
-                src="/gospel_app_video.mp4" 
+                src="/gospel_study_app_logo.mp4" 
                 autoPlay 
                 loop
                 muted 

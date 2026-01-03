@@ -174,7 +174,7 @@ export default function Home() {
           <div className="w-20 h-20 lg:w-28 lg:h-28 rounded-full overflow-hidden border-2 border-neutral-700 mb-6">
             <video 
               key="landing-logo"
-              src="/gospel_app_video.mp4" 
+              src="/gospel_study_app_logo.mp4" 
               autoPlay 
               loop
               muted 
