@@ -201,6 +201,9 @@ export default function ComeFollowMePage() {
       return false;
     }
 
+    // Save current scroll position
+    const scrollY = window.scrollY;
+
     console.log('Starting TTS generation...');
     setIsGeneratingTTS(true);
     setError(null);
@@ -245,6 +248,11 @@ export default function ComeFollowMePage() {
       console.log('Setting audio files...', { hasAudio: !!response.audio_base64 });
       setAudioFiles({ combined: response.audio_base64 });
       console.log('Audio files set, player should appear now');
+      
+      // Restore scroll position after state updates
+      setTimeout(() => {
+        window.scrollTo(0, scrollY);
+      }, 0);
       
       return wasCached;
     } catch (error) {
