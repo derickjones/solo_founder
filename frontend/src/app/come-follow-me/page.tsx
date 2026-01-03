@@ -145,6 +145,9 @@ export default function ComeFollowMePage() {
     setAudioFiles(null);
     const startTime = Date.now();
 
+    // Save current scroll position
+    const scrollY = window.scrollY;
+
     try {
       // Extract week number from lesson string (e.g., "Week 32: ..." -> 32)
       const weekMatch = currentWeek.lesson.match(/Week (\d+):/);
@@ -164,6 +167,11 @@ export default function ComeFollowMePage() {
       
       // Automatically generate TTS audio after loading script
       await generateTTSFromScript(data.script, data.voices);
+
+      // Restore scroll position after audio loads
+      setTimeout(() => {
+        window.scrollTo(0, scrollY);
+      }, 0);
     } catch (error) {
       console.error('Error loading podcast script:', error);
       setError(error instanceof Error ? error.message : 'Failed to load podcast script');
