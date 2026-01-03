@@ -472,7 +472,7 @@ export default function ChatInterface({
                 ? { 
                     ...msg, 
                     content: displayContent, // Show formatted dialogue
-                    audioFiles: undefined, // Audio will be generated when Listen is clicked
+                    audioFiles: { combined: 'placeholder' }, // Show player immediately, generate on play
                     audioTitle: `Week ${weekNumber} Audio Summary (${studyLevel})`,
                     audioScript: data.script, // Store original script for TTS generation
                     audioVoices: data.voices, // Store voice mappings
@@ -1041,47 +1041,21 @@ export default function ChatInterface({
                     {message.type === 'assistant' ? (
                       message.content ? (
                         <div className="space-y-6 leading-relaxed text-neutral-100 max-w-none">
-                          {/* Listen button / Audio Player - shown at top for CFM content */}
-                          {mode === 'Come Follow Me' && (
+                          {/* Audio Player - shown at top for CFM content */}
+                          {mode === 'Come Follow Me' && message.audioFiles?.combined && (
                             <div className="mb-6 pb-6 border-b border-neutral-700">
-                              {/* Audio Player - shown when audio has been generated */}
-                              {message.audioFiles?.combined ? (
-                                <AudioPlayer 
-                                  audioFiles={message.audioFiles}
-                                  title={message.audioTitle || 'Audio'}
-                                />
-                              ) : (
-                                /* Listen button - shown before audio is generated */
-                                <button
-                                  onClick={() => {
-                                    // Use conversation format if available, otherwise fallback to content
-                                    if (message.audioScript && message.audioVoices) {
-                                      handleListenToConversation(message.id, message.audioScript, message.audioVoices, message.audioTitle || 'Audio');
-                                    } else {
-                                      handleListenToContent(message.id, message.content);
-                                    }
-                                  }}
-                                  disabled={generatingAudioForMessage === message.id}
-                                  className="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800/50 disabled:cursor-wait rounded-lg transition-all duration-200 shadow-lg"
-                                >
-                                  {generatingAudioForMessage === message.id ? (
-                                    <>
-                                      <svg className="animate-spin w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                      </svg>
-                                      Generating Audio...
-                                    </>
-                                  ) : (
-                                    <>
-                                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                                      </svg>
-                                      Listen to This Content
-                                    </>
-                                  )}
-                                </button>
-                              )}
+                              <AudioPlayer 
+                                audioFiles={message.audioFiles}
+                                title={message.audioTitle || 'Audio'}
+                                onGenerateAudio={async () => {
+                                  // Generate audio when play is clicked
+                                  if (message.audioScript && message.audioVoices) {
+                                    await handleListenToConversation(message.id, message.audioScript, message.audioVoices, message.audioTitle || 'Audio');
+                                  } else {
+                                    await handleListenToContent(message.id, message.content);
+                                  }
+                                }}
+                              />
                             </div>
                           )}
                           
