@@ -615,7 +615,7 @@ export default function ChatInterface({
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-neutral-900 lg:ml-0">
+    <div className={`flex-1 flex flex-col bg-neutral-900 transition-all duration-300 ${sidebarOpen ? 'lg:ml-0' : 'lg:ml-0'}`}>
       {/* Desktop sidebar toggle button - only show when sidebar is closed */}
       {!sidebarOpen && (
         <button
@@ -629,7 +629,7 @@ export default function ChatInterface({
       
       {/* Top-left back button - responsive positioning */}
       {onBackToLanding && (
-        <div className="fixed top-4 left-4 lg:top-6 lg:left-72 z-30">
+        <div className={`fixed top-4 z-30 transition-all duration-300 ${sidebarOpen ? 'left-4 lg:left-[22rem]' : 'left-4 lg:left-6'}`}>
           <button
             type="button"
             onClick={() => {
