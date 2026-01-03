@@ -91,6 +91,7 @@ export default function ChatInterface({
   const [streamingMessageId, setStreamingMessageId] = useState<number | null>(null);
   const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null);
   const [generatingAudioForMessage, setGeneratingAudioForMessage] = useState<number | null>(null);
+  const [autoPlayMessageId, setAutoPlayMessageId] = useState<number | null>(null);
   
   // Ref for scrolling to bottom of messages
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -102,12 +103,22 @@ export default function ChatInterface({
   // Handle Listen button click - generate TTS for message content
   const handleListenToContent = async (messageId: number, content: string) => {
     setGeneratingAudioForMessage(messageId);
+    const startTime = Date.now();
     try {
       const result = await generateTTS({
         text: content,
         voice: selectedVoice,
         title: 'Audio'
       });
+      
+      const generationTime = (Date.now() - startTime) / 1000;
+      const wasCached = generationTime < 3;
+      
+      // If cached, enable auto-play for this message
+      if (wasCached) {
+        console.log('Audio was cached, enabling auto-play for message', messageId);
+        setAutoPlayMessageId(messageId);
+      }
       
       // Update the message with audio data
       setMessages(prev => prev.map(msg => 
@@ -135,12 +146,22 @@ export default function ChatInterface({
     title: string
   ) => {
     setGeneratingAudioForMessage(messageId);
+    const startTime = Date.now();
     try {
       const result = await generateTTS({
         script: script,
         voices: voices,
         title: title
       });
+      
+      const generationTime = (Date.now() - startTime) / 1000;
+      const wasCached = generationTime < 3;
+      
+      // If cached, enable auto-play for this message
+      if (wasCached) {
+        console.log('Audio was cached, enabling auto-play for message', messageId);
+        setAutoPlayMessageId(messageId);
+      }
       
       // Update the message with audio data
       setMessages(prev => prev.map(msg => 
@@ -1047,6 +1068,11 @@ export default function ChatInterface({
                               <AudioPlayer 
                                 audioFiles={message.audioFiles}
                                 title={message.audioTitle || 'Audio'}
+                                autoPlay={autoPlayMessageId === message.id}
+                                onPlayStart={() => {
+                                  console.log('Audio started playing, clearing autoPlayMessageId');
+                                  setAutoPlayMessageId(null);
+                                }}
                                 onGenerateAudio={async () => {
                                   // Generate audio when play is clicked
                                   if (message.audioScript && message.audioVoices) {
