@@ -181,7 +181,7 @@ export default function Home() {
             Gospel Study App
           </h1>
           <p className="text-lg lg:text-2xl text-neutral-400 text-center">
-            Your Come Follow Me companion & Scripture search partner.
+            Your daily companion for meaningful gospel study.
           </p>
         </div>
 

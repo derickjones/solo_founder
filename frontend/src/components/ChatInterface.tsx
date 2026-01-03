@@ -735,7 +735,7 @@ export default function ChatInterface({
               Gospel Study App
             </button>
             {messages.length === 0 && (
-              <p className="text-sm lg:text-xl text-neutral-400 px-4">Your Come Follow Me companion & Scripture search partner.</p>
+              <p className="text-sm lg:text-xl text-neutral-400 px-4">Your daily companion for meaningful gospel study.</p>
             )}
           </div>
         </div>
