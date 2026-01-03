@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getCurrentCFMWeek, CFMWeek, formatCFMWeekDisplay, CFM_2026_SCHEDULE } from '@/utils/comeFollowMe';
 import StudyLevelSlider from '@/components/StudyLevelSlider';
 import AudioPlayer from '@/components/AudioPlayer';
@@ -153,6 +153,9 @@ export default function ComeFollowMePage() {
       setAudioScript(data.script);
       setAudioVoices(data.voices || null); // Store voices mapping if present
       setGenerationTime(Date.now() - startTime);
+      
+      // Automatically generate TTS audio after loading script
+      await generateTTSFromScript(data.script, data.voices);
     } catch (error) {
       console.error('Error loading podcast script:', error);
       setError(error instanceof Error ? error.message : 'Failed to load podcast script');
@@ -161,9 +164,12 @@ export default function ComeFollowMePage() {
     }
   };
 
-  // Generate TTS audio when Listen button is clicked
-  const handleGenerateTTS = async () => {
-    if (isGeneratingTTS || !audioScript) return;
+  // Generate TTS audio (called automatically after script loads or manually)
+  const generateTTSFromScript = async (script?: any, voices?: Record<string, string> | null) => {
+    const scriptToUse = script || audioScript;
+    const voicesToUse = voices !== undefined ? voices : audioVoices;
+    
+    if (isGeneratingTTS || !scriptToUse) return;
 
     setIsGeneratingTTS(true);
     setError(null);
@@ -171,19 +177,19 @@ export default function ComeFollowMePage() {
 
     try {
       // Check if we have conversation format (array) or old format (string)
-      const isConversation = Array.isArray(audioScript);
+      const isConversation = Array.isArray(scriptToUse);
       
       const requestBody: any = {
         title: `${studyLevel.charAt(0).toUpperCase() + studyLevel.slice(1)} Audio Summary`
       };
 
-      if (isConversation && audioVoices) {
+      if (isConversation && voicesToUse) {
         // New conversation format
-        requestBody.script = audioScript;
-        requestBody.voices = audioVoices;
+        requestBody.script = scriptToUse;
+        requestBody.voices = voicesToUse;
       } else {
         // Old single-speaker format (fallback)
-        requestBody.text = typeof audioScript === 'string' ? audioScript : JSON.stringify(audioScript);
+        requestBody.text = typeof scriptToUse === 'string' ? scriptToUse : JSON.stringify(scriptToUse);
         requestBody.voice = 'aoede';
       }
 
@@ -191,9 +197,15 @@ export default function ComeFollowMePage() {
       const ttsEndTime = Date.now();
       const ttsGenerationTime = (ttsEndTime - ttsStartTime) / 1000;
       
+      console.log(`TTS generation time: ${ttsGenerationTime.toFixed(2)}s`);
+      
       // If TTS was fast (< 3 seconds), it was likely cached - auto-play
       if (ttsGenerationTime < 3) {
+        console.log('Cache hit detected - enabling auto-play');
         setShouldAutoPlay(true);
+      } else {
+        console.log('Fresh generation - auto-play disabled');
+        setShouldAutoPlay(false);
       }
       
       setAudioFiles({ combined: response.audio_base64 });
@@ -203,6 +215,11 @@ export default function ComeFollowMePage() {
     } finally {
       setIsGeneratingTTS(false);
     }
+  };
+
+  // Generate TTS audio when Listen button is clicked
+  const handleGenerateTTS = async () => {
+    await generateTTSFromScript();
   };
 
   return (
@@ -321,56 +338,38 @@ export default function ComeFollowMePage() {
               {/* Generate Button */}
               <button
                 onClick={handleGenerateAudioSummary}
-                disabled={isGeneratingAudio}
+                disabled={isGeneratingAudio || isGeneratingTTS}
                 className={`w-full py-3 px-4 rounded-lg font-medium transition-all ${
-                  isGeneratingAudio
+                  isGeneratingAudio || isGeneratingTTS
                     ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
                     : 'bg-blue-600 hover:bg-blue-700 text-white'
                 }`}
               >
-                {isGeneratingAudio ? (
+                {isGeneratingAudio || isGeneratingTTS ? (
                   <div className="flex items-center justify-center space-x-2">
                     <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-                    <span>Loading Script...</span>
+                    <span>{isGeneratingAudio ? 'Loading Script...' : 'Generating Audio...'}</span>
                   </div>
                 ) : (
-                  '📝 Load Podcast Script'
+                  'Generate'
                 )}
               </button>
+
+              {/* Audio Player - Show when audio is ready */}
+              {audioFiles?.combined && (
+                <div className="mt-6">
+                  <AudioPlayer 
+                    audioFiles={audioFiles}
+                    title={`${studyLevel.charAt(0).toUpperCase() + studyLevel.slice(1)} Audio Summary`}
+                    autoPlay={shouldAutoPlay}
+                    onPlayStart={() => setShouldAutoPlay(false)}
+                  />
+                </div>
+              )}
 
               {/* Audio Script Display */}
               {audioScript && (
                 <div className="mt-6 space-y-4">
-                  {/* Listen Button - Generate audio on demand */}
-                  {!audioFiles?.combined ? (
-                    <button
-                      onClick={handleGenerateTTS}
-                      disabled={isGeneratingTTS}
-                      className={`w-full py-3 px-4 rounded-lg font-medium transition-all ${
-                        isGeneratingTTS
-                          ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                          : 'bg-green-600 hover:bg-green-700 text-white'
-                      }`}
-                    >
-                      {isGeneratingTTS ? (
-                        <div className="flex items-center justify-center space-x-2">
-                          <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-                          <span>Generating Audio...</span>
-                        </div>
-                      ) : (
-                        '🎧 Listen to Audio'
-                      )}
-                    </button>
-                  ) : (
-                    /* Audio Player - Show when audio files are available */
-                    <AudioPlayer 
-                      audioFiles={audioFiles}
-                      title={`${studyLevel.charAt(0).toUpperCase() + studyLevel.slice(1)} Audio Summary`}
-                      autoPlay={shouldAutoPlay}
-                      onPlayStart={() => setShouldAutoPlay(false)}
-                    />
-                  )}
-                  
                   {/* Script Preview */}
                   <div className="p-4 bg-gray-900 rounded-lg border border-gray-600">
                     <div className="flex items-center justify-between mb-3">

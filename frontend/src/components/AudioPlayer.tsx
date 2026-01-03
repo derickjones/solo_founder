@@ -50,15 +50,27 @@ export default function AudioPlayer({ audioFiles, title, autoPlay = false, onPla
 
   // Auto-play when cache exists (fast load)
   useEffect(() => {
-    if (autoPlay && isLoaded && audioRef.current && !isPlaying) {
-      audioRef.current.play()
-        .then(() => {
-          setIsPlaying(true);
-          onPlayStart?.();
-        })
-        .catch((error) => {
-          console.error('Auto-play failed:', error);
-        });
+    console.log('Auto-play effect:', { autoPlay, isLoaded, isPlaying, hasAudioRef: !!audioRef.current });
+    
+    if (autoPlay && isLoaded && audioRef.current) {
+      // Small delay to ensure audio is fully ready
+      const timer = setTimeout(() => {
+        if (audioRef.current && !isPlaying) {
+          console.log('Attempting auto-play...');
+          audioRef.current.play()
+            .then(() => {
+              console.log('Auto-play successful!');
+              setIsPlaying(true);
+              onPlayStart?.();
+            })
+            .catch((error) => {
+              console.error('Auto-play failed:', error);
+              // Likely browser auto-play policy - user needs to interact first
+            });
+        }
+      }, 200);
+      
+      return () => clearTimeout(timer);
     }
   }, [autoPlay, isLoaded, isPlaying, onPlayStart]);
 
