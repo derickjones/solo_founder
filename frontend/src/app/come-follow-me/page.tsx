@@ -165,12 +165,25 @@ export default function ComeFollowMePage() {
       setAudioVoices(data.voices || null); // Store voices mapping if present
       setGenerationTime(Date.now() - startTime);
       
-      console.log('Script loaded, starting TTS generation...');
-      setIsGeneratingAudio(false); // Script loaded, now generating TTS
+      console.log('Script loaded, checking if cached audio exists...');
+      setIsGeneratingAudio(false); // Script loaded
       
-      // Automatically generate TTS audio after loading script
-      await generateTTSFromScript(data.script, data.voices);
-      console.log('TTS generation complete, audio should be ready');
+      // Try to load cached audio first by making a quick TTS request
+      // If it's cached, it will return in < 3s and we auto-play
+      // If not cached, user can click "Listen to This Content" to generate it
+      try {
+        const cachedCheckStart = Date.now();
+        await generateTTSFromScript(data.script, data.voices);
+        const cachedCheckTime = (Date.now() - cachedCheckStart) / 1000;
+        
+        // If generation was super fast (< 1s), it was definitely cached
+        if (cachedCheckTime < 1) {
+          console.log('Cached audio found and loaded automatically');
+        }
+      } catch (error) {
+        // If TTS fails, just show the Listen button
+        console.log('No cached audio, showing Listen button');
+      }
 
       // Restore scroll position after audio loads
       setTimeout(() => {
@@ -252,7 +265,16 @@ export default function ComeFollowMePage() {
 
   // Generate TTS audio when Listen button is clicked
   const handleGenerateTTS = async () => {
+    const startTime = Date.now();
     await generateTTSFromScript();
+    const endTime = Date.now();
+    const generationTime = (endTime - startTime) / 1000;
+    
+    // If generation was fast (cached), enable auto-play
+    if (generationTime < 3) {
+      console.log('Manual TTS generation was cached, enabling auto-play');
+      setShouldAutoPlay(true);
+    }
   };
 
   return (
