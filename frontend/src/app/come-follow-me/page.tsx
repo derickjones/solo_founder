@@ -165,6 +165,8 @@ export default function ComeFollowMePage() {
       setAudioVoices(data.voices || null); // Store voices mapping if present
       setGenerationTime(Date.now() - startTime);
       
+      setIsGeneratingAudio(false); // Script loaded, now generating TTS
+      
       // Automatically generate TTS audio after loading script
       await generateTTSFromScript(data.script, data.voices);
 
@@ -175,7 +177,6 @@ export default function ComeFollowMePage() {
     } catch (error) {
       console.error('Error loading podcast script:', error);
       setError(error instanceof Error ? error.message : 'Failed to load podcast script');
-    } finally {
       setIsGeneratingAudio(false);
     }
   };
