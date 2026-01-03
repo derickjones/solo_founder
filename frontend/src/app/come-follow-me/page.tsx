@@ -5,7 +5,7 @@ import { getCurrentCFMWeek, CFMWeek, formatCFMWeekDisplay, CFM_2026_SCHEDULE } f
 import StudyLevelSlider from '@/components/StudyLevelSlider';
 import AudioPlayer from '@/components/AudioPlayer';
 import { generateTTS } from '@/services/api';
-import { ChevronLeftIcon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { ChevronLeftIcon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon, SpeakerWaveIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
