@@ -172,9 +172,12 @@ export default function ComeFollowMePage() {
       // If it's cached, it will return in < 3s and we auto-play
       // If not cached, user can click "Listen to This Content" to generate it
       try {
+        console.log('Attempting automatic TTS generation...');
         const cachedCheckStart = Date.now();
         await generateTTSFromScript(data.script, data.voices);
         const cachedCheckTime = (Date.now() - cachedCheckStart) / 1000;
+        
+        console.log('Automatic TTS completed in', cachedCheckTime, 's');
         
         // If generation was super fast (< 1s), it was definitely cached
         if (cachedCheckTime < 1) {
@@ -182,7 +185,7 @@ export default function ComeFollowMePage() {
         }
       } catch (error) {
         // If TTS fails, just show the Listen button
-        console.log('No cached audio, showing Listen button');
+        console.log('Automatic TTS failed, showing Listen button:', error);
       }
 
       // Restore scroll position after audio loads
@@ -244,10 +247,11 @@ export default function ComeFollowMePage() {
       
       // If TTS was fast (< 3 seconds), it was likely cached - auto-play
       if (ttsGenerationTime < 3) {
-        console.log('Cache hit detected - enabling auto-play');
+        console.log('Cache hit detected - enabling auto-play, ttsGenerationTime:', ttsGenerationTime);
         setShouldAutoPlay(true);
+        console.log('shouldAutoPlay set to TRUE');
       } else {
-        console.log('Fresh generation - auto-play disabled');
+        console.log('Fresh generation - auto-play disabled, ttsGenerationTime:', ttsGenerationTime);
         setShouldAutoPlay(false);
       }
       
@@ -418,7 +422,10 @@ export default function ComeFollowMePage() {
                     audioFiles={audioFiles}
                     title={`${studyLevel.charAt(0).toUpperCase() + studyLevel.slice(1)} Audio Summary`}
                     autoPlay={shouldAutoPlay}
-                    onPlayStart={() => setShouldAutoPlay(false)}
+                    onPlayStart={() => {
+                      console.log('Audio started playing, setting shouldAutoPlay to false');
+                      setShouldAutoPlay(false);
+                    }}
                   />
                 </div>
               ) : audioScript && isGeneratingTTS ? (
