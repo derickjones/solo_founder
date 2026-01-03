@@ -8,6 +8,7 @@ import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
 import { CFM_AUDIENCES, CFM_2026_SCHEDULE, CFMWeek } from '@/utils/comeFollowMe';
 import Link from 'next/link';
 import AudioPlayer from './AudioPlayer';
+import VideoLogo from './VideoLogo';
 
 // Add study type definition
 type CFMStudyType = 'deep-dive' | 'lesson-plans' | 'audio-summary' | 'core-content';
@@ -668,24 +669,7 @@ export default function ChatInterface({
         <div className={`flex items-center transition-all duration-300 ${
           messages.length > 0 ? 'flex-row space-x-3 lg:space-x-4' : 'flex-col space-y-4 lg:space-y-6'
         }`}>
-          <div className={`rounded-full overflow-hidden border-2 border-neutral-700 transition-all duration-300 ${
-            messages.length > 0 ? 'w-10 h-10 lg:w-12 lg:h-12' : 'w-16 h-16 lg:w-24 lg:h-24'
-          }`}>
-            <video 
-              key="chat-logo"
-              src="/gospel_study_app_logo.mp4" 
-              autoPlay 
-              loop
-              muted 
-              playsInline
-              preload="auto"
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                console.error('Video failed to load:', e);
-                e.currentTarget.style.display = 'none';
-              }}
-            />
-          </div>
+          <VideoLogo size="medium" />
           <div className={messages.length > 0 ? '' : 'text-center'}>
             <button 
               onClick={() => {

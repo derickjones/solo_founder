@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import ChatInterface from '@/components/ChatInterface';
+import VideoLogo from '@/components/VideoLogo';
 import { getCurrentCFMWeek, CFMWeek, CFM_2026_SCHEDULE } from '@/utils/comeFollowMe';
 import { MicrophoneIcon, AcademicCapIcon, ClipboardDocumentListIcon, BookOpenIcon, ChatBubbleLeftRightIcon, SunIcon } from '@heroicons/react/24/outline';
 
@@ -171,22 +172,7 @@ export default function Home() {
       <div className="min-h-screen bg-neutral-900 text-white">
         {/* Header with logo */}
         <div className="flex flex-col items-center justify-center pt-12 lg:pt-20 pb-8 lg:pb-12 px-4">
-          <div className="w-20 h-20 lg:w-28 lg:h-28 rounded-full overflow-hidden border-2 border-neutral-700 mb-6">
-            <video 
-              key="landing-logo"
-              src="/gospel_study_app_logo.mp4" 
-              autoPlay 
-              loop
-              muted 
-              playsInline
-              preload="auto"
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                console.error('Video failed to load:', e);
-                e.currentTarget.style.display = 'none';
-              }}
-            />
-          </div>
+          <VideoLogo size="large" className="mb-6" />
           <h1 className="text-3xl lg:text-5xl font-bold text-white mb-3 text-center">
             Gospel Study App
           </h1>

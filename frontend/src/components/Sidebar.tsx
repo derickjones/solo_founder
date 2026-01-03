@@ -5,6 +5,7 @@ import { ChevronDownIcon, ChevronUpIcon, XMarkIcon, ChevronLeftIcon } from '@her
 import { useUser, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
 import { getCurrentCFMWeek, CFM_2026_SCHEDULE, formatCFMWeekDisplay, CFMWeek } from '@/utils/comeFollowMe';
+import VideoLogo from './VideoLogo';
 
 // Voice type and options
 type VoiceOption = 'alnilam' | 'achird' | 'enceladus' | 'aoede' | 'autonoe' | 'erinome';
@@ -215,22 +216,7 @@ export default function Sidebar({
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-neutral-700/50">
-              <video 
-                key="sidebar-logo"
-                src="/gospel_study_app_logo.mp4" 
-                autoPlay 
-                loop
-                muted 
-                playsInline
-                preload="auto"
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  console.error('Video failed to load:', e);
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
-            </div>
+            <VideoLogo size="small" />
             <h1 className="text-lg font-medium text-white/90">Gospel Study</h1>
           </div>
           {/* Desktop collapse button */}
