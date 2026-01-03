@@ -52,10 +52,10 @@ export default function AudioPlayer({ audioFiles, title, autoPlay = false, onPla
   useEffect(() => {
     console.log('Auto-play effect:', { autoPlay, isLoaded, isPlaying, hasAudioRef: !!audioRef.current });
     
-    if (autoPlay && isLoaded && audioRef.current) {
+    if (autoPlay && isLoaded && !isPlaying && audioRef.current) {
       // Small delay to ensure audio is fully ready
       const timer = setTimeout(() => {
-        if (audioRef.current && !isPlaying) {
+        if (audioRef.current) {
           console.log('Attempting auto-play...');
           audioRef.current.play()
             .then(() => {
@@ -72,7 +72,7 @@ export default function AudioPlayer({ audioFiles, title, autoPlay = false, onPla
       
       return () => clearTimeout(timer);
     }
-  }, [autoPlay, isLoaded, isPlaying, onPlayStart]);
+  }, [autoPlay, isLoaded, onPlayStart]);
 
   // Toggle play/pause
   const togglePlayPause = () => {
