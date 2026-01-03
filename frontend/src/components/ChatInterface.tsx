@@ -716,20 +716,20 @@ export default function ChatInterface({
 
       {/* Header with logo - always visible, compact when content is shown */}
       <div className={`relative flex items-center justify-center px-4 transition-all duration-300 ease-in-out shrink-0 ${
-        messages.length > 0 ? 'pt-3 pb-2 lg:pt-4 lg:pb-3' : 'pt-6 lg:pt-12 pb-4 lg:pb-6'
+        messages.length > 0 ? 'pt-2 pb-1 lg:pt-3 lg:pb-2' : 'pt-6 lg:pt-12 pb-4 lg:pb-6'
       }`}>
-        <div className={`flex items-center transition-all duration-300 ${
-          messages.length > 0 ? 'flex-row space-x-3 lg:space-x-4' : 'flex-col space-y-4 lg:space-y-6'
+        <div className={`flex flex-col items-center transition-all duration-300 ${
+          messages.length > 0 ? 'space-y-1' : 'space-y-4 lg:space-y-6'
         }`}>
-          <VideoLogo size="medium" />
-          <div className={messages.length > 0 ? '' : 'text-center'}>
+          <VideoLogo size={messages.length > 0 ? 'small' : 'medium'} />
+          <div className="text-center">
             <button 
               onClick={() => {
                 resetChat();
                 if (onBackToLanding) onBackToLanding();
               }}
               className={`font-bold text-white hover:text-blue-300 transition-colors cursor-pointer ${
-                messages.length > 0 ? 'text-lg lg:text-xl' : 'text-2xl lg:text-4xl mb-2'
+                messages.length > 0 ? 'text-sm lg:text-base' : 'text-2xl lg:text-4xl mb-2'
               }`}
             >
               Gospel Study App

@@ -9,13 +9,13 @@ interface VideoLogoProps {
 
 export default function VideoLogo({ className = '', size = 'medium' }: VideoLogoProps) {
   const sizeClasses = {
-    small: 'w-8 h-8',
+    small: 'w-8 h-8 lg:w-10 lg:h-10',
     medium: 'w-16 h-16 lg:w-24 lg:h-24',
     large: 'w-20 h-20 lg:w-28 lg:h-28'
   };
 
   const sizePixels = {
-    small: 32,
+    small: 40,
     medium: 96,
     large: 112
   };
