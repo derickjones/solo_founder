@@ -165,10 +165,12 @@ export default function ComeFollowMePage() {
       setAudioVoices(data.voices || null); // Store voices mapping if present
       setGenerationTime(Date.now() - startTime);
       
+      console.log('Script loaded, starting TTS generation...');
       setIsGeneratingAudio(false); // Script loaded, now generating TTS
       
       // Automatically generate TTS audio after loading script
       await generateTTSFromScript(data.script, data.voices);
+      console.log('TTS generation complete, audio should be ready');
 
       // Restore scroll position after audio loads
       setTimeout(() => {
@@ -186,8 +188,19 @@ export default function ComeFollowMePage() {
     const scriptToUse = script || audioScript;
     const voicesToUse = voices !== undefined ? voices : audioVoices;
     
-    if (isGeneratingTTS || !scriptToUse) return;
+    console.log('generateTTSFromScript called', { isGeneratingTTS, hasScript: !!scriptToUse });
+    
+    if (isGeneratingTTS) {
+      console.log('Already generating TTS, skipping...');
+      return;
+    }
+    
+    if (!scriptToUse) {
+      console.log('No script available, skipping...');
+      return;
+    }
 
+    console.log('Starting TTS generation...');
     setIsGeneratingTTS(true);
     setError(null);
     const ttsStartTime = Date.now();
@@ -225,11 +238,14 @@ export default function ComeFollowMePage() {
         setShouldAutoPlay(false);
       }
       
+      console.log('Setting audio files...', { hasAudio: !!response.audio_base64 });
       setAudioFiles({ combined: response.audio_base64 });
+      console.log('Audio files set, player should appear now');
     } catch (error) {
       console.error('Error generating TTS audio:', error);
       setError(error instanceof Error ? error.message : 'Failed to generate audio');
     } finally {
+      console.log('TTS generation finished, setting isGeneratingTTS to false');
       setIsGeneratingTTS(false);
     }
   };
