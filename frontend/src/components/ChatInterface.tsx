@@ -399,10 +399,16 @@ export default function ChatInterface({
             
             const data = await response.json();
             
-            // Update the message with the study guide content
+            // Update the message with the study guide content and enable audio
             setMessages(prev => prev.map(msg => 
               msg.id === assistantMessageId 
-                ? { ...msg, content: data.content, isStreaming: false }
+                ? { 
+                    ...msg, 
+                    content: data.content, 
+                    audioFiles: { combined: 'placeholder' }, // Show player, generate on play
+                    audioTitle: `Week ${weekNumber} Study Guide (${cfmStudyLevel})`,
+                    isStreaming: false 
+                  }
                 : msg
             ));
             
@@ -448,10 +454,16 @@ export default function ChatInterface({
             
             const data = await response.json();
             
-            // Update the message with the lesson plan
+            // Update the message with the lesson plan and enable audio
             setMessages(prev => prev.map(msg => 
               msg.id === assistantMessageId 
-                ? { ...msg, content: data.content, isStreaming: false }
+                ? { 
+                    ...msg, 
+                    content: data.content, 
+                    audioFiles: { combined: 'placeholder' }, // Show player, generate on play
+                    audioTitle: `Week ${weekNumber} Lesson Plan (${cfmLessonPlanLevel})`,
+                    isStreaming: false 
+                  }
                 : msg
             ));
             
@@ -536,10 +548,16 @@ export default function ChatInterface({
               }
             }
             
-            // Update the message with the organized core content
+            // Update the message with the organized core content and enable audio
             setMessages(prev => prev.map(msg => 
               msg.id === assistantMessageId 
-                ? { ...msg, content: formattedContent, isStreaming: false }
+                ? { 
+                    ...msg, 
+                    content: formattedContent, 
+                    audioFiles: { combined: 'placeholder' }, // Show player, generate on play
+                    audioTitle: `Week ${weekNumber} Core Content`,
+                    isStreaming: false 
+                  }
                 : msg
             ));
             
