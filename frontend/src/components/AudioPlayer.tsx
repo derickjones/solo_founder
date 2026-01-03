@@ -11,9 +11,10 @@ interface AudioPlayerProps {
   title: string;
   autoPlay?: boolean;
   onPlayStart?: () => void;
+  onGenerateAudio?: () => Promise<void>;
 }
 
-export default function AudioPlayer({ audioFiles, title, autoPlay = false, onPlayStart }: AudioPlayerProps) {
+export default function AudioPlayer({ audioFiles, title, autoPlay = false, onPlayStart, onGenerateAudio }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -21,10 +22,12 @@ export default function AudioPlayer({ audioFiles, title, autoPlay = false, onPla
   const [playbackRate, setPlaybackRate] = useState(1.0);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   // Use the combined audio file
   const audioData = audioFiles.combined;
+  const isPlaceholder = audioData === 'placeholder';
 
   // Convert base64 to blob URL
   const getAudioUrl = (base64Data: string) => {
@@ -39,14 +42,14 @@ export default function AudioPlayer({ audioFiles, title, autoPlay = false, onPla
 
   // Initialize audio when component loads
   useEffect(() => {
-    if (audioRef.current && audioData && !isLoaded) {
+    if (audioRef.current && audioData && !isPlaceholder && !isLoaded) {
       const audioUrl = getAudioUrl(audioData);
       audioRef.current.src = audioUrl;
       audioRef.current.volume = volume;
       audioRef.current.playbackRate = playbackRate;
       setIsLoaded(true);
     }
-  }, [audioData, isLoaded, volume, playbackRate]);
+  }, [audioData, isPlaceholder, isLoaded, volume, playbackRate]);
 
   // Auto-play when cache exists (fast load)
   useEffect(() => {
@@ -75,8 +78,23 @@ export default function AudioPlayer({ audioFiles, title, autoPlay = false, onPla
   }, [autoPlay, isLoaded, onPlayStart]);
 
   // Toggle play/pause
-  const togglePlayPause = () => {
+  const togglePlayPause = async () => {
     if (!audioRef.current) return;
+
+    // If placeholder, generate audio first
+    if (isPlaceholder && onGenerateAudio) {
+      setIsGeneratingAudio(true);
+      try {
+        await onGenerateAudio();
+        // After generation, the component will re-render with real audio
+        // Auto-play will be handled by the parent component
+      } catch (error) {
+        console.error('Error generating audio:', error);
+      } finally {
+        setIsGeneratingAudio(false);
+      }
+      return;
+    }
 
     if (isPlaying) {
       audioRef.current.pause();
@@ -188,9 +206,12 @@ export default function AudioPlayer({ audioFiles, title, autoPlay = false, onPla
               <div className="flex items-center space-x-4">
                 <button
                   onClick={togglePlayPause}
-                  className="flex items-center justify-center w-14 h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg"
+                  disabled={isGeneratingAudio}
+                  className="flex items-center justify-center w-14 h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-full transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
-                  {isPlaying ? (
+                  {isGeneratingAudio ? (
+                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : isPlaying ? (
                     <PauseIcon className="w-7 h-7" />
                   ) : (
                     <PlayIcon className="w-7 h-7 ml-0.5" />

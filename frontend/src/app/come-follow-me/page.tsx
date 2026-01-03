@@ -165,28 +165,12 @@ export default function ComeFollowMePage() {
       setAudioVoices(data.voices || null); // Store voices mapping if present
       setGenerationTime(Date.now() - startTime);
       
-      console.log('Script loaded, checking if cached audio exists...');
+      console.log('Script loaded successfully');
       setIsGeneratingAudio(false); // Script loaded
       
-      // Try to load cached audio first by making a quick TTS request
-      // If it's cached, it will return in < 3s and we auto-play
-      // If not cached, user can click "Listen to This Content" to generate it
-      try {
-        console.log('Attempting automatic TTS generation...');
-        const cachedCheckStart = Date.now();
-        await generateTTSFromScript(data.script, data.voices);
-        const cachedCheckTime = (Date.now() - cachedCheckStart) / 1000;
-        
-        console.log('Automatic TTS completed in', cachedCheckTime, 's');
-        
-        // If generation was super fast (< 1s), it was definitely cached
-        if (cachedCheckTime < 1) {
-          console.log('Cached audio found and loaded automatically');
-        }
-      } catch (error) {
-        // If TTS fails, just show the Listen button
-        console.log('Automatic TTS failed, showing Listen button:', error);
-      }
+      // Set a placeholder for audioFiles to show the player immediately
+      // The actual audio will be generated when user clicks play
+      setAudioFiles({ combined: 'placeholder' });
 
       // Restore scroll position after audio loads
       setTimeout(() => {
@@ -264,20 +248,6 @@ export default function ComeFollowMePage() {
     } finally {
       console.log('TTS generation finished, setting isGeneratingTTS to false');
       setIsGeneratingTTS(false);
-    }
-  };
-
-  // Generate TTS audio when Listen button is clicked
-  const handleGenerateTTS = async () => {
-    const startTime = Date.now();
-    await generateTTSFromScript();
-    const endTime = Date.now();
-    const generationTime = (endTime - startTime) / 1000;
-    
-    // If generation was fast (cached), enable auto-play
-    if (generationTime < 3) {
-      console.log('Manual TTS generation was cached, enabling auto-play');
-      setShouldAutoPlay(true);
     }
   };
 
@@ -425,6 +395,18 @@ export default function ComeFollowMePage() {
                     onPlayStart={() => {
                       console.log('Audio started playing, setting shouldAutoPlay to false');
                       setShouldAutoPlay(false);
+                    }}
+                    onGenerateAudio={async () => {
+                      const startTime = Date.now();
+                      await generateTTSFromScript();
+                      const endTime = Date.now();
+                      const generationTime = (endTime - startTime) / 1000;
+                      
+                      // If generation was fast (cached), enable auto-play
+                      if (generationTime < 3) {
+                        console.log('Audio generation was cached (< 3s), enabling auto-play');
+                        setShouldAutoPlay(true);
+                      }
                     }}
                   />
                 </div>
