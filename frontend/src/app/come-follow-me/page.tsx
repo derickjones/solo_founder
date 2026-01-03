@@ -372,6 +372,17 @@ export default function ComeFollowMePage() {
                 )}
               </button>
 
+              {/* Listen Button - Show when script exists but audio hasn't been generated */}
+              {audioScript && !audioFiles?.combined && !isGeneratingTTS && (
+                <button
+                  onClick={handleGenerateTTS}
+                  className="w-full mt-4 py-3 px-4 rounded-lg font-medium bg-green-600 hover:bg-green-700 text-white transition-all flex items-center justify-center gap-2"
+                >
+                  <SpeakerWaveIcon className="w-5 h-5" />
+                  Listen to This Content
+                </button>
+              )}
+
               {/* Audio Player - Show when audio is ready */}
               {audioFiles?.combined && (
                 <div className="mt-6">
