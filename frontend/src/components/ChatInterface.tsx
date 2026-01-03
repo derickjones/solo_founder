@@ -105,8 +105,20 @@ export default function ChatInterface({
     setGeneratingAudioForMessage(messageId);
     const startTime = Date.now();
     try {
+      // Strip markdown formatting for cleaner TTS
+      const cleanText = content
+        .replace(/#{1,6}\s/g, '') // Remove headers
+        .replace(/\*\*/g, '')     // Remove bold
+        .replace(/\*/g, '')       // Remove italic
+        .replace(/`/g, '')        // Remove code
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Convert links to text
+        .replace(/\n{3,}/g, '\n\n') // Normalize line breaks
+        .trim();
+      
+      console.log(`🎧 Generating TTS for ${cleanText.length} characters`);
+      
       const result = await generateTTS({
-        text: content,
+        text: cleanText,
         voice: selectedVoice,
         title: 'Audio'
       });
@@ -132,7 +144,8 @@ export default function ChatInterface({
       ));
     } catch (error) {
       console.error('Failed to generate audio:', error);
-      alert('Failed to generate audio. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      alert(`Failed to generate audio: ${errorMessage}`);
     } finally {
       setGeneratingAudioForMessage(null);
     }

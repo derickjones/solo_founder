@@ -68,7 +68,11 @@ export default function Home() {
   // Daily Thought state
   const [showDailyThought, setShowDailyThought] = useState(false);
   const [dailyThoughtData, setDailyThoughtData] = useState<any>(null);
-  const [selectedDay, setSelectedDay] = useState(new Date().getDay() || 7); // 1-7, Sunday=7
+  // getDay() returns 0=Sunday, 1=Monday, etc. JSON uses 1=Sunday, 2=Monday, etc.
+  const [selectedDay, setSelectedDay] = useState(() => {
+    const jsDay = new Date().getDay(); // 0=Sunday, 1=Monday, etc.
+    return jsDay === 0 ? 1 : jsDay + 1; // Convert to 1=Sunday, 2=Monday, etc.
+  });
   
   // CFM state - get current week based on today's date
   const currentCfmWeek = getCurrentCFMWeek();
