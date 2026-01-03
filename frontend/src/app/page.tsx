@@ -175,6 +175,7 @@ export default function Home() {
             <video 
               src="/gospel_app_video.mp4" 
               autoPlay 
+              loop
               muted 
               playsInline
               className="w-full h-full object-cover"
