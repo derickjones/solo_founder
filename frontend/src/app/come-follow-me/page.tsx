@@ -72,6 +72,9 @@ export default function ComeFollowMePage() {
       setStudyGuide(null);
       setGenerationTime(null);
 
+      // Save current scroll position
+      const scrollY = window.scrollY;
+
       const weekNumber = getWeekNumber(currentWeek);
       const startTime = Date.now();
 
@@ -87,6 +90,11 @@ export default function ComeFollowMePage() {
 
       const endTime = Date.now();
       setGenerationTime((endTime - startTime) / 1000);
+
+      // Restore scroll position after content loads
+      setTimeout(() => {
+        window.scrollTo(0, scrollY);
+      }, 0);
     } catch (err) {
       console.error('Error loading study guide:', err);
       setError(err instanceof Error ? err.message : 'Failed to load study guide');
