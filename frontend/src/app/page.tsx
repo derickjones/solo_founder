@@ -239,8 +239,7 @@ export default function Home() {
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-neutral-800/50 hover:bg-neutral-700/50 text-neutral-300 hover:text-white transition-all"
           >
             <ChevronLeftIcon className="w-5 h-5" />
-            <span className="hidden sm:inline">Back to Study Assistant</span>
-            <span className="sm:hidden">Back</span>
+            <span>Back</span>
           </button>
           <h1 className="text-xl font-bold flex items-center gap-2">
             <SunIcon className="w-6 h-6 text-cyan-400" />
