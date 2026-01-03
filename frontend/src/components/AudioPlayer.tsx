@@ -9,9 +9,11 @@ interface AudioPlayerProps {
     combined?: string;
   };
   title: string;
+  autoPlay?: boolean;
+  onPlayStart?: () => void;
 }
 
-export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
+export default function AudioPlayer({ audioFiles, title, autoPlay = false, onPlayStart }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -45,6 +47,20 @@ export default function AudioPlayer({ audioFiles, title }: AudioPlayerProps) {
       setIsLoaded(true);
     }
   }, [audioData, isLoaded, volume, playbackRate]);
+
+  // Auto-play when cache exists (fast load)
+  useEffect(() => {
+    if (autoPlay && isLoaded && audioRef.current && !isPlaying) {
+      audioRef.current.play()
+        .then(() => {
+          setIsPlaying(true);
+          onPlayStart?.();
+        })
+        .catch((error) => {
+          console.error('Auto-play failed:', error);
+        });
+    }
+  }, [autoPlay, isLoaded, isPlaying, onPlayStart]);
 
   // Toggle play/pause
   const togglePlayPause = () => {

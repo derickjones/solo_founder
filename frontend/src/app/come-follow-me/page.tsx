@@ -38,6 +38,7 @@ export default function ComeFollowMePage() {
   const [audioFiles, setAudioFiles] = useState<{ combined?: string } | null>(null);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [isGeneratingTTS, setIsGeneratingTTS] = useState(false);
+  const [shouldAutoPlay, setShouldAutoPlay] = useState(false);
   
   // Common states
   const [error, setError] = useState<string | null>(null);
@@ -166,6 +167,7 @@ export default function ComeFollowMePage() {
 
     setIsGeneratingTTS(true);
     setError(null);
+    const ttsStartTime = Date.now();
 
     try {
       // Check if we have conversation format (array) or old format (string)
@@ -186,6 +188,13 @@ export default function ComeFollowMePage() {
       }
 
       const response = await generateTTS(requestBody);
+      const ttsEndTime = Date.now();
+      const ttsGenerationTime = (ttsEndTime - ttsStartTime) / 1000;
+      
+      // If TTS was fast (< 3 seconds), it was likely cached - auto-play
+      if (ttsGenerationTime < 3) {
+        setShouldAutoPlay(true);
+      }
       
       setAudioFiles({ combined: response.audio_base64 });
     } catch (error) {
@@ -357,6 +366,8 @@ export default function ComeFollowMePage() {
                     <AudioPlayer 
                       audioFiles={audioFiles}
                       title={`${studyLevel.charAt(0).toUpperCase() + studyLevel.slice(1)} Audio Summary`}
+                      autoPlay={shouldAutoPlay}
+                      onPlayStart={() => setShouldAutoPlay(false)}
                     />
                   )}
                   

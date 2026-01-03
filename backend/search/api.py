@@ -86,12 +86,17 @@ except Exception as e:
     logger.error(f"Failed to initialize Grok API client: {e}")
     grok_client = None
 
-# Initialize Google Cloud TTS client (for audio generation)
+# Initialize Google Cloud TTS client (for audio generation with caching)
 tts_client = None
+audio_cache_manager = None
 try:
-    tts_client = create_google_tts_client()
+    tts_client = create_google_tts_client(enable_cache=True)  # Enable caching by default
     if tts_client:
         logger.info("✅ Google Cloud TTS client initialized successfully")
+        # Get cache manager reference from TTS client
+        if hasattr(tts_client, 'cache_manager') and tts_client.cache_manager:
+            audio_cache_manager = tts_client.cache_manager
+            logger.info("✅ Audio cache manager available")
     else:
         logger.warning("⚠️ Google Cloud TTS client not available - audio generation will be disabled")
 except Exception as e:
@@ -901,8 +906,11 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
     - Outro fade-in: Music fades in 10 seconds before voice ends
     - Outro: 30 seconds of music after voice ends (with 8s fade-out)
     - Final: Normalized with -1dB headroom
+    
+    Supports caching: Final audio is cached to avoid regeneration
     """
     import time
+    import hashlib
     from pydub import AudioSegment
     from pydub.effects import normalize
     start_time = time.time()
@@ -929,6 +937,44 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
     else:
         if not request.script or len(request.script) == 0:
             raise HTTPException(status_code=400, detail="Script array cannot be empty")
+    
+    # ========== CHECK CACHE FIRST ==========
+    cache_key = None
+    if audio_cache_manager:
+        try:
+            # Generate cache key based on content
+            if is_conversation:
+                # Use script content for cache key
+                script_text = " ".join([f"{seg.get('speaker', '')}: {seg.get('text', '')}" for seg in request.script])
+                content_hash = hashlib.sha256(script_text.encode()).hexdigest()[:16]
+            else:
+                content_hash = hashlib.sha256(request.text.encode()).hexdigest()[:16]
+            
+            # Cache key includes hash and voice info
+            voice_suffix = f"_{request.voice}" if request.voice else ""
+            cache_key = f"audio-cache/podcast/podcast_{content_hash}{voice_suffix}.mp3"
+            
+            # Check if we have cached audio
+            cached_audio = audio_cache_manager.get_cached_audio(cache_key)
+            if cached_audio:
+                logger.info(f"🎯 Returning cached podcast audio: {cache_key}")
+                audio_b64 = base64.b64encode(cached_audio).decode('utf-8')
+                
+                # Estimate character count and duration
+                character_count = len(request.text) if request.text else sum(len(seg.get('text', '')) for seg in (request.script or []))
+                cached_duration = len(cached_audio) / 24000  # Rough estimate for MP3 @192kbps
+                
+                total_time_ms = int((time.time() - start_time) * 1000)
+                
+                return TTSPodcastResponse(
+                    audio_base64=audio_b64,
+                    title=request.title,
+                    character_count=character_count,
+                    total_duration_sec=cached_duration,
+                    generation_time_ms=total_time_ms
+                )
+        except Exception as e:
+            logger.warning(f"Cache check failed: {e}, proceeding with generation")
     
     try:
         # Find the intro/outro music file
@@ -1102,7 +1148,19 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
         output_buffer = io.BytesIO()
         final_audio.export(output_buffer, format="mp3", bitrate="192k")
         output_buffer.seek(0)
-        final_audio_b64 = base64.b64encode(output_buffer.read()).decode('utf-8')
+        final_audio_bytes = output_buffer.read()
+        final_audio_b64 = base64.b64encode(final_audio_bytes).decode('utf-8')
+        
+        # ========== UPLOAD TO CACHE ==========
+        if cache_key and audio_cache_manager:
+            try:
+                upload_success = audio_cache_manager.upload_to_cache(cache_key, final_audio_bytes)
+                if upload_success:
+                    logger.info(f"💾 Cached podcast audio for future requests: {cache_key}")
+                else:
+                    logger.warning(f"⚠️ Failed to cache podcast audio")
+            except Exception as e:
+                logger.warning(f"Cache upload failed: {e}, but returning generated audio")
         
         total_duration_sec = len(final_audio) / 1000.0
         total_time_ms = int((time.time() - start_time) * 1000)
@@ -1122,6 +1180,130 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
     except Exception as e:
         logger.error(f"Podcast TTS generation error: {e}")
         raise HTTPException(status_code=500, detail=f"Podcast TTS generation failed: {str(e)}")
+
+
+# =============================================================================
+# CACHE MANAGEMENT ENDPOINTS
+# =============================================================================
+
+@app.get("/cache/stats")
+async def get_cache_stats():
+    """
+    Get audio cache statistics
+    
+    Returns information about cached audio files including:
+    - Total files and storage size
+    - Breakdown by content type
+    - Age of oldest/newest files
+    - Files over 30 days old (ready for cleanup)
+    """
+    if not audio_cache_manager:
+        raise HTTPException(
+            status_code=503,
+            detail="Audio cache not available"
+        )
+    
+    try:
+        stats = audio_cache_manager.get_cache_stats()
+        logger.info(f"📊 Cache stats requested: {stats.get('total_files', 0)} files")
+        return stats
+    except Exception as e:
+        logger.error(f"Error getting cache stats: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to get cache stats: {str(e)}"
+        )
+
+
+@app.delete("/cache/cleanup")
+async def cleanup_cache(older_than_days: int = 30):
+    """
+    Delete cache files older than specified age
+    
+    Args:
+        older_than_days: Maximum age in days (default: 30)
+        
+    Returns:
+        Cleanup results including files deleted and storage freed
+        
+    Use this endpoint to manually trigger cache cleanup (recommended monthly)
+    """
+    if not audio_cache_manager:
+        raise HTTPException(
+            status_code=503,
+            detail="Audio cache not available"
+        )
+    
+    if older_than_days < 1 or older_than_days > 365:
+        raise HTTPException(
+            status_code=400,
+            detail="older_than_days must be between 1 and 365"
+        )
+    
+    try:
+        logger.info(f"🧹 Starting cache cleanup: deleting files older than {older_than_days} days")
+        result = audio_cache_manager.cleanup_old_files(max_age_days=older_than_days)
+        
+        logger.info(
+            f"✅ Cache cleanup complete: {result['deleted_files']} files deleted, "
+            f"{result['freed_mb']}MB freed"
+        )
+        
+        return {
+            "message": f"Cache cleanup complete",
+            "deleted_files": result['deleted_files'],
+            "freed_mb": result['freed_mb'],
+            "kept_files": result['kept_files'],
+            "oldest_remaining_age_days": result['oldest_remaining_age_days'],
+            "cleanup_threshold_days": older_than_days
+        }
+        
+    except Exception as e:
+        logger.error(f"Error during cache cleanup: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Cache cleanup failed: {str(e)}"
+        )
+
+
+@app.delete("/cache/clear")
+async def clear_all_cache():
+    """
+    Delete ALL cached audio files (nuclear option)
+    
+    Returns:
+        Clear results including total files deleted and storage freed
+        
+    WARNING: This will delete all cached audio. Use with caution!
+    All audio will need to be regenerated on next request.
+    """
+    if not audio_cache_manager:
+        raise HTTPException(
+            status_code=503,
+            detail="Audio cache not available"
+        )
+    
+    try:
+        logger.warning("💣 Clearing ALL audio cache - this cannot be undone!")
+        result = audio_cache_manager.clear_all_cache()
+        
+        logger.info(
+            f"✅ Cache cleared: {result['deleted_files']} files deleted, "
+            f"{result['freed_mb']}MB freed"
+        )
+        
+        return {
+            "message": "All audio cache cleared",
+            "deleted_files": result['deleted_files'],
+            "freed_mb": result['freed_mb']
+        }
+        
+    except Exception as e:
+        logger.error(f"Error clearing cache: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to clear cache: {str(e)}"
+        )
 
 
 # For local development

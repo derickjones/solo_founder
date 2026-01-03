@@ -11,10 +11,19 @@ Quality: Excellent with Chirp 3 HD voices
 import os
 import logging
 import base64
+import hashlib
 from typing import Optional, Dict
 from google.cloud import texttospeech
 
 logger = logging.getLogger(__name__)
+
+# Import audio cache manager (will be initialized in factory function)
+try:
+    from .audio_cache import AudioCacheManager
+    AUDIO_CACHE_AVAILABLE = True
+except ImportError:
+    AUDIO_CACHE_AVAILABLE = False
+    logger.warning("Audio cache not available - will generate TTS without caching")
 
 
 class GoogleCloudTTS:
@@ -36,12 +45,22 @@ class GoogleCloudTTS:
         "cfm_female": ("en-US", "en-US-Chirp3-HD-Aoede"),
     }
     
-    def __init__(self):
-        """Initialize Google Cloud TTS client"""
+    def __init__(self, cache_manager: Optional['AudioCacheManager'] = None):
+        """
+        Initialize Google Cloud TTS client
+        
+        Args:
+            cache_manager: Optional AudioCacheManager for caching support
+        """
         try:
             self.client = texttospeech.TextToSpeechClient()
             self.default_voice = "cfm_male"
-            logger.info("✅ Google Cloud TTS client initialized successfully")
+            self.cache_manager = cache_manager
+            
+            if self.cache_manager:
+                logger.info("✅ Google Cloud TTS client initialized with caching enabled")
+            else:
+                logger.info("✅ Google Cloud TTS client initialized (no caching)")
         except Exception as e:
             logger.error(f"Failed to initialize Google Cloud TTS client: {e}")
             raise
@@ -199,17 +218,138 @@ class GoogleCloudTTS:
     def list_available_voices(self) -> list:
         """List all available Chirp 3 HD voices"""
         return list(self.VOICE_OPTIONS.keys())
+    
+    def generate_audio_with_cache(
+        self,
+        text: str,
+        voice: Optional[str] = None,
+        content_type: str = "tts",
+        week_number: Optional[int] = None,
+        study_level: Optional[str] = None,
+        audience: Optional[str] = None,
+        voices: Optional[Dict[str, str]] = None,
+        speaking_rate: float = 1.0,
+        pitch: float = 0.0
+    ) -> Optional[bytes]:
+        """
+        Generate audio with caching support
+        
+        Checks cache first, generates and uploads to cache if not found.
+        
+        Args:
+            text: Text to convert to speech
+            voice: Single voice for TTS (ignored for podcast which has fixed voices)
+            content_type: Type of content (podcast, study_guide, lesson_plan, etc.)
+            week_number: CFM week number (1-52)
+            study_level: Study level (essential, connected, scholarly)
+            audience: Lesson plan audience (adult, youth, children)
+            voices: Voice mapping for multi-speaker ({"Sarah": "aoede", "David": "alnilam"})
+            speaking_rate: Speed of speech (0.25 to 4.0, default 1.0)
+            pitch: Voice pitch adjustment (-20.0 to 20.0, default 0.0)
+            
+        Returns:
+            Audio bytes in MP3 format or None if failed
+        """
+        # If no cache manager, generate normally
+        if not self.cache_manager:
+            return self.generate_audio(text, voice, speaking_rate, pitch)
+        
+        try:
+            # Generate script hash for additional cache key uniqueness
+            script_hash = hashlib.sha256(text.encode()).hexdigest()[:16]
+            
+            # Get cache key
+            cache_key = self.cache_manager._get_cache_key(
+                content_type=content_type,
+                week_number=week_number,
+                study_level=study_level,
+                audience=audience,
+                voice=voice,
+                voices=voices,
+                script_hash=script_hash
+            )
+            
+            # Check cache first
+            cached_audio = self.cache_manager.get_cached_audio(cache_key)
+            if cached_audio:
+                logger.info(f"🎯 Returning cached audio: {cache_key}")
+                return cached_audio
+            
+            # Cache miss - generate audio
+            logger.info(f"⚡ Generating new audio for: {cache_key}")
+            audio_bytes = self.generate_audio(text, voice, speaking_rate, pitch)
+            
+            if audio_bytes:
+                # Upload to cache
+                upload_success = self.cache_manager.upload_to_cache(cache_key, audio_bytes)
+                if upload_success:
+                    logger.info(f"💾 Cached audio for future requests: {cache_key}")
+                else:
+                    logger.warning(f"⚠️ Failed to cache audio, but returning generated audio")
+            
+            return audio_bytes
+            
+        except Exception as e:
+            logger.error(f"Error in cached audio generation: {e}")
+            # Fallback to non-cached generation
+            return self.generate_audio(text, voice, speaking_rate, pitch)
+    
+    def generate_audio_base64_with_cache(
+        self,
+        text: str,
+        voice: Optional[str] = None,
+        content_type: str = "tts",
+        week_number: Optional[int] = None,
+        study_level: Optional[str] = None,
+        audience: Optional[str] = None,
+        voices: Optional[Dict[str, str]] = None,
+        speaking_rate: float = 1.0,
+        pitch: float = 0.0
+    ) -> Optional[str]:
+        """Generate audio with caching and return as base64 string"""
+        audio_bytes = self.generate_audio_with_cache(
+            text=text,
+            voice=voice,
+            content_type=content_type,
+            week_number=week_number,
+            study_level=study_level,
+            audience=audience,
+            voices=voices,
+            speaking_rate=speaking_rate,
+            pitch=pitch
+        )
+        if audio_bytes:
+            return base64.b64encode(audio_bytes).decode('utf-8')
+        return None
 
 
-def create_google_tts_client() -> Optional[GoogleCloudTTS]:
+def create_google_tts_client(enable_cache: bool = True) -> Optional[GoogleCloudTTS]:
     """
-    Factory function to create Google Cloud TTS client
+    Factory function to create Google Cloud TTS client with optional caching
+    
+    Args:
+        enable_cache: Whether to enable audio caching (default: True)
     
     Returns:
         GoogleCloudTTS instance or None if initialization fails
     """
     try:
-        client = GoogleCloudTTS()
+        # Initialize cache manager if available and requested
+        cache_manager = None
+        if enable_cache and AUDIO_CACHE_AVAILABLE:
+            try:
+                from .audio_cache import create_audio_cache_manager
+                cache_manager = create_audio_cache_manager()
+                if cache_manager:
+                    logger.info("✅ Audio caching enabled")
+                else:
+                    logger.warning("⚠️ Audio cache manager initialization failed - proceeding without caching")
+            except Exception as e:
+                logger.warning(f"⚠️ Could not initialize audio cache: {e} - proceeding without caching")
+        
+        # Create TTS client with or without cache
+        client = GoogleCloudTTS(cache_manager=cache_manager)
+        
         if client.test_connection():
             return client
         return None

@@ -1,11 +1,11 @@
-# Gospel Study App - LDS AI Scripture Study App
+# Gospel Study App - LDS AI Scripture Study Assistant
 
-> **Production-ready LDS AI Scripture Study App with pre-generated Come Follow Me content and live AI Q&A**
+> **Production-ready AI-powered scripture study app with GPT-4o Q&A and pre-generated Come Follow Me content**
 
 ## 🚀 Live Deployments
 
-- **🌐 Frontend**: https://vercel.com/derick-jones-projects/solo-founder (Vercel)
-- **🔌 API**: https://gospel-guide-api-273320302933.us-central1.run.app (Google Cloud Run)
+- **🌐 Frontend**: https://gospelstudyapp.com (Vercel)
+- **🔌 Backend API**: https://gospel-study-backend-273320302933.us-central1.run.app (Google Cloud Run)
 - **📚 Repository**: https://github.com/derickjones/solo_founder
 
 ---
@@ -14,7 +14,7 @@
 
 ### Core Capabilities
 
-- **🧠 AI-Powered Q&A**: Grok AI with real-time streaming responses
+- **🧠 AI-Powered Q&A**: OpenAI GPT-4o with real-time streaming responses
 - **📖 Complete LDS Library**: 58,088+ scripture segments with FAISS vector search
 - **📅 Come Follow Me 2026**: Complete Old Testament study system with pre-generated content
 - **🔐 Authentication**: Clerk integration with Google/Apple login
@@ -26,7 +26,7 @@ All CFM content is **pre-generated offline** and served as static JSON files for
 
 | Feature | Files | Description |
 |---------|-------|-------------|
-| **💭 Daily Thought** | 364 files | Daily spiritual insights (52 weeks × 7 days) |
+| **💭 Daily Thoughts** | 364 files | Daily spiritual insights (52 weeks × 7 days) |
 | **🎙️ Podcast Scripts** | 156 files | Two-voice conversation podcasts (52 weeks × 3 levels) |
 | **📚 Study Guides** | 156 files | Deep dive content (52 weeks × 3 levels) |
 | **📝 Lesson Plans** | 156 files | Teaching materials (52 weeks × 3 audiences) |
@@ -50,49 +50,19 @@ All CFM content is **pre-generated offline** and served as static JSON files for
 - ✅ **Mystery Architecture**: Setup → tension building → satisfying resolution
 - ✅ **Multi-Perspective Analysis**: Ancient Israel view + Christ's view + Modern restoration view
 - ✅ **Pattern Recognition**: Systematic connections across 2-4+ dispensations
-- ✅ **Historical Context**: Archaeological insights and cultural background creating "time collapse moments"
+- ✅ **Historical Context**: Archaeological insights and cultural background
 - ✅ **Hidden Connections**: Revealed restored truths (Moses 6:63, Abraham 3, JST insights)
-- ✅ **Natural Discovery Flow**: "Notice this pattern...", "Here's where it gets powerful...", "Aha moments"
+- ✅ **Natural Discovery Flow**: Engaging discovery patterns and "aha moments"
 
-**Example Hooks by Level:**
-- **Essential**: "What if I told you there's something most people miss in the Old Testament—a hidden thread..."
-- **Connected**: "Why did the Jews try to stone Jesus for saying just three words: 'Before Abraham was, I am'?"
-- **Scholarly**: "I want to start with a profound mystery that's puzzled theologians for centuries..."
-
-**Podcast Structure:**
-1. Tagline opening (mandatory)
-2. Compelling hook (3-5 segments)
-3. Multi-perspective exploration
-4. Pattern recognition web across dispensations
-5. Historical/archaeological deep dive
-6. Mystery resolution with insight
-7. Hidden connections revealed
-8. Modern application
-9. Powerful closing invitations
-
-See [PODCAST_ENHANCEMENT_RESULTS.md](PODCAST_ENHANCEMENT_RESULTS.md) for detailed analysis.
-
-### Audio Generation
-
-- **🎵 Google Cloud TTS**: Chirp 3 HD voices (Sarah: aoede/female, David: alnilam/male)
-- **🎶 Professional Podcast Audio**: 
-  - 13s intro (full volume)
-  - 5s fadeout (music to -20dB)
-  - Voice-only content (no music bed)
-  - 10s outro fade-in (music back to full)
-  - 30s outro with 8s final fadeout
-  - Normalized to -16 LUFS
-  - 192kbps MP3 output
-
-**Conversation Audio Processing:**
+**Podcast Audio Processing:**
 - Multi-segment TTS generation (separate audio per speaker)
 - 500ms pauses between speakers
-- Automatic concatenation with intro/outro music
-- Real-time generation via `/tts/podcast` endpoint
+- Professional intro/outro music with crossfades
+- Normalized to -16 LUFS, 192kbps MP3 output
 
 ### User Experience
 
-- **🎨 Professional UI**: Dark theme with minimalistic, color-coded buttons
+- **🎨 Professional UI**: Dark theme with minimalistic design
 - **📱 Mobile Optimized**: Responsive design with smart auto-collapse controls
 - **🎬 Full-Screen Content**: Controls auto-hide when content is generated| **💭 Daily Thought** | 364 files | Daily spiritual insights (52 weeks × 7 days) |# Test TTS with Voice Selection
 
