@@ -217,12 +217,18 @@ export default function Sidebar({
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-neutral-700/50">
               <video 
+                key="sidebar-logo"
                 src="/gospel_app_video.mp4" 
                 autoPlay 
                 loop
                 muted 
                 playsInline
+                preload="auto"
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  console.error('Video failed to load:', e);
+                  e.currentTarget.style.display = 'none';
+                }}
               />
             </div>
             <h1 className="text-lg font-medium text-white/90">Gospel Study</h1>

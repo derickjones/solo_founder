@@ -672,12 +672,18 @@ export default function ChatInterface({
             messages.length > 0 ? 'w-10 h-10 lg:w-12 lg:h-12' : 'w-16 h-16 lg:w-24 lg:h-24'
           }`}>
             <video 
+              key="chat-logo"
               src="/gospel_app_video.mp4" 
               autoPlay 
               loop
               muted 
               playsInline
+              preload="auto"
               className="w-full h-full object-cover"
+              onError={(e) => {
+                console.error('Video failed to load:', e);
+                e.currentTarget.style.display = 'none';
+              }}
             />
           </div>
           <div className={messages.length > 0 ? '' : 'text-center'}>

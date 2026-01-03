@@ -173,12 +173,18 @@ export default function Home() {
         <div className="flex flex-col items-center justify-center pt-12 lg:pt-20 pb-8 lg:pb-12 px-4">
           <div className="w-20 h-20 lg:w-28 lg:h-28 rounded-full overflow-hidden border-2 border-neutral-700 mb-6">
             <video 
+              key="landing-logo"
               src="/gospel_app_video.mp4" 
               autoPlay 
               loop
               muted 
               playsInline
+              preload="auto"
               className="w-full h-full object-cover"
+              onError={(e) => {
+                console.error('Video failed to load:', e);
+                e.currentTarget.style.display = 'none';
+              }}
             />
           </div>
           <h1 className="text-3xl lg:text-5xl font-bold text-white mb-3 text-center">
