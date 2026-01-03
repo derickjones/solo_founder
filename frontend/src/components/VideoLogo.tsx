@@ -22,9 +22,9 @@ export default function VideoLogo({ className = '', size = 'medium' }: VideoLogo
 
   return (
     <div className={`${sizeClasses[size]} ${className} rounded-xl overflow-hidden ring-2 ring-neutral-700/50 bg-transparent flex items-center justify-center`}>
-      <div className="w-full h-full relative scale-[2.2]">
+      <div className="w-full h-full relative">
         <Image
-          src="/gospel_study_app_logo.png"
+          src="/scriptures.webp"
           alt="Gospel Study App Logo"
           width={sizePixels[size]}
           height={sizePixels[size]}
