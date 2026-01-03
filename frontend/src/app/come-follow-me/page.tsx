@@ -223,21 +223,22 @@ export default function ComeFollowMePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      {/* Header */}
+    <div className="min-h-screen bg-gray-900 text-white lg:pl-64">
+      {/* Header - Account for sidebar on desktop */}
       <header className="bg-gray-800 border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 flex-1">
               <Link 
                 href="/" 
-                className="inline-flex items-center text-gray-400 hover:text-white transition-colors"
+                className="inline-flex items-center text-gray-400 hover:text-white transition-colors flex-shrink-0"
               >
                 <ChevronLeftIcon className="h-5 w-5 mr-2" />
-                Back to Study Assistant
+                <span className="hidden sm:inline">Back to Study Assistant</span>
+                <span className="sm:hidden">Back</span>
               </Link>
-              <div className="h-6 w-px bg-gray-600" />
-              <h1 className="text-xl font-semibold">Come Follow Me Study Guide</h1>
+              <div className="h-6 w-px bg-gray-600 flex-shrink-0" />
+              <h1 className="text-xl font-semibold truncate">Come Follow Me Study Guide</h1>
             </div>
           </div>
         </div>
