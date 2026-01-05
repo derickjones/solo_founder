@@ -11,6 +11,7 @@ import json
 import time
 import re
 import argparse
+import random
 from pathlib import Path
 from openai import OpenAI
 
@@ -32,17 +33,31 @@ OUTPUT_DIR = SCRIPT_DIR.parent.parent.parent / "frontend" / "public" / "podcasts
 
 TAGLINE = "Welcome to the Come Follow Me Podcast by Gospel Study App."
 
-# Speaker configuration
-HOST_NAME = "Sarah"  # Female voice (aoede)
-GUEST_NAME = "David"  # Male voice (alnilam)
+# Speaker configuration - will be randomly assigned per script generation
+# Female voice (aoede), Male voice (enceladus)
+SPEAKERS = {
+    "Sarah": "aoede",   # Female voice
+    "David": "enceladus"  # Male voice
+}
 
-BASE_PODCAST_PROMPT = """You are creating an ADDICTIVE, story-driven conversation between two Latter-day Saint scripture teachers that hooks listeners immediately and keeps them engaged. This dialogue podcast should feel like two brilliant professors discovering profound connections together—combining the intrigue of a mystery podcast with deep scriptural insight.
+
+def get_random_host_guest():
+    """Randomly select host and guest to alternate gender roles (50/50 chance)"""
+    if random.random() < 0.5:
+        return "Sarah", "David"  # Sarah hosts, David is guest
+    else:
+        return "David", "Sarah"  # David hosts, Sarah is guest
+
+
+def get_base_podcast_prompt(host_name: str, guest_name: str) -> str:
+    """Generate the base podcast prompt with dynamic host/guest assignment"""
+    return f"""You are creating an ADDICTIVE, story-driven conversation between two Latter-day Saint scripture teachers that hooks listeners immediately and keeps them engaged. This dialogue podcast should feel like two brilliant professors discovering profound connections together—combining the intrigue of a mystery podcast with deep scriptural insight.
 
 **SPEAKERS**:
-- Sarah (host): Engaging, curious female teacher - poses intriguing questions, builds anticipation
-- David (guest): Insightful male teacher - reveals surprising connections, provides scholarly depth
+- {host_name} (host): Engaging, curious teacher - poses intriguing questions, builds anticipation
+- {guest_name} (guest): Insightful teacher - reveals surprising connections, provides scholarly depth
 
-**MANDATORY OPENING**: Begin EXACTLY with Sarah saying: "{tagline} I'm Sarah." Then David responds: "And I'm {guest_name}."
+**MANDATORY OPENING**: Begin EXACTLY with {host_name} saying: "{TAGLINE} I'm {host_name}." Then {guest_name} responds: "And I'm {guest_name}."
 
 **HOOK STRUCTURE (CRITICAL - First 3-5 segments after greeting):**
 Start with ONE of these compelling hook types:
@@ -58,15 +73,15 @@ The hook should create curiosity that MUST be satisfied by listening further.
 - Natural back-and-forth dialogue with 2-4 sentences per speaking turn
 - Build tension and anticipation—don't give everything away at once
 - Use "Mystery Architecture": Set up intriguing questions early, explore, then provide satisfying reveals
-- Sarah guides with curiosity: "Wait, what?", "That's fascinating, but how does...", "I need to understand..."
-- David provides "aha moments": "Here's what shifts everything...", "Notice this pattern...", "Watch what happens..."
+- {host_name} guides with curiosity: "Wait, what?", "That's fascinating, but how does...", "I need to understand..."
+- {guest_name} provides "aha moments": "Here's what shifts everything...", "Notice this pattern...", "Watch what happens..."
 - Include moments of genuine discovery: "I never saw that!", "That's remarkable!", "This changes how I read..."
 - Vary speaking turn length - quick exchanges for excitement, longer explanations for depth
 
 **EDUCATIONAL SCAFFOLDING (Weave naturally into dialogue):**
 - **Multi-Perspective Analysis**: Show ancient Israel's view, Christ's view, modern restoration view
 - **Pattern Recognition**: Trace ONE theme across 2-4 dispensations (e.g., divine light: Psalms → Moses → Christ → D&C)
-- **Historical Context**: Include 1-2 archaeological/cultural insights that create "time collapse moments"
+- **Historical Context**: Include 1-2 archaeological/cultural insights that make ancient events feel immediate and real
 - **Hidden Connections**: Reveal surprising cross-references most people miss
 - **Plan of Salvation Links**: Connect symbols and covenants to the eternal plan
 - **Prophetic Echoes**: Show how modern prophets mirror ancient revelations
@@ -80,13 +95,14 @@ The hook should create curiosity that MUST be satisfied by listening further.
 
 **MANDATES**:
 - Output ONLY a JSON array of dialogue segments ready for multi-voice TTS
-- Each segment: {{"speaker": "Sarah" or "David", "text": "what they say"}}
-- The tagline opening MUST be the first segment from Sarah
+- Each segment: {{"speaker": "{host_name}" or "{guest_name}", "text": "what they say"}}
+- The tagline opening MUST be the first segment from {host_name}
 - No meta commentary, no stage directions, no [pause] markers
 - No personal testimony ("I testify", "I bear witness")
 - No references to previous/next weeks - focus only on this week's content
 - Stay strictly within provided bundle content and official Church sources
 - Quote scriptures verbatim with references when discussed
+- NEVER use the phrases "time collapse", "time collapse moment", "aha moment", or "fresh insight" in dialogue
 
 **DIALOGUE STRUCTURE**:
 1. **Opening**: Tagline + greeting (1-2 segments)
@@ -101,15 +117,19 @@ The hook should create curiosity that MUST be satisfied by listening further.
 
 **RETURN FORMAT**: Pure JSON array, no markdown, no code fences:
 [
-  {{"speaker": "Sarah", "text": "{tagline} I'm Sarah."}},
-  {{"speaker": "David", "text": "And I'm {guest_name}. Happy to be here!"}},
-  {{"speaker": "Sarah", "text": "David, I have to start with a question that's puzzled scholars for centuries..."}}
+  {{"speaker": "{host_name}", "text": "{TAGLINE} I'm {host_name}."}},
+  {{"speaker": "{guest_name}", "text": "And I'm {guest_name}. Happy to be here!"}},
+  {{"speaker": "{host_name}", "text": "{guest_name}, I have to start with a question that's puzzled scholars for centuries..."}}
 ]
-""".format(tagline=TAGLINE, guest_name=GUEST_NAME)
+"""
 
-# Level-specific prompt additions
-CFM_PODCAST_PROMPTS = {
-    'essential': BASE_PODCAST_PROMPT + """
+
+def get_level_specific_prompt(host_name: str, guest_name: str, study_level: str) -> str:
+    """Get the complete prompt for a specific study level with dynamic host/guest names"""
+    base_prompt = get_base_podcast_prompt(host_name, guest_name)
+    
+    level_additions = {
+        'essential': f"""
 
 **ESSENTIAL LEVEL**: Accessible yet intriguing — like a captivating story for curious learners.
 
@@ -125,19 +145,19 @@ CFM_PODCAST_PROMPTS = {
 - Show how one symbol points to Christ in an unexpected way
 
 **DIALOGUE FLOW**:
-- Sarah asks curious questions that listeners would ask
-- David reveals insights in simple, wonder-filled language
+- {host_name} asks curious questions that listeners would ask
+- {guest_name} reveals insights in simple, wonder-filled language
 - Build one "aha moment" around a hidden connection
 - Close with one clear, actionable invitation
 
 **TARGET**: 20-30 dialogue segments (~7-10 minutes total)
 
 **EXAMPLE HOOK**:
-Sarah: "David, what if I told you that every time the Israelites ate breakfast in the wilderness, they were actually learning about Jesus Christ? Most people read right past this."
-David: "That's exactly right, Sarah. Let me show you what's hidden in the manna story..."
+{host_name}: "{guest_name}, what if I told you that every time the Israelites ate breakfast in the wilderness, they were actually learning about Jesus Christ? Most people read right past this."
+{guest_name}: "That's exactly right, {host_name}. Let me show you what's hidden in the manna story..."
 """,
 
-    'connected': BASE_PODCAST_PROMPT + """
+        'connected': f"""
 
 **CONNECTED LEVEL**: Deeply engaging with mystery and revelation — like two professors making breakthrough discoveries together.
 
@@ -155,21 +175,21 @@ David: "That's exactly right, Sarah. Let me show you what's hidden in the manna 
 - Prophetic Echoes: Demonstrate how modern prophets mirror ancient revelations
 
 **DIALOGUE FLOW**:
-- Sarah builds anticipation with progressive questions
-- David provides escalating revelations
+- {host_name} builds anticipation with progressive questions
+- {guest_name} provides escalating revelations
 - Use "Notice this pattern..." repeatedly to build the web
 - Create multiple "That's remarkable!" moments of genuine discovery
 - Resolve the opening mystery with a powerful insight
-- Include one "time collapse moment" where ancient and modern merge
+- Include one moment where ancient and modern feel immediately connected
 
 **TARGET**: 35-50 dialogue segments (~12-17 minutes total)
 
 **EXAMPLE HOOK**:
-Sarah: "David, I'm going to start with something that puzzled me for years. In John 8:58, Jesus says three simple words—'Before Abraham was, I am'—and the Jews immediately pick up stones to kill Him. Why such an extreme reaction?"
-David: "That's the perfect mystery to unlock the entire Old Testament, Sarah. To understand it, we need to go back 1,400 years to a burning bush..."
+{host_name}: "{guest_name}, I'm going to start with something that puzzled me for years. In John 8:58, Jesus says three simple words—'Before Abraham was, I am'—and the Jews immediately pick up stones to kill Him. Why such an extreme reaction?"
+{guest_name}: "That's the perfect mystery to unlock the entire Old Testament, {host_name}. To understand it, we need to go back 1,400 years to a burning bush..."
 """,
 
-    'scholarly': BASE_PODCAST_PROMPT + """
+        'scholarly': f"""
 
 **SCHOLARLY LEVEL**: Intellectually addictive with layered mysteries — like a masterclass in scriptural detective work.
 
@@ -182,7 +202,7 @@ David: "That's the perfect mystery to unlock the entire Old Testament, Sarah. To
 - **Theological Framework**: Multi-layered perspective analysis revealing how doctrines develop across dispensations
 - **Pattern Recognition Mastery**: Trace themes across 4+ dispensations showing divine consistency
 - **Exegetical Insights**: Hebrew/Greek terms, JST context, literary structures creating paradigm shifts
-- **Archaeological Deep Dives**: 2-3 historical/cultural discoveries that create "time collapse moments"
+- **Archaeological Deep Dives**: 2-3 historical/cultural discoveries that make ancient events feel immediate and real
 - **Cross-Reference Web Matrix**: Reveal extensive hidden connections across all standard works
 - **Contradiction Resolution**: Address apparent conflicts that reveal profound truth when understood
 - **Prophetic Pattern Architecture**: Demonstrate divine patterns of revelation, covenant-making, redemption
@@ -191,8 +211,8 @@ David: "That's the perfect mystery to unlock the entire Old Testament, Sarah. To
 - **Teaching Applications**: Include strategies for educators to share these discoveries
 
 **DIALOGUE FLOW**:
-- Sarah orchestrates multiple mystery layers with sophisticated questions
-- David provides scholarly revelations with accessible explanations
+- {host_name} orchestrates multiple mystery layers with sophisticated questions
+- {guest_name} provides scholarly revelations with accessible explanations
 - Build tension through "Contradiction Resolution" - apparent conflicts revealing deeper truth
 - Use "Multiple Perspective Convergence" - same truth from various prophetic viewpoints
 - Create "Generational Pattern Mapping" - connect ancient covenants to pioneer sacrifices to modern discipleship
@@ -203,10 +223,12 @@ David: "That's the perfect mystery to unlock the entire Old Testament, Sarah. To
 **TARGET**: 50-70 dialogue segments (~17-24 minutes total)
 
 **EXAMPLE HOOK**:
-Sarah: "David, I want to start with a contradiction that troubled early Christian theologians. Genesis 1 says God created everything in six days and rested. But Moses 7:30 in the Pearl of Great Price shows Enoch weeping because entire worlds are being destroyed and recreated. How can God rest if He's constantly creating? And here's the deeper question: what does this apparent contradiction reveal about the nature of divine work that most people never see?"
-David: "Sarah, that's brilliant—because resolving this contradiction unlocks the entire theology of eternal progression. Let me show you a pattern that connects Abraham 3, the temple, and President Nelson's recent teachings on eternal life..."
+{host_name}: "{guest_name}, I want to start with a contradiction that troubled early Christian theologians. Genesis 1 says God created everything in six days and rested. But Moses 7:30 in the Pearl of Great Price shows Enoch weeping because entire worlds are being destroyed and recreated. How can God rest if He's constantly creating? And here's the deeper question: what does this apparent contradiction reveal about the nature of divine work that most people never see?"
+{guest_name}: "{host_name}, that's brilliant—because resolving this contradiction unlocks the entire theology of eternal progression. Let me show you a pattern that connects Abraham 3, the temple, and President Nelson's recent teachings on eternal life..."
 """
-}
+    }
+    
+    return base_prompt + level_additions.get(study_level, level_additions['essential'])
 
 # Forbidden phrases to check and warn about
 FORBIDDEN_PHRASES = [
@@ -222,16 +244,18 @@ FORBIDDEN_PHRASES = [
     "next week",
     "last week",
     "previous week",
+    "time collapse moment",
+    "time collapse",
 ]
 
 
 def get_podcast_prompt(week_number: int, title: str, date_range: str,
                        cfm_lesson_content: dict, scripture_content: list,
-                       study_level: str) -> str:
+                       study_level: str, host_name: str, guest_name: str) -> str:
     """Build the prompt for generating podcast script using new structure"""
     
-    # Get level-specific prompt
-    level_prompt = CFM_PODCAST_PROMPTS.get(study_level, CFM_PODCAST_PROMPTS['essential'])
+    # Get level-specific prompt with dynamic host/guest names
+    level_prompt = get_level_specific_prompt(host_name, guest_name, study_level)
     
     # Format CFM lesson content
     cfm_text = ""
@@ -279,8 +303,8 @@ SCRIPTURES:
 
 **RETURN ONLY A JSON ARRAY** of dialogue segments in this exact format:
 [
-  {{"speaker": "Sarah", "text": "{TAGLINE} I'm Sarah."}},
-  {{"speaker": "David", "text": "And I'm {GUEST_NAME}. Happy to be here!"}}
+  {{"speaker": "{host_name}", "text": "{TAGLINE} I'm {host_name}."}},
+  {{"speaker": "{guest_name}", "text": "And I'm {guest_name}. Happy to be here!"}}
 ]
 """
     
@@ -346,6 +370,10 @@ def clean_script_text(script_text: str) -> tuple:
 def generate_podcast_script(week_number: int, study_level: str) -> dict:
     """Generate podcast script for a single week and study level"""
     
+    # Randomly select host and guest (50/50 chance to alternate gender roles)
+    host_name, guest_name = get_random_host_guest()
+    print(f"🎭 Role assignment: {host_name} (host) / {guest_name} (guest)")
+    
     # Load the CFM bundle for this week
     week_file = CFM_2026_DIR / f"cfm_2026_week_{week_number:02d}.json"
     
@@ -369,7 +397,9 @@ def generate_podcast_script(week_number: int, study_level: str) -> dict:
         date_range=date_range,
         cfm_lesson_content=cfm_lesson_content,
         scripture_content=scripture_content,
-        study_level=study_level
+        study_level=study_level,
+        host_name=host_name,
+        guest_name=guest_name
     )
     
     print(f"🎙️ Generating {study_level} episode for Week {week_number}: {title[:50]}...")
@@ -381,7 +411,7 @@ def generate_podcast_script(week_number: int, study_level: str) -> dict:
             messages=[
                 {
                     "role": "system",
-                    "content": f"You are creating natural podcast conversations between Sarah (host) and David (guest). Return ONLY a pure JSON array of dialogue segments. Each segment: {{\"speaker\": \"Sarah\" or \"David\", \"text\": \"what they say\"}}. First segment MUST be Sarah saying: \"{TAGLINE} I'm Sarah.\" No markdown, no code fences, just the JSON array."
+                    "content": f"You are creating natural podcast conversations between {host_name} (host) and {guest_name} (guest). Return ONLY a pure JSON array of dialogue segments. Each segment: {{\"speaker\": \"{host_name}\" or \"{guest_name}\", \"text\": \"what they say\"}}. First segment MUST be {host_name} saying: \"{TAGLINE} I'm {host_name}.\" No markdown, no code fences, just the JSON array."
                 },
                 {
                     "role": "user",
@@ -420,9 +450,11 @@ def generate_podcast_script(week_number: int, study_level: str) -> dict:
             "character_count": total_chars,
             "segment_count": segment_count,
             "script": script_array,  # Array of {"speaker": "...", "text": "..."}
+            "host": host_name,
+            "guest": guest_name,
             "voices": {
-                "Sarah": "aoede",  # Female host
-                "David": "alnilam"  # Male guest
+                "Sarah": SPEAKERS["Sarah"],
+                "David": SPEAKERS["David"]
             },
             "generated_timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
             "source_week_file": str(week_file.name)
