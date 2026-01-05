@@ -597,38 +597,36 @@ export default function ChatInterface({
               data.scriptures.forEach((scripture: any) => {
                 formattedContent += `### ${scripture.reference || scripture.title}\n\n`;
                 if (scripture.summary) {
-                  // Clean encoding issues in summary
+                  // Clean encoding issues in summary - handle UTF-8 display issues
                   const cleanSummary = scripture.summary
-                    .replace(/â/g, '—')     // Fix em dashes
-                    .replace(/âs/g, "'s")   // Fix apostrophes
-                    .replace(/â/g, '"')     // Fix quotes
-                    .replace(/â/g, '"')     // Fix quotes
-                    .replace(/â/g, "'")     // Fix apostrophes
-                    .replace(/â/g, "'")     // Fix apostrophes
-                    // Fix common spacing issues by adding spaces around specific character sequences
-                    .replace(/([a-z])([A-Z])/g, '$1 $2'); // Add space between lowercase and uppercase
+                    .replace(/—/g, '—')      // Fix em dashes
+                    .replace(/–/g, '–')      // Fix en dashes  
+                    .replace(/"/g, '"')      // Fix left quotes
+                    .replace(/"/g, '"')      // Fix right quotes
+                    .replace(/'/g, "'")      // Fix left apostrophes
+                    .replace(/'/g, "'")      // Fix right apostrophes
+                    .replace(/â€™/g, "'")    // Fix UTF-8 encoding issues
+                    .replace(/â€œ/g, '"')    // Fix UTF-8 encoding issues
+                    .replace(/â€/g, '"')     // Fix UTF-8 encoding issues
+                    .replace(/â€"/g, '—');   // Fix UTF-8 encoding issues
                   formattedContent += `*${cleanSummary}*\n\n`;
                 }
                 if (scripture.text) {
                   // Clean encoding issues and format scripture text with proper verse breaks
                   let cleanText = scripture.text
-                    .replace(/â/g, '—')     // Fix em dashes
-                    .replace(/âs/g, "'s")   // Fix apostrophes  
-                    .replace(/â/g, '"')     // Fix quotes
-                    .replace(/â/g, '"')     // Fix quotes
-                    .replace(/â/g, "'")     // Fix apostrophes
-                    .replace(/â/g, "'")     // Fix apostrophes
-                    // Normalize whitespace and ensure proper spacing
-                    .replace(/\s+/g, ' ')   // Multiple spaces to single space
-                    .trim();                // Remove leading/trailing spaces
-                  
-                  // Force proper spacing around common problematic patterns
-                  cleanText = cleanText
-                    .replace(/([a-z])([A-Z])/g, '$1 $2')    // lowercase followed by uppercase
-                    .replace(/([a-z])(\d)/g, '$1 $2')       // lowercase followed by number  
-                    .replace(/(\d)([A-Z])/g, '$1 $2')       // number followed by uppercase
-                    .replace(/([a-z])(unto|with|the|and|of|in|to|for|by|he|she|it|I|was|were|are|is|be|been|have|had|has|will|would|could|should|may|might|can|shall)/g, '$1 $2')
-                    .replace(/(unto|with|the|and|of|in|to|for|by|he|she|it|I|was|were|are|is|be|been|have|had|has|will|would|could|should|may|might|can|shall)([a-z])/g, '$1 $2');
+                    .replace(/—/g, '—')      // Fix em dashes
+                    .replace(/–/g, '–')      // Fix en dashes  
+                    .replace(/"/g, '"')      // Fix left quotes
+                    .replace(/"/g, '"')      // Fix right quotes
+                    .replace(/'/g, "'")      // Fix left apostrophes
+                    .replace(/'/g, "'")      // Fix right apostrophes
+                    .replace(/â€™/g, "'")    // Fix UTF-8 encoding issues
+                    .replace(/â€œ/g, '"')    // Fix UTF-8 encoding issues
+                    .replace(/â€/g, '"')     // Fix UTF-8 encoding issues
+                    .replace(/â€"/g, '—')    // Fix UTF-8 encoding issues
+                    // Normalize whitespace
+                    .replace(/\s+/g, ' ')    // Multiple spaces to single space
+                    .trim();                 // Remove leading/trailing spaces
                     
                   const formattedScripture = cleanText
                     // Add line breaks before verse numbers (pattern: number followed by text)
