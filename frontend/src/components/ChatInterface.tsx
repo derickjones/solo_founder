@@ -588,6 +588,44 @@ export default function ChatInterface({
               }
             }
             
+            if (data.scriptures && data.scriptures.length > 0) {
+              formattedContent += `## Scriptures\n\n`;
+              for (const scripture of data.scriptures) {
+                formattedContent += `### ${scripture.reference}`;
+                if (scripture.title && scripture.title !== scripture.reference) {
+                  formattedContent += ` - ${scripture.title}`;
+                }
+                formattedContent += `\n\n`;
+                
+                if (scripture.summary) {
+                  formattedContent += `*${scripture.summary}*\n\n`;
+                }
+                
+                if (scripture.text) {
+                  // Format scripture text with better readability
+                  const verses = scripture.text.split(/(\d+)/).filter((part: string) => part.trim());
+                  let formattedScripture = '';
+                  
+                  for (let i = 0; i < verses.length; i += 2) {
+                    const verseNum = verses[i];
+                    const verseText = verses[i + 1];
+                    
+                    if (verseText && verseText.trim()) {
+                      formattedScripture += `**${verseNum}** ${verseText.trim()}\n\n`;
+                    }
+                  }
+                  
+                  formattedContent += formattedScripture;
+                }
+                
+                if (scripture.url) {
+                  formattedContent += `[Read on ChurchofJesusChrist.org](${scripture.url})\n\n`;
+                }
+                
+                formattedContent += `---\n\n`;
+              }
+            }
+            
             // Update the message with the organized core content and enable audio
             setMessages(prev => prev.map(msg => 
               msg.id === assistantMessageId 
