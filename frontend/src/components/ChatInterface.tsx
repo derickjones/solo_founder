@@ -566,65 +566,15 @@ export default function ChatInterface({
             
             const data = await response.json();
             
-            // Format the core content for display
+            // Display the complete raw content without any parsing or filtering
             let formattedContent = `# ${data.title}\n\n`;
             formattedContent += `**${data.date_range}**\n\n`;
             
-            if (data.introduction) {
-              formattedContent += `## Introduction\n\n${data.introduction}\n\n`;
-            }
-            
-            if (data.learning_at_home_church && data.learning_at_home_church.length > 0) {
-              formattedContent += `## Ideas for Learning at Home and Church\n\n`;
-              for (const section of data.learning_at_home_church) {
-                formattedContent += `### ${section.title}\n\n${section.content}\n\n`;
-              }
-            }
-            
-            if (data.teaching_children && data.teaching_children.length > 0) {
-              formattedContent += `## Ideas for Teaching Children\n\n`;
-              for (const section of data.teaching_children) {
-                formattedContent += `### ${section.title}\n\n${section.content}\n\n`;
-              }
-            }
-            
-            if (data.scriptures && data.scriptures.length > 0) {
-              formattedContent += `## Scriptures\n\n`;
-              for (const scripture of data.scriptures) {
-                formattedContent += `### ${scripture.reference}`;
-                if (scripture.title && scripture.title !== scripture.reference) {
-                  formattedContent += ` - ${scripture.title}`;
-                }
-                formattedContent += `\n\n`;
-                
-                if (scripture.summary) {
-                  formattedContent += `*${scripture.summary}*\n\n`;
-                }
-                
-                if (scripture.text) {
-                  // Format scripture text with better readability
-                  const verses = scripture.text.split(/(\d+)/).filter((part: string) => part.trim());
-                  let formattedScripture = '';
-                  
-                  for (let i = 0; i < verses.length; i += 2) {
-                    const verseNum = verses[i];
-                    const verseText = verses[i + 1];
-                    
-                    if (verseText && verseText.trim()) {
-                      formattedScripture += `**${verseNum}** ${verseText.trim()}\n\n`;
-                    }
-                  }
-                  
-                  formattedContent += formattedScripture;
-                }
-                
-                if (scripture.url) {
-                  formattedContent += `[Read on ChurchofJesusChrist.org](${scripture.url})\n\n`;
-                }
-                
-                formattedContent += `---\n\n`;
-              }
-            }
+            // Just dump all the content as-is
+            formattedContent += `## Complete Content\n\n`;
+            formattedContent += '```json\n';
+            formattedContent += JSON.stringify(data, null, 2);
+            formattedContent += '\n```\n\n';
             
             // Update the message with the organized core content and enable audio
             setMessages(prev => prev.map(msg => 
