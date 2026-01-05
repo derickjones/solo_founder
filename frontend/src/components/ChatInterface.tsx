@@ -566,15 +566,68 @@ export default function ChatInterface({
             
             const data = await response.json();
             
-            // Display the complete raw content without any parsing or filtering
+            // Format content in a user-friendly way
             let formattedContent = `# ${data.title}\n\n`;
             formattedContent += `**${data.date_range}**\n\n`;
             
-            // Just dump all the content as-is
-            formattedContent += `## Complete Content\n\n`;
-            formattedContent += '```json\n';
-            formattedContent += JSON.stringify(data, null, 2);
-            formattedContent += '\n```\n\n';
+            // Add introduction if available
+            if (data.introduction) {
+              formattedContent += `## Introduction\n\n${data.introduction}\n\n`;
+            }
+            
+            // Add learning at home and church sections
+            if (data.learning_at_home_church && data.learning_at_home_church.length > 0) {
+              formattedContent += `## Learning at Home and Church\n\n`;
+              data.learning_at_home_church.forEach((section: any) => {
+                formattedContent += `### ${section.title}\n\n${section.content}\n\n`;
+              });
+            }
+            
+            // Add teaching children sections
+            if (data.teaching_children && data.teaching_children.length > 0) {
+              formattedContent += `## Teaching Children\n\n`;
+              data.teaching_children.forEach((section: any) => {
+                formattedContent += `### ${section.title}\n\n${section.content}\n\n`;
+              });
+            }
+            
+            // Add scriptures if available
+            if (data.scriptures && data.scriptures.length > 0) {
+              formattedContent += `## Scripture References\n\n`;
+              data.scriptures.forEach((scripture: any) => {
+                formattedContent += `### ${scripture.book} ${scripture.chapter}:${scripture.verses.join(', ')}\n\n${scripture.text}\n\n`;
+              });
+            }
+            
+            // Add seminary content if available
+            if (data.seminary_content && data.seminary_content.length > 0) {
+              formattedContent += `## Seminary Content\n\n`;
+              data.seminary_content.forEach((item: any) => {
+                formattedContent += `### ${item.title}\n\n${item.content}\n\n`;
+              });
+            }
+            
+            // Add study helps if available
+            if (data.study_helps && data.study_helps.length > 0) {
+              formattedContent += `## Study Helps\n\n`;
+              data.study_helps.forEach((help: any) => {
+                formattedContent += `### ${help.title}\n\n${help.content}\n\n`;
+              });
+            }
+            
+            // Add additional resources if available
+            if (data.additional_resources && data.additional_resources.length > 0) {
+              formattedContent += `## Additional Resources\n\n`;
+              data.additional_resources.forEach((resource: any) => {
+                formattedContent += `- [${resource.title}](${resource.url})\n`;
+              });
+              formattedContent += '\n';
+            }
+            
+            // Add source information at the bottom
+            if (data.cfm_lesson_url) {
+              formattedContent += `---\n\n**Original Source:** [Come, Follow Me Manual](${data.cfm_lesson_url})\n\n`;
+            }
             
             // Update the message with the organized core content and enable audio
             setMessages(prev => prev.map(msg => 
