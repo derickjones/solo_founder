@@ -493,6 +493,12 @@ export interface TTSGenerateRequest {
   
   title?: string;
   pause_between_speakers_ms?: number;
+  
+  // Caching metadata (optional - for better cache organization)
+  content_type?: 'podcast' | 'study_guide' | 'lesson_plan' | 'core_content' | 'daily_thoughts';
+  week_number?: number;
+  study_level?: 'essential' | 'connected' | 'scholarly';
+  audience?: 'adult' | 'youth' | 'children';
 }
 
 export interface TTSGenerateResponse {
@@ -530,6 +536,20 @@ export const generateTTS = async (request: TTSGenerateRequest): Promise<TTSGener
       // Single-speaker format
       body.text = request.text || '';
       body.voice = request.voice || 'aoede';
+    }
+    
+    // Add caching metadata if provided
+    if (request.content_type) {
+      body.content_type = request.content_type;
+    }
+    if (request.week_number !== undefined) {
+      body.week_number = request.week_number;
+    }
+    if (request.study_level) {
+      body.study_level = request.study_level;
+    }
+    if (request.audience) {
+      body.audience = request.audience;
     }
     
     const response = await fetch(`${API_BASE_URL}/tts/podcast`, {

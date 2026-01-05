@@ -32,6 +32,13 @@ interface Message {
   audioTitle?: string;
   audioScript?: any; // Original script for TTS (can be string or conversation array)
   audioVoices?: Record<string, string>; // Voice mappings for conversation format
+  // Caching metadata for TTS
+  cacheMetadata?: {
+    content_type?: 'podcast' | 'study_guide' | 'lesson_plan' | 'core_content' | 'daily_thoughts';
+    week_number?: number;
+    study_level?: 'essential' | 'connected' | 'scholarly';
+    audience?: 'adult' | 'youth' | 'children';
+  };
 }
 
 interface ChatInterfaceProps {
@@ -101,7 +108,7 @@ export default function ChatInterface({
   const [lastScrollY, setLastScrollY] = useState(0);
 
   // Handle Listen button click - generate TTS for message content
-  const handleListenToContent = async (messageId: number, content: string) => {
+  const handleListenToContent = async (messageId: number, content: string, cacheMetadata?: Message['cacheMetadata']) => {
     setGeneratingAudioForMessage(messageId);
     const startTime = Date.now();
     try {
@@ -120,7 +127,9 @@ export default function ChatInterface({
       const result = await generateTTS({
         text: cleanText,
         voice: selectedVoice,
-        title: 'Audio'
+        title: 'Audio',
+        // Pass caching metadata if available
+        ...cacheMetadata
       });
       
       const generationTime = (Date.now() - startTime) / 1000;
@@ -156,7 +165,8 @@ export default function ChatInterface({
     messageId: number, 
     script: Array<{ speaker: string; text: string }>, 
     voices: Record<string, string>,
-    title: string
+    title: string,
+    cacheMetadata?: Message['cacheMetadata']
   ) => {
     setGeneratingAudioForMessage(messageId);
     const startTime = Date.now();
@@ -164,7 +174,9 @@ export default function ChatInterface({
       const result = await generateTTS({
         script: script,
         voices: voices,
-        title: title
+        title: title,
+        // Pass caching metadata if available
+        ...cacheMetadata
       });
       
       const generationTime = (Date.now() - startTime) / 1000;
@@ -420,7 +432,12 @@ export default function ChatInterface({
                     content: data.content, 
                     audioFiles: { combined: 'placeholder' }, // Show player, generate on play
                     audioTitle: `Week ${weekNumber} Study Guide (${cfmStudyLevel})`,
-                    isStreaming: false 
+                    isStreaming: false,
+                    cacheMetadata: {
+                      content_type: 'study_guide',
+                      week_number: weekNumber,
+                      study_level: cfmStudyLevel as 'essential' | 'connected' | 'scholarly'
+                    }
                   }
                 : msg
             ));
@@ -475,7 +492,12 @@ export default function ChatInterface({
                     content: data.content, 
                     audioFiles: { combined: 'placeholder' }, // Show player, generate on play
                     audioTitle: `Week ${weekNumber} Lesson Plan (${cfmLessonPlanLevel})`,
-                    isStreaming: false 
+                    isStreaming: false,
+                    cacheMetadata: {
+                      content_type: 'lesson_plan',
+                      week_number: weekNumber,
+                      audience: cfmLessonPlanLevel as 'adult' | 'youth' | 'children'
+                    }
                   }
                 : msg
             ));
@@ -522,7 +544,12 @@ export default function ChatInterface({
                     audioTitle: `Week ${weekNumber} Audio Summary (${studyLevel})`,
                     audioScript: data.script, // Store original script for TTS generation
                     audioVoices: data.voices, // Store voice mappings
-                    isStreaming: false 
+                    isStreaming: false,
+                    cacheMetadata: {
+                      content_type: 'podcast',
+                      week_number: weekNumber,
+                      study_level: studyLevel
+                    }
                   }
                 : msg
             ));
@@ -569,7 +596,11 @@ export default function ChatInterface({
                     content: formattedContent, 
                     audioFiles: { combined: 'placeholder' }, // Show player, generate on play
                     audioTitle: `Week ${weekNumber} Core Content`,
-                    isStreaming: false 
+                    isStreaming: false,
+                    cacheMetadata: {
+                      content_type: 'core_content',
+                      week_number: weekNumber
+                    }
                   }
                 : msg
             ));
@@ -1107,9 +1138,9 @@ export default function ChatInterface({
                                 onGenerateAudio={async () => {
                                   // Generate audio when play is clicked
                                   if (message.audioScript && message.audioVoices) {
-                                    await handleListenToConversation(message.id, message.audioScript, message.audioVoices, message.audioTitle || 'Audio');
+                                    await handleListenToConversation(message.id, message.audioScript, message.audioVoices, message.audioTitle || 'Audio', message.cacheMetadata);
                                   } else {
-                                    await handleListenToContent(message.id, message.content);
+                                    await handleListenToContent(message.id, message.content, message.cacheMetadata);
                                   }
                                 }}
                               />

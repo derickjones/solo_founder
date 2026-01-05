@@ -212,9 +212,14 @@ export default function ComeFollowMePage() {
     try {
       // Check if we have conversation format (array) or old format (string)
       const isConversation = Array.isArray(scriptToUse);
+      const weekNumber = getWeekNumber(currentWeek);
       
       const requestBody: any = {
-        title: `${studyLevel.charAt(0).toUpperCase() + studyLevel.slice(1)} Audio Summary`
+        title: `${studyLevel.charAt(0).toUpperCase() + studyLevel.slice(1)} Audio Summary`,
+        // Add caching metadata
+        content_type: 'podcast',
+        week_number: weekNumber,
+        study_level: studyLevel
       };
 
       if (isConversation && voicesToUse) {

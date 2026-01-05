@@ -594,6 +594,10 @@ class TTSGenerateRequest(BaseModel):
     text: str  # Text to convert to speech
     voice: str = "cfm_male"  # Voice to use (default: cfm_male)
     title: str = "Audio"  # Title for the audio player
+    content_type: Optional[str] = None  # Content type for caching (study_guide, lesson_plan, core_content, daily_thoughts)
+    week_number: Optional[int] = None  # Week number for cache key
+    study_level: Optional[str] = None  # Study level (essential, connected, scholarly)
+    audience: Optional[str] = None  # Audience for lesson plans (adult, youth, children)
 
 class TTSGenerateResponse(BaseModel):
     audio_base64: str  # Base64 encoded MP3 audio
@@ -614,6 +618,12 @@ class TTSPodcastRequest(BaseModel):
     title: str = "Podcast Audio"  # Title for the audio player
     pause_between_speakers_ms: int = 500  # Pause between different speakers
     speaker_overlap_ms: int = 0  # Optional overlap for natural conversation (0 = no overlap)
+    
+    # Caching metadata (optional - for better cache organization)
+    content_type: Optional[str] = None  # podcast, study_guide, lesson_plan, core_content, daily_thoughts
+    week_number: Optional[int] = None  # Week number for cache key
+    study_level: Optional[str] = None  # Study level (essential, connected, scholarly)
+    audience: Optional[str] = None  # Audience for lesson plans (adult, youth, children)
 
 class TTSPodcastResponse(BaseModel):
     audio_base64: str  # Base64 encoded MP3 audio
@@ -851,8 +861,10 @@ async def generate_tts(request: TTSGenerateRequest):
     """
     Generate audio from text using Google Cloud TTS.
     Used for on-demand audio generation from Deep Dive or other content.
+    Supports caching when content_type and identifiers are provided.
     """
     import time
+    import hashlib
     start_time = time.time()
     
     logger.info(f"🎙️ TTS generation request: {len(request.text)} characters, voice={request.voice}")
@@ -867,6 +879,42 @@ async def generate_tts(request: TTSGenerateRequest):
     if len(request.text) > 100000:
         raise HTTPException(status_code=400, detail="Text too long. Maximum 100,000 characters.")
     
+    # ========== CHECK CACHE FIRST ==========
+    cache_key = None
+    if audio_cache_manager and request.content_type:
+        try:
+            # Generate cache key based on content type
+            content_hash = hashlib.sha256(request.text.encode()).hexdigest()[:16]
+            
+            if request.content_type == "study_guide" and request.week_number and request.study_level:
+                cache_key = f"audio-cache/study_guide/study_guide_week_{request.week_number:02d}_{request.study_level}_{request.voice}.mp3"
+            elif request.content_type == "lesson_plan" and request.week_number and request.audience:
+                cache_key = f"audio-cache/lesson_plan/lesson_plan_week_{request.week_number:02d}_{request.audience}_{request.voice}.mp3"
+            elif request.content_type == "core_content" and request.week_number:
+                cache_key = f"audio-cache/core_content/core_content_week_{request.week_number:02d}_{request.voice}.mp3"
+            elif request.content_type == "daily_thoughts" and request.week_number:
+                cache_key = f"audio-cache/daily_thoughts/daily_thoughts_week_{request.week_number:02d}_{request.voice}.mp3"
+            else:
+                # Generic cache key using content hash
+                cache_key = f"audio-cache/{request.content_type}/{request.content_type}_{content_hash}_{request.voice}.mp3"
+            
+            # Check if we have cached audio
+            cached_audio = audio_cache_manager.get_cached_audio(cache_key)
+            if cached_audio:
+                logger.info(f"🎯 Returning cached audio: {cache_key}")
+                audio_b64 = base64.b64encode(cached_audio).decode('utf-8')
+                total_time_ms = int((time.time() - start_time) * 1000)
+                return TTSGenerateResponse(
+                    audio_base64=audio_b64,
+                    title=request.title,
+                    character_count=len(request.text),
+                    generation_time_ms=total_time_ms
+                )
+            else:
+                logger.info(f"📭 Cache miss: {cache_key}")
+        except Exception as e:
+            logger.warning(f"Cache check failed: {e}")
+    
     try:
         # Generate audio using Google Cloud TTS
         audio_b64 = tts_client.generate_audio_base64(
@@ -876,6 +924,17 @@ async def generate_tts(request: TTSGenerateRequest):
         
         if not audio_b64:
             raise HTTPException(status_code=500, detail="Audio generation failed")
+        
+        # ========== CACHE THE RESULT ==========
+        if audio_cache_manager and cache_key:
+            try:
+                audio_bytes = base64.b64decode(audio_b64)
+                if audio_cache_manager.cache_audio(cache_key, audio_bytes):
+                    logger.info(f"💾 Cached audio for future requests: {cache_key}")
+                else:
+                    logger.warning(f"⚠️ Failed to cache audio: {cache_key}")
+            except Exception as e:
+                logger.warning(f"Cache storage failed: {e}")
         
         total_time_ms = int((time.time() - start_time) * 1000)
         logger.info(f"✅ TTS generated in {total_time_ms}ms for {len(request.text)} chars")
@@ -950,14 +1009,28 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
             else:
                 content_hash = hashlib.sha256(request.text.encode()).hexdigest()[:16]
             
-            # Cache key includes hash and voice info
+            # Determine content type and build appropriate cache key
+            content_type = request.content_type or "podcast"
             voice_suffix = f"_{request.voice}" if request.voice else ""
-            cache_key = f"audio-cache/podcast/podcast_{content_hash}{voice_suffix}.mp3"
+            
+            if content_type == "study_guide" and request.week_number and request.study_level:
+                cache_key = f"audio-cache/study_guide/study_guide_week_{request.week_number:02d}_{request.study_level}{voice_suffix}.mp3"
+            elif content_type == "lesson_plan" and request.week_number and request.audience:
+                cache_key = f"audio-cache/lesson_plan/lesson_plan_week_{request.week_number:02d}_{request.audience}{voice_suffix}.mp3"
+            elif content_type == "core_content" and request.week_number:
+                cache_key = f"audio-cache/core_content/core_content_week_{request.week_number:02d}{voice_suffix}.mp3"
+            elif content_type == "daily_thoughts" and request.week_number:
+                cache_key = f"audio-cache/daily_thoughts/daily_thoughts_week_{request.week_number:02d}{voice_suffix}.mp3"
+            elif content_type == "podcast":
+                cache_key = f"audio-cache/podcast/podcast_{content_hash}{voice_suffix}.mp3"
+            else:
+                # Generic fallback using content hash
+                cache_key = f"audio-cache/{content_type}/{content_type}_{content_hash}{voice_suffix}.mp3"
             
             # Check if we have cached audio
             cached_audio = audio_cache_manager.get_cached_audio(cache_key)
             if cached_audio:
-                logger.info(f"🎯 Returning cached podcast audio: {cache_key}")
+                logger.info(f"🎯 Returning cached audio: {cache_key}")
                 audio_b64 = base64.b64encode(cached_audio).decode('utf-8')
                 
                 # Estimate character count and duration
@@ -1156,9 +1229,9 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
             try:
                 upload_success = audio_cache_manager.upload_to_cache(cache_key, final_audio_bytes)
                 if upload_success:
-                    logger.info(f"💾 Cached podcast audio for future requests: {cache_key}")
+                    logger.info(f"💾 Cached audio for future requests: {cache_key}")
                 else:
-                    logger.warning(f"⚠️ Failed to cache podcast audio")
+                    logger.warning(f"⚠️ Failed to cache audio: {cache_key}")
             except Exception as e:
                 logger.warning(f"Cache upload failed: {e}, but returning generated audio")
         
