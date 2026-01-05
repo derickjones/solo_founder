@@ -258,7 +258,7 @@ def generate_study_guide(week_number: int, study_level: str) -> dict:
     
     try:
         completion = client.chat.completions.create(
-            model="grok-3-latest",
+            model="grok-4-1-fast-reasoning",
             messages=[
                 {
                     "role": "system",

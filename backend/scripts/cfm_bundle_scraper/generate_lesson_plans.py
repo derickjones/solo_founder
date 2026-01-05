@@ -203,7 +203,7 @@ def generate_lesson_plan(week_number: int, audience: str) -> dict:
     
     try:
         completion = client.chat.completions.create(
-            model="grok-3-latest",
+            model="grok-4-1-fast-reasoning",
             messages=[
                 {
                     "role": "system",
