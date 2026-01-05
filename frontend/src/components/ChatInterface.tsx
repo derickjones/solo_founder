@@ -595,7 +595,16 @@ export default function ChatInterface({
             if (data.scriptures && data.scriptures.length > 0) {
               formattedContent += `## Scripture References\n\n`;
               data.scriptures.forEach((scripture: any) => {
-                formattedContent += `### ${scripture.book} ${scripture.chapter}:${scripture.verses.join(', ')}\n\n${scripture.text}\n\n`;
+                formattedContent += `### ${scripture.reference || scripture.title}\n\n`;
+                if (scripture.summary) {
+                  formattedContent += `*${scripture.summary}*\n\n`;
+                }
+                if (scripture.text) {
+                  formattedContent += `${scripture.text}\n\n`;
+                }
+                if (scripture.url) {
+                  formattedContent += `[Read on ChurchofJesusChrist.org](${scripture.url})\n\n`;
+                }
               });
             }
             
