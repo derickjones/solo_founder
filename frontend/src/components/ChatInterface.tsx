@@ -604,18 +604,31 @@ export default function ChatInterface({
                     .replace(/â/g, '"')     // Fix quotes
                     .replace(/â/g, '"')     // Fix quotes
                     .replace(/â/g, "'")     // Fix apostrophes
-                    .replace(/â/g, "'");    // Fix apostrophes
+                    .replace(/â/g, "'")     // Fix apostrophes
+                    // Fix common spacing issues by adding spaces around specific character sequences
+                    .replace(/([a-z])([A-Z])/g, '$1 $2'); // Add space between lowercase and uppercase
                   formattedContent += `*${cleanSummary}*\n\n`;
                 }
                 if (scripture.text) {
                   // Clean encoding issues and format scripture text with proper verse breaks
-                  const cleanText = scripture.text
+                  let cleanText = scripture.text
                     .replace(/â/g, '—')     // Fix em dashes
                     .replace(/âs/g, "'s")   // Fix apostrophes  
                     .replace(/â/g, '"')     // Fix quotes
                     .replace(/â/g, '"')     // Fix quotes
                     .replace(/â/g, "'")     // Fix apostrophes
-                    .replace(/â/g, "'");    // Fix apostrophes
+                    .replace(/â/g, "'")     // Fix apostrophes
+                    // Normalize whitespace and ensure proper spacing
+                    .replace(/\s+/g, ' ')   // Multiple spaces to single space
+                    .trim();                // Remove leading/trailing spaces
+                  
+                  // Force proper spacing around common problematic patterns
+                  cleanText = cleanText
+                    .replace(/([a-z])([A-Z])/g, '$1 $2')    // lowercase followed by uppercase
+                    .replace(/([a-z])(\d)/g, '$1 $2')       // lowercase followed by number  
+                    .replace(/(\d)([A-Z])/g, '$1 $2')       // number followed by uppercase
+                    .replace(/([a-z])(unto|with|the|and|of|in|to|for|by|he|she|it|I|was|were|are|is|be|been|have|had|has|will|would|could|should|may|might|can|shall)/g, '$1 $2')
+                    .replace(/(unto|with|the|and|of|in|to|for|by|he|she|it|I|was|were|are|is|be|been|have|had|has|will|would|could|should|may|might|can|shall)([a-z])/g, '$1 $2');
                     
                   const formattedScripture = cleanText
                     // Add line breaks before verse numbers (pattern: number followed by text)
