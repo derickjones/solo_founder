@@ -597,11 +597,27 @@ export default function ChatInterface({
               data.scriptures.forEach((scripture: any) => {
                 formattedContent += `### ${scripture.reference || scripture.title}\n\n`;
                 if (scripture.summary) {
-                  formattedContent += `*${scripture.summary}*\n\n`;
+                  // Clean encoding issues in summary
+                  const cleanSummary = scripture.summary
+                    .replace(/â/g, '—')     // Fix em dashes
+                    .replace(/âs/g, "'s")   // Fix apostrophes
+                    .replace(/â/g, '"')     // Fix quotes
+                    .replace(/â/g, '"')     // Fix quotes
+                    .replace(/â/g, "'")     // Fix apostrophes
+                    .replace(/â/g, "'");    // Fix apostrophes
+                  formattedContent += `*${cleanSummary}*\n\n`;
                 }
                 if (scripture.text) {
-                  // Format scripture text with proper verse breaks
-                  const formattedScripture = scripture.text
+                  // Clean encoding issues and format scripture text with proper verse breaks
+                  const cleanText = scripture.text
+                    .replace(/â/g, '—')     // Fix em dashes
+                    .replace(/âs/g, "'s")   // Fix apostrophes  
+                    .replace(/â/g, '"')     // Fix quotes
+                    .replace(/â/g, '"')     // Fix quotes
+                    .replace(/â/g, "'")     // Fix apostrophes
+                    .replace(/â/g, "'");    // Fix apostrophes
+                    
+                  const formattedScripture = cleanText
                     // Add line breaks before verse numbers (pattern: number followed by text)
                     .replace(/(\d+)\s*([A-Z])/g, '\n\n**$1** $2')
                     // Clean up any double line breaks at the start
