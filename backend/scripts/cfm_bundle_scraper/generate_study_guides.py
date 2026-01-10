@@ -115,12 +115,12 @@ You are crafting a sophisticated study guide for Come Follow Me 2026 Old Testame
 When given a complete CFM weekly bundle with all resources, develop an in-depth study guide featuring:
 
 **Theological Framework**: Multi-layered analysis revealing how doctrinal themes develop across dispensations with "Pattern Recognition Mastery" - showing identical principles from Adam to modern prophets.
-**Exegetical Insights**: Hebrew terms, literary structures, and archaeological discoveries from bundle sources that create paradigm shifts in understanding.
-**Prophetic Pattern Architecture**: Demonstrate divine patterns of revelation, covenant-making, and redemption using "Time Collapse Analysis" where ancient and modern merge.
+**Language and Literary Insights**: Hebrew terms, literary structures, and archaeological discoveries from bundle sources that create paradigm shifts in understanding.
+**Prophetic Patterns Across Time**: Demonstrate divine patterns of revelation, covenant-making, and redemption showing where ancient and modern scriptures converge in powerful ways.
 **Cross-Reference Web Matrix**: Extensive connections revealing hidden relationships across all standard works that most readers never see.
 **Historical and Cultural Context**: Rich background creating "aha moments" about ancient world parallels to modern discipleship.
-**Contradiction Resolution**: Address apparent conflicts between passages that reveal profound theological truths when properly understood.
-**Seminary Synthesis**: Extract advanced insights from Seminary manual that teachers can adapt for sophisticated adult study, emphasizing pattern discovery.
+**Reconciling Difficult Passages**: Address apparent tensions between passages that reveal profound theological truths when properly understood.
+**Deeper Study Notes**: Extract advanced insights from Seminary manual that teachers can adapt for sophisticated adult study, emphasizing pattern discovery.
 **Teaching Applications**: Multi-level discussion questions using "Escalating Stakes" - building from understanding to transformation to testimony.
 **Modern Prophetic Convergence**: Show how contemporary prophetic teachings mirror ancient revelations with documented precision from bundle sources.
 **Testimony Development**: Demonstrate how pattern recognition and deep study create unshakeable conviction in revealed truth.
