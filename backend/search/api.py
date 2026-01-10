@@ -589,22 +589,6 @@ async def global_exception_handler(request: Request, exc: Exception):
         content={"detail": f"Internal server error: {str(exc)}"}
     )
 
-# TTS Generation Models (for on-demand audio from any text)
-class TTSGenerateRequest(BaseModel):
-    text: str  # Text to convert to speech
-    voice: str = "cfm_male"  # Voice to use (default: cfm_male)
-    title: str = "Audio"  # Title for the audio player
-    content_type: Optional[str] = None  # Content type for caching (study_guide, lesson_plan, core_content, daily_thoughts)
-    week_number: Optional[int] = None  # Week number for cache key
-    study_level: Optional[str] = None  # Study level (essential, connected, scholarly)
-    audience: Optional[str] = None  # Audience for lesson plans (adult, youth, children)
-
-class TTSGenerateResponse(BaseModel):
-    audio_base64: str  # Base64 encoded MP3 audio
-    title: str
-    character_count: int
-    generation_time_ms: int
-
 # Podcast TTS with Intro/Outro Music
 class TTSPodcastRequest(BaseModel):
     # Multi-speaker conversation format (Option A - new format)
@@ -856,114 +840,18 @@ def generate_audio_with_tts(script_text: str, voice: str = "cfm_male") -> Dict[s
         return {}
 
 
-@app.post("/tts/generate", response_model=TTSGenerateResponse)
-async def generate_tts(request: TTSGenerateRequest):
-    """
-    Generate audio from text using Google Cloud TTS.
-    Used for on-demand audio generation from Deep Dive or other content.
-    Supports caching when content_type and identifiers are provided.
-    """
-    import time
-    import hashlib
-    start_time = time.time()
-    
-    logger.info(f"🎙️ TTS generation request: {len(request.text)} characters, voice={request.voice}")
-    
-    if not tts_client:
-        raise HTTPException(status_code=503, detail="TTS service not available")
-    
-    if not request.text or len(request.text.strip()) < 10:
-        raise HTTPException(status_code=400, detail="Text must be at least 10 characters")
-    
-    # Limit text length to prevent abuse (100k chars max)
-    if len(request.text) > 100000:
-        raise HTTPException(status_code=400, detail="Text too long. Maximum 100,000 characters.")
-    
-    # ========== CHECK CACHE FIRST ==========
-    cache_key = None
-    if audio_cache_manager and request.content_type:
-        try:
-            # Generate cache key based on content type
-            content_hash = hashlib.sha256(request.text.encode()).hexdigest()[:16]
-            
-            if request.content_type == "study_guide" and request.week_number and request.study_level:
-                cache_key = f"audio-cache/study_guide/study_guide_week_{request.week_number:02d}_{request.study_level}_{request.voice}.mp3"
-            elif request.content_type == "lesson_plan" and request.week_number and request.audience:
-                cache_key = f"audio-cache/lesson_plan/lesson_plan_week_{request.week_number:02d}_{request.audience}_{request.voice}.mp3"
-            elif request.content_type == "core_content" and request.week_number:
-                cache_key = f"audio-cache/core_content/core_content_week_{request.week_number:02d}_{request.voice}.mp3"
-            elif request.content_type == "daily_thoughts" and request.week_number:
-                cache_key = f"audio-cache/daily_thoughts/daily_thoughts_week_{request.week_number:02d}_{request.voice}.mp3"
-            else:
-                # Generic cache key using content hash
-                cache_key = f"audio-cache/{request.content_type}/{request.content_type}_{content_hash}_{request.voice}.mp3"
-            
-            # Check if we have cached audio
-            cached_audio = audio_cache_manager.get_cached_audio(cache_key)
-            if cached_audio:
-                logger.info(f"🎯 Returning cached audio: {cache_key}")
-                audio_b64 = base64.b64encode(cached_audio).decode('utf-8')
-                total_time_ms = int((time.time() - start_time) * 1000)
-                return TTSGenerateResponse(
-                    audio_base64=audio_b64,
-                    title=request.title,
-                    character_count=len(request.text),
-                    generation_time_ms=total_time_ms
-                )
-            else:
-                logger.info(f"📭 Cache miss: {cache_key}")
-        except Exception as e:
-            logger.warning(f"Cache check failed: {e}")
-    
-    try:
-        # Generate audio using Google Cloud TTS
-        audio_b64 = tts_client.generate_audio_base64(
-            text=request.text,
-            voice=request.voice
-        )
-        
-        if not audio_b64:
-            raise HTTPException(status_code=500, detail="Audio generation failed")
-        
-        # ========== CACHE THE RESULT ==========
-        if audio_cache_manager and cache_key:
-            try:
-                audio_bytes = base64.b64decode(audio_b64)
-                if audio_cache_manager.cache_audio(cache_key, audio_bytes):
-                    logger.info(f"💾 Cached audio for future requests: {cache_key}")
-                else:
-                    logger.warning(f"⚠️ Failed to cache audio: {cache_key}")
-            except Exception as e:
-                logger.warning(f"Cache storage failed: {e}")
-        
-        total_time_ms = int((time.time() - start_time) * 1000)
-        logger.info(f"✅ TTS generated in {total_time_ms}ms for {len(request.text)} chars")
-        
-        return TTSGenerateResponse(
-            audio_base64=audio_b64,
-            title=request.title,
-            character_count=len(request.text),
-            generation_time_ms=total_time_ms
-        )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"TTS generation error: {e}")
-        raise HTTPException(status_code=500, detail=f"TTS generation failed: {str(e)}")
-
-
 @app.post("/tts/podcast", response_model=TTSPodcastResponse)
 async def generate_podcast_tts(request: TTSPodcastRequest):
     """
     Generate podcast audio with clean voice and music intro/outro.
     
     Audio structure:
-    - Intro: 13 seconds of music at full volume
-    - Music fade-out: 5 seconds (13s-18s) music fades to silence
-    - Voice: Full volume, no fade-in, no background music
+    - Intro: 0-13s music at full volume
+    - Music fade-out: 13s-23s (10 second fade to silence)
+    - Voice starts: 18s (5 seconds into the fade-out)
+    - Voice: Full volume, no background music during main content
     - Outro fade-in: Music fades in 10 seconds before voice ends
-    - Outro: 30 seconds of music after voice ends (with 8s fade-out)
+    - Outro: 30 seconds of music after voice ends (with 8s fade-out at end)
     - Final: Normalized with -1dB headroom
     
     Supports caching: Final audio is cached to avoid regeneration
@@ -1146,7 +1034,8 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
         
         # ========== TIMING CONFIGURATION ==========
         intro_duration_ms = 13000          # 13s intro at full volume
-        music_fadeout_ms = 5000            # 5s fade out (13s-18s)
+        music_fadeout_ms = 10000           # 10s fade out (13s-23s)
+        voice_start_ms = 18000             # Voice starts at 18s
         outro_fadein_ms = 10000            # 10s fade in before voice ends
         outro_duration_ms = 30000          # 30s outro after voice
         outro_final_fadeout_ms = 8000      # 8s fade out at very end
@@ -1164,19 +1053,19 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
         # Intro: 0-13s at full volume
         intro_music = music[:intro_duration_ms]
         
-        # Fade out: 13s-18s
+        # Fade out: 13s-23s (10 second fade)
         fadeout_section = music[intro_duration_ms:intro_duration_ms + music_fadeout_ms]
         fadeout_section = fadeout_section.fade_out(duration=music_fadeout_ms)
         
         intro_with_fadeout = intro_music + fadeout_section
         
         # ========== VOICE TRACK (NO FADE-IN, FULL VOLUME) ==========
-        # Voice starts at 13 seconds at FULL volume (no fade-in)
-        voice_with_padding = AudioSegment.silent(duration=intro_duration_ms) + voice
+        # Voice starts at 18 seconds at FULL volume (no fade-in)
+        voice_with_padding = AudioSegment.silent(duration=voice_start_ms) + voice
         
         # ========== BUILD OUTRO (FADE IN UNDER LAST 10s OF VOICE) ==========
         # Calculate when outro should start fading in (10s before voice ends)
-        outro_start_position = intro_duration_ms + voice_duration_ms - outro_fadein_ms
+        outro_start_position = voice_start_ms + voice_duration_ms - outro_fadein_ms
         
         # Get music section for outro (fade-in + full outro)
         outro_music_start = intro_duration_ms + music_fadeout_ms
