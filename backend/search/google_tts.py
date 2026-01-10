@@ -9,6 +9,7 @@ Quality: Excellent with Chirp 3 HD voices
 """
 
 import os
+import re
 import logging
 import base64
 import hashlib
@@ -24,6 +25,55 @@ try:
 except ImportError:
     AUDIO_CACHE_AVAILABLE = False
     logger.warning("Audio cache not available - will generate TTS without caching")
+
+
+def clean_text_for_tts(text: str) -> str:
+    """
+    Clean text for TTS by removing or replacing characters that cause issues.
+    
+    Removes:
+    - Pilcrow/paragraph marks (¶) - TTS reads as "paragraph mark"
+    - Other special unicode symbols
+    - Markdown formatting characters
+    - Multiple consecutive spaces/newlines
+    """
+    if not text:
+        return text
+    
+    # Characters to remove completely
+    remove_chars = [
+        '¶',      # Pilcrow/paragraph mark
+        '§',      # Section sign
+        '†',      # Dagger
+        '‡',      # Double dagger
+        '•',      # Bullet (sometimes read aloud)
+        '◦',      # White bullet
+        '‣',      # Triangular bullet
+        '⁃',      # Hyphen bullet
+        '※',      # Reference mark
+        '⁂',      # Asterism
+        '⁕',      # Flower punctuation
+        '⁎',      # Low asterisk
+        '⁑',      # Two asterisks
+    ]
+    
+    for char in remove_chars:
+        text = text.replace(char, '')
+    
+    # Replace markdown bold/italic markers with nothing
+    text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)  # **bold** -> bold
+    text = re.sub(r'\*([^*]+)\*', r'\1', text)      # *italic* -> italic
+    text = re.sub(r'__([^_]+)__', r'\1', text)      # __bold__ -> bold
+    text = re.sub(r'_([^_]+)_', r'\1', text)        # _italic_ -> italic
+    
+    # Remove markdown headers but keep text
+    text = re.sub(r'^#{1,6}\s*', '', text, flags=re.MULTILINE)  # ### Header -> Header
+    
+    # Clean up multiple spaces and newlines
+    text = re.sub(r' +', ' ', text)           # Multiple spaces -> single space
+    text = re.sub(r'\n{3,}', '\n\n', text)    # 3+ newlines -> 2 newlines
+    
+    return text.strip()
 
 
 class GoogleCloudTTS:
@@ -149,6 +199,9 @@ class GoogleCloudTTS:
             Audio bytes in MP3 format or None if failed
         """
         try:
+            # Clean text before processing
+            text = clean_text_for_tts(text)
+            
             language_code, voice_name = self.get_voice_config(voice)
             
             # Handle text chunking for long content
