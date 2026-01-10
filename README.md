@@ -1,202 +1,261 @@
-# Gospel Study App - LDS AI Scripture Study Assistant# Gospel Study App - LDS AI Scripture Study Assistant# Gospel Study App - LDS AI Scripture Study Assistant# Gospel Study App - LDS AI Scripture Study Assistant
+# Gospel Study App - AI-Powered LDS Scripture Study Assistant
 
-
-
-> **Production-ready AI-powered scripture study app with GPT-4o Q&A and pre-generated Come Follow Me content**
-
-
-
-## 🚀 Live Deployments> **Production-ready AI-powered scripture study app with GPT-4o Q&A and pre-generated Come Follow Me content**
-
-
-
-- **🌐 Frontend**: https://gospelstudyapp.com (Vercel)
-
-- **🔌 Backend API**: https://gospel-study-backend-273320302933.us-central1.run.app (Google Cloud Run)
-
-- **📚 Repository**: https://github.com/derickjones/solo_founder## 🎉 Latest Updates (January 2026)> **Production-ready AI-powered scripture study app with GPT-4o Q&A and pre-generated Come Follow Me content**> **Production-ready AI-powered scripture study app with GPT-4o Q&A and pre-generated Come Follow Me content**
-
-
-
----
-
-
-
-## 🎉 Latest Updates (January 3, 2026)**Audio Caching System:**
-
-
-
-### Audio Player UX Improvements- ⚡ **95% faster audio loading** - Cached audio loads in 0.5-2s (vs 10-30s)
-
-- **🎧 Instant Audio Player** - Player appears immediately after generating content (no more "Listen to This Content" button)
-
-- **▶️ Generate on Play** - TTS audio generates when you click play, with loading spinner in the button- 💰 **99% cost savings** - Cached requests cost ~$0.0001 vs $0.016/1000 chars## 🎉 Latest Updates (January 2026)## 🎉 Latest Updates (January 2026)
-
-- **⚡ Smart Auto-Play** - Cached audio (< 3s response) automatically starts playing
-
-- **📍 Scroll Position Fix** - Page no longer jumps to bottom when content loads or audio generates- 🎵 **Smart auto-play** - Automatically plays when loaded from cache
-
-- **🎵 Universal Audio** - Audio player now available for ALL content types (Deep Dive, Lesson Plans, Core Content, Podcasts)
-
-- 📦 **GCS integration** - All TTS audio cached in Google Cloud Storage
-
-### Audio Caching System
-
-- ⚡ **95% faster audio loading** - Cached audio loads in 0.5-2s (vs 10-30s)- 🔧 **Cache management** - Stats, cleanup, and clear endpoints
-
-- 💰 **99% cost savings** - Cached requests cost ~$0.0001 vs $0.016/1000 chars
-
-- 📦 **GCS integration** - All TTS audio cached in Google Cloud Storage**Audio Caching System:****Audio Caching System:**
-
-- 🔧 **Cache management** - Stats, cleanup, and clear endpoints
+> **Production-ready AI-powered scripture study app with GPT-4o Q&A, pre-generated Come Follow Me content, and comprehensive audio caching system**
 
 ## 🚀 Live Deployments
 
+- **🌐 Frontend**: https://gospelstudyapp.com (Vercel)
+- **🔌 Backend API**: https://gospel-study-backend-273320302933.us-central1.run.app (Google Cloud Run)
+- **📚 Repository**: https://github.com/derickjones/solo_founder
+
 ---
 
-- ⚡ **95% faster audio loading** - Cached audio loads in 0.5-2s (vs 10-30s)- ⚡ **95% faster audio loading** - Cached audio loads in 0.5-2s (vs 10-30s)
+## 🎉 Latest Updates (January 2026)
+
+### Advanced Audio Caching System
+- ⚡ **95% faster audio loading** - Cached audio loads in 0.5-2s (vs 10-30s)
+- 💰 **99% cost savings** - Cached requests cost ~$0.0001 vs $0.016/1000 chars
+- 🎵 **Smart auto-play** - Automatically plays when loaded from cache
+- 📦 **GCS integration** - All TTS audio cached in Google Cloud Storage
+- 🔧 **Cache management** - Stats, cleanup, and clear endpoints
+
+### Enhanced User Experience
+- **🎧 Instant Audio Player** - Player appears immediately after generating content
+- **▶️ Generate on Play** - TTS audio generates when you click play, with loading spinner
+- **📍 Scroll Position Fix** - Page no longer jumps to bottom when content loads
+- **🎵 Universal Audio** - Audio player available for ALL content types
+
+### AI Model Upgrades
+- **🤖 Grok 4.1 Fast Reasoning** - All generation scripts now use the latest XAI model
+- **📝 XAI Proofreading** - Core content includes AI proofreading while keeping text verbatim
+- **🎙️ Random Host Selection** - Podcast scripts randomly assign Sarah/David as host/guest
+
+---
 
 ## ✨ Key Features
 
-- **🌐 Frontend**: https://gospelstudyapp.com (Vercel)
-
 ### Core Capabilities
-
-- **🧠 AI-Powered Q&A**: OpenAI GPT-4o with real-time streaming responses- **🔌 Backend API**: https://gospel-study-backend-273320302933.us-central1.run.app (Google Cloud Run)- 💰 **99% cost savings** - Cached requests cost ~$0.0001 vs $0.016/1000 chars- 💰 **99% cost savings** - Cached requests cost ~$0.0001 vs $0.016/1000 chars
-
+- **🧠 AI-Powered Q&A**: OpenAI GPT-4o with real-time streaming responses
 - **📖 Complete LDS Library**: 58,088+ scripture segments with FAISS vector search
-
-- **📅 Come Follow Me 2026**: Complete Old Testament study system with pre-generated content- **📚 Repository**: https://github.com/derickjones/solo_founder
-
+- **📅 Come Follow Me 2026**: Complete Old Testament study system with pre-generated content
 - **🔐 Authentication**: Clerk integration with Google/Apple login
+- **💳 Payment Processing**: Stripe subscription system ($4.99/month)
 
-- **💳 Payment Processing**: Stripe subscription system ($4.99/month)- 🎵 **Smart auto-play** - Automatically plays when loaded from cache- 🎵 **Smart auto-play** - Automatically plays when loaded from cache
+### Come Follow Me Study System (Pre-Generated)
 
+All CFM content is **pre-generated offline** and served as static JSON files for instant loading:
 
-
-### Come Follow Me Study System (Pre-Generated)---
-
-
-
-All CFM content is **pre-generated offline** and served as static JSON files for instant loading:- 📦 **GCS integration** - All TTS audio cached in Google Cloud Storage- 📦 **GCS integration** - All TTS audio cached in Google Cloud Storage
-
-
-
-| Feature | Files | Description |## ✨ Key Features
-
+| Feature | Files | Description |
 |---------|-------|-------------|
-
-| **💭 Daily Thoughts** | 364 files | Daily spiritual insights (52 weeks × 7 days) |- 🔧 **Cache management** - Stats, cleanup, and clear endpoints- 🔧 **Cache management** - Stats, cleanup, and clear endpoints
-
+| **💭 Daily Thoughts** | 364 files | Daily spiritual insights (52 weeks × 7 days) |
 | **🎙️ Podcast Scripts** | 156 files | Two-voice conversation podcasts (52 weeks × 3 levels) |
-
-| **📚 Study Guides** | 156 files | Deep dive content (52 weeks × 3 levels) |### Core Capabilities
-
+| **📚 Study Guides** | 156 files | Deep dive content (52 weeks × 3 levels) |
 | **📝 Lesson Plans** | 156 files | Teaching materials (52 weeks × 3 audiences) |
+| **📖 Core Content** | 52 files | Complete CFM materials with scripture text |
 
-| **📖 Core Content** | 52 files | Raw CFM bundle materials |
+### Study Levels & Audiences
 
-
-
-### Study Levels & Audiences- **🧠 AI-Powered Q&A**: OpenAI GPT-4o with real-time streaming responses
-
-
-
-| Type | Options |- **📖 Complete LDS Library**: 58,088+ scripture segments with FAISS vector search## 🚀 Live Deployments## 🚀 Live Deployments
-
+| Type | Options |
 |------|---------|
-
-| **Study Levels** | Essential (~5 min), Connected (~10 min), Scholarly (~15 min) |- **📅 Come Follow Me 2026**: Complete Old Testament study system with pre-generated content
-
+| **Study Levels** | Essential (~5 min), Connected (~10 min), Scholarly (~15 min) |
 | **Lesson Audiences** | Adult, Youth, Children |
-
-- **🔐 Authentication**: Clerk integration with Google/Apple login
 
 ---
 
-- **💳 Payment Processing**: Stripe subscription system ($4.99/month)
-
-## 🎙️ Enhanced Podcast Features (v3)
-
-- **🌐 Frontend**: https://gospelstudyapp.com (Vercel)- **🌐 Frontend**: https://gospelstudyapp.com (Vercel)
+## 🎙️ Enhanced Podcast Features
 
 ### Two-Voice Conversation Format
-
-- **Sarah** (female/aoede): Host who poses intriguing questions and guides discovery### Come Follow Me Study System (Pre-Generated)
-
-- **David** (male/alnilam): Guest who reveals insights and provides scholarly depth
-
-- **🔌 Backend API**: https://gospel-study-backend-273320302933.us-central1.run.app (Google Cloud Run)- **🔌 Backend API**: https://gospel-study-backend-273320302933.us-central1.run.app (Google Cloud Run)
+- **Sarah** (female/aoede): Host who poses intriguing questions and guides discovery
+- **David** (male/enceladus): Guest who reveals insights and provides scholarly depth
+- **🎲 Random Assignment**: Each podcast randomly selects who hosts vs guests
 
 ### Educational Scaffolding
-
-- ✅ **Addictive Hooks**: Every podcast starts with compelling mystery or discoveryAll CFM content is **pre-generated offline** and served as static JSON files for instant loading:
-
+- ✅ **Engaging Hooks**: Every podcast starts with compelling mystery or discovery
 - ✅ **Mystery Architecture**: Setup → tension building → satisfying resolution
-
-- ✅ **Multi-Perspective Analysis**: Ancient Israel + Christ's view + Modern restoration- **📚 Repository**: https://github.com/derickjones/solo_founder- **📚 Repository**: https://github.com/derickjones/solo_founder
-
+- ✅ **Multi-Perspective Analysis**: Ancient Israel + Christ's view + Modern restoration
 - ✅ **Pattern Recognition**: Systematic connections across 2-4+ dispensations
-
-- ✅ **Historical Context**: Archaeological insights and cultural background| Feature | Files | Description |
-
+- ✅ **Historical Context**: Archaeological insights and cultural background
 - ✅ **Hidden Connections**: Revealed restored truths (Moses 6:63, Abraham 3, JST insights)
 
-|---------|-------|-------------|
-
 ### Audio Processing
-
-- Multi-segment TTS generation (separate audio per speaker)| **💭 Daily Thoughts** | 364 files | Daily spiritual insights (52 weeks × 7 days) |
-
+- Multi-segment TTS generation (separate audio per speaker)
 - 500ms pauses between speakers
-
-- Professional intro/outro music with crossfades| **🎙️ Podcast Scripts** | 156 files | Two-voice conversation podcasts (52 weeks × 3 levels) |------
-
+- Professional intro/outro music with crossfades
 - Normalized to -16 LUFS, 192kbps MP3 output
+- 6 Google Chirp 3 HD voices: alnilam, achird, enceladus, aoede, autonoe, erinome
 
-- 6 Chirp 3 HD voices: alnilam, achird, enceladus, aoede, autonoe, erinome| **📚 Study Guides** | 156 files | Deep dive content (52 weeks × 3 levels) |
+---
 
+## 🚀 Audio Caching System
 
-
----| **📝 Lesson Plans** | 156 files | Teaching materials (52 weeks × 3 audiences) |
-
-
-
-## 🚀 Audio Caching System| **📖 Core Content** | 52 files | Raw CFM bundle materials |
-
-
-
-### Performance Optimization## ✨ Key Features## ✨ Key Features
-
+### Performance Optimization
 - **Google Cloud Storage Integration**: Automatic caching of all generated TTS audio
-
-- **Cache-First Loading**: Checks cache before generating new audio**Study Levels:** Essential, Connected, Scholarly  
-
+- **Cache-First Loading**: Checks cache before generating new audio
 - **99% Cost Reduction**: Cached requests cost ~$0.0001 vs $0.016/1000 chars for TTS
-
-- **95% Faster Loading**: Cached audio loads in 0.5-2s vs 10-30s for fresh generation**Lesson Audiences:** Adult, Youth, Children
-
+- **95% Faster Loading**: Cached audio loads in 0.5-2s vs 10-30s for fresh generation
 - **Smart Auto-Play**: Automatically plays audio when loaded from cache (< 3s response time)
 
-
-
 ### Cache Management
-
-- **30-Day Retention**: Automatic age-based cleanup with manual trigger### 🎙️ Enhanced Podcast Features (v3)### Core Capabilities### Core Capabilities
-
+- **30-Day Retention**: Automatic age-based cleanup with manual trigger
 - **Cache Statistics**: Real-time monitoring via `/cache/stats` endpoint
-
 - **Content-Aware Keys**: Separate cache for podcasts, study guides, lesson plans, etc.
-
 - **Voice-Specific**: Different cache entries for each voice selection
 
-**Two-Voice Conversation Format:**
-
 ### Storage Structure
-
-```- **Sarah** (female/aoede): Host who poses intriguing questions and guides discovery
-
+```
 gs://gospel-guide-content-gospel-study-474301/audio-cache/
+├── podcast/week_01_essential_alnilam.mp3
+├── study_guide/week_01_connected_aoede.mp3
+├── lesson_plan/week_01_adult_enceladus.mp3
+└── core_content/week_01_combined.mp3
+```
+
+---
+
+## 🛠️ Development & Deployment
+
+### Backend Technologies
+- **Python 3.12**: FastAPI backend with async processing
+- **Google Cloud Run**: Containerized deployment with auto-scaling
+- **Google Cloud Storage**: Audio caching bucket
+- **FAISS**: Vector search for 58k+ scripture segments
+- **XAI Grok 4.1**: AI content generation
+- **OpenAI GPT-4o**: Q&A responses
+
+### Frontend Technologies
+- **Next.js 14**: React framework with TypeScript
+- **Vercel**: Edge deployment with global CDN
+- **Tailwind CSS**: Utility-first styling
+- **Clerk**: Authentication provider
+- **Stripe**: Payment processing
+
+### Content Generation Pipeline
+```bash
+cd backend/scripts/cfm_bundle_scraper
+
+# Generate all content types for a week
+XAI_API_KEY='your-key' python3 generate_core_content.py --week 1
+XAI_API_KEY='your-key' python3 generate_daily_thoughts.py --week 1
+XAI_API_KEY='your-key' python3 generate_podcast_scripts.py --week 1
+XAI_API_KEY='your-key' python3 generate_study_guides.py --week 1
+XAI_API_KEY='your-key' python3 generate_lesson_plans.py --week 1
+
+# Generate range of weeks
+XAI_API_KEY='your-key' python3 generate_core_content.py --start 1 --end 52 --force
+```
+
+---
+
+## 📂 Project Structure
+
+```
+backend/
+├── main.py                     # FastAPI application entry point
+├── search/                     # AI search and TTS services
+│   ├── api.py                 # Main API endpoints
+│   ├── scripture_search.py    # FAISS vector search
+│   ├── google_tts.py          # Text-to-speech with caching
+│   ├── audio_cache.py         # GCS audio caching system
+│   └── cloud_storage.py       # Google Cloud Storage integration
+├── scripts/
+│   ├── scrapers/              # Content scrapers
+│   └── cfm_bundle_scraper/    # CFM 2026 content generators
+└── assets/intro_mp3s/         # Podcast intro/outro music
+
+frontend/
+├── src/
+│   ├── components/            # React components
+│   ├── services/              # API integration
+│   └── utils/                 # Utility functions
+└── public/
+    ├── core_content/          # Pre-generated CFM core content
+    ├── daily_thoughts/        # Pre-generated daily thoughts
+    ├── podcasts/             # Pre-generated podcast scripts
+    ├── study_guides/         # Pre-generated study guides
+    └── lesson_plans/         # Pre-generated lesson plans
+```
+
+---
+
+## 🧪 API Testing
+
+```bash
+# Test Q&A Search
+curl -X POST "https://gospel-study-backend-273320302933.us-central1.run.app/ask" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "What is faith?", "mode": "default", "top_k": 5}'
+
+# Test TTS with Caching
+curl -X POST "https://gospel-study-backend-273320302933.us-central1.run.app/tts" \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Hello world", "voice": "alnilam", "title": "Test"}'
+
+# Check Cache Statistics
+curl -X GET "https://gospel-study-backend-273320302933.us-central1.run.app/cache/stats"
+
+# Health Check
+curl -X GET "https://gospel-study-backend-273320302933.us-central1.run.app/health"
+```
+
+---
+
+## 📈 Performance Metrics
+
+| Metric | Value |
+|--------|-------|
+| Scripture Search | <200ms average |
+| AI Q&A Generation | Real-time streaming |
+| CFM Content Loading | **Instant** (static JSON) |
+| Audio Cache Hit Rate | 85%+ after initial generation |
+| Vector Search | 58,088+ segments indexed |
+| Mobile Performance | Optimized for iOS/Android |
+
+---
+
+## 🔧 Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| Study Level Errors | Use Essential/Connected/Scholarly |
+| Lesson Audience Errors | Use Adult/Youth/Children |
+| Audio Generation | Google Cloud TTS uses service account auth (automatic on Cloud Run) |
+| Content Generation | Requires XAI_API_KEY for all generation scripts |
+| Authentication | Check Clerk configuration in middleware.ts |
+| Payment Issues | Verify Stripe webhook endpoints |
+| Cache Issues | Check GCS bucket permissions and network connectivity |
+
+---
+
+## 🎯 Future Enhancements
+
+- **📊 Study Progress**: User analytics and progress tracking
+- **💾 Offline Mode**: Service worker for scripture access
+- **👥 Social Features**: Study group sharing and discussions
+- **🔍 Advanced Search**: Cross-reference discovery and linking
+- **🌍 Multi-language**: Spanish, Portuguese expansion
+- **📱 Mobile Apps**: Native iOS and Android applications
+
+---
+
+## 🎨 Specialized Study Modes
+
+| Mode | Personality | Scope |
+|------|-------------|-------|
+| **Book of Mormon Only** | Missionary-minded | Testimony-bearing, mission prep |
+| **General Conference Only** | Meticulous | First Presidency & Twelve, chronological |
+| **Come Follow Me** | Family companion | Old Testament 2026, discussion ready |
+| **Youth Mode** | Seminary teacher | 14-year-old friendly, excited |
+| **Scholar Mode** | BYU religion PhD | Original languages, academic depth |
+
+---
+
+## 📝 License
+
+Private repository - All rights reserved.
+
+---
+
+> **Gospel Study Assistant** - Transforming scripture study with AI-powered insights, pre-generated Come Follow Me content, and comprehensive audio caching for the LDS community.
 
   ├── podcast/          # Podcast audio files- **David** (male/alnilam): Guest who reveals insights and provides scholarly depth- **🧠 AI-Powered Q&A**: OpenAI GPT-4o with real-time streaming responses- **🧠 AI-Powered Q&A**: OpenAI GPT-4o with real-time streaming responses
 
