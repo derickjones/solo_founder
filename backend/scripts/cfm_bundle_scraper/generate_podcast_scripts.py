@@ -34,10 +34,10 @@ OUTPUT_DIR = SCRIPT_DIR.parent.parent.parent / "frontend" / "public" / "podcasts
 TAGLINE = "Welcome to the Come Follow Me Podcast by Gospel Study App."
 
 # Speaker configuration - will be randomly assigned per script generation
-# Female voice (aoede), Male voice (enceladus)
+# Female voice (aoede), Male voice (alnilam)
 SPEAKERS = {
     "Sarah": "aoede",   # Female voice
-    "David": "enceladus"  # Male voice
+    "David": "alnilam"  # Male voice
 }
 
 
