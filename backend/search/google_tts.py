@@ -36,6 +36,9 @@ def clean_text_for_tts(text: str) -> str:
     - Other special unicode symbols
     - Markdown formatting characters
     - Multiple consecutive spaces/newlines
+    
+    Converts:
+    - Scripture references to natural speech (Moses 1:12–26 -> Moses chapter 1, verses 12 through 26)
     """
     if not text:
         return text
@@ -59,6 +62,25 @@ def clean_text_for_tts(text: str) -> str:
     
     for char in remove_chars:
         text = text.replace(char, '')
+    
+    # Convert scripture references to natural speech
+    # Handles: Moses 1:12–26, Genesis 3:1-5, D&C 88:118, 1 Nephi 3:7, etc.
+    
+    # Pattern for verse ranges: Book Chapter:Verse–Verse or Book Chapter:Verse-Verse
+    # Examples: Moses 1:12–26, Genesis 3:1-5, Alma 32:21-23
+    text = re.sub(
+        r'(\d?\s?[A-Za-z&]+(?:\s[A-Za-z]+)?)\s*(\d+):(\d+)[–\-](\d+)',
+        r'\1 chapter \2, verses \3 through \4',
+        text
+    )
+    
+    # Pattern for single verses: Book Chapter:Verse
+    # Examples: Moses 1:12, John 3:16, D&C 88:118
+    text = re.sub(
+        r'(\d?\s?[A-Za-z&]+(?:\s[A-Za-z]+)?)\s*(\d+):(\d+)(?![–\-\d])',
+        r'\1 chapter \2, verse \3',
+        text
+    )
     
     # Replace markdown bold/italic markers with nothing
     text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)  # **bold** -> bold
