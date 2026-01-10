@@ -862,137 +862,76 @@ export default function ChatInterface({
       <div className={`px-4 lg:px-8 pb-2 transition-all duration-300 ease-in-out overflow-hidden shrink-0 ${
         (isLoading || (!isControlsVisible && messages.length > 0)) ? 'max-h-0 opacity-0' : 'opacity-100'
       }`}>
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-2xl mx-auto">
           <form onSubmit={handleSubmit} className="relative">
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center bg-neutral-800 border-2 border-neutral-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 rounded-2xl p-4 lg:p-6 transition-all duration-200 gap-3 sm:gap-0">
-              
-              {mode === 'Come Follow Me' ? (
-                // CFM Mode: Enhanced Study Guide Interface
-                <div className="w-full space-y-5 md:space-y-6 max-h-[70vh] md:max-h-none overflow-y-auto md:overflow-visible">
-                  {/* Week Selection Card */}
-                  <div className="bg-gradient-to-r from-neutral-700/30 to-neutral-800/30 rounded-xl p-4 border border-neutral-600/30">
-                    <div className="flex items-center gap-2 mb-3">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-blue-400">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
-                      </svg>
-                      <span className="text-xs font-medium text-neutral-400 uppercase tracking-wider">This Week's Study</span>
-                      <span className="ml-auto text-xs text-neutral-500">Week {CFM_2026_SCHEDULE.findIndex((w: CFMWeek) => w.id === cfmWeek?.id) + 1} of 52</span>
-                    </div>
-                    <select
-                      value={cfmWeek?.id || ''}
-                      onChange={(e) => {
-                        const selectedWeek = CFM_2026_SCHEDULE.find((w: CFMWeek) => w.id === e.target.value);
-                        setCfmWeek(selectedWeek || CFM_2026_SCHEDULE[0]);
-                      }}
-                      className="w-full p-3 bg-neutral-900/50 border border-neutral-600/50 rounded-lg text-white text-sm font-medium focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 appearance-none cursor-pointer transition-all"
-                    >
-                      {CFM_2026_SCHEDULE.map((week: CFMWeek, index: number) => (
-                        <option key={week.id} value={week.id} className="bg-neutral-800">
-                          {week.lesson}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="flex items-center justify-between mt-3 text-sm">
-                      <span className="text-neutral-300">{cfmWeek?.reference || 'Old Testament'}</span>
-                      <span className="text-neutral-500">{cfmWeek?.dates}</span>
+            {mode === 'Come Follow Me' ? (
+              // CFM Mode: Clean layout matching Daily Thought page
+              <div className="w-full space-y-6 max-h-[70vh] md:max-h-none overflow-y-auto md:overflow-visible py-4">
+                {/* Current Week Info */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm">
+                      Week {CFM_2026_SCHEDULE.findIndex((w: CFMWeek) => w.id === cfmWeek?.id) + 1}
+                    </span>
+                    <span className="text-neutral-500 text-sm">
+                      {cfmWeek?.dates}
+                    </span>
+                  </div>
+                  <select
+                    value={cfmWeek?.id || ''}
+                    onChange={(e) => {
+                      const selectedWeek = CFM_2026_SCHEDULE.find((w: CFMWeek) => w.id === e.target.value);
+                      setCfmWeek(selectedWeek || CFM_2026_SCHEDULE[0]);
+                    }}
+                    className="w-full p-3 bg-neutral-800 border border-neutral-700 rounded-lg text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer transition-all"
+                  >
+                    {CFM_2026_SCHEDULE.map((week: CFMWeek, index: number) => (
+                      <option key={week.id} value={week.id} className="bg-neutral-800">
+                        {week.lesson}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-neutral-400 text-sm">{cfmWeek?.reference || 'Old Testament'}</p>
+                </div>
+
+                {/* Study Type Badge */}
+                {onBackToLanding && (
+                  <div className="flex justify-center">
+                    <div className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-white font-medium ${
+                      cfmStudyType === 'deep-dive' ? 'bg-blue-600' :
+                      cfmStudyType === 'lesson-plans' ? 'bg-green-600' :
+                      cfmStudyType === 'audio-summary' ? 'bg-purple-600' :
+                      'bg-amber-600'
+                    }`}>
+                      {cfmStudyType === 'audio-summary' && (
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z" />
+                        </svg>
+                      )}
+                      {cfmStudyType === 'deep-dive' && (
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
+                        </svg>
+                      )}
+                      {cfmStudyType === 'lesson-plans' && (
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
+                        </svg>
+                      )}
+                      {cfmStudyType === 'core-content' && (
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+                        </svg>
+                      )}
+                      <span>
+                        {cfmStudyType === 'deep-dive' && 'Deep Dive'}
+                        {cfmStudyType === 'lesson-plans' && 'Lesson Plans'}
+                        {cfmStudyType === 'audio-summary' && 'Podcast'}
+                        {cfmStudyType === 'core-content' && 'Core Content'}
+                      </span>
                     </div>
                   </div>
-
-                    {/* Study Type Selection - only show if not from landing page */}
-                    {!onBackToLanding ? (
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-medium text-neutral-500 uppercase tracking-wider">Study Type</label>
-                        <div className="grid grid-cols-4 gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => setCfmStudyType('deep-dive')}
-                            className={`py-2 px-1 rounded-md text-xs font-medium transition-all duration-150 ${
-                              cfmStudyType === 'deep-dive'
-                                ? 'bg-blue-600 text-white'
-                                : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50'
-                            }`}
-                          >
-                            Deep Dive
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setCfmStudyType('lesson-plans')}
-                            className={`py-2 px-1 rounded-md text-xs font-medium transition-all duration-150 ${
-                              cfmStudyType === 'lesson-plans'
-                                ? 'bg-purple-600 text-white'
-                                : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50'
-                            }`}
-                          >
-                            Lesson Plans
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setCfmStudyType('audio-summary')}
-                            className={`py-2 px-1 rounded-md text-xs font-medium transition-all duration-150 ${
-                              cfmStudyType === 'audio-summary'
-                                ? 'bg-emerald-600 text-white'
-                                : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50'
-                            }`}
-                          >
-                            Audio
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setCfmStudyType('core-content')}
-                            className={`py-2 px-1 rounded-md text-xs font-medium transition-all duration-150 ${
-                              cfmStudyType === 'core-content'
-                                ? 'bg-amber-600 text-white'
-                                : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50'
-                            }`}
-                          >
-                            Core
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="text-center py-4">
-                        {/* Study Type Title with Icon and Gradient */}
-                        <div className={`inline-flex items-center gap-3 px-6 py-3 rounded-2xl ${
-                          cfmStudyType === 'deep-dive' ? 'bg-gradient-to-r from-blue-600/20 to-blue-400/10 border border-blue-500/30' :
-                          cfmStudyType === 'lesson-plans' ? 'bg-gradient-to-r from-green-600/20 to-green-400/10 border border-green-500/30' :
-                          cfmStudyType === 'audio-summary' ? 'bg-gradient-to-r from-purple-600/20 to-purple-400/10 border border-purple-500/30' :
-                          'bg-gradient-to-r from-amber-600/20 to-amber-400/10 border border-amber-500/30'
-                        }`}>
-                          {/* Icon based on study type */}
-                          {cfmStudyType === 'deep-dive' && (
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-blue-400">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
-                            </svg>
-                          )}
-                          {cfmStudyType === 'lesson-plans' && (
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-green-400">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
-                            </svg>
-                          )}
-                          {cfmStudyType === 'audio-summary' && (
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-purple-400">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z" />
-                            </svg>
-                          )}
-                          {cfmStudyType === 'core-content' && (
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8 text-amber-400">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
-                            </svg>
-                          )}
-                          <h2 className={`text-2xl lg:text-3xl font-bold ${
-                            cfmStudyType === 'deep-dive' ? 'text-blue-400' :
-                            cfmStudyType === 'lesson-plans' ? 'text-green-400' :
-                            cfmStudyType === 'audio-summary' ? 'text-purple-400' :
-                            'text-amber-400'
-                          }`}>
-                            {cfmStudyType === 'deep-dive' && 'Deep Dive Study'}
-                            {cfmStudyType === 'lesson-plans' && 'Lesson Plans'}
-                            {cfmStudyType === 'audio-summary' && 'Podcast'}
-                            {cfmStudyType === 'core-content' && 'Core Content'}
-                          </h2>
-                        </div>
-                      </div>
-                    )}
+                )}
 
                   {/* Dynamic Level Selection Based on Study Type - Centered */}
                   <div className="max-w-2xl mx-auto">
@@ -1140,7 +1079,7 @@ export default function ChatInterface({
                 </div>
               ) : (
                 // Q&A Mode: Show text input
-                <div className="flex items-center gap-3 w-full">
+                <div className="flex items-center gap-3 w-full bg-neutral-800 border-2 border-neutral-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 rounded-2xl p-4 lg:p-6">
                   <input
                     type="text"
                     value={query}
@@ -1162,7 +1101,6 @@ export default function ChatInterface({
                   </button>
                 </div>
               )}
-            </div>
           </form>
         </div>
       </div>
