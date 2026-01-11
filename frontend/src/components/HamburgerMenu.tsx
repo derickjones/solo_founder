@@ -26,6 +26,7 @@ interface HamburgerMenuProps {
   setMode: (mode: string) => void;
   selectedVoice: VoiceOption;
   setSelectedVoice: (voice: VoiceOption) => void;
+  onOpenSidebar?: () => void;
 }
 
 export default function HamburgerMenu({
@@ -33,6 +34,7 @@ export default function HamburgerMenu({
   setMode,
   selectedVoice,
   setSelectedVoice,
+  onOpenSidebar,
 }: HamburgerMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -111,7 +113,13 @@ export default function HamburgerMenu({
               </label>
               <div className="flex bg-neutral-800 rounded-lg p-1">
                 <button
-                  onClick={() => setMode('Q&A')}
+                  onClick={() => {
+                    setMode('Q&A');
+                    if (onOpenSidebar) {
+                      onOpenSidebar();
+                      setIsOpen(false);
+                    }
+                  }}
                   className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${
                     mode === 'Q&A'
                       ? 'bg-neutral-700 text-white'

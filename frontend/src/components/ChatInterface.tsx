@@ -789,17 +789,6 @@ export default function ChatInterface({
 
   return (
     <div className={`flex-1 flex flex-col bg-neutral-900 transition-all duration-300 ${sidebarOpen ? 'lg:ml-0' : 'lg:ml-0'}`}>
-      {/* Desktop sidebar toggle button - only show when sidebar is closed */}
-      {!sidebarOpen && (
-        <button
-          onClick={() => setSidebarOpen(true)}
-          className="hidden lg:block fixed top-6 left-6 z-20 text-neutral-400 hover:text-neutral-200 p-2 rounded-lg hover:bg-neutral-700/50 bg-neutral-800/90 backdrop-blur-sm border border-neutral-600/50 transition-all"
-          title="Open sidebar"
-        >
-          <Bars3Icon className="w-5 h-5" />
-        </button>
-      )}
-      
       {/* Top-left back button - responsive positioning */}
       {onBackToLanding && (
         <div className={`fixed top-4 z-30 transition-all duration-300 ${sidebarOpen ? 'left-4 lg:left-[22rem]' : 'left-4 lg:left-6'}`}>
@@ -827,6 +816,7 @@ export default function ChatInterface({
           setMode={setMode}
           selectedVoice={selectedVoice}
           setSelectedVoice={setSelectedVoice}
+          onOpenSidebar={() => setSidebarOpen(true)}
         />
       </div>
 
