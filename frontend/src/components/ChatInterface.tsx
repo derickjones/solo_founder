@@ -9,6 +9,7 @@ import { CFM_AUDIENCES, CFM_2026_SCHEDULE, CFMWeek } from '@/utils/comeFollowMe'
 import Link from 'next/link';
 import AudioPlayer from './AudioPlayer';
 import VideoLogo from './VideoLogo';
+import HamburgerMenu from './HamburgerMenu';
 
 // Add study type definition
 type CFMStudyType = 'deep-dive' | 'lesson-plans' | 'audio-summary' | 'core-content';
@@ -65,6 +66,7 @@ interface ChatInterfaceProps {
   setCfmAudioSummaryLevel: (level: AudioSummaryLevel) => void;
   // Voice selection (from sidebar)
   selectedVoice: VoiceOption;
+  setSelectedVoice: (voice: VoiceOption) => void;
   // Back to landing page
   onBackToLanding?: () => void;
 }
@@ -89,6 +91,7 @@ export default function ChatInterface({
   cfmAudioSummaryLevel,
   setCfmAudioSummaryLevel,
   selectedVoice,
+  setSelectedVoice,
   onBackToLanding
 }: ChatInterfaceProps) {
   const [query, setQuery] = useState('');
@@ -817,18 +820,14 @@ export default function ChatInterface({
         </div>
       )}
 
-      {/* Mobile hamburger menu */}
-      <div className={`lg:hidden flex items-center justify-between p-4 border-b border-neutral-700 transition-all duration-300 ease-in-out ${
-        !isControlsVisible && messages.length > 0 ? 'max-h-0 opacity-0 overflow-hidden py-0 border-b-0' : 'max-h-20 opacity-100'
-      }`}>
-        <button
-          onClick={() => setSidebarOpen(true)}
-          className="text-neutral-400 hover:text-white p-2"
-        >
-          <Bars3Icon className="w-6 h-6" />
-        </button>
-        <div className="w-10"></div> {/* Spacer */}
-        <div className="w-10"></div> {/* Spacer for centering */}
+      {/* Top-right hamburger menu - fixed position */}
+      <div className="fixed top-4 right-4 z-30">
+        <HamburgerMenu
+          mode={mode}
+          setMode={setMode}
+          selectedVoice={selectedVoice}
+          setSelectedVoice={setSelectedVoice}
+        />
       </div>
 
       {/* Header with logo - always visible, compact when content is shown */}

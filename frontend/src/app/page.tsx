@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import ChatInterface from '@/components/ChatInterface';
 import VideoLogo from '@/components/VideoLogo';
+import HamburgerMenu from '@/components/HamburgerMenu';
 import { getCurrentCFMWeek, CFMWeek, CFM_2026_SCHEDULE } from '@/utils/comeFollowMe';
 import { MicrophoneIcon, AcademicCapIcon, ClipboardDocumentListIcon, BookOpenIcon, ChatBubbleLeftRightIcon, SunIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
 
@@ -173,7 +174,17 @@ export default function Home() {
   // Landing page view
   if (showLandingPage) {
     return (
-      <div className="min-h-screen bg-neutral-900 text-white">
+      <div className="min-h-screen bg-neutral-900 text-white relative">
+        {/* Top-right hamburger menu */}
+        <div className="absolute top-4 right-4 z-50">
+          <HamburgerMenu
+            mode={mode}
+            setMode={setMode}
+            selectedVoice={selectedVoice}
+            setSelectedVoice={setSelectedVoice}
+          />
+        </div>
+
         {/* Header with logo */}
         <div className="flex flex-col items-center justify-center pt-12 lg:pt-20 pb-8 lg:pb-12 px-4">
           <VideoLogo size="large" className="mb-6" />
@@ -249,7 +260,12 @@ export default function Home() {
             <SunIcon className="w-6 h-6 text-cyan-400" />
             Daily Thought
           </h1>
-          <div className="w-16" /> {/* Spacer for centering */}
+          <HamburgerMenu
+            mode={mode}
+            setMode={setMode}
+            selectedVoice={selectedVoice}
+            setSelectedVoice={setSelectedVoice}
+          />
         </div>
 
         {/* Week and Day Picker */}
@@ -421,6 +437,7 @@ export default function Home() {
         cfmAudioSummaryLevel={cfmAudioSummaryLevel}
         setCfmAudioSummaryLevel={setCfmAudioSummaryLevel}
         selectedVoice={selectedVoice}
+        setSelectedVoice={setSelectedVoice}
         onBackToLanding={() => setShowLandingPage(true)}
       />
     </div>

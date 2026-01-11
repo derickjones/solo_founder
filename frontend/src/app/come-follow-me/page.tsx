@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { getCurrentCFMWeek, CFMWeek, formatCFMWeekDisplay, CFM_2026_SCHEDULE } from '@/utils/comeFollowMe';
 import StudyLevelSlider from '@/components/StudyLevelSlider';
 import AudioPlayer from '@/components/AudioPlayer';
+import HamburgerMenu from '@/components/HamburgerMenu';
 import { generateTTS } from '@/services/api';
 import { ChevronLeftIcon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon, SpeakerWaveIcon, BookOpenIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
@@ -13,12 +14,17 @@ import { generateLessonPlanPDF, LessonPlanData } from '@/utils/pdfGenerator';
 type StudyLevel = 'essential' | 'connected' | 'scholarly';
 type CFMTab = 'study-guide' | 'core-content' | 'lesson-plan' | 'audio-summary';
 type LessonAudience = 'adult' | 'youth' | 'children';
+type VoiceOption = 'alnilam' | 'achird' | 'enceladus' | 'aoede' | 'autonoe' | 'erinome';
 
 export default function ComeFollowMePage() {
   const [currentWeek, setCurrentWeek] = useState<CFMWeek>(getCurrentCFMWeek());
   const [activeTab, setActiveTab] = useState<CFMTab>('study-guide');
   const [studyLevel, setStudyLevel] = useState<StudyLevel>('essential');
   const [lessonAudience, setLessonAudience] = useState<LessonAudience>('adult');
+  
+  // Hamburger menu state
+  const [mode, setMode] = useState('Come Follow Me');
+  const [selectedVoice, setSelectedVoice] = useState<VoiceOption>('alnilam');
   
   // Study Guide states
   const [studyGuide, setStudyGuide] = useState<string | null>(null);
@@ -285,7 +291,12 @@ export default function ComeFollowMePage() {
           <BookOpenIcon className="w-6 h-6 text-blue-400" />
           Come Follow Me
         </h1>
-        <div className="w-16" /> {/* Spacer for centering */}
+        <HamburgerMenu
+          mode={mode}
+          setMode={setMode}
+          selectedVoice={selectedVoice}
+          setSelectedVoice={setSelectedVoice}
+        />
       </div>
 
       {/* Main Content */}
