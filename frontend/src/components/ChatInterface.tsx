@@ -1125,19 +1125,14 @@ export default function ChatInterface({
                         : 'bg-neutral-800 text-white max-w-full p-6 rounded-lg'
                     }`}
                   >
-                    {/* CFM Study Guide Header */}
-                    {message.type === 'assistant' && mode === 'Come Follow Me' && message.content && (
+                    {/* CFM Study Guide Header - Skip for audio-summary since AudioPlayer has its own header */}
+                    {message.type === 'assistant' && mode === 'Come Follow Me' && message.content && cfmStudyType !== 'audio-summary' && (
                       <div className="mb-6 pb-4 border-b border-neutral-600">
                         <div className="flex items-center justify-between mb-3">
                           <div>
                             <h2 className="text-xl font-bold text-neutral-200 mb-2">
                               {cfmStudyType === 'deep-dive' && `${cfmStudyLevel.charAt(0).toUpperCase() + cfmStudyLevel.slice(1)} Deep Dive`}
                               {cfmStudyType === 'lesson-plans' && `${cfmLessonPlanLevel.charAt(0).toUpperCase() + cfmLessonPlanLevel.slice(1)} Lesson Plan`}
-                              {cfmStudyType === 'audio-summary' && `${
-                                cfmAudioSummaryLevel === 'short' ? 'Essential' :
-                                cfmAudioSummaryLevel === 'medium' ? 'Connected' :
-                                cfmAudioSummaryLevel === 'long' ? 'Scholarly' : 'Essential'
-                              } Audio Summary`}
                               {cfmStudyType === 'core-content' && `Core Content`}
                             </h2>
                             <div className="text-sm text-neutral-300">
