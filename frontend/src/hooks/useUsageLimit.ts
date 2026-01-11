@@ -91,6 +91,9 @@ export function useUsageLimit(): UseUsageLimitReturn {
     user?.publicMetadata?.isPremium === true
   );
 
+  // Debug logging
+  console.log('[useUsageLimit] isPremium:', isPremium, 'publicMetadata:', user?.publicMetadata);
+
   // Get usage from Clerk metadata for signed-in users
   const getClerkUsage = useCallback((): UsageData => {
     if (!user?.publicMetadata) {
@@ -131,6 +134,8 @@ export function useUsageLimit(): UseUsageLimitReturn {
     activityType: ActivityType, 
     metadata?: Record<string, string>
   ): Promise<boolean> => {
+    console.log('[recordAction] Called with isPremium:', isPremium, 'actionsUsed:', actionsUsed);
+    
     // Premium users always allowed (but still track activity)
     const newCount = isPremium ? actionsUsed : actionsUsed + 1;
     const today = getTodayString();
