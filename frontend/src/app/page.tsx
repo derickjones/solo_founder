@@ -258,7 +258,6 @@ export default function Home() {
             <p className="text-neutral-500 text-sm">
               Current Week: <span className="text-neutral-300">{cfmWeek?.lesson}</span>
             </p>
-            <p className="text-neutral-600 text-xs mt-1">{cfmWeek?.dates}</p>
           </div>
         </div>
 
