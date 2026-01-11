@@ -196,7 +196,14 @@ export default function HamburgerMenu({
                   </div>
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
+                  {/* Usage indicator for anonymous users */}
+                  <div className="text-center pb-2 border-b border-neutral-700">
+                    <p className="text-sm text-neutral-300">
+                      <span className="font-medium">{actionsUsed}/{dailyLimit}</span> free actions left
+                    </p>
+                    <p className="text-xs text-neutral-500 mt-1">Sign in to save progress</p>
+                  </div>
                   <SignInButton mode="modal">
                     <button className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors">
                       Sign In
