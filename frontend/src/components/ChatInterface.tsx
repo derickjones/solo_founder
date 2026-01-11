@@ -297,8 +297,8 @@ export default function ChatInterface({
       } else if (cfmStudyType === 'lesson-plans') {
         const audienceLabel = cfmLessonPlanLevel === 'adult' ? 'Adult' :
                              cfmLessonPlanLevel === 'youth' ? 'Youth (11-17)' :
-                             cfmLessonPlanLevel === 'older-primary' ? 'Older Primary (8-10)' :
-                             'Younger Primary (3-7)';
+                             cfmLessonPlanLevel === 'older-primary' ? 'Older Children (8-10)' :
+                             'Younger Children (3-7)';
         title = `${audienceLabel} Lesson Plan`;
         audience = audienceLabel;
       } else if (cfmStudyType === 'audio-summary') {
@@ -1000,8 +1000,8 @@ export default function ChatInterface({
                             {[
                               { level: 'adult', label: 'Adult', color: 'purple', desc: '18+' },
                               { level: 'youth', label: 'Youth', color: 'blue', desc: '11-17' },
-                              { level: 'older-primary', label: 'Older Primary', color: 'emerald', desc: '8-10' },
-                              { level: 'younger-primary', label: 'Younger Primary', color: 'amber', desc: '3-7' }
+                              { level: 'older-primary', label: 'Older Children', color: 'emerald', desc: '8-10' },
+                              { level: 'younger-primary', label: 'Younger Children', color: 'amber', desc: '3-7' }
                             ].map(({ level, label, color, desc }) => (
                               <button
                                 key={level}
