@@ -32,6 +32,7 @@ interface Message {
     guest_only?: string;
   };
   audioTitle?: string;
+  audioSubtitle?: string;
   audioScript?: any; // Original script for TTS (can be string or conversation array)
   audioVoices?: Record<string, string>; // Voice mappings for conversation format
   // Caching metadata for TTS
@@ -560,7 +561,8 @@ export default function ChatInterface({
                     ...msg, 
                     content: displayContent, // Show formatted dialogue
                     audioFiles: { combined: 'placeholder' }, // Show player immediately, generate on play
-                    audioTitle: `Week ${weekNumber} Audio Summary (${studyLevel})`,
+                    audioTitle: `Week ${weekNumber} Podcast`,
+                    audioSubtitle: `${cfmWeek?.dates} • ${cfmWeek?.reference}`,
                     audioScript: data.script, // Store original script for TTS generation
                     audioVoices: data.voices, // Store voice mappings
                     isStreaming: false,
@@ -1154,6 +1156,7 @@ export default function ChatInterface({
                               <AudioPlayer 
                                 audioFiles={message.audioFiles}
                                 title={message.audioTitle || 'Audio'}
+                                subtitle={message.audioSubtitle}
                                 autoPlay={autoPlayMessageId === message.id}
                                 onPlayStart={() => {
                                   console.log('Audio started playing, clearing autoPlayMessageId');

@@ -439,7 +439,8 @@ export default function ComeFollowMePage() {
             <div className="mt-6">
               <AudioPlayer 
                 audioFiles={audioFiles}
-                title={`${studyLevel.charAt(0).toUpperCase() + studyLevel.slice(1)} Audio Summary`}
+                title={`Week ${getWeekNumber(currentWeek)} Podcast`}
+                subtitle={`${currentWeek.dates} • ${currentWeek.reference}`}
                 autoPlay={shouldAutoPlay}
                 onPlayStart={() => {
                   console.log('Audio started playing, setting shouldAutoPlay to false');

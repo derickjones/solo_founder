@@ -9,12 +9,13 @@ interface AudioPlayerProps {
     combined?: string;
   };
   title: string;
+  subtitle?: string;
   autoPlay?: boolean;
   onPlayStart?: () => void;
   onGenerateAudio?: () => Promise<void>;
 }
 
-export default function AudioPlayer({ audioFiles, title, autoPlay = false, onPlayStart, onGenerateAudio }: AudioPlayerProps) {
+export default function AudioPlayer({ audioFiles, title, subtitle, autoPlay = false, onPlayStart, onGenerateAudio }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -169,8 +170,8 @@ export default function AudioPlayer({ audioFiles, title, autoPlay = false, onPla
               <span className="text-white text-lg">🎧</span>
             </div>
             <div>
-              <h3 className="font-semibold text-white">Gospel Summary</h3>
-              <p className="text-sm text-neutral-400">{title}</p>
+              <h3 className="font-semibold text-white">{title}</h3>
+              {subtitle && <p className="text-sm text-neutral-400">{subtitle}</p>}
             </div>
           </div>
           <button
