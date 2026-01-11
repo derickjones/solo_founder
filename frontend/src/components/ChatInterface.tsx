@@ -285,19 +285,44 @@ export default function ChatInterface({
   // PDF download handler
   const handleDownloadPDF = async (messageContent: string) => {
     try {
-      // Extract lesson plan details from the message content or current state
+      // Determine title and audience based on study type
+      let title = '';
+      let audience = '';
+      
+      if (cfmStudyType === 'deep-dive') {
+        const levelLabel = cfmStudyLevel === 'essential' ? 'Essential' : 
+                          cfmStudyLevel === 'connected' ? 'Connected' : 'Scholarly';
+        title = `${levelLabel} Study Guide`;
+        audience = levelLabel;
+      } else if (cfmStudyType === 'lesson-plans') {
+        const audienceLabel = cfmLessonPlanLevel === 'adult' ? 'Adult' :
+                             cfmLessonPlanLevel === 'youth' ? 'Youth' : 'Children';
+        title = `${audienceLabel} Lesson Plan`;
+        audience = audienceLabel;
+      } else if (cfmStudyType === 'audio-summary') {
+        const levelLabel = cfmAudioSummaryLevel === 'short' ? 'Essential' :
+                          cfmAudioSummaryLevel === 'medium' ? 'Connected' : 'Scholarly';
+        title = `${levelLabel} Audio Summary`;
+        audience = levelLabel;
+      } else if (cfmStudyType === 'core-content') {
+        title = 'Core Content';
+        audience = 'All';
+      } else {
+        title = 'Study Guide';
+        audience = 'General';
+      }
+      
       const lessonData: LessonPlanData = {
-        title: `${cfmAudience} Lesson Plan`,
+        title,
         date: cfmWeek?.dates || '',
-        audience: cfmAudience,
+        audience,
         content: messageContent,
-        scripture: cfmWeek?.reference || '' // Using week reference as scripture
+        scripture: cfmWeek?.reference || ''
       };
 
       await generateLessonPlanPDF(lessonData);
     } catch (error) {
       console.error('Error downloading PDF:', error);
-      // Could add toast notification here
       alert('Error generating PDF. Please try again.');
     }
   };

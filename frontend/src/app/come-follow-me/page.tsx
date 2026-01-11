@@ -142,10 +142,14 @@ export default function ComeFollowMePage() {
     if (!studyGuide) return;
     
     try {
+      // Format the study level for display
+      const levelLabel = studyLevel === 'essential' ? 'Essential' :
+                        studyLevel === 'connected' ? 'Connected' : 'Scholarly';
+      
       const lessonData: LessonPlanData = {
-        title: `${studyLevel.charAt(0).toUpperCase() + studyLevel.slice(1)} Study Guide`,
+        title: `${levelLabel} Study Guide`,
         date: currentWeek.dates,
-        audience: studyLevel,
+        audience: levelLabel,
         content: studyGuide,
         scripture: currentWeek.reference
       };
