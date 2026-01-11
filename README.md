@@ -10,6 +10,23 @@
 
 ---
 
+## 📊 Dashboards & Admin
+
+| Dashboard | URL | Purpose |
+|-----------|-----|---------|
+| **Clerk** | https://dashboard.clerk.com | Users, signups, authentication |
+| **Stripe** | https://dashboard.stripe.com | Payments, subscriptions, revenue |
+| **Vercel** | https://vercel.com/dashboard | Deployments, logs, analytics |
+| **Google Cloud** | https://console.cloud.google.com | Backend (Cloud Run), TTS usage, costs |
+| **App Admin** | https://www.gospelstudyapp.com/admin | Activity tracking, user analytics |
+
+### App Pages
+- **Main App**: https://www.gospelstudyapp.com
+- **Pricing**: https://www.gospelstudyapp.com/pricing
+- **Feedback**: https://www.gospelstudyapp.com/feedback
+
+---
+
 ## 🎉 Latest Updates (January 2026)
 
 ### Advanced Audio Caching System
