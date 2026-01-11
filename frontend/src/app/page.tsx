@@ -5,6 +5,8 @@ import Sidebar from '@/components/Sidebar';
 import ChatInterface from '@/components/ChatInterface';
 import VideoLogo from '@/components/VideoLogo';
 import HamburgerMenu from '@/components/HamburgerMenu';
+import UpgradeModal from '@/components/UpgradeModal';
+import { useUsageLimit } from '@/hooks/useUsageLimit';
 import { getCurrentCFMWeek, CFMWeek, CFM_2026_SCHEDULE } from '@/utils/comeFollowMe';
 import { MicrophoneIcon, AcademicCapIcon, ClipboardDocumentListIcon, BookOpenIcon, ChatBubbleLeftRightIcon, SunIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
 
@@ -88,6 +90,15 @@ export default function Home() {
   const [cfmAudioSummaryLevel, setCfmAudioSummaryLevel] = useState<'short' | 'medium' | 'long'>('medium');
   const [selectedVoice, setSelectedVoice] = useState<VoiceOption>('alnilam');
 
+  // Usage limit tracking
+  const { 
+    actionsUsed, 
+    dailyLimit, 
+    recordAction, 
+    showUpgradeModal, 
+    setShowUpgradeModal 
+  } = useUsageLimit();
+
   // Feature tiles configuration
   const featureTiles: FeatureTile[] = [
     {
@@ -156,8 +167,14 @@ export default function Home() {
     }
   };
 
-  // Handle tile click
-  const handleTileClick = (tile: FeatureTile) => {
+  // Handle tile click - check usage limit first
+  const handleTileClick = async (tile: FeatureTile) => {
+    // Check if user can perform action
+    const allowed = await recordAction();
+    if (!allowed) {
+      return; // Modal will be shown by the hook
+    }
+
     if (tile.special === 'daily-thought') {
       setShowDailyThought(true);
       setShowLandingPage(false);
@@ -439,6 +456,15 @@ export default function Home() {
         selectedVoice={selectedVoice}
         setSelectedVoice={setSelectedVoice}
         onBackToLanding={() => setShowLandingPage(true)}
+        recordAction={recordAction}
+      />
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        actionsUsed={actionsUsed}
+        dailyLimit={dailyLimit}
       />
     </div>
   );

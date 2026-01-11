@@ -13,13 +13,12 @@ export const SUBSCRIPTION_PLANS = {
     price: 0,
     priceId: null,
     features: [
-      '10 questions per day',
-      'Basic scripture search',
-      'Come Follow Me lessons'
+      '4 actions per day',
+      'Full access to all features',
+      'Resets daily at midnight'
     ],
     limits: {
-      dailyQuestions: 10,
-      pdfExports: 0
+      dailyActions: 4,
     }
   },
   PREMIUM: {
@@ -28,15 +27,12 @@ export const SUBSCRIPTION_PLANS = {
     price: 499, // $4.99 in cents
     priceId: process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRICE_ID,
     features: [
-      'Unlimited questions',
-      'Advanced scripture search',
-      'Come Follow Me lessons',
-      'PDF lesson plan exports',
+      'Unlimited actions',
+      'Full access to all features',
       'Priority support'
     ],
     limits: {
-      dailyQuestions: -1, // unlimited
-      pdfExports: -1 // unlimited
+      dailyActions: -1, // unlimited
     }
   }
 } as const;

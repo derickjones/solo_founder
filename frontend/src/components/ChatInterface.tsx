@@ -69,6 +69,8 @@ interface ChatInterfaceProps {
   setSelectedVoice: (voice: VoiceOption) => void;
   // Back to landing page
   onBackToLanding?: () => void;
+  // Usage tracking
+  recordAction: () => Promise<boolean>;
 }
 
 export default function ChatInterface({ 
@@ -92,7 +94,8 @@ export default function ChatInterface({
   setCfmAudioSummaryLevel,
   selectedVoice,
   setSelectedVoice,
-  onBackToLanding
+  onBackToLanding,
+  recordAction
 }: ChatInterfaceProps) {
   const [query, setQuery] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -363,6 +366,12 @@ export default function ChatInterface({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isLoading) return;
+
+    // Check usage limit before processing
+    const allowed = await recordAction();
+    if (!allowed) {
+      return; // Modal will be shown by parent component
+    }
 
     // For CFM mode, we don't need a query - just generate the lesson plan
     if (mode === 'Come Follow Me') {

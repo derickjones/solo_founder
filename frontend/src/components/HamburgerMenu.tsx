@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useUser, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
+import { useUsageLimit } from '@/hooks/useUsageLimit';
 
 // Voice type and options
 type VoiceOption = 'alnilam' | 'achird' | 'enceladus' | 'aoede' | 'autonoe' | 'erinome';
@@ -39,6 +40,7 @@ export default function HamburgerMenu({
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { isSignedIn, user } = useUser();
+  const { actionsUsed, dailyLimit, isPremium } = useUsageLimit();
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -184,7 +186,13 @@ export default function HamburgerMenu({
                     <p className="text-sm font-medium text-white truncate">
                       {user?.firstName || user?.username || 'User'}
                     </p>
-                    <p className="text-xs text-neutral-500">Free Plan • 10 questions/day</p>
+                    <p className="text-xs text-neutral-500">
+                      {isPremium ? (
+                        <span className="text-amber-400">Premium • Unlimited</span>
+                      ) : (
+                        <span>{actionsUsed}/{dailyLimit} actions today</span>
+                      )}
+                    </p>
                   </div>
                 </div>
               ) : (
@@ -203,8 +211,8 @@ export default function HamburgerMenu({
               )}
             </div>
 
-            {/* Upgrade button - only when signed in */}
-            {isSignedIn && (
+            {/* Upgrade button - only when signed in and not premium */}
+            {isSignedIn && !isPremium && (
               <div className="p-4 pt-0">
                 <Link href="/pricing">
                   <button className="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2">

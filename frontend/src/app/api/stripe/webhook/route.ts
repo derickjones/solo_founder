@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { clerkClient } from '@clerk/nextjs/server';
 
 // Initialize Stripe only if API key is available
 let stripe: Stripe | null = null;
@@ -8,6 +9,24 @@ let webhookSecret: string | null = null;
 if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY !== 'your_stripe_secret_key_here') {
   stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
   webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || null;
+}
+
+// Helper to update user subscription status in Clerk
+async function updateUserSubscription(clerkUserId: string, status: 'active' | 'canceled' | 'past_due') {
+  try {
+    const client = await clerkClient();
+    await client.users.updateUserMetadata(clerkUserId, {
+      publicMetadata: {
+        subscriptionStatus: status,
+        isPremium: status === 'active',
+        updatedAt: new Date().toISOString(),
+      },
+    });
+    console.log(`Updated Clerk user ${clerkUserId} subscription status to: ${status}`);
+  } catch (error) {
+    console.error(`Failed to update Clerk user ${clerkUserId}:`, error);
+    throw error;
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -37,29 +56,51 @@ export async function POST(request: NextRequest) {
   try {
     switch (event.type) {
       case 'customer.subscription.created':
-      case 'customer.subscription.updated':
+      case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription;
+        const clerkUserId = subscription.metadata.clerkUserId;
+        
+        if (clerkUserId) {
+          const status = subscription.status === 'active' ? 'active' : 
+                        subscription.status === 'past_due' ? 'past_due' : 'canceled';
+          await updateUserSubscription(clerkUserId, status);
+        }
         console.log('Subscription event:', subscription.id, subscription.status);
-        // TODO: Update user subscription status in database
         break;
+      }
 
-      case 'customer.subscription.deleted':
+      case 'customer.subscription.deleted': {
         const deletedSubscription = event.data.object as Stripe.Subscription;
+        const clerkUserId = deletedSubscription.metadata.clerkUserId;
+        
+        if (clerkUserId) {
+          await updateUserSubscription(clerkUserId, 'canceled');
+        }
         console.log('Subscription canceled:', deletedSubscription.id);
-        // TODO: Update user subscription status to canceled
         break;
+      }
 
-      case 'invoice.payment_succeeded':
+      case 'invoice.payment_succeeded': {
         const invoice = event.data.object as Stripe.Invoice;
         console.log('Payment succeeded:', invoice.id);
-        // TODO: Update payment status
         break;
+      }
 
-      case 'invoice.payment_failed':
+      case 'invoice.payment_failed': {
         const failedInvoice = event.data.object as Stripe.Invoice;
+        const subscriptionId = (failedInvoice as any).subscription as string;
+        
+        // Get subscription to find clerk user
+        if (subscriptionId) {
+          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          const clerkUserId = subscription.metadata.clerkUserId;
+          if (clerkUserId) {
+            await updateUserSubscription(clerkUserId, 'past_due');
+          }
+        }
         console.log('Payment failed:', failedInvoice.id);
-        // TODO: Handle failed payment
         break;
+      }
 
       default:
         console.log(`Unhandled event type: ${event.type}`);

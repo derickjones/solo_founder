@@ -92,16 +92,26 @@ export default function PricingPage() {
               <div className="text-4xl font-bold text-white mb-4">
                 $0<span className="text-lg text-neutral-400">/month</span>
               </div>
-              <p className="text-neutral-400">Perfect for getting started</p>
+              <p className="text-neutral-400">Try everything, limited daily use</p>
             </div>
 
             <ul className="space-y-4 mb-8">
-              {SUBSCRIPTION_PLANS.FREE.features.map((feature, index) => (
-                <li key={index} className="flex items-center space-x-3">
-                  <CheckIcon className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                  <span className="text-neutral-300">{feature}</span>
-                </li>
-              ))}
+              <li className="flex items-center space-x-3">
+                <CheckIcon className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                <span className="text-neutral-300">4 actions per day</span>
+              </li>
+              <li className="flex items-center space-x-3">
+                <CheckIcon className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                <span className="text-neutral-300">Full access to all features</span>
+              </li>
+              <li className="flex items-center space-x-3">
+                <CheckIcon className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                <span className="text-neutral-300">Q&A, Study Guides, Audio</span>
+              </li>
+              <li className="flex items-center space-x-3">
+                <CheckIcon className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                <span className="text-neutral-300">Resets daily at midnight</span>
+              </li>
             </ul>
 
             <button
@@ -113,11 +123,11 @@ export default function PricingPage() {
           </div>
 
           {/* Premium Plan */}
-          <div className="bg-gradient-to-br from-blue-900/30 to-blue-800/30 border-2 border-blue-500/50 rounded-2xl p-8 relative">
+          <div className="bg-gradient-to-br from-amber-900/30 to-orange-800/30 border-2 border-amber-500/50 rounded-2xl p-8 relative">
             {/* Popular badge */}
             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-              <span className="bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-medium">
-                Most Popular
+              <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-1 rounded-full text-sm font-medium">
+                Unlimited
               </span>
             </div>
 
@@ -126,24 +136,34 @@ export default function PricingPage() {
               <div className="text-4xl font-bold text-white mb-4">
                 $4.99<span className="text-lg text-neutral-400">/month</span>
               </div>
-              <p className="text-neutral-400">Unlimited gospel study power</p>
+              <p className="text-neutral-400">Unlimited gospel study</p>
             </div>
 
             <ul className="space-y-4 mb-8">
-              {SUBSCRIPTION_PLANS.PREMIUM.features.map((feature, index) => (
-                <li key={index} className="flex items-center space-x-3">
-                  <CheckIcon className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                  <span className="text-neutral-300">{feature}</span>
-                </li>
-              ))}
+              <li className="flex items-center space-x-3">
+                <CheckIcon className="w-5 h-5 text-amber-400 flex-shrink-0" />
+                <span className="text-neutral-300 font-semibold">Unlimited actions</span>
+              </li>
+              <li className="flex items-center space-x-3">
+                <CheckIcon className="w-5 h-5 text-amber-400 flex-shrink-0" />
+                <span className="text-neutral-300">Full access to all features</span>
+              </li>
+              <li className="flex items-center space-x-3">
+                <CheckIcon className="w-5 h-5 text-amber-400 flex-shrink-0" />
+                <span className="text-neutral-300">Q&A, Study Guides, Audio</span>
+              </li>
+              <li className="flex items-center space-x-3">
+                <CheckIcon className="w-5 h-5 text-amber-400 flex-shrink-0" />
+                <span className="text-neutral-300">Priority support</span>
+              </li>
             </ul>
 
             <button
               onClick={() => handleSubscribe(SUBSCRIPTION_PLANS.PREMIUM.priceId!, 'premium')}
               disabled={loading === 'premium'}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition-colors disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white py-3 px-6 rounded-lg font-medium transition-all disabled:opacity-50"
             >
-              {loading === 'premium' ? 'Loading...' : 'Start Premium'}
+              {loading === 'premium' ? 'Loading...' : 'Upgrade to Premium'}
             </button>
           </div>
         </div>

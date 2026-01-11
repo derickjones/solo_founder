@@ -5,6 +5,8 @@ import { getCurrentCFMWeek, CFMWeek, formatCFMWeekDisplay, CFM_2026_SCHEDULE } f
 import StudyLevelSlider from '@/components/StudyLevelSlider';
 import AudioPlayer from '@/components/AudioPlayer';
 import HamburgerMenu from '@/components/HamburgerMenu';
+import UpgradeModal from '@/components/UpgradeModal';
+import { useUsageLimit } from '@/hooks/useUsageLimit';
 import { generateTTS } from '@/services/api';
 import { ChevronLeftIcon, ArrowDownTrayIcon, ClipboardDocumentIcon, CheckIcon, SpeakerWaveIcon, BookOpenIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
@@ -25,6 +27,15 @@ export default function ComeFollowMePage() {
   // Hamburger menu state
   const [mode, setMode] = useState('Come Follow Me');
   const [selectedVoice, setSelectedVoice] = useState<VoiceOption>('alnilam');
+  
+  // Usage limit tracking
+  const { 
+    actionsUsed, 
+    dailyLimit, 
+    recordAction, 
+    showUpgradeModal, 
+    setShowUpgradeModal 
+  } = useUsageLimit();
   
   // Study Guide states
   const [studyGuide, setStudyGuide] = useState<string | null>(null);
@@ -72,6 +83,10 @@ export default function ComeFollowMePage() {
   };
 
   const generateStudyGuide = async () => {
+    // Check usage limit
+    const allowed = await recordAction();
+    if (!allowed) return;
+
     try {
       setIsGenerating(true);
       setError(null);
@@ -145,6 +160,10 @@ export default function ComeFollowMePage() {
   // Load podcast script from static JSON (like daily_thoughts pattern)
   const handleGenerateAudioSummary = async () => {
     if (isGeneratingAudio) return;
+
+    // Check usage limit
+    const allowed = await recordAction();
+    if (!allowed) return;
 
     setIsGeneratingAudio(true);
     setError(null);
@@ -543,6 +562,14 @@ export default function ComeFollowMePage() {
           )}
         </div>
       </div>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        actionsUsed={actionsUsed}
+        dailyLimit={dailyLimit}
+      />
     </div>
   );
 }
