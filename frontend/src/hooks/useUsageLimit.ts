@@ -3,7 +3,7 @@
 import { useUser } from '@clerk/nextjs';
 import { useState, useEffect, useCallback } from 'react';
 
-const DAILY_LIMIT = 4;
+const DAILY_LIMIT = 10;
 const STORAGE_KEY = 'gospel_study_usage';
 
 // Activity types for analytics

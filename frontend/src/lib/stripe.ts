@@ -13,12 +13,12 @@ export const SUBSCRIPTION_PLANS = {
     price: 0,
     priceId: null,
     features: [
-      '4 actions per day',
+      '10 actions per day',
       'Full access to all features',
       'Resets daily at midnight'
     ],
     limits: {
-      dailyActions: 4,
+      dailyActions: 10,
     }
   },
   PREMIUM: {

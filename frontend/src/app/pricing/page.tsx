@@ -98,7 +98,7 @@ export default function PricingPage() {
             <ul className="space-y-4 mb-8">
               <li className="flex items-center space-x-3">
                 <CheckIcon className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                <span className="text-neutral-300">4 actions per day</span>
+                <span className="text-neutral-300">10 actions per day</span>
               </li>
               <li className="flex items-center space-x-3">
                 <CheckIcon className="w-5 h-5 text-blue-400 flex-shrink-0" />
