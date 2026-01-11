@@ -47,6 +47,10 @@ export async function POST(request: NextRequest) {
     // Add new activity if provided
     if (activity) {
       activities.push(activity as ActivityLog);
+      // Keep only last 50 activities per day to prevent metadata size issues
+      if (activities.length > 50) {
+        activities = activities.slice(-50);
+      }
     }
 
     // Also track lifetime stats (doesn't reset daily)

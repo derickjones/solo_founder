@@ -168,10 +168,18 @@ export function useUsageLimit(): UseUsageLimitReturn {
         
         if (!response.ok) {
           console.error('Failed to record usage');
+          // For premium users, allow action even if tracking fails
+          if (isPremium) {
+            return true;
+          }
           return false;
         }
       } catch (error) {
         console.error('Error recording usage:', error);
+        // For premium users, allow action even if tracking fails
+        if (isPremium) {
+          return true;
+        }
         return false;
       }
     } else {
