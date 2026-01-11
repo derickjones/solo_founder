@@ -26,7 +26,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { count, date, activity, isPremium } = await request.json();
+    const body = await request.json();
+    const { count, date, activity, isPremium } = body;
+    
+    console.log('[usage/record] Request:', { userId, count, date, activityType: activity?.type, isPremium });
 
     if (typeof count !== 'number' || typeof date !== 'string') {
       return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
@@ -35,6 +38,8 @@ export async function POST(request: NextRequest) {
     // Get current user metadata
     const client = await clerkClient();
     const user = await client.users.getUser(userId);
+    
+    console.log('[usage/record] Current metadata keys:', Object.keys(user.publicMetadata || {}));
     
     // Get existing activities for today, or start fresh
     const existingDate = user.publicMetadata?.usageDate as string | undefined;
@@ -61,7 +66,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update user's public metadata with usage info
-    await client.users.updateUserMetadata(userId, {
+    const updatePayload = {
       publicMetadata: {
         ...user.publicMetadata,
         usageCount: count,
@@ -70,13 +75,19 @@ export async function POST(request: NextRequest) {
         lifetimeStats,
         lastActivity: new Date().toISOString(),
       },
-    });
+    };
+    
+    console.log('[usage/record] Updating metadata, activities count:', activities.length);
+    
+    await client.users.updateUserMetadata(userId, updatePayload);
+    
+    console.log('[usage/record] Success');
 
     return NextResponse.json({ success: true, count, date, activitiesCount: activities.length });
   } catch (error) {
-    console.error('Error recording usage:', error);
+    console.error('[usage/record] Error:', error);
     return NextResponse.json(
-      { error: 'Failed to record usage' },
+      { error: 'Failed to record usage', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

@@ -153,7 +153,22 @@ export function useUsageLimit(): UseUsageLimitReturn {
     }
 
     if (isSignedIn && user) {
-      // Signed in: update Clerk metadata via API
+      // For premium users: fire-and-forget tracking (non-blocking)
+      if (isPremium) {
+        fetch('/api/usage/record', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            count: newCount, 
+            date: today,
+            activity: newActivity,
+            isPremium,
+          }),
+        }).catch(err => console.error('Background usage tracking failed:', err));
+        return true; // Return immediately for premium users
+      }
+      
+      // For free users: wait for tracking to complete
       try {
         const response = await fetch('/api/usage/record', {
           method: 'POST',
@@ -168,18 +183,10 @@ export function useUsageLimit(): UseUsageLimitReturn {
         
         if (!response.ok) {
           console.error('Failed to record usage');
-          // For premium users, allow action even if tracking fails
-          if (isPremium) {
-            return true;
-          }
           return false;
         }
       } catch (error) {
         console.error('Error recording usage:', error);
-        // For premium users, allow action even if tracking fails
-        if (isPremium) {
-          return true;
-        }
         return false;
       }
     } else {
