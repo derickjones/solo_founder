@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { ChevronDownIcon, ChevronUpIcon, XMarkIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
-import { useUser, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
-import Link from 'next/link';
+import { useUser } from '@clerk/nextjs';
 import { getCurrentCFMWeek, CFM_2026_SCHEDULE, formatCFMWeekDisplay, CFMWeek } from '@/utils/comeFollowMe';
 import VideoLogo from './VideoLogo';
 
@@ -482,57 +481,6 @@ export default function Sidebar({
         </div>
       </div>
       )}
-
-      {/* Authentication section at bottom */}
-      <div className="mt-auto border-t border-neutral-700 p-6">
-        {isSignedIn ? (
-          <div className="space-y-4">
-            {/* User Profile */}
-            <div className="flex items-center space-x-3 p-3 bg-neutral-800/30 rounded-lg border border-neutral-700/50">
-              <UserButton 
-                appearance={{
-                  elements: {
-                    avatarBox: "w-10 h-10",
-                    userButtonPopoverCard: "bg-neutral-800 border border-neutral-700",
-                    userButtonPopoverActionButton: "text-neutral-300 hover:text-white hover:bg-neutral-700"
-                  }
-                }}
-              />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">
-                  {user?.firstName || user?.emailAddresses[0]?.emailAddress}
-                </p>
-                <p className="text-xs text-neutral-400">Free Plan • 10 questions/day</p>
-              </div>
-            </div>
-            
-            {/* Upgrade to Premium */}
-            <Link 
-              href="/pricing"
-              className="block w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-center py-3 px-4 rounded-lg transition-all duration-200 font-medium shadow-lg shadow-blue-500/25"
-            >
-              ⚡ Upgrade to Premium
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {/* Sign In/Sign Up */}
-            <SignInButton mode="modal">
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg transition-colors font-medium">
-                Get Started
-              </button>
-            </SignInButton>
-            
-            {/* Pricing Link */}
-            <Link 
-              href="/pricing"
-              className="block w-full text-center py-2 px-4 bg-neutral-800/30 hover:bg-neutral-700/50 text-neutral-300 hover:text-white rounded-lg transition-colors text-sm border border-neutral-700/50"
-            >
-              View Pricing Plans
-            </Link>
-          </div>
-        )}
-      </div>
     </div>
   );
 }
