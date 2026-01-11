@@ -899,16 +899,9 @@ export default function ChatInterface({
             {mode === 'Come Follow Me' ? (
               // CFM Mode: Clean layout matching Daily Thought page
               <div className="w-full space-y-6 max-h-[70vh] md:max-h-none overflow-y-auto md:overflow-visible py-4">
-                {/* Current Week Info */}
+                {/* Week Selector */}
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm">
-                      Week {CFM_2026_SCHEDULE.findIndex((w: CFMWeek) => w.id === cfmWeek?.id) + 1}
-                    </span>
-                    <span className="text-neutral-500 text-sm">
-                      {cfmWeek?.dates}
-                    </span>
-                  </div>
+                  <label className="text-neutral-400 text-sm">Select Week</label>
                   <select
                     value={cfmWeek?.id || ''}
                     onChange={(e) => {
@@ -923,7 +916,6 @@ export default function ChatInterface({
                       </option>
                     ))}
                   </select>
-                  <p className="text-neutral-400 text-sm">{cfmWeek?.reference || 'Old Testament'}</p>
                 </div>
 
                 {/* Study Type Badge */}
