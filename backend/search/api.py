@@ -846,9 +846,9 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
     Generate podcast audio with clean voice and music intro/outro.
     
     Audio structure:
-    - Intro: 0-13s music at full volume
-    - Music fade-out: 13s-23s (10 second fade to silence)
-    - Voice starts: 18s (5 seconds into the fade-out)
+    - Intro: 0-7s music at full volume
+    - Music fade-out: 7s-13s (6 second fade to silence)
+    - Voice starts: 11s (4 seconds into the fade-out)
     - Voice: Full volume, no background music during main content
     - Outro fade-in: Music fades in 10 seconds before voice ends
     - Outro: 30 seconds of music after voice ends (with 8s fade-out at end)
@@ -1033,9 +1033,9 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
         music = AudioSegment.from_mp3(str(music_file))
         
         # ========== TIMING CONFIGURATION ==========
-        intro_duration_ms = 13000          # 13s intro at full volume
-        music_fadeout_ms = 10000           # 10s fade out (13s-23s)
-        voice_start_ms = 18000             # Voice starts at 18s
+        intro_duration_ms = 7000           # 7s intro at full volume
+        music_fadeout_ms = 6000            # 6s fade out (7s-13s)
+        voice_start_ms = 11000             # Voice starts at 11s
         outro_fadein_ms = 10000            # 10s fade in before voice ends
         outro_duration_ms = 30000          # 30s outro after voice
         outro_final_fadeout_ms = 8000      # 8s fade out at very end
