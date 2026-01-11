@@ -76,7 +76,7 @@ export default function UpgradeModal({ isOpen, onClose, actionsUsed, dailyLimit 
 
           {/* Price */}
           <p className="text-neutral-400 text-sm mb-4">
-            Only <span className="text-white font-bold text-lg">$4.99</span>/month
+            Only <span className="text-white font-bold text-lg">$1.99</span>/month
           </p>
 
           {/* CTA buttons */}

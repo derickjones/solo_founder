@@ -169,8 +169,18 @@ export default function Home() {
 
   // Handle tile click - check usage limit first
   const handleTileClick = async (tile: FeatureTile) => {
+    // Determine activity type based on tile
+    const activityType = tile.special === 'daily-thought' 
+      ? 'daily_thought' 
+      : tile.mode === 'Come Follow Me' 
+        ? 'core_content'
+        : 'tile_click';
+    
     // Check if user can perform action
-    const allowed = await recordAction();
+    const allowed = await recordAction(activityType, { 
+      tile: tile.title, 
+      mode: tile.mode || 'unknown' 
+    });
     if (!allowed) {
       return; // Modal will be shown by the hook
     }

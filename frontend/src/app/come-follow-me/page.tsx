@@ -84,7 +84,7 @@ export default function ComeFollowMePage() {
 
   const generateStudyGuide = async () => {
     // Check usage limit
-    const allowed = await recordAction();
+    const allowed = await recordAction('study_guide', { week: currentWeek.lesson });
     if (!allowed) return;
 
     try {
@@ -162,7 +162,7 @@ export default function ComeFollowMePage() {
     if (isGeneratingAudio) return;
 
     // Check usage limit
-    const allowed = await recordAction();
+    const allowed = await recordAction('audio_summary', { week: currentWeek.lesson });
     if (!allowed) return;
 
     setIsGeneratingAudio(true);

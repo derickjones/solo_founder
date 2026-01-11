@@ -10,6 +10,7 @@ import Link from 'next/link';
 import AudioPlayer from './AudioPlayer';
 import VideoLogo from './VideoLogo';
 import HamburgerMenu from './HamburgerMenu';
+import type { ActivityType } from '@/hooks/useUsageLimit';
 
 // Add study type definition
 type CFMStudyType = 'deep-dive' | 'lesson-plans' | 'audio-summary' | 'core-content';
@@ -70,7 +71,7 @@ interface ChatInterfaceProps {
   // Back to landing page
   onBackToLanding?: () => void;
   // Usage tracking
-  recordAction: () => Promise<boolean>;
+  recordAction: (activityType: ActivityType, metadata?: Record<string, string>) => Promise<boolean>;
 }
 
 export default function ChatInterface({ 
@@ -367,8 +368,14 @@ export default function ChatInterface({
     e.preventDefault();
     if (isLoading) return;
 
+    // Determine activity type based on mode
+    const activityType = mode === 'Come Follow Me' ? 'lesson_plan' : 'qa_question';
+    const metadata: Record<string, string> = mode === 'Come Follow Me' 
+      ? { week: cfmWeek?.lesson || 'unknown', studyType: cfmStudyType || 'unknown' }
+      : { question: query.substring(0, 100) }; // Truncate long questions
+
     // Check usage limit before processing
-    const allowed = await recordAction();
+    const allowed = await recordAction(activityType, metadata);
     if (!allowed) {
       return; // Modal will be shown by parent component
     }

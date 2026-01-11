@@ -134,7 +134,7 @@ export default function PricingPage() {
             <div className="text-center mb-6">
               <h3 className="text-2xl font-bold text-white mb-2">Premium</h3>
               <div className="text-4xl font-bold text-white mb-4">
-                $4.99<span className="text-lg text-neutral-400">/month</span>
+                $1.99<span className="text-lg text-neutral-400">/month</span>
               </div>
               <p className="text-neutral-400">Unlimited gospel study</p>
             </div>

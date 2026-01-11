@@ -6,9 +6,27 @@ import { useState, useEffect, useCallback } from 'react';
 const DAILY_LIMIT = 4;
 const STORAGE_KEY = 'gospel_study_usage';
 
+// Activity types for analytics
+export type ActivityType = 
+  | 'qa_question'      // Asked a Q&A question
+  | 'study_guide'      // Generated a study guide
+  | 'audio_summary'    // Played audio summary
+  | 'tile_click'       // Clicked a landing page tile
+  | 'podcast_play'     // Played a podcast
+  | 'lesson_plan'      // Viewed lesson plan
+  | 'core_content'     // Viewed core content
+  | 'daily_thought';   // Viewed daily thought
+
+interface ActivityLog {
+  type: ActivityType;
+  timestamp: string;
+  metadata?: Record<string, string>; // Optional context (e.g., topic, source)
+}
+
 interface UsageData {
   count: number;
   date: string; // YYYY-MM-DD format
+  activities?: ActivityLog[]; // Track what actions were taken
 }
 
 interface UseUsageLimitReturn {
@@ -19,7 +37,7 @@ interface UseUsageLimitReturn {
   isPremium: boolean;
   isLoading: boolean;
   isSignedIn: boolean;
-  recordAction: () => Promise<boolean>; // Returns true if action was allowed
+  recordAction: (activityType: ActivityType, metadata?: Record<string, string>) => Promise<boolean>;
   showUpgradeModal: boolean;
   setShowUpgradeModal: (show: boolean) => void;
 }
@@ -109,20 +127,25 @@ export function useUsageLimit(): UseUsageLimitReturn {
   const actionsRemaining = Math.max(0, DAILY_LIMIT - actionsUsed);
   const canPerformAction = isPremium || actionsUsed < DAILY_LIMIT;
 
-  const recordAction = useCallback(async (): Promise<boolean> => {
-    // Premium users always allowed
-    if (isPremium) {
-      return true;
-    }
+  const recordAction = useCallback(async (
+    activityType: ActivityType, 
+    metadata?: Record<string, string>
+  ): Promise<boolean> => {
+    // Premium users always allowed (but still track activity)
+    const newCount = isPremium ? actionsUsed : actionsUsed + 1;
+    const today = getTodayString();
+    
+    const newActivity: ActivityLog = {
+      type: activityType,
+      timestamp: new Date().toISOString(),
+      metadata,
+    };
 
-    // Check if limit reached
-    if (actionsUsed >= DAILY_LIMIT) {
+    // Check if limit reached (for non-premium)
+    if (!isPremium && actionsUsed >= DAILY_LIMIT) {
       setShowUpgradeModal(true);
       return false;
     }
-
-    const newCount = actionsUsed + 1;
-    const today = getTodayString();
 
     if (isSignedIn && user) {
       // Signed in: update Clerk metadata via API
@@ -130,7 +153,12 @@ export function useUsageLimit(): UseUsageLimitReturn {
         const response = await fetch('/api/usage/record', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ count: newCount, date: today }),
+          body: JSON.stringify({ 
+            count: newCount, 
+            date: today,
+            activity: newActivity,
+            isPremium,
+          }),
         });
         
         if (!response.ok) {
@@ -142,17 +170,22 @@ export function useUsageLimit(): UseUsageLimitReturn {
         return false;
       }
     } else {
-      // Anonymous: update localStorage
-      setStoredUsage({ count: newCount, date: today });
+      // Anonymous: update localStorage with activity tracking
+      const currentUsage = getStoredUsage();
+      const activities = currentUsage.activities || [];
+      activities.push(newActivity);
+      setStoredUsage({ count: newCount, date: today, activities });
     }
 
-    setActionsUsed(newCount);
+    if (!isPremium) {
+      setActionsUsed(newCount);
 
-    // Show upgrade modal if this was their last free action
-    if (newCount >= DAILY_LIMIT) {
-      setTimeout(() => {
-        setShowUpgradeModal(true);
-      }, 2000);
+      // Show upgrade modal if this was their last free action
+      if (newCount >= DAILY_LIMIT) {
+        setTimeout(() => {
+          setShowUpgradeModal(true);
+        }, 2000);
+      }
     }
 
     return true;

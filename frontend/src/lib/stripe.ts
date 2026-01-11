@@ -24,7 +24,7 @@ export const SUBSCRIPTION_PLANS = {
   PREMIUM: {
     id: 'premium',
     name: 'Premium',
-    price: 499, // $4.99 in cents
+    price: 199, // $1.99 in cents
     priceId: process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRICE_ID,
     features: [
       'Unlimited actions',
