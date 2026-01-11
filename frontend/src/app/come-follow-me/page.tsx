@@ -324,27 +324,9 @@ export default function ComeFollowMePage() {
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 py-6">
-        {/* Current Week Info */}
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm">
-              Week {getWeekNumber(currentWeek)}
-            </span>
-            <span className="text-neutral-500 text-sm">
-              {currentWeek.dates}
-            </span>
-          </div>
-          <h2 className="text-2xl lg:text-3xl font-bold text-white mb-2">
-            {formatCFMWeekDisplay(currentWeek)}
-          </h2>
-          <p className="text-neutral-400">
-            {currentWeek.reference}
-          </p>
-        </div>
-
         {/* Week Selector */}
         <div className="mb-8">
-          <label className="block text-sm text-neutral-400 mb-2">Change Week (Optional)</label>
+          <label className="block text-sm text-neutral-400 mb-2">Select Week</label>
           <select
             value={currentWeek.id}
             onChange={(e) => {
