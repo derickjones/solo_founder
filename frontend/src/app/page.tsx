@@ -86,7 +86,7 @@ export default function Home() {
   const [cfmWeek, setCfmWeek] = useState<CFMWeek>(currentCfmWeek);
   const [cfmStudyType, setCfmStudyType] = useState<'deep-dive' | 'lesson-plans' | 'audio-summary' | 'core-content'>('deep-dive');
   const [cfmStudyLevel, setCfmStudyLevel] = useState<'essential' | 'connected' | 'scholarly'>('essential');
-  const [cfmLessonPlanLevel, setCfmLessonPlanLevel] = useState<'adult' | 'youth' | 'children'>('adult');
+  const [cfmLessonPlanLevel, setCfmLessonPlanLevel] = useState<'adult' | 'youth' | 'older-primary' | 'younger-primary'>('adult');
   const [cfmAudioSummaryLevel, setCfmAudioSummaryLevel] = useState<'short' | 'medium' | 'long'>('medium');
   const [selectedVoice, setSelectedVoice] = useState<VoiceOption>('alnilam');
 
