@@ -15,7 +15,7 @@ import type { ActivityType } from '@/hooks/useUsageLimit';
 // Add study type definition
 type CFMStudyType = 'deep-dive' | 'lesson-plans' | 'audio-summary' | 'core-content';
 type StudyLevel = 'essential' | 'connected' | 'scholarly';
-type LessonPlanLevel = 'adult' | 'youth' | 'children';
+type LessonPlanLevel = 'adult' | 'youth' | 'older-primary' | 'younger-primary';
 type AudioSummaryLevel = 'short' | 'medium' | 'long';
 type VoiceOption = 'alnilam' | 'achird' | 'enceladus' | 'aoede' | 'autonoe' | 'erinome';
 
@@ -40,7 +40,7 @@ interface Message {
     content_type?: 'podcast' | 'study_guide' | 'lesson_plan' | 'core_content' | 'daily_thoughts';
     week_number?: number;
     study_level?: 'essential' | 'connected' | 'scholarly';
-    audience?: 'adult' | 'youth' | 'children';
+    audience?: 'adult' | 'youth' | 'older-primary' | 'younger-primary';
   };
 }
 
@@ -296,7 +296,9 @@ export default function ChatInterface({
         audience = levelLabel;
       } else if (cfmStudyType === 'lesson-plans') {
         const audienceLabel = cfmLessonPlanLevel === 'adult' ? 'Adult' :
-                             cfmLessonPlanLevel === 'youth' ? 'Youth' : 'Children';
+                             cfmLessonPlanLevel === 'youth' ? 'Youth (11-17)' :
+                             cfmLessonPlanLevel === 'older-primary' ? 'Older Primary (8-10)' :
+                             'Younger Primary (3-7)';
         title = `${audienceLabel} Lesson Plan`;
         audience = audienceLabel;
       } else if (cfmStudyType === 'audio-summary') {
@@ -541,7 +543,7 @@ export default function ChatInterface({
                     cacheMetadata: {
                       content_type: 'lesson_plan',
                       week_number: weekNumber,
-                      audience: cfmLessonPlanLevel as 'adult' | 'youth' | 'children'
+                      audience: cfmLessonPlanLevel
                     }
                   }
                 : msg
@@ -994,28 +996,31 @@ export default function ChatInterface({
                       {cfmStudyType === 'lesson-plans' && (
                         <>
                           <label className="text-sm font-medium text-neutral-400 uppercase tracking-wider text-center block">Audience</label>
-                          <div className="flex justify-center gap-3">
+                          <div className="grid grid-cols-2 gap-2 md:flex md:justify-center md:gap-3">
                             {[
-                              { level: 'adult', color: 'purple', desc: 'Ages 18+' },
-                              { level: 'youth', color: 'blue', desc: 'Ages 12-17' },
-                              { level: 'children', color: 'emerald', desc: 'Ages 3-11' }
-                            ].map(({ level, color, desc }) => (
+                              { level: 'adult', label: 'Adult', color: 'purple', desc: '18+' },
+                              { level: 'youth', label: 'Youth', color: 'blue', desc: '11-17' },
+                              { level: 'older-primary', label: 'Older Primary', color: 'emerald', desc: '8-10' },
+                              { level: 'younger-primary', label: 'Younger Primary', color: 'amber', desc: '3-7' }
+                            ].map(({ level, label, color, desc }) => (
                               <button
                                 key={level}
                                 type="button"
                                 onClick={() => setCfmLessonPlanLevel(level as LessonPlanLevel)}
-                                className={`group py-3 px-5 rounded-xl text-sm font-semibold transition-all duration-200 capitalize flex flex-col items-center ${
+                                className={`group py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-200 flex flex-col items-center ${
                                   cfmLessonPlanLevel === level
                                     ? color === 'purple'
                                       ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/25 scale-105'
                                       : color === 'blue'
                                       ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25 scale-105'
-                                      : 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/25 scale-105'
+                                      : color === 'emerald'
+                                      ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/25 scale-105'
+                                      : 'bg-amber-600 text-white shadow-lg shadow-amber-500/25 scale-105'
                                     : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50 hover:scale-102'
                                 }`}
                               >
-                                <span>{level}</span>
-                                <span className={`text-xs mt-1 ${cfmLessonPlanLevel === level ? 'text-white/70' : 'text-neutral-500'}`}>{desc}</span>
+                                <span>{label}</span>
+                                <span className={`text-xs mt-1 ${cfmLessonPlanLevel === level ? 'text-white/70' : 'text-neutral-500'}`}>Ages {desc}</span>
                               </button>
                             ))}
                           </div>

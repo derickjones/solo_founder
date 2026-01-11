@@ -498,7 +498,7 @@ export interface TTSGenerateRequest {
   content_type?: 'podcast' | 'study_guide' | 'lesson_plan' | 'core_content' | 'daily_thoughts';
   week_number?: number;
   study_level?: 'essential' | 'connected' | 'scholarly';
-  audience?: 'adult' | 'youth' | 'children';
+  audience?: 'adult' | 'youth' | 'older-primary' | 'younger-primary';
 }
 
 export interface TTSGenerateResponse {
