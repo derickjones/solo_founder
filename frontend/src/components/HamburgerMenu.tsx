@@ -233,8 +233,7 @@ export default function HamburgerMenu({
             {/* Submit Feedback */}
             <div className="p-4 pt-0 border-t border-neutral-800">
               <Link href="/feedback" onClick={() => setIsOpen(false)}>
-                <button className="w-full py-2 px-4 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
-                  <span>💬</span>
+                <button className="w-full py-2 px-4 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white rounded-lg text-sm font-medium transition-colors">
                   Submit Feedback
                 </button>
               </Link>

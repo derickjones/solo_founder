@@ -268,7 +268,7 @@ export default function Sidebar({
         <div className="px-6 pb-6 space-y-6 overflow-y-auto flex-1">
           {/* Voice Preference */}
           <div className="space-y-3">
-            <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Podcast Voice</span>
+            <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Audio Voice</span>
             <select
               value={selectedVoice}
               onChange={(e) => setSelectedVoice(e.target.value as VoiceOption)}
