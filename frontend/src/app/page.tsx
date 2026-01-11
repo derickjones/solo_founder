@@ -261,6 +261,14 @@ export default function Home() {
             <p className="text-neutral-600 text-xs mt-1">{cfmWeek?.dates}</p>
           </div>
         </div>
+
+        {/* Upgrade Modal */}
+        <UpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
+          actionsUsed={actionsUsed}
+          dailyLimit={dailyLimit}
+        />
       </div>
     );
   }
@@ -415,6 +423,14 @@ export default function Home() {
             </div>
           )}
         </div>
+
+        {/* Upgrade Modal */}
+        <UpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
+          actionsUsed={actionsUsed}
+          dailyLimit={dailyLimit}
+        />
       </div>
     );
   }
