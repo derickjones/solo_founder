@@ -253,15 +253,18 @@ export default function ChatInterface({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [sidebarOpen, setSidebarOpen]);
 
-  // Scroll behavior for hiding/showing controls
+  // Scroll behavior for hiding/showing controls  
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       
+      // Only respond to vertical scrolling on mobile to avoid horizontal scroll issues
+      const isVerticalScroll = Math.abs(currentScrollY - lastScrollY) > 5;
+      
       // On all devices: scroll up reveals controls, scroll down hides them (when there's content)
-      if (messages.length > 0) {
+      if (messages.length > 0 && isVerticalScroll) {
         if (currentScrollY > lastScrollY && currentScrollY > 100) {
           // Scrolling down and past threshold - hide controls
           setIsControlsVisible(false);
@@ -1141,18 +1144,18 @@ export default function ChatInterface({
       )}
 
       {/* Messages area */}
-      <div className="flex-1 min-h-0 px-4 lg:px-6 pb-2 lg:pb-4 overflow-y-auto">
+      <div className="flex-1 min-h-0 px-2 sm:px-4 lg:px-6 pb-2 lg:pb-4 overflow-y-auto overflow-x-hidden">
         {messages.length > 0 && (
-          <div className="max-w-6xl mx-auto space-y-6">
+          <div className="max-w-6xl mx-auto space-y-6 w-full">
             {messages.map((message) => (
-              <div key={message.id} className="space-y-4">
+              <div key={message.id} className="space-y-4 w-full">
                 {/* Show user messages, assistant messages with content, or assistant messages that are loading */}
                 {(message.type === 'user' || (message.type === 'assistant' && (message.content || message.audioFiles || message.isStreaming))) && (
                   <div
-                    className={`${
+                    className={`w-full ${
                       message.type === 'user'
-                        ? 'bg-neutral-600 text-white ml-auto max-w-sm lg:max-w-lg p-3 lg:p-4 rounded-lg'
-                        : 'bg-neutral-800 text-white max-w-full p-6 rounded-lg'
+                        ? 'bg-neutral-600 text-white ml-auto max-w-[85%] sm:max-w-sm lg:max-w-lg p-3 lg:p-4 rounded-lg break-words'
+                        : 'bg-neutral-800 text-white p-4 sm:p-6 rounded-lg break-words overflow-hidden'
                     }`}
                   >
                     {/* CFM Study Guide Header - Skip for audio-summary since AudioPlayer has its own header */}
@@ -1177,7 +1180,7 @@ export default function ChatInterface({
                     )}
                     {message.type === 'assistant' ? (
                       message.content ? (
-                        <div className="space-y-6 leading-relaxed text-neutral-100 max-w-none overflow-x-hidden break-words">
+                        <div className="space-y-6 leading-relaxed text-neutral-100 w-full min-w-0 overflow-hidden break-words hyphens-auto">
                           {/* Audio Player - shown at top for CFM content */}
                           {mode === 'Come Follow Me' && message.audioFiles?.combined && (
                             <div className="mb-6 pb-6 border-b border-neutral-700">
