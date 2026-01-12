@@ -1097,18 +1097,6 @@ export default function ChatInterface({
                       </span>
                     )}
                   </button>
-
-                  {/* Mobile collapse button - only show when controls are visible on mobile */}
-                  {isControlsVisible && (
-                    <button
-                      type="button"
-                      onClick={() => setIsControlsVisible(false)}
-                      className="md:hidden w-full mt-2 bg-neutral-700/50 hover:bg-neutral-600/50 text-neutral-300 py-2 px-4 rounded-lg transition-all duration-200 text-sm flex items-center justify-center space-x-2"
-                    >
-                      <ChevronDownIcon className="w-4 h-4" />
-                      <span>Hide Controls</span>
-                    </button>
-                  )}
                 </div>
               ) : (
                 // Q&A Mode: Show text input
