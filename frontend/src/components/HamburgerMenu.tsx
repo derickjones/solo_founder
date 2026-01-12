@@ -5,6 +5,7 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useUser, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
 import { useUsageLimit } from '@/hooks/useUsageLimit';
+import VideoLogo from './VideoLogo';
 
 // Voice type and options
 type VoiceOption = 'alnilam' | 'achird' | 'enceladus' | 'aoede' | 'autonoe' | 'erinome';
@@ -102,9 +103,7 @@ export default function HamburgerMenu({
           <div className="absolute right-0 top-12 w-72 bg-neutral-900 border border-neutral-700 rounded-xl shadow-2xl z-50 overflow-hidden">
             {/* Header */}
             <div className="p-4 border-b border-neutral-800 flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">📖</span>
-              </div>
+              <VideoLogo size="small" className="ring-0 bg-transparent" />
               <span className="font-semibold text-white">Gospel Study</span>
             </div>
 
