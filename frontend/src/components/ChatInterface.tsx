@@ -836,7 +836,7 @@ export default function ChatInterface({
   };
 
   return (
-    <div className={`flex-1 flex flex-col bg-neutral-900 transition-all duration-300 ${sidebarOpen ? 'lg:ml-0' : 'lg:ml-0'}`}>
+    <div className={`flex-1 flex flex-col bg-neutral-900 overflow-x-hidden transition-all duration-300 ${sidebarOpen ? 'lg:ml-0' : 'lg:ml-0'}`}>
       {/* Top-left back button - responsive positioning */}
       {onBackToLanding && (
         <div className={`fixed top-4 z-30 transition-all duration-300 ${sidebarOpen ? 'left-4 lg:left-[22rem]' : 'left-4 lg:left-6'}`}>
@@ -907,7 +907,7 @@ export default function ChatInterface({
           <form onSubmit={handleSubmit} className="relative">
             {mode === 'Come Follow Me' ? (
               // CFM Mode: Clean layout matching Daily Thought page
-              <div className="w-full space-y-6 max-h-[70vh] md:max-h-none overflow-y-auto md:overflow-visible py-4">
+              <div className="w-full space-y-6 max-h-[70vh] md:max-h-none overflow-y-auto overflow-x-hidden md:overflow-visible py-4">
                 {/* Week Selector */}
                 <div className="space-y-3">
                   <label className="text-neutral-400 text-sm">Select Week</label>
