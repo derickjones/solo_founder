@@ -1171,7 +1171,7 @@ export default function ChatInterface({
                     )}
                     {message.type === 'assistant' ? (
                       message.content ? (
-                        <div className="space-y-6 leading-relaxed text-neutral-100 max-w-none">
+                        <div className="space-y-6 leading-relaxed text-neutral-100 max-w-none overflow-x-hidden break-words">
                           {/* Audio Player - shown at top for CFM content */}
                           {mode === 'Come Follow Me' && message.audioFiles?.combined && (
                             <div className="mb-6 pb-6 border-b border-neutral-700">
@@ -1198,7 +1198,7 @@ export default function ChatInterface({
                           
                           {message.isStreaming && message.id === streamingMessageId ? (
                             // During streaming, show the streaming content state
-                            <div className="text-base leading-7 text-neutral-100 whitespace-pre-wrap">
+                            <div className="text-base leading-7 text-neutral-100 whitespace-pre-wrap break-words overflow-x-hidden">
                               {streamingContent}
                               <span className="inline-block w-2 h-4 bg-green-400 animate-pulse ml-1">|</span>
                             </div>
@@ -1207,27 +1207,27 @@ export default function ChatInterface({
                             <ReactMarkdown 
                               components={{
                                 h1: ({ children }) => (
-                                  <h1 className={`text-xl font-semibold mb-4 mt-6 ${mode === 'Come Follow Me' ? 'text-blue-200' : 'text-white'}`}>
+                                  <h1 className={`text-xl font-semibold mb-4 mt-6 break-words ${mode === 'Come Follow Me' ? 'text-blue-200' : 'text-white'}`}>
                                     {children}
                                   </h1>
                                 ),
                                 h2: ({ children }) => (
-                                  <h2 className={`text-lg font-semibold mb-3 mt-5 ${mode === 'Come Follow Me' ? 'text-blue-300' : 'text-white'}`}>
+                                  <h2 className={`text-lg font-semibold mb-3 mt-5 break-words ${mode === 'Come Follow Me' ? 'text-blue-300' : 'text-white'}`}>
                                     {children}
                                   </h2>
                                 ),
                                 h3: ({ children }) => (
-                                  <h3 className={`text-base font-semibold mb-3 mt-4 ${mode === 'Come Follow Me' ? 'text-yellow-300' : 'text-white'}`}>
+                                  <h3 className={`text-base font-semibold mb-3 mt-4 break-words ${mode === 'Come Follow Me' ? 'text-yellow-300' : 'text-white'}`}>
                                     {children}
                                   </h3>
                                 ),
                                 h4: ({ children }) => (
-                                  <h4 className={`text-base font-medium mb-2 mt-4 ${mode === 'Come Follow Me' ? 'text-yellow-200' : 'text-white'}`}>
+                                  <h4 className={`text-base font-medium mb-2 mt-4 break-words ${mode === 'Come Follow Me' ? 'text-yellow-200' : 'text-white'}`}>
                                     {children}
                                   </h4>
                                 ),
                                 p: ({ children }) => (
-                                  <p className="text-neutral-300 leading-relaxed mb-4">
+                                  <p className="text-neutral-300 leading-relaxed mb-4 break-words">
                                     {children}
                                   </p>
                                 ),
@@ -1252,7 +1252,7 @@ export default function ChatInterface({
                                   </ol>
                                 ),
                                 li: ({ children }) => (
-                                  <li className="text-neutral-300 leading-relaxed">
+                                  <li className="text-neutral-300 leading-relaxed break-words">
                                     {children}
                                   </li>
                                 ),
