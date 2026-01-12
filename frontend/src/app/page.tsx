@@ -106,7 +106,7 @@ export default function Home() {
       title: 'Daily Thought',
       description: 'Start your day with a brief scripture insight and reflection question',
       icon: <SunIcon className="w-8 h-8" />,
-      color: 'from-cyan-500 to-teal-600',
+      color: 'from-slate-500 to-slate-600',
       mode: 'Come Follow Me',
       special: 'daily-thought'
     },
@@ -115,7 +115,7 @@ export default function Home() {
       title: 'Podcast',
       description: 'Listen to AI-generated audio summaries of Come Follow Me lessons',
       icon: <MicrophoneIcon className="w-8 h-8" />,
-      color: 'from-purple-500 to-purple-700',
+      color: 'from-violet-400 to-violet-500',
       mode: 'Come Follow Me',
       studyType: 'audio-summary'
     },
@@ -124,7 +124,7 @@ export default function Home() {
       title: 'Deep Dive',
       description: 'In-depth scripture study with Essential, Connected, or Scholarly insights',
       icon: <AcademicCapIcon className="w-8 h-8" />,
-      color: 'from-blue-500 to-blue-700',
+      color: 'from-sky-400 to-sky-500',
       mode: 'Come Follow Me',
       studyType: 'deep-dive'
     },
@@ -133,7 +133,7 @@ export default function Home() {
       title: 'Lesson Plans',
       description: 'Generate teaching materials for adults, youth, or children',
       icon: <ClipboardDocumentListIcon className="w-8 h-8" />,
-      color: 'from-green-500 to-green-700',
+      color: 'from-emerald-400 to-emerald-500',
       mode: 'Come Follow Me',
       studyType: 'lesson-plans'
     },
@@ -142,7 +142,7 @@ export default function Home() {
       title: 'Core Content',
       description: 'Access the raw Come Follow Me curriculum materials',
       icon: <BookOpenIcon className="w-8 h-8" />,
-      color: 'from-amber-500 to-amber-700',
+      color: 'from-orange-400 to-orange-500',
       mode: 'Come Follow Me',
       studyType: 'core-content'
     },
@@ -151,7 +151,7 @@ export default function Home() {
       title: 'Q&A',
       description: 'Ask any gospel question and get AI-powered answers with citations',
       icon: <ChatBubbleLeftRightIcon className="w-8 h-8" />,
-      color: 'from-rose-500 to-rose-700',
+      color: 'from-pink-400 to-pink-500',
       mode: 'Q&A'
     }
   ];
