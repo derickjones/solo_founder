@@ -1134,6 +1134,20 @@ export default function ChatInterface({
         </div>
       </div>
 
+      {/* Mobile expand controls button - shows when controls are hidden */}
+      {!isControlsVisible && messages.length > 0 && (
+        <div className="md:hidden px-4 py-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => setIsControlsVisible(true)}
+            className="w-full bg-neutral-700/50 hover:bg-neutral-600/50 text-neutral-300 py-2 px-4 rounded-lg transition-all duration-200 text-sm flex items-center justify-center space-x-2"
+          >
+            <ChevronDownIcon className="w-4 h-4 rotate-180" />
+            <span>Show Controls</span>
+          </button>
+        </div>
+      )}
+
       {/* Messages area */}
       <div className="flex-1 min-h-0 px-4 lg:px-6 pb-2 lg:pb-4 overflow-y-auto">
         {messages.length > 0 && (
