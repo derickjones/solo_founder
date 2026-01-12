@@ -5,7 +5,7 @@
 ## 🚀 Live Deployments
 
 - **🌐 Frontend**: https://gospelstudyapp.com (Vercel)
-- **🔌 Backend API**: https://gospel-study-backend-273320302933.us-central1.run.app (Google Cloud Run)
+- **🔌 Backend API**: https://gospel-app-backend-273320302933.us-central1.run.app (Google Cloud Run)
 - **📚 Repository**: https://github.com/derickjones/solo_founder
 
 ---
@@ -28,6 +28,19 @@
 ---
 
 ## 🎉 Latest Updates (January 2026)
+
+### 4-Audience Lesson Plans (NEW!)
+- 📚 **Expanded Teaching Materials** - Now 4 distinct age-appropriate lesson plans
+- 👨‍🦳 **Adult** (18+) - Comprehensive doctrinal study with cross-references  
+- 👥 **Youth** (11-17) - Interactive activities, real-world applications, testimony building
+- 🧒 **Older Children** (8-10) - 8-10 minute structured teacher lessons + 3-4 varied activities
+- 👶 **Younger Children** (3-7) - Movement-based learning with simple stories + hands-on fun
+- 🎯 **Activity Variety** - Object lessons, games, crafts, music, role-play, discussions (varies weekly)
+
+### Mobile Optimization  
+- 📱 **Text Overflow Fix** - All content now properly wraps on mobile devices
+- 🔧 **Break-word CSS** - Prevents text from scrolling off-screen horizontally
+- ✨ **Responsive Design** - Improved readability across all screen sizes
 
 ### Advanced Audio Caching System
 - ⚡ **95% faster audio loading** - Cached audio loads in 0.5-2s (vs 10-30s)
@@ -67,7 +80,7 @@ All CFM content is **pre-generated offline** and served as static JSON files for
 | **💭 Daily Thoughts** | 364 files | Daily spiritual insights (52 weeks × 7 days) |
 | **🎙️ Podcast Scripts** | 156 files | Two-voice conversation podcasts (52 weeks × 3 levels) |
 | **📚 Study Guides** | 156 files | Deep dive content (52 weeks × 3 levels) |
-| **📝 Lesson Plans** | 156 files | Teaching materials (52 weeks × 3 audiences) |
+| **📝 Lesson Plans** | 208 files | Teaching materials (52 weeks × 4 audiences) |
 | **📖 Core Content** | 52 files | Complete CFM materials with scripture text |
 
 ### Study Levels & Audiences
@@ -75,7 +88,7 @@ All CFM content is **pre-generated offline** and served as static JSON files for
 | Type | Options |
 |------|---------|
 | **Study Levels** | Essential (~5 min), Connected (~10 min), Scholarly (~15 min) |
-| **Lesson Audiences** | Adult, Youth, Children |
+| **Lesson Audiences** | Adult (18+), Youth (11-17), Older Children (8-10), Younger Children (3-7) |
 
 ---
 
