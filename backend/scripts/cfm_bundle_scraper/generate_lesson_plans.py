@@ -114,12 +114,18 @@ When given a weekly CFM bundle, generate a structured lesson plan with:
 
 **Lesson Overview** (for the teacher): 2-3 sentences explaining the main principle in simple terms and why it matters for this age group.
 
+**10-MINUTE LESSON OUTLINE**:
+- **Opening Song/Activity** (2 minutes): Start with movement or a Primary song to focus attention
+- **Scripture Story** (3 minutes): Tell the key story simply with props/pictures 
+- **Main Activity** (4 minutes): One hands-on activity that teaches the principle
+- **Testimony/Closing** (1 minute): Simple sharing moment and prayer
+
 **Opening Activity** (5 minutes): An attention-grabbing start—object lesson, question, or quick game that introduces the theme.
 
 **Scripture Focus**: 1-2 key verses simplified for children. Include the full verse text and a child-friendly explanation.
 
-**Main Activities** (15-20 minutes total): 
-Provide **3 distinct activities** from DIFFERENT categories above. For each activity include:
+**Extended Activities** (15-20 minutes total): 
+Provide **2-3 additional activities** from DIFFERENT categories above for longer class time. For each activity include:
 - Clear title and activity type
 - Step-by-step instructions the teacher can follow
 - Materials needed (keep simple—paper, crayons, household items)
@@ -132,7 +138,7 @@ Provide **3 distinct activities** from DIFFERENT categories above. For each acti
 
 **Teacher Tips**: 1-2 practical suggestions for managing the class or adapting for different needs.
 
-Keep it 500-700 words. Activities should be SPECIFIC and DETAILED enough that a teacher can use them immediately. Make sure activities are age-appropriate for 8-10 year olds who can participate actively, read short passages, and write simple responses.""",
+Keep it 600-800 words. Activities should be SPECIFIC and DETAILED enough that a teacher can use them immediately. Make sure activities are age-appropriate for 8-10 year olds who can participate actively, read short passages, and write simple responses.""",
 
     'younger-primary': f"""{BASE_SYSTEM_PROMPT}
 
@@ -146,12 +152,18 @@ When given a weekly CFM bundle, generate a structured lesson plan with:
 
 **Lesson Overview** (for the teacher): 1-2 sentences on the ONE simple principle to teach. Keep the focus narrow for little minds.
 
+**10-MINUTE LESSON OUTLINE**:
+- **Wiggle Time** (2 minutes): A song with actions or simple movement to get wiggles out
+- **Picture Story** (3 minutes): Show a picture and tell the story in very simple words
+- **Fun Activity** (4 minutes): One hands-on activity (coloring, simple craft, or game)
+- **Jesus Time** (1 minute): "Jesus loves us" moment with simple prayer
+
 **Wiggle Activity** (2-3 minutes): Start with movement! A song with actions, marching, or simple game to get energy out and focus attention.
 
 **Simple Scripture**: ONE short verse or phrase (5-10 words max). Say it together multiple times. Suggest hand motions or a simple tune.
 
-**Main Activities** (15 minutes total):
-Provide **3-4 SHORT activities** from DIFFERENT categories above. For each activity include:
+**Extended Activities** (15 minutes total):
+Provide **3-4 SHORT activities** from DIFFERENT categories above for longer class time. For each activity include:
 - Fun, simple title
 - What to do (2-3 clear steps)
 - Simple materials (paper, crayons, stickers, pictures)
@@ -168,7 +180,7 @@ Provide **3-4 SHORT activities** from DIFFERENT categories above. For each activ
 
 **Teacher Survival Tips**: 2-3 tips for managing wiggly little ones, handling disruptions lovingly, or adapting when things don't go as planned.
 
-Keep it 400-600 words. Use SIMPLE language throughout. Remember: these are 3-7 year olds! Short attention spans, lots of energy, learn through doing. Every activity should involve them DOING something, not just listening."""
+Keep it 500-700 words. Use SIMPLE language throughout. Remember: these are 3-7 year olds! Short attention spans, lots of energy, learn through doing. Every activity should involve them DOING something, not just listening."""
 }
 
 # Forbidden phrases to check
