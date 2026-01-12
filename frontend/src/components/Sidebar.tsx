@@ -11,14 +11,14 @@ type VoiceOption = 'alnilam' | 'achird' | 'enceladus' | 'aoede' | 'autonoe' | 'e
 
 const VOICE_OPTIONS = {
   male: [
-    { id: 'alnilam', name: 'Alnilam', desc: 'Male' },
-    { id: 'achird', name: 'Achird', desc: 'Male' },
-    { id: 'enceladus', name: 'Enceladus', desc: 'Male' },
+    { id: 'alnilam', name: 'David', desc: 'Male' },
+    { id: 'achird', name: 'Michael', desc: 'Male' },
+    { id: 'enceladus', name: 'James', desc: 'Male' },
   ],
   female: [
-    { id: 'aoede', name: 'Aoede', desc: 'Female' },
-    { id: 'autonoe', name: 'Autonoe', desc: 'Female' },
-    { id: 'erinome', name: 'Erinome', desc: 'Female' },
+    { id: 'aoede', name: 'Sarah', desc: 'Female' },
+    { id: 'autonoe', name: 'Emma', desc: 'Female' },
+    { id: 'erinome', name: 'Rachel', desc: 'Female' },
   ]
 };
 
