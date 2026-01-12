@@ -215,7 +215,11 @@ export default function Home() {
         {/* Header with logo */}
         <div className="flex flex-col items-center justify-center pt-12 lg:pt-20 pb-8 lg:pb-12 px-4">
           <VideoLogo size="large" className="mb-6" />
-          <h1 className="text-3xl lg:text-5xl font-bold text-white mb-3 text-center">
+          <h1 className="text-4xl lg:text-6xl font-bold text-white mb-3 text-center bg-gradient-to-r from-white via-blue-100 to-white bg-clip-text text-transparent drop-shadow-lg" 
+              style={{ 
+                textShadow: '0 2px 4px rgba(0,0,0,0.5), 0 0 20px rgba(59,130,246,0.3)',
+                WebkitTextStroke: '1px rgba(255,255,255,0.1)'
+              }}>
             Gospel Study App
           </h1>
           <p className="text-lg lg:text-2xl text-neutral-400 text-center">

@@ -880,8 +880,12 @@ export default function ChatInterface({
                 if (onBackToLanding) onBackToLanding();
               }}
               className={`font-bold text-white hover:text-blue-300 transition-colors cursor-pointer ${
-                messages.length > 0 ? 'text-sm lg:text-base' : 'text-2xl lg:text-4xl mb-2'
+                messages.length > 0 ? 'text-sm lg:text-base' : 'text-3xl lg:text-5xl mb-2'
               }`}
+              style={messages.length === 0 ? { 
+                textShadow: '0 2px 4px rgba(0,0,0,0.5), 0 0 15px rgba(59,130,246,0.2)',
+                WebkitTextStroke: '0.5px rgba(255,255,255,0.1)'
+              } : {}}
             >
               Gospel Study App
             </button>
