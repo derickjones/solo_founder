@@ -847,7 +847,7 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
     
     Audio structure:
     - Intro: 0-7s music at full volume
-    - Music fade-out: 5s-14s (9 second fade to silence)
+    - Music fade-out: 10s-16s (6 second exponential fade to silence)
     - Voice starts: 11s (4 seconds into the fade-out)
     - Voice: Full volume, no background music during main content
     - Outro fade-in: Music fades in 10 seconds before voice ends
@@ -1033,8 +1033,8 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
         music = AudioSegment.from_mp3(str(music_file))
         
         # ========== TIMING CONFIGURATION ==========
-        intro_duration_ms = 5000           # 5s intro at full volume
-        music_fadeout_ms = 9000            # 9s fade out (5s-14s)
+        intro_duration_ms = 10000          # 10s intro at full volume
+        music_fadeout_ms = 6000            # 6s fade out (10s-16s)
         voice_start_ms = 11000             # Voice starts at 11s
         outro_fadein_ms = 10000            # 10s fade in before voice ends
         outro_duration_ms = 30000          # 30s outro after voice
@@ -1049,15 +1049,40 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
         while len(music) < total_duration_needed + 5000:
             music = music.append(music, crossfade=2000)
         
-        # ========== BUILD INTRO + FADE OUT ==========
-        # Intro: 0-13s at full volume
+        # ========== BUILD INTRO + EXPONENTIAL FADE OUT ==========
+        # Intro: 0-10s at full volume
         intro_music = music[:intro_duration_ms]
         
-        # Fade out: 5s-14s (9 second fade)
+        # Exponential fade out: 10s-16s (6 second fade)
+        # Apply exponential fade by processing in small chunks with increasing attenuation
         fadeout_section = music[intro_duration_ms:intro_duration_ms + music_fadeout_ms]
-        fadeout_section = fadeout_section.fade_out(duration=music_fadeout_ms)
         
-        intro_with_fadeout = intro_music + fadeout_section
+        # Create exponential fade by splitting into segments and applying graduated volume
+        import math
+        chunk_size_ms = 100  # 100ms chunks for smooth fade
+        num_chunks = music_fadeout_ms // chunk_size_ms
+        faded_chunks = AudioSegment.empty()
+        
+        for i in range(num_chunks):
+            chunk_start = i * chunk_size_ms
+            chunk_end = (i + 1) * chunk_size_ms
+            chunk = fadeout_section[chunk_start:chunk_end]
+            
+            # Exponential curve: faster drop at start, slower at end
+            # progress goes from 0 to 1, we want volume to go from 1 to 0 exponentially
+            progress = i / num_chunks
+            # Exponential decay: e^(-3*progress) gives nice curve (drops to ~5% by end)
+            volume_multiplier = math.exp(-4 * progress)
+            # Convert to dB reduction (0 dB = full volume, -inf dB = silence)
+            if volume_multiplier > 0.001:
+                db_reduction = 20 * math.log10(volume_multiplier)
+                chunk = chunk + db_reduction
+            else:
+                chunk = chunk - 60  # Effectively silent
+            
+            faded_chunks += chunk
+        
+        intro_with_fadeout = intro_music + faded_chunks
         
         # ========== VOICE TRACK (NO FADE-IN, FULL VOLUME) ==========
         # Voice starts at 18 seconds at FULL volume (no fade-in)
