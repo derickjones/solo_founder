@@ -974,21 +974,17 @@ export default function ChatInterface({
                           <label className="text-sm font-medium text-neutral-400 uppercase tracking-wider text-center block">Study Level</label>
                           <div className="flex justify-center gap-3">
                             {[
-                              { level: 'essential', label: 'Essential', color: 'emerald', desc: '~5 min read' },
-                              { level: 'connected', label: 'Connected', color: 'purple', desc: '~10 min read' },
-                              { level: 'scholarly', label: 'Scholarly', color: 'amber', desc: '~15 min read' }
-                            ].map(({ level, label, color, desc }) => (
+                              { level: 'essential', label: 'Essential', desc: '~5 min read' },
+                              { level: 'connected', label: 'Connected', desc: '~10 min read' },
+                              { level: 'scholarly', label: 'Scholarly', desc: '~15 min read' }
+                            ].map(({ level, label, desc }) => (
                               <button
                                 key={level}
                                 type="button"
                                 onClick={() => setCfmStudyLevel(level as StudyLevel)}
                                 className={`group py-3 px-5 rounded-xl text-sm font-semibold transition-all duration-200 flex flex-col items-center ${
                                   cfmStudyLevel === level
-                                    ? color === 'emerald' 
-                                      ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/25 scale-105'
-                                      : color === 'purple'
-                                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/25 scale-105'
-                                      : 'bg-amber-600 text-white shadow-lg shadow-amber-500/25 scale-105'
+                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25 scale-105'
                                     : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50 hover:scale-102'
                                 }`}
                               >
@@ -1005,24 +1001,18 @@ export default function ChatInterface({
                           <label className="text-sm font-medium text-neutral-400 uppercase tracking-wider text-center block">Audience</label>
                           <div className="grid grid-cols-2 gap-2 md:flex md:justify-center md:gap-3">
                             {[
-                              { level: 'adult', label: 'Adult', color: 'purple', desc: '18+' },
-                              { level: 'youth', label: 'Youth', color: 'blue', desc: '11-17' },
-                              { level: 'older-primary', label: 'Older Children', color: 'emerald', desc: '8-10' },
-                              { level: 'younger-primary', label: 'Younger Children', color: 'amber', desc: '3-7' }
-                            ].map(({ level, label, color, desc }) => (
+                              { level: 'adult', label: 'Adult', desc: '18+' },
+                              { level: 'youth', label: 'Youth', desc: '11-17' },
+                              { level: 'older-primary', label: 'Older Children', desc: '8-10' },
+                              { level: 'younger-primary', label: 'Younger Children', desc: '3-7' }
+                            ].map(({ level, label, desc }) => (
                               <button
                                 key={level}
                                 type="button"
                                 onClick={() => setCfmLessonPlanLevel(level as LessonPlanLevel)}
                                 className={`group py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-200 flex flex-col items-center ${
                                   cfmLessonPlanLevel === level
-                                    ? color === 'purple'
-                                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/25 scale-105'
-                                      : color === 'blue'
-                                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25 scale-105'
-                                      : color === 'emerald'
-                                      ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/25 scale-105'
-                                      : 'bg-amber-600 text-white shadow-lg shadow-amber-500/25 scale-105'
+                                    ? 'bg-green-600 text-white shadow-lg shadow-green-500/25 scale-105'
                                     : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50 hover:scale-102'
                                 }`}
                               >
@@ -1039,21 +1029,17 @@ export default function ChatInterface({
                           <label className="text-sm font-medium text-neutral-400 uppercase tracking-wider text-center block">Study Level</label>
                           <div className="flex justify-center gap-3">
                             {[
-                              { level: 'short', label: 'Essential', color: 'emerald', desc: '~5 min listen' },
-                              { level: 'medium', label: 'Connected', color: 'purple', desc: '~10 min listen' },
-                              { level: 'long', label: 'Scholarly', color: 'amber', desc: '~15 min listen' }
-                            ].map(({ level, label, color, desc }) => (
+                              { level: 'short', label: 'Essential', desc: '~5 min listen' },
+                              { level: 'medium', label: 'Connected', desc: '~10 min listen' },
+                              { level: 'long', label: 'Scholarly', desc: '~15 min listen' }
+                            ].map(({ level, label, desc }) => (
                               <button
                                 key={level}
                                 type="button"
                                 onClick={() => setCfmAudioSummaryLevel(level as AudioSummaryLevel)}
                                 className={`group py-3 px-5 rounded-xl text-sm font-semibold transition-all duration-200 flex flex-col items-center ${
                                   cfmAudioSummaryLevel === level
-                                    ? color === 'emerald' 
-                                      ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/25 scale-105'
-                                      : color === 'purple'
-                                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/25 scale-105'
-                                      : 'bg-amber-600 text-white shadow-lg shadow-amber-500/25 scale-105'
+                                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/25 scale-105'
                                     : 'text-neutral-400 hover:text-white hover:bg-neutral-700/50 hover:scale-102'
                                 }`}
                               >
