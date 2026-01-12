@@ -107,41 +107,6 @@ export default function HamburgerMenu({
               <span className="font-semibold text-white">Gospel Study</span>
             </div>
 
-            {/* Study Mode */}
-            <div className="p-4 border-b border-neutral-800">
-              <label className="block text-xs font-medium text-neutral-400 uppercase tracking-wider mb-3">
-                Study Mode
-              </label>
-              <div className="flex bg-neutral-800 rounded-lg p-1">
-                <button
-                  onClick={() => {
-                    setMode('Q&A');
-                    if (onOpenSidebar) {
-                      onOpenSidebar();
-                      setIsOpen(false);
-                    }
-                  }}
-                  className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${
-                    mode === 'Q&A'
-                      ? 'bg-neutral-700 text-white'
-                      : 'text-neutral-400 hover:text-white'
-                  }`}
-                >
-                  Q&A
-                </button>
-                <button
-                  onClick={() => setMode('Come Follow Me')}
-                  className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all ${
-                    mode === 'Come Follow Me'
-                      ? 'bg-neutral-700 text-white'
-                      : 'text-neutral-400 hover:text-white'
-                  }`}
-                >
-                  Come Follow Me
-                </button>
-              </div>
-            </div>
-
             {/* Podcast Voice */}
             <div className="p-4 border-b border-neutral-800">
               <label className="block text-xs font-medium text-neutral-400 uppercase tracking-wider mb-3">
