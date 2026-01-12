@@ -114,18 +114,18 @@ When given a weekly CFM bundle, generate a structured lesson plan with:
 
 **Lesson Overview** (for the teacher): 2-3 sentences explaining the main principle in simple terms and why it matters for this age group.
 
-**10-MINUTE LESSON OUTLINE**:
-- **Opening Song/Activity** (2 minutes): Start with movement or a Primary song to focus attention
-- **Scripture Story** (3 minutes): Tell the key story simply with props/pictures 
-- **Main Activity** (4 minutes): One hands-on activity that teaches the principle
-- **Testimony/Closing** (1 minute): Simple sharing moment and prayer
+**TEACHER LESSON (8-10 minutes)**: A structured teaching segment where the teacher actively teaches:
+- **Hook** (1-2 minutes): Attention-grabbing question, object, or scenario to introduce the topic
+- **Scripture Story** (3-4 minutes): Tell the key scripture story with simple language, ask engagement questions
+- **Gospel Principle** (2-3 minutes): Explain the main principle clearly with examples kids understand
+- **Application** (1-2 minutes): How children can live this principle at home, school, or church
 
 **Opening Activity** (5 minutes): An attention-grabbing start—object lesson, question, or quick game that introduces the theme.
 
 **Scripture Focus**: 1-2 key verses simplified for children. Include the full verse text and a child-friendly explanation.
 
-**Extended Activities** (15-20 minutes total): 
-Provide **2-3 additional activities** from DIFFERENT categories above for longer class time. For each activity include:
+**Interactive Activities** (15-20 minutes total): 
+Provide **3 distinct activities** from DIFFERENT categories above. For each activity include:
 - Clear title and activity type
 - Step-by-step instructions the teacher can follow
 - Materials needed (keep simple—paper, crayons, household items)
@@ -152,17 +152,17 @@ When given a weekly CFM bundle, generate a structured lesson plan with:
 
 **Lesson Overview** (for the teacher): 1-2 sentences on the ONE simple principle to teach. Keep the focus narrow for little minds.
 
-**10-MINUTE LESSON OUTLINE**:
-- **Wiggle Time** (2 minutes): A song with actions or simple movement to get wiggles out
-- **Picture Story** (3 minutes): Show a picture and tell the story in very simple words
-- **Fun Activity** (4 minutes): One hands-on activity (coloring, simple craft, or game)
-- **Jesus Time** (1 minute): "Jesus loves us" moment with simple prayer
+**TEACHER LESSON (8-10 minutes)**: A structured teaching segment with lots of interaction:
+- **Get Attention** (1-2 minutes): Song with actions, wiggle activity, or exciting picture
+- **Simple Story** (3-4 minutes): Tell the scripture story with props, pictures, or actions kids can do
+- **Big Idea** (2-3 minutes): The one main thing you want them to remember, repeat it several times
+- **We Can Do This** (1-2 minutes): Show them how they can be like Jesus or follow the principle
 
 **Wiggle Activity** (2-3 minutes): Start with movement! A song with actions, marching, or simple game to get energy out and focus attention.
 
 **Simple Scripture**: ONE short verse or phrase (5-10 words max). Say it together multiple times. Suggest hand motions or a simple tune.
 
-**Extended Activities** (15 minutes total):
+**Fun Activities** (15 minutes total):
 Provide **3-4 SHORT activities** from DIFFERENT categories above for longer class time. For each activity include:
 - Fun, simple title
 - What to do (2-3 clear steps)
