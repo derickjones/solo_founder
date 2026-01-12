@@ -847,7 +847,7 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
     
     Audio structure:
     - Intro: 0-7s music at full volume
-    - Music fade-out: 7s-16s (9 second fade to silence)
+    - Music fade-out: 5s-14s (9 second fade to silence)
     - Voice starts: 11s (4 seconds into the fade-out)
     - Voice: Full volume, no background music during main content
     - Outro fade-in: Music fades in 10 seconds before voice ends
@@ -1033,8 +1033,8 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
         music = AudioSegment.from_mp3(str(music_file))
         
         # ========== TIMING CONFIGURATION ==========
-        intro_duration_ms = 7000           # 7s intro at full volume
-        music_fadeout_ms = 9000            # 9s fade out (7s-16s)
+        intro_duration_ms = 5000           # 5s intro at full volume
+        music_fadeout_ms = 9000            # 9s fade out (5s-14s)
         voice_start_ms = 11000             # Voice starts at 11s
         outro_fadein_ms = 10000            # 10s fade in before voice ends
         outro_duration_ms = 30000          # 30s outro after voice
@@ -1053,7 +1053,7 @@ async def generate_podcast_tts(request: TTSPodcastRequest):
         # Intro: 0-13s at full volume
         intro_music = music[:intro_duration_ms]
         
-        # Fade out: 7s-16s (9 second fade)
+        # Fade out: 5s-14s (9 second fade)
         fadeout_section = music[intro_duration_ms:intro_duration_ms + music_fadeout_ms]
         fadeout_section = fadeout_section.fade_out(duration=music_fadeout_ms)
         
