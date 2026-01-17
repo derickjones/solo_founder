@@ -51,47 +51,48 @@ def get_random_host_guest():
 
 def get_base_podcast_prompt(host_name: str, guest_name: str) -> str:
     """Generate the base podcast prompt with dynamic host/guest assignment"""
-    return f"""You are creating an ADDICTIVE, story-driven conversation between two Latter-day Saint scripture teachers that hooks listeners immediately and keeps them engaged. This dialogue podcast should feel like two brilliant professors discovering profound connections together—combining the intrigue of a mystery podcast with deep scriptural insight.
+    return f"""You are creating a natural, engaging conversation between two Latter-day Saint scripture teachers that captivates listeners with profound insights. This dialogue should feel like two knowledgeable friends discovering meaningful connections together—combining genuine curiosity with deep scriptural understanding.
 
 **SPEAKERS**:
-- {host_name} (host): Engaging, curious teacher - poses intriguing questions, builds anticipation
-- {guest_name} (guest): Insightful teacher - reveals surprising connections, provides scholarly depth
+- {host_name} (host): Engaging, curious teacher - poses thoughtful questions, guides discovery
+- {guest_name} (guest): Insightful teacher - shares meaningful connections, provides scholarly depth
 
 **MANDATORY OPENING**: Begin EXACTLY with {host_name} saying: "{TAGLINE} I'm {host_name}." Then {guest_name} responds: "And I'm {guest_name}."
 
-**HOOK STRUCTURE (CRITICAL - First 3-5 segments after greeting):**
-Start with ONE of these compelling hook types:
-1. **Mystery Hook**: Pose a puzzling question that demands resolution (e.g., "Why did the Jews try to stone Jesus for three simple words?")
-2. **Shocking Discovery**: Share an unexpected archaeological or historical finding
-3. **Pattern Reveal Setup**: "I'm going to show you something hidden in plain sight across four different prophets..."
-4. **Multi-Perspective Twist**: "What if I told you there are three completely different ways to read this same story?"
-5. **"What Most People Miss"**: Start with something overlooked that transforms understanding
+**CONVERSATION FLOW**:
+Start with a compelling question or insight that naturally draws listeners in:
+1. **Intriguing Opening**: Pose a meaningful question that creates genuine curiosity
+2. **Discovery Pattern**: Share something profound that transforms understanding  
+3. **Multi-Perspective Insight**: "What's fascinating is how this looks different when viewed from..."
+4. **Connection Reveal**: "There's something remarkable happening across several scriptures..."
+5. **"Often Overlooked"**: Point out significant details most readers miss
 
-The hook should create curiosity that MUST be satisfied by listening further.
+The opening should create natural curiosity and anticipation for meaningful discovery.
 
 **CONVERSATION STYLE**:
-- Natural back-and-forth dialogue with 2-4 sentences per speaking turn
-- Build tension and anticipation—don't give everything away at once
-- Use "Mystery Architecture": Set up intriguing questions early, explore, then provide satisfying reveals
-- {host_name} guides with curiosity: "Wait, what?", "That's fascinating, but how does...", "I need to understand..."
-- {guest_name} provides "aha moments": "Here's what shifts everything...", "Notice this pattern...", "Watch what happens..."
-- Include moments of genuine discovery: "I never saw that!", "That's remarkable!", "This changes how I read..."
-- Vary speaking turn length - quick exchanges for excitement, longer explanations for depth
+- Natural, flowing dialogue with varied speaking turn lengths (2-6 sentences typically)
+- Build understanding progressively—don't rush to conclusions
+- Create organic discovery moments where insights emerge naturally
+- {host_name} guides with genuine curiosity: "That's fascinating—help me understand...", "I'm intrigued by...", "What strikes me about this..."
+- {guest_name} shares discoveries thoughtfully: "What I find remarkable...", "Here's what I think is significant...", "Notice how this connects..."
+- Include authentic moments of realization: "I hadn't thought of it that way", "That's a profound connection", "This really deepens my understanding"
+- Vary speaking patterns - sometimes quick exchanges, sometimes deeper explanations
+- AVOID formulaic back-and-forth scripture citing - weave references naturally into the conversation
 
-**EDUCATIONAL SCAFFOLDING (Weave naturally into dialogue):**
-- **Multi-Perspective Analysis**: Show ancient Israel's view, Christ's view, modern restoration view
-- **Pattern Recognition**: Trace ONE theme across 2-4 dispensations (e.g., divine light: Psalms → Moses → Christ → D&C)
-- **Historical Context**: Include 1-2 archaeological/cultural insights that make ancient events feel immediate and real
-- **Hidden Connections**: Reveal surprising cross-references most people miss
-- **Plan of Salvation Links**: Connect symbols and covenants to the eternal plan
-- **Prophetic Echoes**: Show how modern prophets mirror ancient revelations
+**EDUCATIONAL APPROACH (Integrate naturally into dialogue):**
+- **Multi-Perspective Analysis**: Explore how different people/times understood the same truth
+- **Pattern Recognition**: Trace meaningful themes across time periods naturally  
+- **Historical Context**: Include relevant cultural/archaeological insights that illuminate the text
+- **Meaningful Connections**: Reveal significant cross-references that enhance understanding
+- **Gospel Integration**: Connect symbols and covenants to the plan of salvation
+- **Prophetic Continuity**: Show how modern revelation builds on ancient foundations
 
 **ENGAGEMENT TECHNIQUES**:
-- Use "Notice this..." to draw attention to patterns
-- Build with "Here's where it gets powerful..." before reveals
-- Create anticipation: "Hold that question, we'll come back to it..."
-- Surprise with "What most people don't know is..."
-- Validate discovery: "Exactly! You just uncovered something profound."
+- Use "What strikes me..." to invite deeper consideration
+- Build understanding with "Here's what I find meaningful..." 
+- Create anticipation naturally: "There's something significant here that..."
+- Surprise with "What many don't realize is..."
+- Validate insights: "That's exactly right—you've uncovered something profound"
 
 **MANDATES**:
 - Output ONLY a JSON array of dialogue segments ready for multi-voice TTS
@@ -102,7 +103,9 @@ The hook should create curiosity that MUST be satisfied by listening further.
 - No references to previous/next weeks - focus only on this week's content
 - Stay strictly within provided bundle content and official Church sources
 - Quote scriptures verbatim with references when discussed
-- NEVER use the phrases "time collapse", "time collapse moment", "aha moment", or "fresh insight" in dialogue
+- COMPLETELY AVOID these specific words and phrases in ALL dialogue: "echoes", "echo", "aha moment", "fresh insight", "hook", "hooks", "kid activities", "children's activities", "time collapse"
+- Make the conversation flow naturally - avoid rote scripture exchanges
+- Use alternative phrasing: instead of "echoes" use "reflects" or "mirrors"; instead of "aha moment" use "realization" or "insight"; instead of "hook" use "opening" or "beginning"
 
 **DIALOGUE STRUCTURE**:
 1. **Opening**: Tagline + greeting (1-2 segments)
@@ -131,100 +134,107 @@ def get_level_specific_prompt(host_name: str, guest_name: str, study_level: str)
     level_additions = {
         'essential': f"""
 
-**ESSENTIAL LEVEL**: Accessible yet intriguing — like a captivating story for curious learners.
+**ESSENTIAL LEVEL**: Accessible yet meaningful — like a thoughtful conversation for curious learners.
 
-**HOOK REQUIREMENTS**:
-- Start with a simple but compelling question or discovery
-- Use "What most people miss..." or "Here's something surprising..."
-- Make complex ideas feel accessible through story and wonder
+**OPENING APPROACH**:
+- Start with a simple but compelling question or observation
+- Use "What's remarkable about this..." or "I've always wondered about..."
+- Make complex ideas accessible through natural conversation and wonder
 
-**EDUCATIONAL WEAVING**:
-- One clear multi-perspective moment (e.g., "From Moses' view... but from God's view...")
-- Trace ONE simple pattern across 2-3 scriptures (e.g., "manna → bread of life → sacrament")
+**EDUCATIONAL APPROACH**:
+- One clear multi-perspective moment (e.g., "From Moses' view... but from God's perspective...")
+- Trace ONE meaningful pattern across 2-3 scriptures naturally
 - Include ONE fascinating historical detail that creates connection
-- Show how one symbol points to Christ in an unexpected way
+- Show how one symbol points to Christ in a meaningful way
 
-**DIALOGUE FLOW**:
-- {host_name} asks curious questions that listeners would ask
-- {guest_name} reveals insights in simple, wonder-filled language
-- Build one "aha moment" around a hidden connection
+**CONVERSATION FLOW**:
+- {host_name} asks questions that listeners naturally would ask
+- {guest_name} shares insights in clear, wonder-filled language
+- Build one moment of genuine realization around a meaningful connection
 - Close with one clear, actionable invitation
+- NEVER use the words: "echoes", "echo", "aha moment", "hook", "fresh insight"
+- Use alternatives: "reflects", "mirrors", "realization", "insight", "opening", "beginning"
 
 **TARGET**: 20-30 dialogue segments (~7-10 minutes total)
 
-**EXAMPLE HOOK**:
-{host_name}: "{guest_name}, what if I told you that every time the Israelites ate breakfast in the wilderness, they were actually learning about Jesus Christ? Most people read right past this."
-{guest_name}: "That's exactly right, {host_name}. Let me show you what's hidden in the manna story..."
+**EXAMPLE OPENING**:
+{host_name}: "{guest_name}, I've been thinking about something. Every time the Israelites ate breakfast in the wilderness, there was actually a profound lesson about Jesus Christ happening. Most people read right past this."
+{guest_name}: "That's such a beautiful observation, {host_name}. Let me share what I've discovered about the manna story..."
 """,
 
         'connected': f"""
 
-**CONNECTED LEVEL**: Deeply engaging with mystery and revelation — like two professors making breakthrough discoveries together.
+**CONNECTED LEVEL**: Deeply engaging with meaningful discovery — like two teachers making genuine breakthroughs together.
 
-**HOOK REQUIREMENTS**:
-- Open with an intriguing mystery or shocking archaeological discovery
-- Use "Mystery Architecture": Set up tension that builds throughout the conversation
-- Create a "Wait, what?" moment in the first 30 seconds
+**OPENING APPROACH**:
+- Open with an intriguing question or thoughtful archaeological discovery
+- Create genuine curiosity that builds throughout the conversation
+- Start with something that makes listeners think "I never considered that"
 
-**EDUCATIONAL WEAVING**:
+**EDUCATIONAL APPROACH**:
 - Multi-perspective analysis: Show how ancient Israel, Christ, and modern Saints see the same truth differently
-- Pattern Recognition Web: Trace ONE theme across 3-4 dispensations with building excitement
-- Historical Deep Dive: Include 2-3 archaeological/cultural insights that transform understanding
-- Hidden Connections: Reveal at least 2 surprising cross-references most people miss
-- Plan of Salvation Link: Show how symbols connect to the eternal plan
-- Prophetic Echoes: Demonstrate how modern prophets mirror ancient revelations
+- Pattern Recognition: Trace ONE theme across 3-4 dispensations with building understanding
+- Historical Insight: Include 2-3 archaeological/cultural insights that transform understanding
+- Meaningful Connections: Reveal at least 2 significant cross-references most people miss
+- Gospel Integration: Show how symbols connect to the plan of salvation
+- Prophetic Continuity: Demonstrate how modern prophets build on ancient revelations
 
-**DIALOGUE FLOW**:
-- {host_name} builds anticipation with progressive questions
-- {guest_name} provides escalating revelations
-- Use "Notice this pattern..." repeatedly to build the web
-- Create multiple "That's remarkable!" moments of genuine discovery
-- Resolve the opening mystery with a powerful insight
+**CONVERSATION FLOW**:
+- {host_name} builds understanding with progressive questions
+- {guest_name} provides escalating insights and revelations
+- Use "What I find fascinating..." to build the understanding web
+- Create multiple moments of genuine discovery and realization
+- Resolve the opening question with a profound insight
 - Include one moment where ancient and modern feel immediately connected
+- NEVER use the words: "echoes", "echo", "aha moment", "hook", "fresh insight"
+- Use alternatives: "reflects", "mirrors", "realization", "insight", "opening", "beginning"
 
 **TARGET**: 35-50 dialogue segments (~12-17 minutes total)
 
-**EXAMPLE HOOK**:
-{host_name}: "{guest_name}, I'm going to start with something that puzzled me for years. In John 8:58, Jesus says three simple words—'Before Abraham was, I am'—and the Jews immediately pick up stones to kill Him. Why such an extreme reaction?"
-{guest_name}: "That's the perfect mystery to unlock the entire Old Testament, {host_name}. To understand it, we need to go back 1,400 years to a burning bush..."
+**EXAMPLE OPENING**:
+{host_name}: "{guest_name}, I want to start with something that has puzzled me. In John 8:58, Jesus says three simple words—'Before Abraham was, I am'—and the Jews immediately pick up stones to kill Him. Why such an extreme reaction?"
+{guest_name}: "That's the perfect question to unlock so much understanding about the Old Testament, {host_name}. To really grasp this, we need to go back 1,400 years to a burning bush..."
 """,
 
         'scholarly': f"""
 
-**SCHOLARLY LEVEL**: Intellectually addictive with layered mysteries — like a masterclass in scriptural detective work.
+**SCHOLARLY LEVEL**: Intellectually engaging with layered understanding — like a masterclass in scriptural analysis.
 
-**HOOK REQUIREMENTS**:
-- Open with a profound mystery, contradiction, or paradigm-shifting discovery
-- Use multiple hook layers: historical puzzle → theological question → modern application mystery
-- Create irresistible curiosity that demands resolution
+**OPENING APPROACH**:
+- Open with a profound question, apparent contradiction, or paradigm-shifting discovery
+- Create multiple layers of curiosity: historical puzzle → theological question → modern application
+- Generate compelling intellectual curiosity that demands deeper exploration
 
-**EDUCATIONAL WEAVING**:
-- **Theological Framework**: Multi-layered perspective analysis revealing how doctrines develop across dispensations
+**EDUCATIONAL APPROACH**:
+- **Theological Framework**: Multi-layered perspective analysis showing how doctrines develop across dispensations
 - **Pattern Recognition Mastery**: Trace themes across 4+ dispensations showing divine consistency
 - **Exegetical Insights**: Hebrew/Greek terms, JST context, literary structures creating paradigm shifts
-- **Archaeological Deep Dives**: 2-3 historical/cultural discoveries that make ancient events feel immediate and real
-- **Cross-Reference Web Matrix**: Reveal extensive hidden connections across all standard works
-- **Contradiction Resolution**: Address apparent conflicts that reveal profound truth when understood
+- **Archaeological Deep Analysis**: 2-3 historical/cultural discoveries that make ancient events immediate and real
+- **Cross-Reference Integration**: Reveal extensive meaningful connections across all standard works
+- **Apparent Contradiction Resolution**: Address seeming conflicts that reveal profound truth when understood
 - **Prophetic Pattern Architecture**: Demonstrate divine patterns of revelation, covenant-making, redemption
-- **Plan of Salvation Integration**: Connect everything to the eternal plan with surprising parallels
-- **Modern Prophetic Convergence**: Show contemporary teachings mirroring ancient revelations
-- **Teaching Applications**: Include strategies for educators to share these discoveries
+- **Plan of Salvation Integration**: Connect everything to the eternal plan with sophisticated parallels
+- **Modern Prophetic Convergence**: Show contemporary teachings building on ancient revelations
+- **Adult Learning Focus**: Maintain sophisticated discussion without children's activities or simplifications
 
-**DIALOGUE FLOW**:
-- {host_name} orchestrates multiple mystery layers with sophisticated questions
-- {guest_name} provides scholarly revelations with accessible explanations
-- Build tension through "Contradiction Resolution" - apparent conflicts revealing deeper truth
-- Use "Multiple Perspective Convergence" - same truth from various prophetic viewpoints
-- Create "Generational Pattern Mapping" - connect ancient covenants to pioneer sacrifices to modern discipleship
-- Include substantive exchanges with Hebrew/Greek insights, JST additions, typology
-- Resolve mysteries with multiple satisfying revelations
+**CONVERSATION FLOW**:
+- {host_name} orchestrates multiple layers of understanding with sophisticated questions
+- {guest_name} provides scholarly insights with accessible explanations
+- Build understanding through "Apparent Contradiction Resolution" - seeming conflicts revealing deeper truth
+- Use "Multi-Perspective Convergence" - same truth from various prophetic viewpoints
+- Create "Historical Pattern Mapping" - connect ancient covenants to modern discipleship
+- Include substantial exchanges with Hebrew/Greek insights, JST additions, typology
+- Resolve questions with multiple satisfying layers of understanding
 - Both speakers contribute advanced observations and discoveries
+- Focus exclusively on adult-level content and application
+- NEVER use the words: "echoes", "echo", "aha moment", "hook", "fresh insight", "kid activities"
+- Use alternatives: "reflects", "mirrors", "realization", "insight", "opening", "beginning", "adult applications"
 
 **TARGET**: 50-70 dialogue segments (~17-24 minutes total)
 
-**EXAMPLE HOOK**:
-{host_name}: "{guest_name}, I want to start with a contradiction that troubled early Christian theologians. Genesis 1 says God created everything in six days and rested. But Moses 7:30 in the Pearl of Great Price shows Enoch weeping because entire worlds are being destroyed and recreated. How can God rest if He's constantly creating? And here's the deeper question: what does this apparent contradiction reveal about the nature of divine work that most people never see?"
-{guest_name}: "{host_name}, that's brilliant—because resolving this contradiction unlocks the entire theology of eternal progression. Let me show you a pattern that connects Abraham 3, the temple, and President Nelson's recent teachings on eternal life..."
+**EXAMPLE OPENING**:
+{host_name}: "{guest_name}, I want to start with something that troubled early Christian theologians. Genesis 1 says God created everything in six days and rested. But Moses 7:30 in the Pearl of Great Price shows Enoch weeping because entire worlds are being destroyed and recreated. How can God rest if He's constantly creating? And what does this apparent contradiction reveal about divine work that most people never consider?"
+{guest_name}: "{host_name}, that's brilliant—because resolving this contradiction unlocks the entire theology of eternal progression. Let me share a pattern that connects Abraham 3, the temple, and President Nelson's recent teachings on eternal life..."
 """
     }
     
@@ -234,18 +244,25 @@ def get_level_specific_prompt(host_name: str, guest_name: str, study_level: str)
 FORBIDDEN_PHRASES = [
     "fresh insight",
     "aha moment",
-    "here's something interesting",
+    "here's something interesting", 
     "here's a fresh insight",
     "I testify",
-    "I bear testimony",
+    "I bear testimony", 
     "I bear witness",
     "this script",
     "in this episode",
     "next week",
-    "last week",
+    "last week", 
     "previous week",
     "time collapse moment",
     "time collapse",
+    "echoes",
+    "echo", 
+    "hook",
+    "hooks",
+    "kid activities",
+    "children's activities",
+    "family activities"
 ]
 
 
@@ -270,9 +287,9 @@ def get_podcast_prompt(week_number: int, title: str, date_range: str,
             for section in learning_sections:
                 cfm_text += f"\n{section.get('title', '')}:\n{section.get('content', '')}\n"
         
-        # Teaching children sections
+        # Teaching children sections - exclude for scholarly level
         teaching_sections = cfm_lesson_content.get('teaching_children', [])
-        if teaching_sections:
+        if teaching_sections and study_level != 'scholarly':
             cfm_text += "\nTEACHING CHILDREN:\n"
             for section in teaching_sections:
                 cfm_text += f"\n{section.get('title', '')}:\n{section.get('content', '')}\n"
@@ -317,7 +334,7 @@ def clean_script_text(script_text: str) -> tuple:
     - Strip markdown/code fences
     - Parse JSON array
     - Validate structure
-    - Check for forbidden phrases
+    - Check for forbidden phrases and auto-replace them
     
     Returns: (parsed_script_array, list_of_warnings)
     """
@@ -358,11 +375,51 @@ def clean_script_text(script_text: str) -> tuple:
     elif TAGLINE not in first_segment.get('text', ''):
         warnings.append(f"⚠️  Warning: First segment missing tagline: {first_segment.get('text', '')[:50]}")
     
-    # Check for forbidden phrases in all dialogue
+    # Auto-replace forbidden phrases with alternatives
+    replacements_made = []
+    phrase_replacements = {
+        "echoes": "reflects",
+        "echo": "reflect", 
+        "aha moment": "realization",
+        "aha moments": "realizations",
+        "fresh insight": "meaningful insight",
+        "fresh insights": "meaningful insights", 
+        "hook": "opening",
+        "hooks": "openings",
+        "kid activities": "family applications",
+        "children's activities": "family applications",
+        "time collapse": "connection across time",
+        "here's something interesting": "what's remarkable is",
+        "here's a fresh insight": "here's a meaningful insight"
+    }
+    
+    for segment in script_array:
+        if 'text' in segment:
+            original_text = segment['text']
+            updated_text = original_text
+            
+            # Replace forbidden phrases (case insensitive)
+            for forbidden, replacement in phrase_replacements.items():
+                pattern = re.compile(re.escape(forbidden), re.IGNORECASE)
+                if pattern.search(updated_text):
+                    updated_text = pattern.sub(replacement, updated_text)
+                    replacements_made.append(f"'{forbidden}' → '{replacement}'")
+            
+            segment['text'] = updated_text
+    
+    # Report replacements
+    if replacements_made:
+        warnings.append(f"✅ Auto-replaced forbidden phrases: {', '.join(set(replacements_made))}")
+    
+    # Check for any remaining forbidden phrases after replacement
     full_text = " ".join(seg.get('text', '') for seg in script_array)
+    remaining_issues = []
     for phrase in FORBIDDEN_PHRASES:
         if phrase.lower() in full_text.lower():
-            warnings.append(f"⚠️  Warning: Found forbidden phrase '{phrase}'")
+            remaining_issues.append(phrase)
+    
+    if remaining_issues:
+        warnings.append(f"⚠️  Still found forbidden phrases after cleanup: {', '.join(remaining_issues)}")
     
     return script_array, warnings
 
