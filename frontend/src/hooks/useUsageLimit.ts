@@ -175,58 +175,49 @@ export function useUsageLimit(): UseUsageLimitReturn {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      // For premium users: fire-and-forget tracking (non-blocking)
-      if (isPremium) {
-        fetch(`${API_BASE_URL}/api/usage/record`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({ 
-            count: newCount, 
-            date: today,
-            activity: newActivity,
-            isPremium,
-          }),
-        }).catch(err => console.error('Background usage tracking failed:', err));
-        return true; // Return immediately for premium users
+      // Fire-and-forget tracking for all users (non-blocking)
+      // This ensures the UI remains responsive even if tracking fails
+      fetch(`${API_BASE_URL}/api/usage/record`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ 
+          count: newCount, 
+          date: today,
+          activity: newActivity,
+          isPremium,
+        }),
+      }).catch(err => console.error('Background usage tracking failed:', err));
+      
+      // Update local state immediately
+      if (!isPremium) {
+        setActionsUsed(newCount);
+        
+        // Show upgrade modal if this was their last free action
+        if (newCount >= DAILY_LIMIT) {
+          setTimeout(() => {
+            setShowUpgradeModal(true);
+          }, 2000);
+        }
       }
       
-      // For free users: wait for tracking to complete
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/usage/record`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({ 
-            count: newCount, 
-            date: today,
-            activity: newActivity,
-            isPremium,
-          }),
-        });
-        
-        if (!response.ok) {
-          console.error('Failed to record usage');
-          return false;
-        }
-      } catch (error) {
-        console.error('Error recording usage:', error);
-        return false;
-      }
+      return true;
     } else {
       // Anonymous: update localStorage with activity tracking
       const currentUsage = getStoredUsage();
       const activities = currentUsage.activities || [];
       activities.push(newActivity);
       setStoredUsage({ count: newCount, date: today, activities });
-    }
+      
+      // Update local state for anonymous users
+      if (!isPremium) {
+        setActionsUsed(newCount);
 
-    if (!isPremium) {
-      setActionsUsed(newCount);
-
-      // Show upgrade modal if this was their last free action
-      if (newCount >= DAILY_LIMIT) {
-        setTimeout(() => {
-          setShowUpgradeModal(true);
-        }, 2000);
+        // Show upgrade modal if this was their last free action
+        if (newCount >= DAILY_LIMIT) {
+          setTimeout(() => {
+            setShowUpgradeModal(true);
+          }, 2000);
+        }
       }
     }
 
