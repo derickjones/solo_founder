@@ -1,9 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useUser, useSession } from '@clerk/nextjs';
 import Link from 'next/link';
 import { ArrowLeftIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+
+// Backend API base URL
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
 interface UserDetail {
   id: string;
@@ -55,6 +58,7 @@ function formatDate(dateString: string | null): string {
 
 export default function AdminDashboard() {
   const { isSignedIn, isLoaded } = useUser();
+  const { session } = useSession();
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,10 +67,19 @@ export default function AdminDashboard() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/analytics');
+      // Get auth token for backend API
+      const token = await session?.getToken();
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/analytics`, { headers });
       if (!response.ok) {
         if (response.status === 401) {
           setError('Unauthorized. Please sign in with an admin account.');
+        } else if (response.status === 403) {
+          setError('Access denied. Admin privileges required.');
         } else {
           setError('Failed to fetch analytics');
         }

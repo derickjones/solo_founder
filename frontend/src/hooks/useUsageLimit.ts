@@ -1,10 +1,13 @@
 'use client';
 
-import { useUser } from '@clerk/nextjs';
+import { useUser, useSession } from '@clerk/nextjs';
 import { useState, useEffect, useCallback } from 'react';
 
 const DAILY_LIMIT = 10;
 const STORAGE_KEY = 'gospel_study_usage';
+
+// Backend API base URL
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
 // Activity types for analytics
 export type ActivityType = 
@@ -81,9 +84,21 @@ function setStoredUsage(data: UsageData): void {
 
 export function useUsageLimit(): UseUsageLimitReturn {
   const { isSignedIn, user, isLoaded } = useUser();
+  const { session } = useSession();
   const [actionsUsed, setActionsUsed] = useState(0);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Helper to get auth token for API calls
+  const getAuthToken = useCallback(async (): Promise<string | null> => {
+    if (!session) return null;
+    try {
+      return await session.getToken();
+    } catch (e) {
+      console.error('Failed to get auth token:', e);
+      return null;
+    }
+  }, [session]);
 
   // Check if user has premium subscription (from Clerk public metadata)
   const isPremium = Boolean(
@@ -153,11 +168,18 @@ export function useUsageLimit(): UseUsageLimitReturn {
     }
 
     if (isSignedIn && user) {
+      // Get auth token for backend API
+      const token = await getAuthToken();
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       // For premium users: fire-and-forget tracking (non-blocking)
       if (isPremium) {
-        fetch('/api/usage/record', {
+        fetch(`${API_BASE_URL}/api/usage/record`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({ 
             count: newCount, 
             date: today,
@@ -170,9 +192,9 @@ export function useUsageLimit(): UseUsageLimitReturn {
       
       // For free users: wait for tracking to complete
       try {
-        const response = await fetch('/api/usage/record', {
+        const response = await fetch(`${API_BASE_URL}/api/usage/record`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({ 
             count: newCount, 
             date: today,
@@ -209,7 +231,7 @@ export function useUsageLimit(): UseUsageLimitReturn {
     }
 
     return true;
-  }, [actionsUsed, isPremium, isSignedIn, user]);
+  }, [actionsUsed, isPremium, isSignedIn, user, getAuthToken]);
 
   return {
     actionsUsed,

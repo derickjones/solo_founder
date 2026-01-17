@@ -1,11 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useUser, useSession } from '@clerk/nextjs';
 import { loadStripe } from '@stripe/stripe-js';
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { SUBSCRIPTION_PLANS } from '@/lib/stripe';
 import Link from 'next/link';
+
+// Backend API base URL
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
 // Only load Stripe if publishable key is available
 const stripePromise = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY && 
@@ -15,6 +18,7 @@ const stripePromise = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY &&
 
 export default function PricingPage() {
   const { isSignedIn } = useUser();
+  const { session } = useSession();
   const [loading, setLoading] = useState<string | null>(null);
 
   const handleSubscribe = async (priceId: string, planId: string) => {
@@ -33,11 +37,16 @@ export default function PricingPage() {
     setLoading(planId);
 
     try {
-      const response = await fetch('/api/stripe/checkout', {
+      // Get auth token for backend API
+      const token = await session?.getToken();
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/stripe/checkout`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({ priceId }),
       });
 

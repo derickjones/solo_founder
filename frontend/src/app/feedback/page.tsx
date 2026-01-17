@@ -7,6 +7,9 @@ import { ArrowLeftIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 type FeedbackType = 'bug' | 'feature' | 'general' | 'praise';
 
+// Backend API base URL
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+
 const FEEDBACK_TYPES: { id: FeedbackType; label: string; emoji: string }[] = [
   { id: 'bug', label: 'Bug Report', emoji: '🐛' },
   { id: 'feature', label: 'Feature Request', emoji: '💡' },
@@ -35,7 +38,7 @@ export default function FeedbackPage() {
     setError(null);
 
     try {
-      const response = await fetch('/api/feedback', {
+      const response = await fetch(`${API_BASE_URL}/api/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

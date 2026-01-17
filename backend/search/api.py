@@ -32,6 +32,9 @@ from .cloud_storage import setup_cloud_storage
 from .prompts import get_system_prompt, build_context_prompt, get_mode_source_filter
 from .google_tts import create_google_tts_client
 
+# Import user management API router
+from .user_api import router as user_router
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -51,6 +54,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include user management routes
+app.include_router(user_router)
 
 # Global search engine instance
 search_engine = None
