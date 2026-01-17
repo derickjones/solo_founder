@@ -46,9 +46,20 @@ export default function HamburgerMenu({
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+      const target = event.target as HTMLElement;
+      
+      // Don't close if clicking within the menu
+      if (menuRef.current && menuRef.current.contains(target)) {
+        return;
       }
+      
+      // Don't close if clicking on Clerk's UserButton dropdown/modal
+      // Clerk renders these elements in a portal outside the menu
+      if (target.closest('[class*="cl-"]') || target.closest('[data-clerk]')) {
+        return;
+      }
+      
+      setIsOpen(false);
     };
 
     if (isOpen) {
