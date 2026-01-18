@@ -592,38 +592,68 @@ async def create_customer_portal_session(
         raise HTTPException(status_code=401, detail="Unauthorized")
     
     try:
-        # First, we need to find the customer ID for this user
-        # Look for existing subscriptions with this user's metadata
-        subscriptions = stripe.Subscription.list(
-            limit=10,
-            status="all"
-        )
+        logger.info(f"Creating customer portal for user: {user_id}")
+        
+        # First, try to find the customer ID by looking up the user's Clerk metadata
+        # This would require storing the customer ID in Clerk when subscription is created
+        # For now, let's search for subscriptions more efficiently
         
         customer_id = None
-        for subscription in subscriptions:
+        
+        # Method 1: Search active subscriptions first (more likely to find matches)
+        active_subscriptions = stripe.Subscription.list(
+            limit=20,
+            status="active"
+        )
+        
+        for subscription in active_subscriptions:
             if subscription.metadata.get("clerkUserId") == user_id:
                 customer_id = subscription.customer
+                logger.info(f"Found customer ID via active subscription: {customer_id}")
                 break
         
+        # Method 2: If not found in active, check all subscriptions
         if not customer_id:
+            all_subscriptions = stripe.Subscription.list(
+                limit=50,
+                status="all"
+            )
+            
+            for subscription in all_subscriptions:
+                if subscription.metadata.get("clerkUserId") == user_id:
+                    customer_id = subscription.customer
+                    logger.info(f"Found customer ID via subscription history: {customer_id}")
+                    break
+        
+        if not customer_id:
+            logger.error(f"No subscription found for user {user_id}")
             raise HTTPException(
                 status_code=404, 
-                detail="No active subscription found. Please upgrade to premium first."
+                detail="No subscription found. Please upgrade to premium first, or contact support if you believe this is an error."
             )
         
         # Create customer portal session
         return_url = request.return_url or f"{FRONTEND_URL}/pricing"
+        logger.info(f"Creating portal session for customer {customer_id}, return_url: {return_url}")
         
         session = stripe.billing_portal.Session.create(
             customer=customer_id,
             return_url=return_url
         )
         
+        logger.info(f"Portal session created successfully: {session.id}")
         return StripeCustomerPortalResponse(url=session.url)
         
     except stripe.error.StripeError as e:
         logger.error(f"Stripe error creating customer portal: {e}")
-        raise HTTPException(status_code=500, detail="Failed to create customer portal session")
+        logger.error(f"Stripe error type: {type(e)}")
+        logger.error(f"Stripe error details: {getattr(e, 'user_message', 'No user message')}")
+        raise HTTPException(status_code=500, detail=f"Stripe error: {str(e)}")
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Customer portal error: {e}")
-        raise HTTPException(status_code=500, detail="Failed to create customer portal session")
+        logger.error(f"Error type: {type(e)}")
+        import traceback
+        logger.error(f"Full traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Failed to create customer portal session: {str(e)}")
