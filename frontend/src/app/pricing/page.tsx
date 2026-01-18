@@ -44,6 +44,12 @@ export default function PricingPage() {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
+      console.log('Stripe checkout request:', {
+        url: `${API_BASE_URL}/api/stripe/checkout`,
+        priceId,
+        hasToken: !!token
+      });
+
       const response = await fetch(`${API_BASE_URL}/api/stripe/checkout`, {
         method: 'POST',
         headers,
@@ -51,12 +57,25 @@ export default function PricingPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        if (errorData.code === 'STRIPE_NOT_CONFIGURED') {
-          alert('Payment processing is being set up. Please check back soon!');
-          return;
+        let errorMessage = `Server error: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          console.error('Backend error response:', errorData);
+          
+          if (errorData.code === 'STRIPE_NOT_CONFIGURED') {
+            alert('Payment processing is being set up. Please check back soon!');
+            return;
+          }
+          
+          errorMessage = errorData.detail || errorData.message || errorMessage;
+        } catch (parseError) {
+          console.error('Failed to parse error response:', parseError);
+          const errorText = await response.text();
+          console.error('Error response text:', errorText);
+          errorMessage = `${errorMessage} - ${errorText}`;
         }
-        throw new Error('Failed to create checkout session');
+        
+        throw new Error(errorMessage);
       }
 
       const { sessionId, url } = await response.json();
@@ -67,7 +86,8 @@ export default function PricingPage() {
       }
     } catch (error) {
       console.error('Error creating checkout session:', error);
-      alert('There was an error processing your request. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      alert(`There was an error processing your request: ${errorMessage}`);
     } finally {
       setLoading(null);
     }
