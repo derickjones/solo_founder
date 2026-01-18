@@ -22,7 +22,7 @@ type FeatureTile = {
   icon: React.ReactNode;
   color: string;
   mode: 'Q&A' | 'Come Follow Me';
-  studyType?: 'deep-dive' | 'lesson-plans' | 'audio-summary' | 'visual-guides';
+  studyType?: 'deep-dive' | 'lesson-plans' | 'audio-summary' | 'core-content';
   special?: 'daily-thought';
 };
 
@@ -86,7 +86,7 @@ export default function Home() {
   
   const [cfmAudience, setCfmAudience] = useState('Family');
   const [cfmWeek, setCfmWeek] = useState<CFMWeek>(currentCfmWeek);
-  const [cfmStudyType, setCfmStudyType] = useState<'deep-dive' | 'lesson-plans' | 'audio-summary' | 'visual-guides'>('deep-dive');
+  const [cfmStudyType, setCfmStudyType] = useState<'deep-dive' | 'lesson-plans' | 'audio-summary' | 'core-content'>('deep-dive');
   const [cfmStudyLevel, setCfmStudyLevel] = useState<'essential' | 'connected' | 'scholarly'>('essential');
   const [cfmLessonPlanLevel, setCfmLessonPlanLevel] = useState<'adult' | 'youth' | 'older-primary' | 'younger-primary'>('adult');
   const [cfmAudioSummaryLevel, setCfmAudioSummaryLevel] = useState<'short' | 'medium' | 'long'>('medium');
@@ -140,13 +140,13 @@ export default function Home() {
       studyType: 'lesson-plans'
     },
     {
-      id: 'core-content',
-      title: 'Core Content',
+      id: 'visual-guides',
+      title: 'Visual Guides',
       description: 'Interactive weekly infographics for Come Follow Me study',
       icon: <BookOpenIcon className="w-8 h-8" />,
       color: 'from-amber-500 to-amber-700',
       mode: 'Come Follow Me',
-      studyType: 'visual-guides' as any
+      studyType: 'core-content'
     },
     {
       id: 'qa',

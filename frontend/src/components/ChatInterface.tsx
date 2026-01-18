@@ -13,7 +13,7 @@ import HamburgerMenu from './HamburgerMenu';
 import type { ActivityType } from '@/hooks/useUsageLimit';
 
 // Add study type definition
-type CFMStudyType = 'deep-dive' | 'lesson-plans' | 'audio-summary' | 'visual-guides';
+type CFMStudyType = 'deep-dive' | 'lesson-plans' | 'audio-summary' | 'core-content';
 type StudyLevel = 'essential' | 'connected' | 'scholarly';
 type LessonPlanLevel = 'adult' | 'youth' | 'older-primary' | 'younger-primary';
 type AudioSummaryLevel = 'short' | 'medium' | 'long';

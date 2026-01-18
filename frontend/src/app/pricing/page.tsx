@@ -44,7 +44,7 @@ export default function PricingPage() {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/stripe/checkout`, {
+      const response = await fetch(`${API_BASE_URL}/stripe/checkout`, {
         method: 'POST',
         headers,
         body: JSON.stringify({ priceId }),
