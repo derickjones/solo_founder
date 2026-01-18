@@ -7,7 +7,7 @@ const DAILY_LIMIT = 10;
 const STORAGE_KEY = 'gospel_study_usage';
 
 // Backend API base URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://gospel-app-backend-273320302933.us-central1.run.app';
 
 // Activity types for analytics
 export type ActivityType = 

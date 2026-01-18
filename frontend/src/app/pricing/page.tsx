@@ -8,7 +8,7 @@ import { SUBSCRIPTION_PLANS } from '@/lib/stripe';
 import Link from 'next/link';
 
 // Backend API base URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://gospel-app-backend-273320302933.us-central1.run.app';
 
 // Only load Stripe if publishable key is available
 const stripePromise = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY && 

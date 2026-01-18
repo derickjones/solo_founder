@@ -8,7 +8,7 @@ import { ArrowLeftIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 type FeedbackType = 'bug' | 'feature' | 'general' | 'praise';
 
 // Backend API base URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://gospel-app-backend-273320302933.us-central1.run.app';
 
 const FEEDBACK_TYPES: { id: FeedbackType; label: string; emoji: string }[] = [
   { id: 'bug', label: 'Bug Report', emoji: '🐛' },
