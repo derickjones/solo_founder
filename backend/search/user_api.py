@@ -36,6 +36,10 @@ CLERK_API_BASE = "https://api.clerk.com/v1"
 ADMIN_USER_IDS = os.getenv("ADMIN_USER_IDS", "").split(",") if os.getenv("ADMIN_USER_IDS") else []
 FRONTEND_URL = os.getenv("FRONTEND_URL", "https://gospel-study-app.vercel.app")
 
+# In-memory feedback storage (for demo purposes - consider using a database for production)
+recent_feedback = []
+MAX_FEEDBACK_ITEMS = 100  # Keep last 100 feedback items
+
 # ============================================================================
 # Pydantic Models
 # ============================================================================
@@ -94,6 +98,10 @@ class AnalyticsResponse(BaseModel):
     topActivities: List[Dict[str, Any]]
     conversionRate: float
     userDetails: List[Dict[str, Any]]
+
+class FeedbackListResponse(BaseModel):
+    feedback: List[Dict[str, Any]]
+    total: int
 
 # ============================================================================
 # Helper Functions
@@ -395,6 +403,27 @@ async def get_analytics(authorization: str = Header(None)):
         raise HTTPException(status_code=500, detail=f"Failed to fetch analytics: {str(e)}")
 
 
+@router.get("/feedback", response_model=FeedbackListResponse)
+async def get_feedback(authorization: str = Header(None)):
+    """Get all submitted feedback (admin only)"""
+    user_id = await verify_clerk_token(authorization)
+    
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    # Check admin access
+    if ADMIN_USER_IDS and user_id not in ADMIN_USER_IDS:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Return feedback in reverse chronological order (newest first)
+    sorted_feedback = sorted(recent_feedback, key=lambda x: x["timestamp"], reverse=True)
+    
+    return FeedbackListResponse(
+        feedback=sorted_feedback,
+        total=len(sorted_feedback)
+    )
+
+
 @router.post("/feedback", response_model=FeedbackResponse)
 async def submit_feedback(request: FeedbackRequest):
     """Submit user feedback"""
@@ -412,6 +441,11 @@ async def submit_feedback(request: FeedbackRequest):
     
     # Log feedback (visible in Cloud Run logs)
     logger.info(f"📨 FEEDBACK: {feedback}")
+    
+    # Store in memory for admin viewing
+    recent_feedback.append(feedback)
+    if len(recent_feedback) > MAX_FEEDBACK_ITEMS:
+        recent_feedback.pop(0)  # Remove oldest item
     
     # TODO: Optionally save to database or send email
     

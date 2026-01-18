@@ -28,6 +28,20 @@ interface Analytics {
   userDetails: UserDetail[];
 }
 
+interface Feedback {
+  type: string;
+  message: string;
+  email?: string;
+  userId?: string;
+  userName?: string;
+  timestamp: string;
+}
+
+interface FeedbackResponse {
+  feedback: Feedback[];
+  total: number;
+}
+
 const ACTIVITY_LABELS: Record<string, string> = {
   qa_question: '❓ Q&A Questions',
   study_guide: '📖 Study Guides',
@@ -62,6 +76,7 @@ export default function AdminDashboard() {
   const { isSignedIn, isLoaded } = useUser();
   const { session } = useSession();
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
+  const [feedback, setFeedback] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,19 +91,33 @@ export default function AdminDashboard() {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/analytics`, { headers });
-      if (!response.ok) {
-        if (response.status === 401) {
+      // Fetch analytics and feedback in parallel
+      const [analyticsResponse, feedbackResponse] = await Promise.all([
+        fetch(`${API_BASE_URL}/api/analytics`, { headers }),
+        fetch(`${API_BASE_URL}/api/feedback`, { headers })
+      ]);
+
+      if (!analyticsResponse.ok) {
+        if (analyticsResponse.status === 401) {
           setError('Unauthorized. Please sign in with an admin account.');
-        } else if (response.status === 403) {
+        } else if (analyticsResponse.status === 403) {
           setError('Access denied. Admin privileges required.');
         } else {
           setError('Failed to fetch analytics');
         }
         return;
       }
-      const data = await response.json();
-      setAnalytics(data);
+
+      const analyticsData = await analyticsResponse.json();
+      setAnalytics(analyticsData);
+
+      // Handle feedback (optional - don't fail if feedback API has issues)
+      if (feedbackResponse.ok) {
+        const feedbackData: FeedbackResponse = await feedbackResponse.json();
+        setFeedback(feedbackData.feedback);
+      } else {
+        console.warn('Failed to fetch feedback:', feedbackResponse.status);
+      }
     } catch (err) {
       setError('Failed to fetch analytics');
       console.error(err);
@@ -308,6 +337,52 @@ export default function AdminDashboard() {
               </p>
             )}
           </div>
+        </div>
+
+        {/* Feedback Section */}
+        <div className="bg-neutral-800 rounded-xl p-6">
+          <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            📨 Recent Feedback
+            <span className="text-sm text-neutral-400">({feedback.length})</span>
+          </h3>
+          
+          {feedback.length === 0 ? (
+            <p className="text-neutral-400 text-center py-8">No feedback submitted yet</p>
+          ) : (
+            <div className="space-y-4 max-h-96 overflow-y-auto">
+              {feedback.slice(0, 10).map((item, index) => (
+                <div key={index} className="bg-neutral-700 rounded-lg p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                        item.type === 'bug' ? 'bg-red-500/20 text-red-300' :
+                        item.type === 'feature' ? 'bg-blue-500/20 text-blue-300' :
+                        item.type === 'improvement' ? 'bg-amber-500/20 text-amber-300' :
+                        'bg-neutral-500/20 text-neutral-300'
+                      }`}>
+                        {item.type.toUpperCase()}
+                      </span>
+                      {item.userName && (
+                        <span className="text-sm text-neutral-400">by {item.userName}</span>
+                      )}
+                    </div>
+                    <span className="text-xs text-neutral-500">
+                      {new Date(item.timestamp).toLocaleDateString()} {new Date(item.timestamp).toLocaleTimeString()}
+                    </span>
+                  </div>
+                  <p className="text-neutral-200 text-sm leading-relaxed mb-2">{item.message}</p>
+                  {item.email && (
+                    <p className="text-xs text-neutral-500">Contact: {item.email}</p>
+                  )}
+                </div>
+              ))}
+              {feedback.length > 10 && (
+                <p className="text-neutral-400 text-sm text-center mt-4">
+                  Showing 10 most recent of {feedback.length} feedback items
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Footer */}
