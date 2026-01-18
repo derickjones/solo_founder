@@ -160,11 +160,13 @@ export function useUsageLimit(): UseUsageLimitReturn {
       const usage = getClerkUsage();
       console.log('[useUsageLimit] Setting actions from Clerk:', usage.count);
       setActionsUsed(usage.count);
+      actionsUsedRef.current = usage.count; // Sync ref with initial count
       hasInitialized.current = true;
     } else if (!isSignedIn) {
       // Anonymous: use localStorage
       const usage = getStoredUsage();
       setActionsUsed(usage.count);
+      actionsUsedRef.current = usage.count; // Sync ref with initial count
       hasInitialized.current = true;
     }
     setIsLoading(false);
@@ -232,6 +234,7 @@ export function useUsageLimit(): UseUsageLimitReturn {
       // Update local state immediately for all users
       console.log('[recordAction] Updating local state from', actionsUsed, 'to', newCount);
       setActionsUsed(newCount);
+      actionsUsedRef.current = newCount; // Update ref immediately
       
       // Show upgrade modal if this was their last free action (non-premium only)
       if (!isPremium && newCount >= DAILY_LIMIT) {
@@ -250,6 +253,7 @@ export function useUsageLimit(): UseUsageLimitReturn {
       
       // Update local state for all anonymous users
       setActionsUsed(newCount);
+      actionsUsedRef.current = newCount; // Update ref immediately
 
       // Show upgrade modal if this was their last free action (non-premium only)
       if (!isPremium && newCount >= DAILY_LIMIT) {
