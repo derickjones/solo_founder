@@ -128,14 +128,6 @@ export default function VisualGuideViewer({ className = '' }: VisualGuideViewerP
             </option>
           ))}
         </select>
-
-        {/* Available guides indicator */}
-        {hasAnyGuides && (
-          <div className="flex gap-2 text-sm text-neutral-400">
-            {availableGuides.infographic && <span>📊 Infographic</span>}
-            {availableGuides.slides && <span>📄 Slides</span>}
-          </div>
-        )}
       </div>
 
       {/* Visual Guide Content */}
@@ -145,8 +137,8 @@ export default function VisualGuideViewer({ className = '' }: VisualGuideViewerP
             {/* Infographic Section */}
             {availableGuides.infographic && (
               <div className="space-y-3">
-                <h3 className="text-lg font-medium text-white flex items-center gap-2">
-                  📊 Infographic
+                <h3 className="text-lg font-medium text-white">
+                  Infographic
                 </h3>
                 <div className="relative aspect-video rounded-lg overflow-hidden bg-neutral-800">
                   <Image
@@ -164,8 +156,7 @@ export default function VisualGuideViewer({ className = '' }: VisualGuideViewerP
             {availableGuides.slides && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium text-white flex items-center gap-2">
-                    <DocumentIcon className="w-5 h-5" />
+                  <h3 className="text-lg font-medium text-white">
                     Slides
                   </h3>
                   <a
