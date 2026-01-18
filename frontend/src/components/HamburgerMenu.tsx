@@ -163,7 +163,7 @@ export default function HamburgerMenu({
                     </p>
                     <p className="text-xs text-neutral-500">
                       {isPremium ? (
-                        <span className="text-amber-400">Premium • Unlimited</span>
+                        <span className="text-amber-400">Premium • {actionsUsed} actions today</span>
                       ) : (
                         <span>{actionsUsed}/{dailyLimit} actions today</span>
                       )}
