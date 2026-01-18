@@ -91,11 +91,16 @@ export function useUsageLimit(): UseUsageLimitReturn {
 
   // Helper to get auth token for API calls
   const getAuthToken = useCallback(async (): Promise<string | null> => {
-    if (!session) return null;
+    if (!session) {
+      console.log('[getAuthToken] No session');
+      return null;
+    }
     try {
-      return await session.getToken();
+      const token = await session.getToken();
+      console.log('[getAuthToken] Got token length:', token?.length || 0, 'First 20 chars:', token?.substring(0, 20) || 'none');
+      return token;
     } catch (e) {
-      console.error('Failed to get auth token:', e);
+      console.error('[getAuthToken] Failed to get auth token:', e);
       return null;
     }
   }, [session]);

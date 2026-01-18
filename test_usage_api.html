@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Usage API</title>
+</head>
+<body>
+    <h1>Test Usage API</h1>
+    <button onclick="testAPI()">Test API Call</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                const response = await fetch('https://gospel-app-backend-273320302933.us-central1.run.app/api/usage/record', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer fake-token-for-testing'
+                    },
+                    body: JSON.stringify({
+                        count: 1,
+                        date: '2026-01-17',
+                        isPremium: false
+                    })
+                });
+                
+                const data = await response.text();
+                resultDiv.innerHTML = `
+                    <p>Status: ${response.status}</p>
+                    <p>Response: ${data}</p>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

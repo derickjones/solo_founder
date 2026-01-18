@@ -100,6 +100,7 @@ async def verify_clerk_token(authorization: str) -> Optional[str]:
         return None
     
     token = authorization.replace("Bearer ", "")
+    logger.info(f"Token received - length: {len(token)}, first 20 chars: {token[:20]}...")
     
     if not CLERK_SECRET_KEY:
         logger.error("CLERK_SECRET_KEY not configured")
@@ -112,6 +113,8 @@ async def verify_clerk_token(authorization: str) -> Optional[str]:
         import json
         
         parts = token.split(".")
+        logger.info(f"Token parts: {len(parts)}")
+        
         if len(parts) >= 2:
             # Decode payload (add padding if needed)
             payload = parts[1]
@@ -128,6 +131,7 @@ async def verify_clerk_token(authorization: str) -> Optional[str]:
                 return user_id
             else:
                 logger.warning("No 'sub' claim in token")
+                logger.info(f"Available claims: {list(claims.keys())}")
                 return None
         else:
             logger.warning(f"Invalid token format: {len(parts)} parts")
