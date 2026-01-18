@@ -10,8 +10,6 @@ interface VisualGuideViewerProps {
   className?: string;
 }
 
-type GuideType = 'infographic' | 'slides';
-
 interface AvailableGuides {
   infographic: boolean;
   slides: boolean;
@@ -20,7 +18,6 @@ interface AvailableGuides {
 export default function VisualGuideViewer({ className = '' }: VisualGuideViewerProps) {
   const [currentWeek, setCurrentWeek] = useState<CFMWeek>(getCurrentCFMWeek());
   const [availableGuides, setAvailableGuides] = useState<AvailableGuides>({ infographic: false, slides: false });
-  const [currentGuideType, setCurrentGuideType] = useState<GuideType>('infographic');
   const [isLoading, setIsLoading] = useState(true);
   const { recordAction } = useUsageLimit();
 
@@ -46,13 +43,6 @@ export default function VisualGuideViewer({ className = '' }: VisualGuideViewerP
         const slidesExists = slidesResponse.ok;
         
         setAvailableGuides({ infographic: infographicExists, slides: slidesExists });
-        
-        // Set default guide type to infographic if available, otherwise slides
-        if (infographicExists) {
-          setCurrentGuideType('infographic');
-        } else if (slidesExists) {
-          setCurrentGuideType('slides');
-        }
       } catch (error) {
         setAvailableGuides({ infographic: false, slides: false });
       }
@@ -80,12 +70,6 @@ export default function VisualGuideViewer({ className = '' }: VisualGuideViewerP
     const selectedWeek = CFM_2026_SCHEDULE.find(week => week.id === weekId);
     if (selectedWeek) {
       setCurrentWeek(selectedWeek);
-    }
-  };
-
-  const handleGuideTypeChange = (type: GuideType) => {
-    if (availableGuides[type]) {
-      setCurrentGuideType(type);
     }
   };
 
@@ -145,70 +129,64 @@ export default function VisualGuideViewer({ className = '' }: VisualGuideViewerP
           ))}
         </select>
 
-        {/* Guide type selector - only show if we have guides */}
+        {/* Available guides indicator */}
         {hasAnyGuides && (
-          <div className="flex gap-2">
-            {availableGuides.infographic && (
-              <button
-                onClick={() => handleGuideTypeChange('infographic')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  currentGuideType === 'infographic'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700 hover:text-white'
-                }`}
-              >
-                📊 Infographic
-              </button>
-            )}
-            {availableGuides.slides && (
-              <button
-                onClick={() => handleGuideTypeChange('slides')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  currentGuideType === 'slides'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700 hover:text-white'
-                }`}
-              >
-                <DocumentIcon className="w-4 h-4 inline mr-1" />
-                Slides
-              </button>
-            )}
+          <div className="flex gap-2 text-sm text-neutral-400">
+            {availableGuides.infographic && <span>📊 Infographic</span>}
+            {availableGuides.slides && <span>📄 Slides</span>}
           </div>
         )}
       </div>
 
       {/* Visual Guide Content */}
-      <div className="p-6">
-        {hasAnyGuides && availableGuides[currentGuideType] ? (
-          <div className="relative aspect-video rounded-lg overflow-hidden bg-neutral-800">
-            {currentGuideType === 'infographic' ? (
-              <Image
-                src={`/visual_guides/infographic_${weekNumber}.png`}
-                alt={`Visual Guide Infographic for ${currentWeek.lesson}`}
-                fill
-                className="object-contain"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
-            ) : (
-              <div className="w-full h-full flex flex-col">
-                <iframe
-                  src={`/visual_guides/slides_${weekNumber}.pdf`}
-                  className="w-full h-full border-0"
-                  title={`Slides for ${currentWeek.lesson}`}
-                />
-                <div className="absolute top-4 right-4">
+      <div className="p-6 space-y-6">
+        {hasAnyGuides ? (
+          <>
+            {/* Infographic Section */}
+            {availableGuides.infographic && (
+              <div className="space-y-3">
+                <h3 className="text-lg font-medium text-white flex items-center gap-2">
+                  📊 Infographic
+                </h3>
+                <div className="relative aspect-video rounded-lg overflow-hidden bg-neutral-800">
+                  <Image
+                    src={`/visual_guides/infographic_${weekNumber}.png`}
+                    alt={`Visual Guide Infographic for ${currentWeek.lesson}`}
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Slides Section */}
+            {availableGuides.slides && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium text-white flex items-center gap-2">
+                    <DocumentIcon className="w-5 h-5" />
+                    Slides
+                  </h3>
                   <a
                     href={`/visual_guides/slides_${weekNumber}.pdf`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3 py-1 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700 transition-colors"
+                    className="px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
                   >
                     Open PDF
                   </a>
                 </div>
+                <div className="relative aspect-video rounded-lg overflow-hidden bg-neutral-800">
+                  <iframe
+                    src={`/visual_guides/slides_${weekNumber}.pdf`}
+                    className="w-full h-full border-0"
+                    title={`Slides for ${currentWeek.lesson}`}
+                  />
+                </div>
               </div>
             )}
-          </div>
+          </>
         ) : (
           <div className="aspect-video rounded-lg bg-neutral-800 border-2 border-dashed border-neutral-600 flex items-center justify-center">
             <div className="text-center text-neutral-500">
