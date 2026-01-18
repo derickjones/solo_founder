@@ -156,8 +156,8 @@ export function useUsageLimit(): UseUsageLimitReturn {
   ): Promise<boolean> => {
     console.log('[recordAction] Called with isPremium:', isPremium, 'actionsUsed:', actionsUsed);
     
-    // Premium users always allowed (but still track activity)
-    const newCount = isPremium ? actionsUsed : actionsUsed + 1;
+    // Always increment count for all users (premium and free)
+    const newCount = actionsUsed + 1;
     const today = getTodayString();
     
     const newActivity: ActivityLog = {
@@ -202,16 +202,14 @@ export function useUsageLimit(): UseUsageLimitReturn {
         })
         .catch(err => console.error('[recordAction] Background usage tracking failed:', err));
       
-      // Update local state immediately
-      if (!isPremium) {
-        setActionsUsed(newCount);
-        
-        // Show upgrade modal if this was their last free action
-        if (newCount >= DAILY_LIMIT) {
-          setTimeout(() => {
-            setShowUpgradeModal(true);
-          }, 2000);
-        }
+      // Update local state immediately for all users
+      setActionsUsed(newCount);
+      
+      // Show upgrade modal if this was their last free action (non-premium only)
+      if (!isPremium && newCount >= DAILY_LIMIT) {
+        setTimeout(() => {
+          setShowUpgradeModal(true);
+        }, 2000);
       }
       
       return true;
@@ -222,16 +220,14 @@ export function useUsageLimit(): UseUsageLimitReturn {
       activities.push(newActivity);
       setStoredUsage({ count: newCount, date: today, activities });
       
-      // Update local state for anonymous users
-      if (!isPremium) {
-        setActionsUsed(newCount);
+      // Update local state for all anonymous users
+      setActionsUsed(newCount);
 
-        // Show upgrade modal if this was their last free action
-        if (newCount >= DAILY_LIMIT) {
-          setTimeout(() => {
-            setShowUpgradeModal(true);
-          }, 2000);
-        }
+      // Show upgrade modal if this was their last free action (non-premium only)
+      if (!isPremium && newCount >= DAILY_LIMIT) {
+        setTimeout(() => {
+          setShowUpgradeModal(true);
+        }, 2000);
       }
     }
 
