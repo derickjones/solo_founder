@@ -6,6 +6,7 @@ import ChatInterface from '@/components/ChatInterface';
 import VideoLogo from '@/components/VideoLogo';
 import HamburgerMenu from '@/components/HamburgerMenu';
 import UpgradeModal from '@/components/UpgradeModal';
+import VisualGuideViewer from '@/components/VisualGuideViewer';
 import { useUsageLimit } from '@/hooks/useUsageLimit';
 import { getCurrentCFMWeek, CFMWeek, CFM_2026_SCHEDULE } from '@/utils/comeFollowMe';
 import { MicrophoneIcon, AcademicCapIcon, ClipboardDocumentListIcon, BookOpenIcon, ChatBubbleLeftRightIcon, SunIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
@@ -21,7 +22,7 @@ type FeatureTile = {
   icon: React.ReactNode;
   color: string;
   mode: 'Q&A' | 'Come Follow Me';
-  studyType?: 'deep-dive' | 'lesson-plans' | 'audio-summary' | 'core-content';
+  studyType?: 'deep-dive' | 'lesson-plans' | 'audio-summary' | 'visual-guides';
   special?: 'daily-thought';
 };
 
@@ -29,6 +30,7 @@ type FeatureTile = {
 export default function Home() {
   // Landing page state
   const [showLandingPage, setShowLandingPage] = useState(true);
+  const [showVisualGuides, setShowVisualGuides] = useState(false);
 
   // Pre-select all available sources
   const allSources = [
@@ -84,7 +86,7 @@ export default function Home() {
   
   const [cfmAudience, setCfmAudience] = useState('Family');
   const [cfmWeek, setCfmWeek] = useState<CFMWeek>(currentCfmWeek);
-  const [cfmStudyType, setCfmStudyType] = useState<'deep-dive' | 'lesson-plans' | 'audio-summary' | 'core-content'>('deep-dive');
+  const [cfmStudyType, setCfmStudyType] = useState<'deep-dive' | 'lesson-plans' | 'audio-summary' | 'visual-guides'>('deep-dive');
   const [cfmStudyLevel, setCfmStudyLevel] = useState<'essential' | 'connected' | 'scholarly'>('essential');
   const [cfmLessonPlanLevel, setCfmLessonPlanLevel] = useState<'adult' | 'youth' | 'older-primary' | 'younger-primary'>('adult');
   const [cfmAudioSummaryLevel, setCfmAudioSummaryLevel] = useState<'short' | 'medium' | 'long'>('medium');
@@ -140,11 +142,11 @@ export default function Home() {
     {
       id: 'core-content',
       title: 'Core Content',
-      description: 'Access the raw Come Follow Me curriculum materials',
+      description: 'Interactive weekly infographics for Come Follow Me study',
       icon: <BookOpenIcon className="w-8 h-8" />,
       color: 'from-amber-500 to-amber-700',
       mode: 'Come Follow Me',
-      studyType: 'core-content'
+      studyType: 'visual-guides' as any
     },
     {
       id: 'qa',
@@ -191,6 +193,13 @@ export default function Home() {
       loadDailyThought(selectedWeek);
       return;
     }
+    
+    if (tile.id === 'visual-guides') {
+      setShowVisualGuides(true);
+      setShowLandingPage(false);
+      return;
+    }
+    
     setMode(tile.mode);
     if (tile.studyType) {
       setCfmStudyType(tile.studyType);
@@ -434,6 +443,40 @@ export default function Home() {
           actionsUsed={actionsUsed}
           dailyLimit={dailyLimit}
         />
+      </div>
+    );
+  }
+
+  // Visual Guides view
+  if (showVisualGuides) {
+    return (
+      <div className="min-h-screen bg-neutral-900 text-white">
+        {/* Header with back button */}
+        <div className="flex items-center justify-between p-4 border-b border-neutral-800">
+          <button
+            onClick={() => {
+              setShowVisualGuides(false);
+              setShowLandingPage(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white transition-all"
+          >
+            <ChevronLeftIcon className="w-4 h-4" />
+            Back to Home
+          </button>
+          
+          {/* Hamburger menu */}
+          <HamburgerMenu
+            mode={mode}
+            setMode={setMode}
+            selectedVoice={selectedVoice}
+            setSelectedVoice={setSelectedVoice}
+          />
+        </div>
+
+        {/* Visual Guide Viewer */}
+        <div className="max-w-6xl mx-auto p-4">
+          <VisualGuideViewer className="w-full" />
+        </div>
       </div>
     );
   }
