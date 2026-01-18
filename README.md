@@ -80,7 +80,7 @@
 - **📖 Complete LDS Library**: 58,088+ scripture segments with FAISS vector search
 - **📅 Come Follow Me 2026**: Complete Old Testament study system with pre-generated content
 - **🔐 Authentication**: Clerk integration with Google/Apple login
-- **💳 Payment Processing**: Stripe subscription system ($4.99/month)
+- **💳 Payment Processing**: Stripe subscription system ($3.99/month)
 
 ### Come Follow Me Study System (Pre-Generated)
 
