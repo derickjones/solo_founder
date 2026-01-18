@@ -88,6 +88,10 @@ export function useUsageLimit(): UseUsageLimitReturn {
   const [actionsUsed, setActionsUsed] = useState(0);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Use ref to track current count to avoid stale closure issues
+  const actionsUsedRef = useRef(actionsUsed);
+  actionsUsedRef.current = actionsUsed;
 
   // Helper to get auth token for API calls
   const getAuthToken = useCallback(async (): Promise<string | null> => {
@@ -159,10 +163,12 @@ export function useUsageLimit(): UseUsageLimitReturn {
     activityType: ActivityType, 
     metadata?: Record<string, string>
   ): Promise<boolean> => {
-    console.log('[recordAction] Called with isPremium:', isPremium, 'actionsUsed:', actionsUsed);
+    // Use ref to get current value and avoid stale closure
+    const currentCount = actionsUsedRef.current;
+    console.log('[recordAction] Called with isPremium:', isPremium, 'actionsUsed:', currentCount);
     
     // Always increment count for all users (premium and free)
-    const newCount = actionsUsed + 1;
+    const newCount = currentCount + 1;
     const today = getTodayString();
     
     const newActivity: ActivityLog = {
@@ -172,7 +178,7 @@ export function useUsageLimit(): UseUsageLimitReturn {
     };
 
     // Check if limit reached (for non-premium)
-    if (!isPremium && actionsUsed >= DAILY_LIMIT) {
+    if (!isPremium && currentCount >= DAILY_LIMIT) {
       setShowUpgradeModal(true);
       return false;
     }
@@ -237,7 +243,7 @@ export function useUsageLimit(): UseUsageLimitReturn {
     }
 
     return true;
-  }, [actionsUsed, isPremium, isSignedIn, user, getAuthToken]);
+  }, [isPremium, isSignedIn, user, getAuthToken]);
 
   return {
     actionsUsed,
