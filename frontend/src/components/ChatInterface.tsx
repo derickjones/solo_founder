@@ -400,7 +400,7 @@ export default function ChatInterface({
     if (isLoading) return;
 
     // Determine activity type based on mode and CFM study type
-    let activityType;
+    let activityType: ActivityType;
     if (mode === 'Come Follow Me') {
       switch (cfmStudyType) {
         case 'deep-dive':
