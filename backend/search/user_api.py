@@ -589,8 +589,11 @@ async def create_customer_portal_session(
     user_id = await verify_clerk_token(authorization)
     
     if not user_id:
+        logger.error("Customer portal: No user_id from token verification")
         raise HTTPException(status_code=401, detail="Unauthorized")
     
+    logger.info(f"Customer portal: Processing request for user {user_id}")
+
     try:
         logger.info(f"Creating customer portal for user: {user_id}")
         

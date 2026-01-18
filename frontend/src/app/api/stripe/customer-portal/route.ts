@@ -12,9 +12,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Forward the request to our backend
-    const API_BASE_URL = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://gospel-app-backend-273320302933.us-central1.run.app';
     
     console.log('[customer-portal] Making request to backend:', `${API_BASE_URL}/api/stripe/customer-portal`);
+    console.log('[customer-portal] Using token:', token ? 'present' : 'missing');
     
     const body = await request.json();
     
