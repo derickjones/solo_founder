@@ -137,14 +137,26 @@ export function useUsageLimit(): UseUsageLimitReturn {
 
   // Track if we've initialized to avoid re-setting from stale Clerk data
   const hasInitialized = useRef(false);
+  const currentSignInState = useRef(isSignedIn);
 
-  // Initialize usage on mount (only once per session)
+  // Initialize usage on mount (only once per session or when sign-in state changes)
   useEffect(() => {
-    if (!isLoaded || hasInitialized.current) return;
+    if (!isLoaded) return;
+    
+    // Reset initialization flag when sign-in state changes
+    if (currentSignInState.current !== isSignedIn) {
+      hasInitialized.current = false;
+      currentSignInState.current = isSignedIn;
+    }
+    
+    if (hasInitialized.current) return;
+    
+    console.log('[useUsageLimit] Initializing usage. isSignedIn:', isSignedIn, 'user:', !!user);
     
     if (isSignedIn && user) {
       // Signed in: use Clerk metadata for initial load only
       const usage = getClerkUsage();
+      console.log('[useUsageLimit] Setting actions from Clerk:', usage.count);
       setActionsUsed(usage.count);
       hasInitialized.current = true;
     } else if (!isSignedIn) {
@@ -165,11 +177,13 @@ export function useUsageLimit(): UseUsageLimitReturn {
   ): Promise<boolean> => {
     // Use ref to get current value and avoid stale closure
     const currentCount = actionsUsedRef.current;
-    console.log('[recordAction] Called with isPremium:', isPremium, 'actionsUsed:', currentCount);
+    console.log('[recordAction] Called with activityType:', activityType, 'isPremium:', isPremium, 'currentCount:', currentCount, 'isSignedIn:', isSignedIn);
     
     // Always increment count for all users (premium and free)
     const newCount = currentCount + 1;
     const today = getTodayString();
+    
+    console.log('[recordAction] Will update count from', currentCount, 'to', newCount);
     
     const newActivity: ActivityLog = {
       type: activityType,
@@ -214,6 +228,7 @@ export function useUsageLimit(): UseUsageLimitReturn {
         .catch(err => console.error('[recordAction] Background usage tracking failed:', err));
       
       // Update local state immediately for all users
+      console.log('[recordAction] Updating local state from', actionsUsed, 'to', newCount);
       setActionsUsed(newCount);
       
       // Show upgrade modal if this was their last free action (non-premium only)
