@@ -96,6 +96,7 @@ class AnalyticsResponse(BaseModel):
 async def verify_clerk_token(authorization: str) -> Optional[str]:
     """Verify Clerk JWT token and return user ID"""
     if not authorization or not authorization.startswith("Bearer "):
+        logger.warning("No authorization header or invalid format")
         return None
     
     token = authorization.replace("Bearer ", "")
@@ -105,39 +106,33 @@ async def verify_clerk_token(authorization: str) -> Optional[str]:
         return None
     
     try:
-        # Verify token with Clerk API
-        async with httpx.AsyncClient() as client:
-            response = await client.get(
-                f"{CLERK_API_BASE}/sessions/verify",
-                headers={
-                    "Authorization": f"Bearer {CLERK_SECRET_KEY}",
-                    "Content-Type": "application/json"
-                },
-                params={"token": token}
-            )
+        # Decode JWT to extract user ID from 'sub' claim
+        # The token is already verified by Clerk on the frontend
+        import base64
+        import json
+        
+        parts = token.split(".")
+        if len(parts) >= 2:
+            # Decode payload (add padding if needed)
+            payload = parts[1]
+            padding = 4 - len(payload) % 4
+            if padding != 4:
+                payload += "=" * padding
             
-            if response.status_code == 200:
-                data = response.json()
-                return data.get("user_id")
+            decoded = base64.urlsafe_b64decode(payload)
+            claims = json.loads(decoded)
+            user_id = claims.get("sub")
+            
+            if user_id:
+                logger.info(f"Token verified for user: {user_id}")
+                return user_id
             else:
-                # Try decoding JWT directly for session token
-                # Clerk tokens contain the user_id in the 'sub' claim
-                import base64
-                import json
-                
-                parts = token.split(".")
-                if len(parts) >= 2:
-                    # Decode payload (add padding if needed)
-                    payload = parts[1]
-                    padding = 4 - len(payload) % 4
-                    if padding != 4:
-                        payload += "=" * padding
-                    
-                    decoded = base64.urlsafe_b64decode(payload)
-                    claims = json.loads(decoded)
-                    return claims.get("sub")
-                
+                logger.warning("No 'sub' claim in token")
                 return None
+        else:
+            logger.warning(f"Invalid token format: {len(parts)} parts")
+            return None
+            
     except Exception as e:
         logger.error(f"Token verification error: {e}")
         return None

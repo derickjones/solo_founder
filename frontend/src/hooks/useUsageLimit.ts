@@ -170,6 +170,8 @@ export function useUsageLimit(): UseUsageLimitReturn {
     if (isSignedIn && user) {
       // Get auth token for backend API
       const token = await getAuthToken();
+      console.log('[recordAction] Got token:', token ? 'yes' : 'no', 'API_BASE_URL:', API_BASE_URL);
+      
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
@@ -186,7 +188,14 @@ export function useUsageLimit(): UseUsageLimitReturn {
           activity: newActivity,
           isPremium,
         }),
-      }).catch(err => console.error('Background usage tracking failed:', err));
+      })
+        .then(res => {
+          console.log('[recordAction] API response status:', res.status);
+          if (!res.ok) {
+            res.text().then(text => console.error('[recordAction] API error:', text));
+          }
+        })
+        .catch(err => console.error('[recordAction] Background usage tracking failed:', err));
       
       // Update local state immediately
       if (!isPremium) {
