@@ -37,6 +37,8 @@ const ACTIVITY_LABELS: Record<string, string> = {
   daily_thought: '💭 Daily Thoughts',
   core_content: '📚 Core Content',
   podcast_play: '🎙️ Podcasts',
+  deep_dive: '🔍 Deep Dives',
+  visual_guide: '🖼️ Visual Guides',
   totalActions: '📊 Total Actions',
 };
 

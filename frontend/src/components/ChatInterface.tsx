@@ -399,8 +399,29 @@ export default function ChatInterface({
     e.preventDefault();
     if (isLoading) return;
 
-    // Determine activity type based on mode
-    const activityType = mode === 'Come Follow Me' ? 'lesson_plan' : 'qa_question';
+    // Determine activity type based on mode and CFM study type
+    let activityType;
+    if (mode === 'Come Follow Me') {
+      switch (cfmStudyType) {
+        case 'deep-dive':
+          activityType = 'deep_dive';
+          break;
+        case 'lesson-plans':
+          activityType = 'lesson_plan';
+          break;
+        case 'audio-summary':
+          activityType = 'audio_summary';
+          break;
+        case 'core-content':
+          activityType = 'core_content';
+          break;
+        default:
+          activityType = 'lesson_plan';
+      }
+    } else {
+      activityType = 'qa_question';
+    }
+    
     const metadata: Record<string, string> = mode === 'Come Follow Me' 
       ? { week: cfmWeek?.lesson || 'unknown', studyType: cfmStudyType || 'unknown' }
       : { question: query.substring(0, 100) }; // Truncate long questions

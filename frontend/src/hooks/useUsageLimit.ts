@@ -18,7 +18,9 @@ export type ActivityType =
   | 'podcast_play'     // Played a podcast
   | 'lesson_plan'      // Viewed lesson plan
   | 'core_content'     // Viewed core content
-  | 'daily_thought';   // Viewed daily thought
+  | 'daily_thought'    // Viewed daily thought
+  | 'deep_dive'        // Generated deep dive content
+  | 'visual_guide';    // Viewed visual guide
 
 interface ActivityLog {
   type: ActivityType;

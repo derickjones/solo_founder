@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { getCurrentCFMWeek, CFMWeek, CFM_2026_SCHEDULE } from '@/utils/comeFollowMe';
+import { useUsageLimit } from '@/hooks/useUsageLimit';
 
 interface VisualGuideViewerProps {
   className?: string;
@@ -13,6 +14,12 @@ export default function VisualGuideViewer({ className = '' }: VisualGuideViewerP
   const [currentWeek, setCurrentWeek] = useState<CFMWeek>(getCurrentCFMWeek());
   const [imageExists, setImageExists] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const { recordAction } = useUsageLimit();
+
+  // Track usage when component mounts
+  useEffect(() => {
+    recordAction('visual_guide', { week: currentWeek.lesson });
+  }, []); // Only run once on mount
 
   // Check if image exists for current week
   useEffect(() => {

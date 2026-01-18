@@ -166,7 +166,7 @@ export default function ComeFollowMePage() {
     if (isGeneratingAudio) return;
 
     // Check usage limit
-    const allowed = await recordAction('audio_summary', { week: currentWeek.lesson });
+    const allowed = await recordAction('podcast_play', { week: currentWeek.lesson });
     if (!allowed) return;
 
     setIsGeneratingAudio(true);
