@@ -29,7 +29,18 @@
 
 ## 🎉 Latest Updates (January 2026)
 
-### 4-Audience Lesson Plans (NEW!)
+### Visual Guides Feature (NEW!)
+- 🖼️ **Weekly Infographics** - Beautiful visual study guides for each CFM week
+- 📅 **CFM Integration** - Automatically syncs with the current week's lesson
+- 🔄 **Week Navigation** - Browse all 52 weeks with dropdown selector
+- 📱 **Responsive Design** - Full-width display optimized for all devices
+
+### Usage Tracking Improvements
+- 📊 **Premium Action Tracking** - Now shows action count for premium users too
+- 🔧 **Fixed Stale Closure Bug** - Actions now count correctly for all users
+- ✅ **Backend Sync** - Reliable tracking with Clerk metadata integration
+
+### 4-Audience Lesson Plans
 - 📚 **Expanded Teaching Materials** - Now 4 distinct age-appropriate lesson plans
 - 👨‍🦳 **Adult** (18+) - Comprehensive doctrinal study with cross-references  
 - 👥 **Youth** (11-17) - Interactive activities, real-world applications, testimony building
@@ -77,7 +88,8 @@ All CFM content is **pre-generated offline** and served as static JSON files for
 
 | Feature | Files | Description |
 |---------|-------|-------------|
-| **💭 Daily Thoughts** | 364 files | Daily spiritual insights (52 weeks × 7 days) |
+| **�️ Visual Guides** | 52 files | Weekly infographic study aids (52 weeks) |
+| **�💭 Daily Thoughts** | 364 files | Daily spiritual insights (52 weeks × 7 days) |
 | **🎙️ Podcast Scripts** | 156 files | Two-voice conversation podcasts (52 weeks × 3 levels) |
 | **📚 Study Guides** | 156 files | Deep dive content (52 weeks × 3 levels) |
 | **📝 Lesson Plans** | 208 files | Teaching materials (52 weeks × 4 audiences) |
