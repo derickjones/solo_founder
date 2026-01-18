@@ -42,7 +42,7 @@ export default function HamburgerMenu({
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { isSignedIn, user } = useUser();
-  const { actionsUsed, dailyLimit, isPremium } = useUsageLimit();
+  const { actionsUsed, dailyLimit, isPremium, refreshUsage } = useUsageLimit();
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -91,7 +91,13 @@ export default function HamburgerMenu({
     <div className="relative" ref={menuRef}>
       {/* Hamburger button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          if (!isOpen) {
+            // Refresh usage count when opening the menu
+            refreshUsage();
+          }
+          setIsOpen(!isOpen);
+        }}
         className="p-2 rounded-lg bg-neutral-800/80 hover:bg-neutral-700 text-neutral-300 hover:text-white transition-all backdrop-blur-sm border border-neutral-700/50"
         aria-label="Open menu"
       >

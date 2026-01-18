@@ -43,6 +43,7 @@ interface UseUsageLimitReturn {
   isLoading: boolean;
   isSignedIn: boolean;
   recordAction: (activityType: ActivityType, metadata?: Record<string, string>) => Promise<boolean>;
+  refreshUsage: () => void;
   showUpgradeModal: boolean;
   setShowUpgradeModal: (show: boolean) => void;
 }
@@ -266,6 +267,21 @@ export function useUsageLimit(): UseUsageLimitReturn {
     return true;
   }, [isPremium, isSignedIn, user, getAuthToken]);
 
+  // Function to refresh usage count from current source
+  const refreshUsage = useCallback(() => {
+    if (isSignedIn && user) {
+      const usage = getClerkUsage();
+      console.log('[refreshUsage] Refreshing from Clerk:', usage.count);
+      setActionsUsed(usage.count);
+      actionsUsedRef.current = usage.count;
+    } else {
+      const usage = getStoredUsage();
+      console.log('[refreshUsage] Refreshing from localStorage:', usage.count);
+      setActionsUsed(usage.count);
+      actionsUsedRef.current = usage.count;
+    }
+  }, [isSignedIn, user, getClerkUsage]);
+
   return {
     actionsUsed,
     actionsRemaining,
@@ -275,6 +291,7 @@ export function useUsageLimit(): UseUsageLimitReturn {
     isLoading,
     isSignedIn: Boolean(isSignedIn),
     recordAction,
+    refreshUsage,
     showUpgradeModal,
     setShowUpgradeModal,
   };
