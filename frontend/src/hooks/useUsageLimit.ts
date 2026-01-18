@@ -1,7 +1,7 @@
 'use client';
 
 import { useUser, useSession } from '@clerk/nextjs';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 const DAILY_LIMIT = 10;
 const STORAGE_KEY = 'gospel_study_usage';
@@ -131,18 +131,23 @@ export function useUsageLimit(): UseUsageLimitReturn {
     return { count: usageCount || 0, date: usageDate || getTodayString() };
   }, [user?.publicMetadata]);
 
-  // Initialize usage on mount
+  // Track if we've initialized to avoid re-setting from stale Clerk data
+  const hasInitialized = useRef(false);
+
+  // Initialize usage on mount (only once per session)
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!isLoaded || hasInitialized.current) return;
     
     if (isSignedIn && user) {
-      // Signed in: use Clerk metadata
+      // Signed in: use Clerk metadata for initial load only
       const usage = getClerkUsage();
       setActionsUsed(usage.count);
-    } else {
+      hasInitialized.current = true;
+    } else if (!isSignedIn) {
       // Anonymous: use localStorage
       const usage = getStoredUsage();
       setActionsUsed(usage.count);
+      hasInitialized.current = true;
     }
     setIsLoading(false);
   }, [isLoaded, isSignedIn, user, getClerkUsage]);
