@@ -432,6 +432,12 @@ export default function ChatInterface({
       return; // Modal will be shown by parent component
     }
 
+    // For Q&A mode, add user message immediately after usage check
+    if (mode === 'Q&A' && query.trim()) {
+      const userMessage: Message = { id: Date.now(), type: 'user', content: query };
+      setMessages(prev => [...prev, userMessage]);
+    }
+
     // For CFM mode, we don't need a query - just generate the lesson plan
     if (mode === 'Come Follow Me') {
       if (!cfmWeek) {
@@ -448,10 +454,6 @@ export default function ChatInterface({
     } else {
       // For Q&A mode, require a question
       if (!query.trim()) return;
-      
-      // Add user message
-      const userMessage: Message = { id: Date.now(), type: 'user', content: query };
-      setMessages(prev => [...prev, userMessage]);
     }
 
     setIsLoading(true);
