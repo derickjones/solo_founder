@@ -79,6 +79,12 @@ class StripeCheckoutResponse(BaseModel):
     sessionId: str
     url: str
 
+class StripeCustomerPortalRequest(BaseModel):
+    return_url: Optional[str] = None
+
+class StripeCustomerPortalResponse(BaseModel):
+    url: str
+
 class AnalyticsResponse(BaseModel):
     totalUsers: int
     activeToday: int
@@ -532,3 +538,58 @@ async def stripe_webhook(request: Request):
     except Exception as e:
         logger.error(f"Webhook processing error: {e}")
         raise HTTPException(status_code=500, detail="Webhook processing failed")
+
+
+@router.post("/stripe/customer-portal", response_model=StripeCustomerPortalResponse)
+async def create_customer_portal_session(
+    request: StripeCustomerPortalRequest,
+    authorization: str = Header(None)
+):
+    """Create Stripe customer portal session for subscription management"""
+    if not stripe_secret_key:
+        raise HTTPException(
+            status_code=503,
+            detail="Payment processing not configured yet. Please contact support."
+        )
+    
+    user_id = await verify_clerk_token(authorization)
+    
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    try:
+        # First, we need to find the customer ID for this user
+        # Look for existing subscriptions with this user's metadata
+        subscriptions = stripe.Subscription.list(
+            limit=10,
+            status="all"
+        )
+        
+        customer_id = None
+        for subscription in subscriptions:
+            if subscription.metadata.get("clerkUserId") == user_id:
+                customer_id = subscription.customer
+                break
+        
+        if not customer_id:
+            raise HTTPException(
+                status_code=404, 
+                detail="No active subscription found. Please upgrade to premium first."
+            )
+        
+        # Create customer portal session
+        return_url = request.return_url or f"{FRONTEND_URL}/pricing"
+        
+        session = stripe.billing_portal.Session.create(
+            customer=customer_id,
+            return_url=return_url
+        )
+        
+        return StripeCustomerPortalResponse(url=session.url)
+        
+    except stripe.error.StripeError as e:
+        logger.error(f"Stripe error creating customer portal: {e}")
+        raise HTTPException(status_code=500, detail="Failed to create customer portal session")
+    except Exception as e:
+        logger.error(f"Customer portal error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to create customer portal session")

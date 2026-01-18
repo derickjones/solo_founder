@@ -6,6 +6,7 @@ import { useUser, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
 import { useUsageLimit } from '@/hooks/useUsageLimit';
 import VideoLogo from './VideoLogo';
+import ManageSubscriptionButton from './ManageSubscriptionButton';
 
 // Voice type and options
 type VoiceOption = 'alnilam' | 'achird' | 'enceladus' | 'aoede' | 'autonoe' | 'erinome';
@@ -202,6 +203,13 @@ export default function HamburgerMenu({
                     Upgrade to Premium
                   </button>
                 </Link>
+              </div>
+            )}
+
+            {/* Manage Subscription button - only for premium users */}
+            {isSignedIn && isPremium && (
+              <div className="p-4 pt-0">
+                <ManageSubscriptionButton />
               </div>
             )}
 
