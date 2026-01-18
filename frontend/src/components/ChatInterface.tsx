@@ -1158,8 +1158,8 @@ export default function ChatInterface({
           <div className="max-w-6xl mx-auto space-y-6 w-full">
             {messages.map((message) => (
               <div key={message.id} className="space-y-4 w-full">
-                {/* Show user messages, assistant messages with content, or assistant messages that are loading */}
-                {(message.type === 'user' || (message.type === 'assistant' && (message.content || message.audioFiles || message.isStreaming))) && (
+                {/* Show user messages, or assistant messages with content/audio, or streaming messages with content */}
+                {(message.type === 'user' || (message.type === 'assistant' && (message.content || message.audioFiles || (message.isStreaming && streamingContent)))) && (
                   <div
                     className={`w-full ${
                       message.type === 'user'
