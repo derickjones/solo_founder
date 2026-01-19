@@ -1409,6 +1409,37 @@ export default function ChatInterface({
                 <span className="ml-3 text-neutral-400">Searching scriptures...</span>
               </div>
             )}
+
+            {/* Follow-up Q&A input - show after answers in Q&A mode */}
+            {mode === 'Q&A' && messages.length > 0 && !isLoading && messages.some(msg => msg.type === 'assistant' && msg.content) && (
+              <div className="sticky bottom-0 bg-neutral-900/95 backdrop-blur-sm border-t border-neutral-700 p-4 mt-6">
+                <div className="max-w-4xl mx-auto">
+                  <div className="flex items-center gap-3 w-full bg-neutral-800 border-2 border-neutral-700 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 rounded-2xl p-4">
+                    <input
+                      type="text"
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder="Ask a follow-up question..."
+                      className="flex-1 bg-transparent text-white placeholder-neutral-400 outline-none text-base"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSubmit(e as any);
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={(e) => handleSubmit(e as any)}
+                      disabled={!query.trim() || isLoading}
+                      className="flex-shrink-0 bg-blue-600 hover:bg-blue-500 disabled:bg-neutral-700 disabled:cursor-not-allowed p-3 rounded-xl transition-all duration-150 disabled:opacity-50"
+                    >
+                      <PaperAirplaneIcon className="w-5 h-5 text-white" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
             
             {/* Scroll anchor - this element is used to scroll to the bottom */}
             <div ref={messagesEndRef} />
