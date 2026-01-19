@@ -235,32 +235,8 @@ export default function Sidebar({
           </button>
         </div>
         
-        {/* Mode Picker */}
-        <div className="space-y-3">
-          <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Study Mode</span>
-          <div className="flex bg-neutral-800/50 rounded-xl p-1">
-            <button
-              onClick={() => setMode('Q&A')}
-              className={`relative flex-1 text-sm py-2.5 rounded-lg font-medium transition-all duration-200 ${
-                mode === 'Q&A'
-                  ? 'bg-blue-500/20 text-blue-300 shadow-lg shadow-blue-500/20 border-l-2 border-blue-400'
-                  : 'text-neutral-400 hover:text-white/80'
-              }`}
-            >
-              Q&A
-            </button>
-            <button
-              onClick={() => setMode('Come Follow Me')}
-              className={`relative flex-1 text-sm py-2.5 rounded-lg font-medium transition-all duration-200 ${
-                mode === 'Come Follow Me'
-                  ? 'bg-blue-500/20 text-blue-300 shadow-lg shadow-blue-500/20 border-l-2 border-blue-400'
-                  : 'text-neutral-400 hover:text-white/80'
-              }`}
-            >
-              Come Follow Me
-            </button>
-          </div>
-        </div>
+        {/* Mode Picker - Hidden, always Q&A when sidebar is shown */}
+        {/* Study Mode switcher removed - sidebar is only used for Q&A */}
       </div>
 
       {/* User Preferences section */}
