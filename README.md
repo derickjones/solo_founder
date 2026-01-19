@@ -579,20 +579,24 @@ vercel --prod
 
 
 
-### Backend (Google Cloud Run)- XAI Grok for content generation**Audio Processing:**- ✅ **Pattern Recognition**: Systematic connections across 2-4+ dispensations
+### Backend (Google Cloud Run)
 
 ```bash
+cd backend
 
-cd backend- FAISS vector search (58,088+ segments)
-
-gcloud run deploy gospel-study-backend \
-
-  --source . \- Google Cloud Storage for audio cache- Multi-segment TTS generation (separate audio per speaker)- ✅ **Historical Context**: Archaeological insights and cultural background
-
+# Full deployment with all environment variables
+gcloud run deploy gospel-app-backend \
+  --source . \
   --region us-central1 \
+  --allow-unauthenticated \
+  --memory=2Gi \
+  --timeout=900 \
+  --cpu-boost \
+  --set-env-vars "OPENAI_API_KEY=sk-proj-...,BUCKET_NAME=gospel-guide-content-gospel-study-474301,STRIPE_SECRET_KEY=sk_live_...,CLERK_SECRET_KEY=sk_test_...,STRIPE_WEBHOOK_SECRET=whsec_...,ADMIN_USER_IDS=,FRONTEND_URL=https://www.gospelstudyapp.com,GCP_PROJECT_ID=gospel-study-474301,XAI_API_KEY=xai-..."
 
-  --allow-unauthenticated
-
+# Note: Replace ... with actual API keys from .env file
+# Requires 2GB memory for FAISS index (340MB) + search engine
+# CPU boost for faster startup with large vector database
 ```
 
 ### Project Structure- 500ms pauses between speakers- ✅ **Hidden Connections**: Revealed restored truths (Moses 6:63, Abraham 3, JST insights)
