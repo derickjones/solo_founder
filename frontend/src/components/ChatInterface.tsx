@@ -231,9 +231,9 @@ export default function ChatInterface({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Auto-scroll when content is generated - only for regular chat, not CFM content
+  // Auto-scroll when content is generated - disabled for Q&A and CFM modes
   useEffect(() => {
-    if (messages.length > 0 && !isLoading && mode !== 'Come Follow Me') {
+    if (messages.length > 0 && !isLoading && mode !== 'Come Follow Me' && mode !== 'Q&A') {
       // Scroll to show the content - this will trigger the scroll handler to hide controls
       setTimeout(scrollToBottom, 100);
     }
