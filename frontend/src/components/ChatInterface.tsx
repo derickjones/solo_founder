@@ -1394,25 +1394,6 @@ export default function ChatInterface({
                               </a>
                             )}
                           </div>
-                          
-                          {/* Relevancy Indicator */}
-                          <div className="flex flex-col items-end">
-                            <div className="text-xs text-neutral-400 mb-1">Relevance</div>
-                            <div className="flex items-center gap-2">
-                              <div className="w-16 h-2 bg-neutral-700 rounded-full overflow-hidden">
-                                <div 
-                                  className={`h-full rounded-full transition-all ${
-                                    result.score >= 0.8 ? 'bg-green-500' :
-                                    result.score >= 0.6 ? 'bg-yellow-500' : 'bg-red-500'
-                                  }`}
-                                  style={{ width: `${Math.max(result.score * 100, 5)}%` }}
-                                />
-                              </div>
-                              <span className="text-xs text-neutral-400 font-mono">
-                                {(result.score * 100).toFixed(0)}%
-                              </span>
-                            </div>
-                          </div>
                         </div>
                       </div>
                     ))}
