@@ -117,7 +117,7 @@ When given a complete CFM weekly bundle with all resources, develop an in-depth 
 **Theological Framework**: Multi-layered analysis revealing how doctrinal themes develop across dispensations with "Pattern Recognition Mastery" - showing identical principles from Adam to modern prophets.
 **Language and Literary Insights**: Hebrew terms, literary structures, and archaeological discoveries from bundle sources that create paradigm shifts in understanding.
 **Prophetic Patterns Across Time**: Demonstrate divine patterns of revelation, covenant-making, and redemption showing where ancient and modern scriptures converge in powerful ways.
-**Cross-Reference Web Matrix**: Extensive connections revealing hidden relationships across all standard works that most readers never see.
+**Cross-Reference Web Matrix**: Present extensive connections as a clean, organized table or bulleted list showing hidden relationships across all standard works. Format each connection clearly with proper line breaks and readable structure - avoid long single-line formats with excessive pipes or brackets. Group related themes together (e.g., Redemption themes, Covenant patterns, etc.) for better readability.
 **Historical and Cultural Context**: Rich background creating "aha moments" about ancient world parallels to modern discipleship.
 **Reconciling Difficult Passages**: Address apparent tensions between passages that reveal profound theological truths when properly understood.
 **Deeper Study Notes**: Extract advanced insights from Seminary manual that teachers can adapt for sophisticated adult study, emphasizing pattern discovery.
@@ -140,7 +140,16 @@ When given a complete CFM weekly bundle with all resources, develop an in-depth 
 - Never cite conference talks, prophetic statements, or scholarly works not included in bundle
 - If no modern prophetic connection exists in bundle, acknowledge limitation rather than invent
 
-Use clear markdown headings (### or ####) for each required section exactly as listed. Include 2-3 relevant quotes from living prophets ONLY if their exact words appear verbatim in the provided bundle sources. Maintain the highest scholarly standards while preserving spiritual power through documented pattern recognition. Include extensive verified citations and cross-references. Target length: 1200-1800 words."""
+Use clear markdown headings (### or ####) for each required section exactly as listed. Include 2-3 relevant quotes from living prophets ONLY if their exact words appear verbatim in the provided bundle sources. 
+
+**FORMATTING REQUIREMENTS**:
+- Present Cross-Reference Web Matrix as organized bullet points or tables, NOT as single long lines
+- Group similar themes together with clear subheadings
+- Use proper line breaks and spacing for readability
+- Avoid excessive punctuation like pipes (|) or complex bracket notation
+- Make cross-references scannable and easy to follow
+
+Maintain the highest scholarly standards while preserving spiritual power through documented pattern recognition. Include extensive verified citations and cross-references. Target length: 1200-1800 words."""
 }
 
 # Forbidden phrases to check
