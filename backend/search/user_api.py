@@ -574,6 +574,147 @@ async def stripe_webhook(request: Request):
         raise HTTPException(status_code=500, detail="Webhook processing failed")
 
 
+@router.post("/admin/sync-subscriptions")
+async def sync_all_subscriptions(authorization: str = Header(None)):
+    """Systematically sync all Stripe subscriptions with Clerk metadata (Admin only)"""
+    user_id = await verify_clerk_token(authorization)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    # Verify admin access
+    clerk_user = await get_clerk_user(user_id)
+    if not clerk_user:
+        raise HTTPException(status_code=401, detail="User not found")
+    
+    # Check if user is admin
+    user_emails = [email.get("email_address", "") for email in clerk_user.get("email_addresses", [])]
+    admin_emails = ["derickdavidjones@gmail.com"]  # Add your admin emails here
+    
+    if not any(email in admin_emails for email in user_emails):
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    if not stripe_secret_key or not CLERK_SECRET_KEY:
+        raise HTTPException(
+            status_code=503,
+            detail="Stripe or Clerk not properly configured"
+        )
+    
+    logger.info("Starting systematic subscription synchronization...")
+    
+    try:
+        # Get all subscriptions from Stripe
+        subscriptions = []
+        has_more = True
+        starting_after = None
+        
+        while has_more:
+            params = {"limit": 100, "status": "all"}
+            if starting_after:
+                params["starting_after"] = starting_after
+                
+            subs = stripe.Subscription.list(**params)
+            subscriptions.extend(subs.data)
+            
+            has_more = subs.has_more
+            if has_more and subs.data:
+                starting_after = subs.data[-1].id
+        
+        logger.info(f"Found {len(subscriptions)} total subscriptions")
+        
+        # Process each subscription
+        updates_made = []
+        errors = []
+        premium_users = []
+        
+        for sub in subscriptions:
+            clerk_user_id = sub.metadata.get("clerkUserId")
+            if not clerk_user_id:
+                continue
+                
+            try:
+                # Get customer email
+                customer = stripe.Customer.retrieve(sub.customer)
+                customer_email = customer.email or "unknown@email.com"
+                
+                # Determine correct status
+                stripe_status = sub.status
+                should_be_premium = stripe_status == "active"
+                subscription_status = "active" if stripe_status == "active" else (
+                    "past_due" if stripe_status == "past_due" else "canceled"
+                )
+                
+                # Get current Clerk user
+                clerk_user_data = await get_clerk_user(clerk_user_id)
+                if not clerk_user_data:
+                    errors.append(f"Clerk user not found: {clerk_user_id} ({customer_email})")
+                    continue
+                
+                current_metadata = clerk_user_data.get("public_metadata", {})
+                current_is_premium = current_metadata.get("isPremium") == True
+                current_sub_status = current_metadata.get("subscriptionStatus")
+                
+                # Check if update needed
+                if current_is_premium != should_be_premium or current_sub_status != subscription_status:
+                    # Update user metadata
+                    success = await update_clerk_user_metadata(
+                        clerk_user_id,
+                        {
+                            **current_metadata,
+                            "subscriptionStatus": subscription_status,
+                            "isPremium": should_be_premium,
+                            "updatedAt": datetime.utcnow().isoformat(),
+                            "syncedAt": datetime.utcnow().isoformat(),
+                            "stripeCustomerId": sub.customer
+                        }
+                    )
+                    
+                    if success:
+                        updates_made.append({
+                            "email": customer_email,
+                            "user_id": clerk_user_id,
+                            "stripe_status": stripe_status,
+                            "updated_to_premium": should_be_premium,
+                            "previous_premium": current_is_premium
+                        })
+                        logger.info(f"✅ Updated {customer_email} - Premium: {should_be_premium}")
+                    else:
+                        errors.append(f"Failed to update {customer_email} in Clerk")
+                else:
+                    logger.info(f"✅ {customer_email} already in sync")
+                
+                if should_be_premium:
+                    premium_users.append(customer_email)
+                        
+            except Exception as e:
+                error_msg = f"Error processing subscription {sub.id}: {str(e)}"
+                errors.append(error_msg)
+                logger.error(error_msg)
+        
+        logger.info(f"Sync complete - {len(updates_made)} users updated")
+        
+        return {
+            "success": True,
+            "message": f"Synchronization complete",
+            "stats": {
+                "total_subscriptions_checked": len([s for s in subscriptions if s.metadata.get('clerkUserId')]),
+                "updates_made": len(updates_made),
+                "current_premium_users": len(premium_users),
+                "errors_count": len(errors)
+            },
+            "updated_users": updates_made,
+            "premium_users": premium_users,
+            "errors": errors,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+    except stripe.error.StripeError as e:
+        logger.error(f"Stripe error during sync: {e}")
+        raise HTTPException(status_code=500, detail=f"Stripe error: {str(e)}")
+    except Exception as e:
+        logger.error(f"Sync error: {e}")
+        raise HTTPException(status_code=500, detail=f"Synchronization failed: {str(e)}")
+
+
 @router.post("/stripe/customer-portal", response_model=StripeCustomerPortalResponse)
 async def create_customer_portal_session(
     request: StripeCustomerPortalRequest,

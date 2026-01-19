@@ -78,7 +78,9 @@ export default function AdminDashboard() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [feedback, setFeedback] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncLoading, setSyncLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [syncResult, setSyncResult] = useState<any>(null);
 
   const fetchAnalytics = async () => {
     setLoading(true);
@@ -135,6 +137,42 @@ export default function AdminDashboard() {
     }
   }, [isLoaded, isSignedIn]);
 
+  const syncSubscriptions = async () => {
+    setSyncLoading(true);
+    setSyncResult(null);
+    setError(null);
+    
+    try {
+      const token = await session?.getToken();
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/admin/sync-subscriptions`, {
+        method: 'POST',
+        headers
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Sync failed: ${response.status} - ${errorText}`);
+      }
+
+      const result = await response.json();
+      setSyncResult(result);
+      
+      // Refresh analytics to show updated data
+      await fetchAnalytics();
+      
+    } catch (err: any) {
+      setError(err.message || 'Failed to sync subscriptions');
+      console.error('Sync error:', err);
+    } finally {
+      setSyncLoading(false);
+    }
+  };
+
   if (!isLoaded || loading) {
     return (
       <div className="min-h-screen bg-neutral-900 flex items-center justify-center">
@@ -169,13 +207,23 @@ export default function AdminDashboard() {
             </Link>
             <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
           </div>
-          <button
-            onClick={fetchAnalytics}
-            className="flex items-center gap-2 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors"
-          >
-            <ArrowPathIcon className="w-5 h-5" />
-            Refresh
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={syncSubscriptions}
+              disabled={syncLoading}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:opacity-50 rounded-lg transition-colors"
+            >
+              <ArrowPathIcon className={`w-5 h-5 ${syncLoading ? 'animate-spin' : ''}`} />
+              {syncLoading ? 'Syncing...' : 'Sync Subscriptions'}
+            </button>
+            <button
+              onClick={fetchAnalytics}
+              className="flex items-center gap-2 px-4 py-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors"
+            >
+              <ArrowPathIcon className="w-5 h-5" />
+              Refresh
+            </button>
+          </div>
         </div>
 
         {/* Summary Cards */}
@@ -197,6 +245,64 @@ export default function AdminDashboard() {
             <p className="text-4xl font-bold text-blue-400">{analytics.conversionRate}%</p>
           </div>
         </div>
+
+        {/* Sync Results */}
+        {syncResult && (
+          <div className="bg-neutral-800 rounded-xl p-6 mb-8">
+            <h2 className="text-xl font-semibold mb-4">🔄 Subscription Sync Results</h2>
+            <div className="grid md:grid-cols-3 gap-4 mb-4">
+              <div className="bg-neutral-700 rounded-lg p-4">
+                <p className="text-neutral-400 text-sm">Subscriptions Checked</p>
+                <p className="text-2xl font-bold text-white">{syncResult.stats?.total_subscriptions_checked || 0}</p>
+              </div>
+              <div className="bg-neutral-700 rounded-lg p-4">
+                <p className="text-neutral-400 text-sm">Users Updated</p>
+                <p className="text-2xl font-bold text-green-400">{syncResult.stats?.updates_made || 0}</p>
+              </div>
+              <div className="bg-neutral-700 rounded-lg p-4">
+                <p className="text-neutral-400 text-sm">Current Premium</p>
+                <p className="text-2xl font-bold text-blue-400">{syncResult.stats?.current_premium_users || 0}</p>
+              </div>
+            </div>
+            
+            {syncResult.updated_users && syncResult.updated_users.length > 0 && (
+              <div className="mb-4">
+                <h3 className="text-lg font-medium mb-2">✅ Users Updated:</h3>
+                <div className="space-y-2">
+                  {syncResult.updated_users.map((user: any, index: number) => (
+                    <div key={index} className="flex items-center justify-between bg-neutral-700 rounded-lg p-3">
+                      <span className="text-white">{user.email}</span>
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                        user.updated_to_premium 
+                          ? 'bg-green-600 text-green-100' 
+                          : 'bg-red-600 text-red-100'
+                      }`}>
+                        {user.updated_to_premium ? 'Premium ✅' : 'Free ❌'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {syncResult.errors && syncResult.errors.length > 0 && (
+              <div>
+                <h3 className="text-lg font-medium mb-2 text-red-400">❌ Errors:</h3>
+                <div className="space-y-2">
+                  {syncResult.errors.map((error: string, index: number) => (
+                    <div key={index} className="bg-red-900/20 border border-red-500/30 rounded-lg p-3">
+                      <p className="text-red-300 text-sm">{error}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            <div className="text-xs text-neutral-500 mt-4">
+              Last sync: {new Date(syncResult.timestamp).toLocaleString()}
+            </div>
+          </div>
+        )}
 
         {/* Two Column Layout */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
