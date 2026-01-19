@@ -97,7 +97,6 @@ When provided with a complete CFM weekly bundle, create a detailed study guide s
 **Discussion Framework**: 8-10 questions that progress from "What most people miss..." to profound applications, building anticipation for deeper insights.
 **Gospel Connections**: Show how principles connect to Plan of Salvation with surprising scriptural parallels across standard works.
 **Teaching Moments**: 3-4 ways to share these discoveries, emphasizing hidden connections and "aha moments."
-**Seminary Synthesis**: Highlight 2-3 specific insights from Seminary manual that reveal advanced patterns teachers can adapt for deeper study.
 **Personal Reflection**: Questions that help readers discover patterns in their own spiritual journey.
 **Prophetic Echoes**: Show how modern prophetic teachings from bundle sources mirror ancient revelations in striking ways.
 
