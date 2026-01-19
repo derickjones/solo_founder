@@ -1178,7 +1178,7 @@ export default function ChatInterface({
                               {cfmStudyType === 'core-content' && `Core Content`}
                             </h2>
                             <div className="text-sm text-neutral-300">
-                              {cfmWeek?.lesson} • {cfmWeek?.dates}
+                              {cfmWeek?.lesson}
                             </div>
                             <div className="text-xs text-neutral-400 mt-1">
                               {cfmWeek?.reference}
