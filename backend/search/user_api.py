@@ -574,6 +574,116 @@ async def stripe_webhook(request: Request):
         raise HTTPException(status_code=500, detail="Webhook processing failed")
 
 
+@router.post("/admin/sync-user-subscription")
+async def sync_user_subscription(request: dict):
+    """Sync a single user's subscription status automatically (no auth required for auto-sync)"""
+    user_id = request.get("userId")
+    email = request.get("email")
+    
+    if not user_id:
+        raise HTTPException(status_code=400, detail="userId is required")
+    
+    if not stripe_secret_key or not CLERK_SECRET_KEY:
+        logger.warning("Sync skipped - Stripe or Clerk not configured")
+        return {"success": True, "message": "Sync skipped - configuration unavailable", "updated": False}
+    
+    logger.info(f"Auto-syncing subscription for user: {user_id} ({email})")
+    
+    try:
+        # Find user's Stripe subscriptions by searching for their Clerk user ID
+        subscriptions = stripe.Subscription.list(
+            limit=10,  # Most users will only have 1 subscription
+            expand=["data.customer"]
+        )
+        
+        user_subscription = None
+        for sub in subscriptions.data:
+            if sub.metadata.get("clerkUserId") == user_id:
+                user_subscription = sub
+                break
+        
+        # If no subscription found, ensure user is marked as non-premium
+        if not user_subscription:
+            # Get current Clerk user
+            clerk_user_data = await get_clerk_user(user_id)
+            if not clerk_user_data:
+                logger.warning(f"Clerk user not found for auto-sync: {user_id}")
+                return {"success": True, "message": "User not found", "updated": False}
+            
+            current_metadata = clerk_user_data.get("public_metadata", {})
+            current_is_premium = current_metadata.get("isPremium") == True
+            
+            # If currently marked as premium but no subscription, update to non-premium
+            if current_is_premium:
+                success = await update_clerk_user_metadata(
+                    user_id,
+                    {
+                        **current_metadata,
+                        "subscriptionStatus": "none",
+                        "isPremium": False,
+                        "syncedAt": datetime.utcnow().isoformat()
+                    }
+                )
+                
+                if success:
+                    logger.info(f"✅ Auto-sync: Updated {email} to non-premium (no subscription found)")
+                    return {"success": True, "message": "Updated to non-premium", "updated": True}
+                else:
+                    logger.error(f"❌ Auto-sync: Failed to update {email}")
+                    return {"success": False, "message": "Failed to update user", "updated": False}
+            else:
+                logger.info(f"✅ Auto-sync: {email} already correctly set as non-premium")
+                return {"success": True, "message": "Already in sync (non-premium)", "updated": False}
+        
+        # Process the found subscription
+        stripe_status = user_subscription.status
+        should_be_premium = stripe_status == "active"
+        subscription_status = "active" if stripe_status == "active" else (
+            "past_due" if stripe_status == "past_due" else "canceled"
+        )
+        
+        # Get current Clerk user
+        clerk_user_data = await get_clerk_user(user_id)
+        if not clerk_user_data:
+            logger.warning(f"Clerk user not found for auto-sync: {user_id}")
+            return {"success": True, "message": "User not found", "updated": False}
+        
+        current_metadata = clerk_user_data.get("public_metadata", {})
+        current_is_premium = current_metadata.get("isPremium") == True
+        current_sub_status = current_metadata.get("subscriptionStatus")
+        
+        # Check if update needed
+        if current_is_premium != should_be_premium or current_sub_status != subscription_status:
+            # Update user metadata
+            success = await update_clerk_user_metadata(
+                user_id,
+                {
+                    **current_metadata,
+                    "subscriptionStatus": subscription_status,
+                    "isPremium": should_be_premium,
+                    "syncedAt": datetime.utcnow().isoformat(),
+                    "stripeCustomerId": user_subscription.customer.id if hasattr(user_subscription.customer, 'id') else user_subscription.customer
+                }
+            )
+            
+            if success:
+                logger.info(f"✅ Auto-sync: Updated {email} - Premium: {should_be_premium} (was {current_is_premium})")
+                return {"success": True, "message": f"Updated to premium: {should_be_premium}", "updated": True}
+            else:
+                logger.error(f"❌ Auto-sync: Failed to update {email}")
+                return {"success": False, "message": "Failed to update user", "updated": False}
+        else:
+            logger.info(f"✅ Auto-sync: {email} already in sync (premium: {should_be_premium})")
+            return {"success": True, "message": f"Already in sync (premium: {should_be_premium})", "updated": False}
+            
+    except stripe.error.StripeError as e:
+        logger.error(f"Stripe error during auto-sync: {e}")
+        return {"success": False, "message": f"Stripe error: {str(e)}", "updated": False}
+    except Exception as e:
+        logger.error(f"Auto-sync error: {e}")
+        return {"success": False, "message": f"Auto-sync failed: {str(e)}", "updated": False}
+
+
 @router.post("/admin/sync-subscriptions")
 async def sync_all_subscriptions(authorization: str = Header(None)):
     """Systematically sync all Stripe subscriptions with Clerk metadata (Admin only)"""
